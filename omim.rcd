@@ -1,0 +1,25 @@
+DBSERVER = DEV_MGI
+DATABASE = mgd_release
+DBUSER = mgd_dbo
+DBPASSWORD_FILE = /usr/local/mgi/dbutils/mgidbutilities/.mgd_dbo_password
+
+VOCAB_NAME = OMIM
+JNUM = J:72460
+IS_SIMPLE = 1
+IS_PRIVATE = 0
+LOGICALDB_KEY = 15
+
+MGITYPE = 13
+
+RUNTIME_DIR = ./runTimeOMIM/
+TERM_FILE =  ${RUNTIME_DIR}/omim.term
+DATA_FILE = /home/lec/loads/vocload/omim.tab
+DISCREP_FILE = ${RUNTIME_DIR}/omim.discrepancy.html
+
+FULL_MODE_DATA_LOADER = bcp
+TERM_TERM_BCP_FILE = ${RUNTIME_DIR}/Term.bcp
+TERM_TEXT_BCP_FILE = ${RUNTIME_DIR}/TermText.bcp
+TERM_SYNONYM_BCP_FILE = ${RUNTIME_DIR}/TermSynonym.bcp
+ACCESSION_BCP_FILE = ${RUNTIME_DIR}/TermAccession.bcp
+BCP_LOG_FILE = ${RUNTIME_DIR}/bcp.log
+BCP_ERROR_FILE = ${RUNTIME_DIR}/bcp.error
