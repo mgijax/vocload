@@ -201,16 +201,15 @@ class VOCLoad:
 #                    self.vocab_key,
 #                self.log)
         else:
-            result = vocloadlib.sql ('''select max(_Vocab_key)
-                    from VOC_Vocab''')
+            #insert into VOC_Vocab table only if a record does not already exist
+
+            result = vocloadlib.sql ('''select max(_Vocab_key) from VOC_Vocab''')
             self.vocab_key = max (0, result[0]['']) + 1
 
-        #insert into VOC_Vocab table only if a record does not already exist
-	if not self.vocab_key:
             vocloadlib.nl_sqlog (INSERT_VOCAB % (self.vocab_key,
-                self.refs_key, self.isSimple, self.isPrivate,
-                self.logicalDBkey, self.vocab_name),
-                self.log)
+                    self.refs_key, self.isSimple, self.isPrivate,
+                    self.logicalDBkey, self.vocab_name),
+                    self.log)
 
         result = vocloadlib.sql ('select max(_DAG_key) from DAG_DAG')
         dag_key = max (0, result[0]['']) + 1
@@ -299,6 +298,9 @@ if __name__ == '__main__':
 #   vocload.go()
 
 # $Log$
+# Revision 1.13  2003/04/02 18:54:49  lec
+# TR 4564
+#
 # Revision 1.12  2003/03/26 15:42:20  lec
 # don't delete VOC_Vocab
 #
