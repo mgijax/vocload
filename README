@@ -4,7 +4,7 @@ How to Use This Product
 
 Product:  vocload
 
-Vocabularies:
+Current Vocabularies Being Loaded by this Product:
 
 	Structured (DAGs):
 
@@ -14,20 +14,20 @@ Vocabularies:
 
 	Simple (No DAGs):
 
-	IP = InterPro Domains
-	OMIM = Online Mendelian Inheritance in Main
+	IP = InterPro Domains (TR 3702)
+	OMIM = Online Mendelian Inheritance in Man (TR 3853)
 
 All Vocabulary loads require:
 
 1.  An uppercase label for the Vocabulary
 
-2.  A Config file (name = ${label}.config).  Use an
-    existing config file as a template.
+2.  A Config file (name = ${label}.config (GO.config, MA.config, etc.)).  
+    Use an existing config file as a template.  Not all variables
+    will be used by all loads.
 
 3.  All Vocabs use the global Configuration file.
 
-In addition, each specific type of Vocabulary is implemented
-slightly differently:
+In addition, the 2 types of Vocabularies are implemented slightly differently:
 
 Structured (DAGs)
 
@@ -37,7 +37,11 @@ Structured (DAGs)
 	
     	This file contains the DAG definitions.  See GO.rcd.
 
+	2.  A DAG vocabulary which uses the GO format (MA and MP both do),
+	    can use GOload.py.
+
 Simple
+	Cannot perform an incremental load (at this time)
 
 	Example:  IP (InterPro Domains)
 
