@@ -50,6 +50,11 @@ export FAILURE
 MGITYPE=13	# ACC_MGIType._MGIType_key for Vocabulary
 export MGITYPE
 
+ARCHIVE_FILE_NAME="${ARCHIVE_DIR}/vocload.`date +%Y%m%d:%H:%M`.jar"
+FULL_LOG_FILE="${RUNTIME_DIR}/fullLog.txt"
+LOAD_LOG_FILE="${RUNTIME_DIR}/log.txt"
+MAIL_FILE_NAME="${RUNTIME_DIR}/mail.txt"
+
 # BCP log and error files
 BCP_LOG_FILE="${RUNTIME_DIR}/bcpLog.bcp"
 BCP_ERROR_FILE="${RUNTIME_DIR}/bcpError.bcp"
@@ -71,6 +76,10 @@ DAG_DISCREP_FILE="${RUNTIME_DIR}/dagDiscrepancy.html"
 
 FULL_MODE_DATA_LOADER="bcp"
 
+export ARCHIVE_FILE_NAME
+export FULL_LOG_FILE
+export LOAD_LOG_FILE
+export MAIL_FILE_NAME
 export BCP_LOG_FILE
 export BCP_ERROR_FILE
 export DAG_EDGE_BCP_FILE
@@ -85,6 +94,9 @@ export DAG_DISCREP_FILE
 export FULL_MODE_DATA_LOADER
 
 # $Log$
+# Revision 1.5  2003/03/25 17:39:38  lec
+# new Configuration files
+#
 # Revision 1.4  2003/03/25 14:44:14  lec
 # new Configuration files
 #
