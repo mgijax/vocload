@@ -12,13 +12,7 @@ LOGICALDB_KEY = 1
 MGITYPE = 12
 
 RUNTIME_DIR = ./runTime/
-TERM_FILE = ${RUNTIME_DIR}/jsb.tempfile
+TERM_FILE = ${RUNTIME_DIR}/go.ecodes.termfile
 DATA_FILE = /mgi/all/wts_projects/2800/2867/go.ecodes
-DISCREP_FILE = ${RUNTIME_DIR}/discrepancy.html
+DISCREP_FILE = ${RUNTIME_DIR}/go.ecodes.discrepancy.html
 
-# DAGs
-#[
-#	NAME = jsb.dag
-#	ABBREV = jd
-#	FILE = dag.jsb
-#]
