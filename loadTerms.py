@@ -1092,19 +1092,28 @@ class TermLoad:
 
              symbols = ""
 
-             for annotation in annotations: #build list of symbols
+	     #build list of symbols
+
+             for annotation in annotations:
                 symbols = symbols + " " + annotation['symbol']
 
              if definitionDiscrepancy:
-                msg = "Definition change for Term with annotations.  Old Definition: %s, New Definition: %s, Symbols: %s" % ( dbRecord[0]['notes'], record['definition'], symbols ) 
+                msg = "Definition change for Term with annotations.\n" + \
+		    "Old Definition: %s\n" % (dbRecord[0]['notes']) + \
+		    "New Definition: %s\n" % (record['definition']) + \
+		    "Symbols: %s" % (symbols ) 
                 self.writeDiscrepancyFile ( record['accID'], record['term'], msg )  
 	   
              if commentDiscrepancy:
-                msg = "Comment change for Term with annotations.  Old Comment: %s, New Comment: %s, Symbols: %s" % ( dbRecord[0]['comments'], record['comment'], symbols ) 
+                msg = "Comment change for Term with annotations.\n" + \
+		    "Old Comment: %s\n" % (dbRecord[0]['comments']) + \
+		    "New Comment: %s\n" % (record['comment']) + \
+		    "Symbols: %s" % (symbols ) 
                 self.writeDiscrepancyFile ( record['accID'], record['term'], msg )  
 
              if obsoleteTermDiscrepancy:
-                msg = "Term has been obsoleted but has annotations, Symbols: %s" % ( symbols ) 
+                msg = "Term has been obsoleted but has annotations.\n" + \
+		    "Symbols: %s" % ( symbols ) 
                 self.writeDiscrepancyFile ( record['accID'], record['term'], msg )  
 
        return recordChanged
