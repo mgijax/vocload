@@ -8,20 +8,19 @@
 SUCCESS=0
 FAILURE=1
 
-# NEED TO FIGURE THIS OUT!!! CONFIGURATION_FILE=
-# Take out this hard code!!!!
-# to work with configuration file
-# GO_DIR="/usr/local/mgi/go_data/"
-GO_DIR="/tmp/"
+RUNTIME_DIR="./runTime/"
+ARCHIVE_DIR="./archive/"
 
 SYBASE=/opt/sybase
 PYTHONPATH=/usr/local/mgi/lib/python
-PATH=$PATH:.:/usr/bin:$SYBASE/bin
-FULL_LOG_FILE=$GO_DIR"./log.txt"
-TERM_FILE=$GO_DIR"Termfile"
+PATH=$PATH:.:/usr/bin:$SYBASE/bin:/usr/java/bin
+FULL_LOG_FILE=$RUNTIME_DIR"fullLog.txt"
 MAINTAINER="tcw@informatics.jax.org"
+ARCHIVE_FILE_NAME=$ARCHIVE_DIR"vocload.`date +%Y%m%d:%H:%M`.jar"
+GO_DOWNLOADER_LOG_FILE=$RUNTIME_DIR"godownloader.log"
+GO_LOAD_LOG_FILE=$RUNTIME_DIR"log.txt"
 
-export GO_DIR
+export RUNTIME_DIR
 export SYBASE
 export PYTHONPATH
 export PATH
@@ -30,6 +29,7 @@ export PATH
 die()
 {
    echo $1
+   cat $FULL_LOG_FILE | mailx -s "GO Load Catastrophic FAILURE" $MAINTAINER 
    exit $FAILURE
 }
 
@@ -42,15 +42,22 @@ changeToRunDirectory()
    fi
 }
 
+createDir()
+{
+   if [ ! -d $1 ]
+   then
+      echo "...creating data directory $1"
+      mkdir $1
+   fi
+}
+
 writePgmExecutionHeaders()
 {
    echo "Running $1 Program..."
    echo "*****************************************" >> $FULL_LOG_FILE 2>&1
    echo "Running $1 Program..."                     >> $FULL_LOG_FILE 2>&1
    echo "*****************************************" >> $FULL_LOG_FILE 2>&1
-   echo " Program call:"                            >> $FULL_LOG_FILE 2>&1
-   echo $2                                          >> $FULL_LOG_FILE 2>&1
-   echo "*****************************************" >> $FULL_LOG_FILE 2>&1
+   echo "Program call:"                             >> $FULL_LOG_FILE 2>&1
 }
 
 writePgmLogFile()
@@ -61,60 +68,87 @@ writePgmLogFile()
    echo "*****************************************" >> $FULL_LOG_FILE 2>&1
 }
 
+
 JOB_SUCCESSFUL="false"
 
-# Source the applicable configuration file:
 changeToRunDirectory
-# Take out!!! modify to read config file
+createDir $RUNTIME_DIR
+createDir $ARCHIVE_DIR
 echo "Job Started: `date`"
 echo "Job Started: `date`"                          > $FULL_LOG_FILE 2>&1
 echo "Directory is: `pwd`"
+#################################################################################
+# Check Usage and options
+#################################################################################
+USAGE_STRING="Incorrect Usage\nCorrect Usage: $0 [load|noload] [full|incremental] \nExample: $0 load incremental"
+
+if [ $# -ne 2 ] 
+then
+   die "$USAGE_STRING"
+fi
+
+echo "*****************************************" >> $FULL_LOG_FILE 2>&1
+case $1 in
+   load) LOAD_FLAG=""        
+   echo  "DATABASE LOAD STATUS is LOAD" >> $FULL_LOG_FILE 2>&1
+   ;;
+   noload) LOAD_FLAG=-n      
+   echo  "DATABASE LOAD STATUS is NO LOAD" >> $FULL_LOG_FILE 2>&1
+   ;;
+   *) die "$USAGE_STRING"    ;;
+esac
+case $2 in
+   incremental) MODE_FLAG=-i ;;
+   full) MODE_FLAG=-f        ;;
+   *) die "$USAGE_STRING"    ;;
+esac
+echo  "MODE STATUS is $2" >> $FULL_LOG_FILE 2>&1
+echo "*****************************************" >> $FULL_LOG_FILE 2>&1
 
 #############################################################
 # 1. Run godownloader.py program to get latest ontology files
 #############################################################
 GO_DOWNLOADER_PROGRAM=godownloader.py
 GO_DOWNLOADER_PROGRAM_CALL="./godownloader.py"
-GO_DOWNLODER_LOG_FILE="godownloader.log"
+#TAKE OUT!!!
+echo "Replace godownloader call!!!"
+GO_DOWNLOADER_PROGRAM_CALL=""
 
-writePgmExecutionHeaders $GO_DOWNLOADER_PROGRAM, $GO_DOWNLOADER_PROGRAM_CALL
+writePgmExecutionHeaders $GO_DOWNLOADER_PROGRAM
+echo $GO_DOWNLOADER_PROGRAM_CALL                 >> $FULL_LOG_FILE 2>&1
+echo "*****************************************" >> $FULL_LOG_FILE 2>&1
 
-$GO_DOWNLOADER_PROGRAM_CALL
+msg=`$GO_DOWNLOADER_PROGRAM_CALL`
 rc=$?
-writePgmLogFile $GO_DOWNLOADER_PROGRAM, $GO_DOWNLODER_LOG_FILE
+writePgmLogFile $GO_DOWNLOADER_PROGRAM, $GO_DOWNLOADER_LOG_FILE
 case $rc in
      $FAILURE)
-        ERROR_MSG="goownloader.py FAILED!!!! - Check Log File: $FULL_LOG_FILE"
+        ERROR_MSG="godownloader.py FAILED!!!! - Check Log File: $FULL_LOG_FILE"
         echo $ERROR_MSG
-        echo $0:$ERROR_MSG           >> $FULL_LOG_FILE 2>&1
-        #echo "$0:godownloader.py Ouput is: $msg" >> $FULL_LOG_FILE 2>&1
+        echo $0:$ERROR_MSG                >> $FULL_LOG_FILE 2>&1
+        echo "$0:godownloader.py Ouput is: $msg" >> $FULL_LOG_FILE 2>&1
         die "$ERROR_MSG";;
 
      $SUCCESS)
         ERROR_MSG="godownloader.py Was Successful - No Errors Encountered"
         echo $ERROR_MSG
-        echo $0:$ERROR_MSG  >> $FULL_LOG_FILE 2>&1;;
+        echo $0:$ERROR_MSG                >> $FULL_LOG_FILE 2>&1;;
 esac
 
 GO_DOWNLOADER_ERROR_MSG=$ERROR_MSG
+cat $GO_DOWNLOADER_LOG_FILE               >> $FULL_LOG_FILE 2>&1
 
 ######################################################
 # 2. Run go.load program
 ######################################################
 GO_LOAD_PROGRAM=go.load
-GO_LOAD_LOG_FILE="log.txt"
-GO_LOAD_PROGRAM_CALL="go.load -l $GO_LOAD_LOG_FILE -f go.rcd"
-# GO_LOAD_PROGRAM_CALL="./go.load -f -n -l goload.txt go.rcd"
-# This is for Lori only!!!#######################
-if [ -f $TERM_FILE ]
-then
-   echo "copying Termfile to backup"
-   `mv -f $TERM_FILE $TERM_FILE.backup`
-fi
-#################################################
-writePgmExecutionHeaders $GO_LOAD_PROGRAM, $GO_LOAD_PROGRAM_CALL
+GO_LOAD_PROGRAM_CALL="go.load $LOAD_FLAG $MODE_FLAG -l $GO_LOAD_LOG_FILE go.rcd"
 
-$GO_LOAD_PROGRAM_CALL 
+writePgmExecutionHeaders $GO_LOAD_PROGRAM
+echo $GO_LOAD_PROGRAM_CALL                       >> $FULL_LOG_FILE 2>&1
+echo "*****************************************" >> $FULL_LOG_FILE 2>&1
+
+msg=`$GO_LOAD_PROGRAM_CALL 2>&1`
 rc=$?
 
 writePgmLogFile $GO_LOAD_PROGRAM, $GO_LOAD_LOG_FILE
@@ -123,31 +157,57 @@ case $rc in
      $FAILURE)
         ERROR_MSG="go.load FAILED!!!! - Check Log File: $FULL_LOG_FILE"
         echo $ERROR_MSG
-        echo $0:$ERROR_MSG           >> $FULL_LOG_FILE 2>&1
-        #echo "$0:goload.py Ouput is: $msg" >> $FULL_LOG_FILE 2>&1
+        echo $0:$ERROR_MSG                 >> $FULL_LOG_FILE 2>&1
+        echo "$0:goload.py Ouput is: $msg" >> $FULL_LOG_FILE 2>&1
         die "$ERROR_MSG";;
 
      $SUCCESS)
         ERROR_MSG="go.load Was Successful - No Errors Encountered"
         JOB_SUCCESSFUL="true"
         echo $ERROR_MSG
-        echo $0:$ERROR_MSG  >> $FULL_LOG_FILE 2>&1;;
+        echo $0:$ERROR_MSG                 >> $FULL_LOG_FILE 2>&1;;
 esac
-
-# too big!! cat goload.txt                                >> $FULL_LOG_FILE 2>&1
-echo "Copying ./Termfile to $TERM_FILE"
-cp -p ./Termfile $TERM_FILE
-
+cat $GO_LOAD_LOG_FILE                      >> $FULL_LOG_FILE 2>&1
 GO_LOAD_ERROR_MSG=$ERROR_MSG
 
 ######################################################
-# N. Notify Job Completion
+# 3. Finally, archive the files
+######################################################
+JAR_PROGRAM=jar
+JAR_PROGRAM_CALL="jar cvf $ARCHIVE_FILE_NAME $RUNTIME_DIR/*"
+
+writePgmExecutionHeaders $JAR_PROGRAM
+echo $JAR_PROGRAM_CALL                           >> $FULL_LOG_FILE 2>&1
+echo "*****************************************" >> $FULL_LOG_FILE 2>&1
+msg=`$JAR_PROGRAM_CALL  2>&1`
+rc=$?
+case $rc in
+     $FAILURE)
+        ERROR_MSG="JAR Failed!!!! - Check Archive"
+        echo $ERROR_MSG
+        echo $0:$ERROR_MSG                 >> $FULL_LOG_FILE 2>&1
+        echo "$0:JAR Ouput is: $msg"       >> $FULL_LOG_FILE 2>&1;;
+
+     $SUCCESS)
+        ERROR_MSG="JAR Was Successful - No Errors Encountered"
+        echo $ERROR_MSG
+        echo $0:$ERROR_MSG                 >> $FULL_LOG_FILE 2>&1;;
+   
+     *)
+        ERROR_MSG="JAR Had Warnings!!!  Archive"
+        echo $ERROR_MSG
+        echo $0:$ERROR_MSG                 >> $FULL_LOG_FILE 2>&1
+        echo "$0:JAR Ouput is: $msg"       >> $FULL_LOG_FILE 2>&1;;
+
+esac
+JAR_PROGRAM_ERROR_MSG=$ERROR_MSG
+######################################################
+# 4. Notify Job Completion
 ######################################################
 if test $JOB_SUCCESSFUL = "true"
 then
    SUBJECT="GO Load Successful"
 else
-   
    SUBJECT="GO Load Failed"
 fi
 echo $SUBJECT
@@ -157,6 +217,8 @@ echo "**************************************************************************
 echo "GO Downloader Completion Status:   $GO_DOWNLOADER_ERROR_MSG"                  >> $$.txt
 echo "****************************************************************************" >> $$.txt
 echo "GO Load Program Completion Status: $GO_LOAD_ERROR_MSG"                        >> $$.txt
+echo "****************************************************************************" >> $$.txt
+echo "Archive Program Completion Status: $JAR_PROGRAM_ERROR_MSG"                    >> $$.txt
 echo "****************************************************************************" >> $$.txt
 echo ""   >> $$.txt
 echo ""   >> $$.txt
@@ -172,3 +234,5 @@ echo "Job Complete: `date`"                                                     
 cat $$.txt $FULL_LOG_FILE | mailx -s "$SUBJECT" $MAINTAINER 
 
 rm -rf $$.txt
+
+# cleanup

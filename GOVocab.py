@@ -194,6 +194,9 @@ class GOVocab(Vocab.Vocab):
 	if index == -1:
             return
 	goid = GO_re.group(1)
+
+        secondaryGOIDs = self.getSecondaryGOIDs ( line, goid, index )
+
 	name = string.strip( line[level+1 : index])
 
 	# get synonyms
@@ -207,7 +210,54 @@ class GOVocab(Vocab.Vocab):
             start = index + 1
             line = line[start:]
 		
-	return (level, goid, name, edgeType, syns)
+	return (level, goid, name, edgeType, syns, secondaryGOIDs)
+    
+    def getSecondaryGOIDs ( self, inLine, goid, index ):
+        """
+        # Parses line for any secondary goids
+        #      Private
+        #  Requires:
+        #  Effects:
+        #  Modifies:
+        #  Returns:
+        #  Exceptions:
+        """
+        # the number 3 is used below to move pointer past the " ; " 
+        # which precedes the GO ID (e.g., " ; GO:123456")
+        #                                     ^ pointer moved to here
+        searchSectionStart = 3 + index + len ( goid )
+        searchSection = self.findSectionEnd ( inLine[ searchSectionStart : ] )
+
+        # Finally, split the section by the "," to get each ID
+        # start at position 1 rather than 0 to bypass leading ","
+        # (e.g., ", GO:123456)
+        if  len ( searchSection[1:] ) > 0:
+           return string.split ( searchSection[1:], "," )
+        else:
+           return []
+        
+        
+    def findSectionEnd ( self, inLine ):
+       """
+       # find the end of the section to search (denoted by %, ;, <)
+       # Parses line for any secondary goids
+       #      Private
+       #  Requires:
+       #  Effects:
+       #  Modifies:
+       #  Returns:
+       #  Exceptions:
+       """
+       #remove newline character
+       inLine = inLine[:-1]
+       if len ( inLine ) > 0:
+          i = 0
+          while ( i < len ( inLine ) ):
+             if inLine[i] in [ '%', ';', '<' ]:
+                break
+             i = i + 1
+          inLine = inLine[0:i]
+       return inLine
 	
     def parseGOfile(self, ifd):
 	"""
@@ -243,7 +293,7 @@ class GOVocab(Vocab.Vocab):
             if not xxx:
                 line = ifd.readline()
                 continue
-            (level,goid,name,edgeType, syns) = xxx
+            (level,goid,name,edgeType, syns, secondaryGOIDs) = xxx
             ##### added 3/29/01 - don't recreate nodes! #####
 
             if GO.nodeById.has_key(goid):
@@ -251,6 +301,7 @@ class GOVocab(Vocab.Vocab):
             else:
                node = GONode.GONode(goid, name)
                node.addSynonyms(syns)
+               node.setSecondaryGOIDs(secondaryGOIDs)
                GO.addNode(node)
 
             ##### end new block #####

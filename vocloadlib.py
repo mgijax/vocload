@@ -120,6 +120,85 @@ def nl_sqlog (
     return []
 
 
+def beginTransaction (
+    log     # Log.Log object to which to log the 'commands'
+    ):
+    # Purpose: open a Sybase transaction
+    # Returns: nothing
+    # Assumes: an open db connection
+    # Effects: writes to 'log', may send begin transaction to database
+    # Throws: propagates any exceptions raised by db.sql()
+    # Notes: This is the no-load version. It will check the 
+    # no-load flag before opening the transaction.
+
+    log.writeline ( "Beginning Transaction" )
+    beginTransactionString = "begin transaction"
+    log.writeline ( beginTransactionString )
+    if not NO_LOAD:
+        sql (beginTransactionString)
+    return
+
+
+def commitTransaction (
+    log     # Log.Log object to which to log the 'commands'
+    ):
+    # Purpose: commit a Sybase transaction
+    # Returns: nothing
+    # Assumes: an open db connection
+    # Effects: writes to 'log', may send commit to database
+    # Throws: propagates any exceptions raised by db.sql()
+    # Notes: This is the no-load version. It will check the 
+    # no-load flag before committing the transaction.
+
+    commitTransactionString = "commit transaction"
+
+    log.writeline ( "Committing Transaction" )
+    log.writeline ( commitTransactionString )
+    if not NO_LOAD:
+        sql (commitTransactionString)
+    return
+
+
+def rollbackTransaction (
+    log     # Log.Log object to which to log the 'commands'
+    ):
+    # Purpose: rollback a Sybase transaction
+    # Returns: nothing
+    # Assumes: an open db connection
+    # Effects: writes to 'log', may send rollback to database
+    # Throws: propagates any exceptions raised by db.sql()
+    # Notes: This is the no-load version. It will check the 
+    # no-load flag before rolling back the transaction.
+
+    rollbackTransactionString = "rollback transaction"
+
+    log.writeline ( "Rolling Back Transaction" )
+    log.writeline ( rollbackTransactionString )
+    if not NO_LOAD:
+        sql (rollbackTransactionString)
+    return
+
+
+def updateStatistics ( tableName,
+    log     # Log.Log object to which to log the 'commands'
+    ):
+    # Purpose: update statistics for table passed in
+    # Returns: nothing
+    # Assumes: an open db connection
+    # Effects: writes to 'log', and updates statistics on database
+    # Throws: propagates any exceptions raised by db.sql()
+    # Notes: This is the no-load version. It will check the 
+    # no-load flag before updating statistics.
+
+    updateStatisticsString = "update statistics %s" % tableName
+
+    log.writeline ( "Update Statistics for %s" % tableName )
+    log.writeline ( updateStatisticsString )
+    if not NO_LOAD:
+        sql (updateStatisticsString)
+    return
+
+
 def setVocabMGITypeKey (
     key     # integer; _MGIType_key for vocabulary terms
     ):
@@ -161,6 +240,33 @@ def anyTermsCrossReferenced (
             ''' % vocab_key,
             ])
     return results[0][0]['ct'] + results[1][0]['ct'] > 0
+
+def getAnyTermsCrossReferenced (
+    termKey,       # integer; corresponds to VOC_Term._Term_key
+    annotationKey  # integer; corresponds to the VOC_AnnotType._AnnotType_key
+    ):
+    # Purpose: get any annotations to a term
+    # Returns: list of annotations
+    # Assumes: see sql()
+    # Effects: queries the database
+    # Throws: propagates any exceptions raised by sql()
+
+    try:
+       results = sql ( 
+            ''' select m.symbol
+                      ,t.term
+                      ,t._term_key
+                from   VOC_Term t
+                      ,VOC_Annot a
+                      ,MRK_Marker m
+                where  t._Term_key      = %d
+                and    t._Term_key      = a._Term_key
+                and    a._AnnotType_key = %s
+                and    a._Object_key    = m._Marker_key
+            ''' % ( termKey, annotationKey ))
+    except:
+       raise 'xref error', sys.exc_value
+    return results
 
 def timestamp (
     label = 'Current time:'     # string; preface to the timestamp
@@ -449,12 +555,37 @@ def getTermIDs (
 
     if type(vocab) == types.StringType:
         vocab = getVocabKey (vocab)
-    result = sql ('''select acc.accID, vt._Term_key
+    result = sql ('''select acc.accID, vt._Term_key, vt.isObsolete
             from VOC_Term vt, ACC_Accession acc
             where vt._Vocab_key = %d
                 and acc._MGIType_key = %d
                 and vt._Term_key = acc._Object_key
                 and acc.preferred = 1''' % \
+            (vocab, VOCABULARY_TERM_TYPE))
+    ids = {}
+    for row in result:
+        ids[row['accID']] = [row['_Term_key'], row['isObsolete']]
+    return ids
+
+def getSecondaryTermIDs (
+    vocab       # integer vocabulary key or string vocabulary name
+    ):
+    # Purpose: get a dictionary which maps from a secondary accession ID
+    #   to its associated term key
+    # Returns: see Purpose
+    # Assumes: nothing
+    # Effects: queries the database
+    # Throws: propagates any exceptions from sql()
+
+    if type(vocab) == types.StringType:
+        vocab = getVocabKey (vocab)
+
+    result = sql ('''select acc.accID, vt._Term_key
+            from VOC_Term vt, ACC_Accession acc
+            where vt._Vocab_key = %d
+                and acc._MGIType_key = %d
+                and vt._Term_key = acc._Object_key
+                and acc.preferred = 0''' % \
             (vocab, VOCABULARY_TERM_TYPE))
     ids = {}
     for row in result:
@@ -595,22 +726,24 @@ def deleteVocabTerms (
     #   individually here.  Also, we need to check that we are not in
     #   a no-load state before calling the sql() function.
 
-    deletes = [
-        '''delete from VOC_Text where _Term_key in
-        (select _Term_key from VOC_Term where _Vocab_key = %d)''' % \
-            vocab_key,
+    #deletes = [
+        #'''delete from VOC_Text where _Term_key in
+        #(select _Term_key from VOC_Term where _Vocab_key = %d)''' % \
+            #vocab_key,
 
-        '''delete from VOC_Synonym where _Term_key in
-        (select _Term_key from VOC_Term where _Vocab_key = %d)''' % \
-            vocab_key,
+        #'''delete from VOC_Synonym where _Term_key in
+        #(select _Term_key from VOC_Term where _Vocab_key = %d)''' % \
+            #vocab_key,
 
-        'delete from VOC_Term where _Vocab_key = %d' % vocab_key,
-        ]
-    for delete in deletes:
-        if log:
-            nl_sqlog (delete, log)
-        elif not NO_LOAD:
-            sql (delete)
+        #'delete from VOC_Term where _Vocab_key = %d' % vocab_key,
+        #]
+    #for delete in deletes:
+        #if log:
+            #nl_sqlog (delete, log)
+        #elif not NO_LOAD:
+            #sql (delete)
+    sql = 'delete from VOC_Term where _Vocab_key = %d' % vocab_key
+    nl_sqlog ( sql, log)
     return
 
 def deleteDagComponents (
@@ -630,16 +763,19 @@ def deleteDagComponents (
     #   individually here.  We need to be sure to check the no-load
     #   option before calling sql().
 
-    deletes = [
-        'delete from DAG_Edge where _DAG_key = %d' % dag_key,
-        'delete from DAG_Closure where _DAG_key = %d' % dag_key,
-        'delete from DAG_Node where _DAG_key = %d' % dag_key,
-        ]
-    for delete in deletes:
-        if log:
-            nl_sqlog (delete, log)
-        elif not NO_LOAD:
-            sql (delete)
+    #deletes = [
+        #'delete from DAG_Edge where _DAG_key = %d' % dag_key,
+        #'delete from DAG_Closure where _DAG_key = %d' % dag_key,
+        #'delete from DAG_Node where _DAG_key = %d' % dag_key,
+        #]
+    #for delete in deletes:
+        #if log:
+            #nl_sqlog (delete, log)
+        #elif not NO_LOAD:
+            #sql (delete)
+    
+    sql = 'delete from DAG_NODE where _DAG_key = %d' % dag_key
+    nl_sqlog ( sql, log)
     return
 
 def isNoLoad ():
@@ -652,7 +788,7 @@ def isNoLoad ():
 
     return NO_LOAD
 
-def loadBCPFile ( bcpFileName, bcpLogFileName, bcpErrorFileName, tableName ):
+def loadBCPFile ( bcpFileName, bcpLogFileName, bcpErrorFileName, tableName, passwordFile ):
     # Purpose: loads BCP files to the database
     # Returns: ?
     # Assumes: ?
@@ -667,14 +803,20 @@ def loadBCPFile ( bcpFileName, bcpLogFileName, bcpErrorFileName, tableName ):
     #  tableName, bcpFileName, bcpErrorFileName,
     #   db.get_sqlServer(), db.get_sqlUser(), db.get_sqlPassword,
     #   bcpLogFileName )
-    bcpCmd = 'bcp %s..%s in %s -c -t\"^" -e %s -S%s -P%s -U%s -m0' \
-      % (db.get_sqlDatabase(), \
+    #bcpCmd = 'bcp %s..%s in %s -c -t\"^" -e %s -S%s -P%s -U%s -m0' \
+      #% (db.get_sqlDatabase(), \
+      #tableName, bcpFileName, bcpErrorFileName, \
+       #db.get_sqlServer(), db.get_sqlPassword(), db.get_sqlUser()  )
+
+    bcpCmd = 'cat %s | bcp %s..%s in %s -c -t\"^" -e %s -S%s -U%s >> %s' \
+      % (passwordFile, db.get_sqlDatabase(), \
       tableName, bcpFileName, bcpErrorFileName, \
-       db.get_sqlServer(), db.get_sqlPassword(), db.get_sqlUser()  )
+      db.get_sqlServer(), db.get_sqlUser(), bcpLogFileName  )
 
-    print "%s" % bcpCmd
-
-    os.system( bcpCmd )
+    rc = os.system( bcpCmd )
+    if rc:
+       raise 'bcp error', sys.exc_value
+    return
 
 
 def truncateTransactionLog (

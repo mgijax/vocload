@@ -23,6 +23,7 @@ class GONode(Node.Node):
 
         Node.Node.__init__(self, id, label)
         self.definition = ''
+        self.secondaryGOIDs = []
         return
 
     def setDefinition(self, definition):
@@ -39,6 +40,19 @@ class GONode(Node.Node):
 
         self.definition = definition
 
+    def setSecondaryGOIDs(self, secondaryGOIDs):
+        """
+        #  Requires:
+        #    secondaryGOIDs: list
+        #  Effects:
+        #    Sets the GO term's secondaryGOIDs to the given list
+        #  Modifies:
+        #    self.secondaryGOIDs
+        #  Returns:
+        #  Exceptions:
+        """
+        self.secondaryGOIDs = secondaryGOIDs
+
     def getDefinition(self):
         """
         #  Requires:
@@ -51,6 +65,20 @@ class GONode(Node.Node):
         """
 
         return self.definition
+ 
+    def getSecondaryGOIDs(self):
+        """
+        #  Requires:
+        #  Effects:
+        #    Returns the GO term's secondary IDs
+        #  Modifies:
+        #  Returns:
+        #    self.secondarGOIDs: list
+        #  Exceptions:
+        """
+        return self.secondaryGOIDs
+
+#
 
 #
 # Warranty Disclaimer and Copyright Notice

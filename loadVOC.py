@@ -87,7 +87,8 @@ class VOCLoad:
             self.server = config.getConstant('DBSERVER')
             self.database = config.getConstant('DATABASE')
             self.username = config.getConstant('DBUSER')
-            self.passwordFile = open ( config.getConstant('DBPASSWORD_FILE'), 'r' )
+            self.passwordFileName = config.getConstant('DBPASSWORD_FILE')
+            self.passwordFile = open ( self.passwordFileName, 'r' )
             self.password = string.strip ( self.passwordFile.readline() )
 
             vocloadlib.setupSql (self.server, self.database,
@@ -128,19 +129,19 @@ class VOCLoad:
         self.refs_key = result[0]['_Refs_key']
         return
 
-    def go (self):
-        self.goFull()
-        return
+    #def go (self):
+    #    self.goFull()
+    #    return
 
-    def real_go (self):
-        try:
+    def go (self):
+            # TAKE OUT try:
             if self.mode == 'full':
                 self.goFull()
             else:
                 self.goIncremental()
-        except:
-            raise error, sys.exc_value
-        return
+            # TAKE OUT except:
+                # TAKE OUT raise error, sys.exc_value
+            return
 
     def goFull (self):
         self.log.writeline (vocloadlib.timestamp (
@@ -155,8 +156,8 @@ class VOCLoad:
                 vocloadlib.truncateTransactionLog (
                     self.database, self.log)
                 # deleting from DAG_DAG should cascade to other tables
-                # TAKE OUT !!! vocloadlib.deleteDagComponents (
-                    # dag['_DAG_key'], self.log)
+                #vocloadlib.deleteDagComponents (
+                #    dag['_DAG_key'], self.log)
                 vocloadlib.nl_sqlog ( 'delete from DAG_DAG where _DAG_key = %d' % dag['_DAG_key'], self.log )
 
             vocloadlib.truncateTransactionLog (
@@ -195,7 +196,7 @@ class VOCLoad:
 
         vocloadlib.truncateTransactionLog (self.database, self.log)
         termload = loadTerms.TermLoad (self.termfile, self.mode,
-            self.vocab_key, self.log, self.config )
+            self.vocab_key, self.log, self.config, self.passwordFileName )
         termload.go()
 
         # load DAGs
@@ -206,7 +207,7 @@ class VOCLoad:
                     self.database, self.log)
                 dagload = loadDAG.DAGLoad (dag['LOAD_FILE'],
                     self.mode, dag['NAME'], self.log,
-                                        self.config )
+                                        self.config, self.passwordFileName )
                 dagload.go()
 
         self.log.writeline (vocloadlib.timestamp (
@@ -214,9 +215,29 @@ class VOCLoad:
         return
 
     def goIncremental (self):
+        self.log.writeline (vocloadlib.timestamp (
+            'Incremental VOC Load Start:'))
+
         if not self.vocab_key:
             raise error, unknown_vocab % self.vocab_name
-        raise error, 'incremental load not yet implemented'
+
+        termload = loadTerms.TermLoad (self.termfile, self.mode,
+            self.vocab_key, self.log, self.config, self.passwordFileName )
+        termload.go()
+
+        # load DAGs
+        if not self.isSimple:
+            for (key, dag) in self.config.items():
+                vocloadlib.truncateTransactionLog (
+                    self.database, self.log)
+                dagload = loadDAG.DAGLoad (dag['LOAD_FILE'],
+                    self.mode, dag['NAME'], self.log,
+                                        self.config, self.passwordFileName )
+                dagload.go()
+
+        self.log.writeline (vocloadlib.timestamp (
+            'Incremental VOC Load Stop:'))
+
         return
 
 ###--- Main Program ---###

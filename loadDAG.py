@@ -106,7 +106,8 @@ class DAGLoad:
         dag,        # string dag name or integer dag key; the DAG
                 #   to be loaded
         log,     # log.Log object; what to use for logging
-        config
+        config,
+        passwordFile
         ):
         # Purpose: constructor
         # Returns: nothing
@@ -134,6 +135,8 @@ class DAGLoad:
         # open output BCP files
 
         self.config = config
+
+        self.passwordFile = passwordFile
 
         self.dagEdgeBCPFileName    = config.getConstant('DAG_EDGE_BCP_FILE')
         self.dagNodeBCPFileName    = config.getConstant('DAG_NODE_BCP_FILE')
@@ -234,22 +237,15 @@ class DAGLoad:
         bcpLogFile   = self.config.getConstant('BCP_LOG_FILE')
         bcpErrorFile = self.config.getConstant('BCP_ERROR_FILE')
 
-
         if not vocloadlib.NO_LOAD:
            if self.loadEdgeBCP:
-              self.log.writeline (vocloadlib.timestamp ('BCP EDGE Start:'))
-              vocloadlib.loadBCPFile ( self.dagEdgeBCPFileName, bcpLogFile, bcpErrorFile, 'DAG_Edge' )
-              self.log.writeline (vocloadlib.timestamp ('BCP EDGE End:'))
+              vocloadlib.loadBCPFile ( self.dagEdgeBCPFileName, bcpLogFile, bcpErrorFile, 'DAG_Edge', self.passwordFile  )
 
            if self.loadNodeBCP:
-              self.log.writeline (vocloadlib.timestamp ('BCP NODE Start:'))
-              vocloadlib.loadBCPFile ( self.dagNodeBCPFileName, bcpLogFile, bcpErrorFile, 'DAG_Node' )
-              self.log.writeline (vocloadlib.timestamp ('BCP NODE End:'))
+              vocloadlib.loadBCPFile ( self.dagNodeBCPFileName, bcpLogFile, bcpErrorFile, 'DAG_Node', self.passwordFile  )
 
            if self.loadClosureBCP:
-              self.log.writeline (vocloadlib.timestamp ('BCP CLOSURE Start:'))
-              vocloadlib.loadBCPFile ( self.dagClosureBCPFileName, bcpLogFile, bcpErrorFile, 'DAG_Closure' )
-              self.log.writeline (vocloadlib.timestamp ('BCP CLOSURE End:'))
+              vocloadlib.loadBCPFile ( self.dagClosureBCPFileName, bcpLogFile, bcpErrorFile, 'DAG_Closure', self.passwordFile  )
 
 
     def closeBCPFiles ( self ):
@@ -288,7 +284,8 @@ class DAGLoad:
             'Full DAG Load Start:'))
 
         # delete existing information for the structure of this DAG.
-
+        # tcw - commenting this out because it is already called
+        # in loadVOC.py
         count = vocloadlib.countNodes (self.dag_key)
         vocloadlib.deleteDagComponents (self.dag_key, self.log)
         self.log.writeline ('   deleted all (%d) remaining nodes' % \
@@ -346,7 +343,8 @@ class DAGLoad:
                 errors.append ('Unknown child ID %s' % \
                     childID)
             else:
-                child_key = ids[childID]
+                [termKey, isObsolete] = ids[childID]
+                child_key = termKey
 
             # if we have a valid parentID, look up its key.  If we
             # have no parentID, then this child is a root node.
@@ -360,7 +358,8 @@ class DAGLoad:
                 errors.append ('Unknown parent ID %s' % \
                     parentID)
             else:
-                parent_key = ids[parentID]
+                [termKey, isObsolete] = ids[parentID]
+                parent_key = termKey
 
             # if we have a label for this (child) node, then find
             # its label key.  If not, it defaults to "not

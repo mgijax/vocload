@@ -137,8 +137,8 @@ def alias():
 #######
 
 # set output directory from configuration file
-if os.environ.has_key("GO_DIR"):
-    data_dir = os.environ["GO_DIR"]
+if os.environ.has_key("RUNTIME_DIR"):
+    data_dir = os.environ["RUNTIME_DIR"]
 else:
     data_dir = './'
 
@@ -147,7 +147,7 @@ procName = data_dir + 'process.ontology'       # process ontology file name
 compName = data_dir + 'component.ontology'     # component ontology file name
 defsName = data_dir + 'GO.defs'                # definitions file name
 
-logFile = 'godownloader.log'
+logFile = data_dir +'godownloader.log'
 
 errLog = open(logFile, 'w')
 
