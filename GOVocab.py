@@ -1,5 +1,38 @@
 # Name: GOVocab.py
 # Purpose: GO vocabulary class
+#
+# History
+#
+# 08/26/2002 lec
+# 	TR 3809
+#
+#	- modifications to enable the same source to be used for processsing *any* vocabulary
+#	  in "GO" format 
+#
+#	- moved global definitions of regular expressions into GO_Vocab method initializeRegExps().
+#	  (GO_re, syn_re, id_re, def_re)
+#
+#	- the following were removed because they were part of the original GO browser which
+#	  is not used anymore...
+#
+#	- removed regular expression "parent_re" (not used)
+#
+#        # regular expression for parent terms listed on same line in ontology files
+#        parent_re = regex.compile('\( [<%] \)\([^;<%\n]+\)')
+#
+#	- removed these methods because i couldn't find anything that used them:
+#		addParents()
+#		parentSweep()
+#		findMatches()
+#
+#	- removed "files" definitions (not used):
+#
+#          # mapping of ontology names to corresponding data file names
+#          files = {'molecular_function': 'function.ontology.txt',
+#                   'biological_process': 'process.ontology.txt',
+#                   'cellular_component': 'component.ontology.txt'}    
+#
+#
 
 import os, string, regsub, regex
 import DAG, Vocab, GONode
@@ -7,21 +40,10 @@ import DAG, Vocab, GONode
 # Globals
 ##########
 
-# regular expression for GO id in ontology files
-GO_re = regex.compile( ' ; \(GO:[0-9]+\)' )
-
-# regular expression for synonyms in ontology files
-syn_re = regex.compile('synonym:\([^;<%\n]+\)')
-
-# regular expression for parent terms listed on same line in ontology files
-parent_re = regex.compile('\( [<%] \)\([^;<%\n]+\)')
-
-# regular expression for the GO id in definitions file
-id_re = regex.compile( 'goid: \(GO:[0-9]+\)' )
-
-# regular expression for the definition in definitions file
-def_re = regex.compile( 'definition: \(.+\)' )
-
+GO_re = None
+syn_re = None
+id_re = None
+def_re = None
 
 class Stack:
     """
@@ -112,13 +134,35 @@ class GOVocab(Vocab.Vocab):
     #  Object representing the Gene Ontology vocabulary
     """
 
-    # mapping of ontology names to corresponding data file names
-    files = {'molecular_function': 'function.ontology.txt',
-             'biological_process': 'process.ontology.txt',
-             'cellular_component': 'component.ontology.txt'}    
-
     definitions = { }		# cache of definition files loaded so far...
 				#	filename -> result of self.getDefs()
+
+    def initializeRegExps(self, accPrefix):
+	"""
+	#
+	# Requires:
+	#	accPrefix: string, accession id prefix (example:  "GO", "MP"
+	# Effects:
+	#	initializes regular expressions
+	# Modifies:
+	#	GO_re, syn_re, id_re, def_re
+	# Returns:
+	# Exceptions:
+	"""
+
+        global GO_re, syn_re, id_re, def_re
+
+        # regular expression for GO id in ontology files
+        GO_re = regex.compile( ' ; \(%s:[0-9]+\)' % (accPrefix))
+
+        # regular expression for synonyms in ontology files
+        syn_re = regex.compile('synonym:\([^;<%\n]+\)')
+
+        # regular expression for the GO id in definitions file
+        id_re = regex.compile( 'goid: \(%s:[0-9]+\)' % (accPrefix))
+
+        # regular expression for the definition in definitions file
+        def_re = regex.compile( 'definition: \(.+\)' )
 
     def getDefs(self, inFile):
 	"""
@@ -324,116 +368,6 @@ class GOVocab(Vocab.Vocab):
 
 	return GO
 
-    def addParents(self, graph, line, childNode):
-        """
-        #      Private
-        #
-	#  Requires:
-	#    graph: DAG object
-        #    line: string
-        #    childNode: GONode object
-	#  Effects:
-	#    Finds all alternate parents on a line of the GO flat file
-        #    and adds them to the graph
-	#  Modifies:
-	#  Returns:
-	#  Exceptions:
-        """
-
-	parents = []
-	for member in graph.getParentsOf(childNode):
-            node = member[0]
-            parents.append(node.getLabel())
-	
-	index = parent_re.search(line)
-	if index == -1:
-            return
-	edgeType = string.strip(parent_re.group(1))
-	parent = string.strip(parent_re.group(2))
-	if parent not in parents:
-            try:
-                parentNode = graph.nodeByName[parent]
-                graph.addEdge(parentNode, childNode, edgeType)
-            except KeyError:
-                pass
-	start = index + 1
-	self.addParents(graph, line[start:], childNode)
-
-    def parentSweep(self, graph, ifile):
-	"""
-        #      Private
-        #
-	#  Requires:
-	#    graph: DAG object
-        #    ifile: input file handle
-	#  Effects:
-	#    Parses GO flat file to retrieve parents that are only listed
-        #    adjacent the GO terms
-	#  Modifies:
-	#  Returns:
-	#  Exceptions:
-        """
-
-	lines = ifile.readlines()
-	for line in lines:
-            line = string.lstrip(line)
-            if parent_re.search(line) == -1:
-                continue
-            tokens = string.split(line, ';')
-            child = string.strip(tokens[0][1:])
-            try:
-                childNode = graph.nodeByName[child]
-            except KeyError:
-                continue
-            self.addParents(graph, line, childNode)
-
-    def findMatches(self, query):
-	"""
-        #      Private
-        #
-	#  Requires:
-	#    query: string
-	#  Effects:
-	#    Finds terms and/or synonyms that match query string
-	#  Modifies:
-	#  Returns:
-	#    matches: list of nodes
-	#  Exceptions:
-	"""
-
-        tag = regex.compile('\(<[^>]+>\)')
-
-	l_query = string.lower(query)
-        
-        # if query string is a GO id...
-	if regex.search('^GO:', query) != -1:
-            try:
-                node = self.graph.nodeById[query]
-                return [node]
-            except KeyError:
-                return []
-		
-	# find and keep matches to terms and/or synonyms
-	matches = []
-	terms = self.graph.nodeByName.keys()
-	terms.sort()
-	for term in terms:
-            # case insensitive search, get rid of HTML tags in term
-            if string.find(term, '<') != -1:
-                lc_term = string.lower(regsub.gsub(tag, '', term))
-            else:
-                lc_term = string.lower(term)
-            node = self.graph.nodeByName[term]
-            if string.find(lc_term, l_query) == -1:
-                for syn in node.synonyms:
-                    lc_syn = string.lower(syn)
-                    if string.find(lc_syn, l_query) != -1:
-                        matches.append(node)
-                        break
-            else:
-                matches.append(node)
-
-	return matches
 
     def buildVocab (self, defs_file, dag_file):
 	# build this GOVocab using the specified definitions file and dag

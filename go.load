@@ -35,6 +35,7 @@ class GO_Wrapper (loadWrapper.LoadWrapper):
                                 % (dag['ONTOLOGY_FILE'], dag['LOAD_FILE']))
 
                         govocab = GOVocab.GOVocab ()
+			govocab.initializeRegExps (self.config.getConstant('ACC_PREFIX'))
                         govocab.buildVocab (defs_file, dag['ONTOLOGY_FILE'])
 
                         dag_fp = open (dag['LOAD_FILE'], 'w')
@@ -103,7 +104,7 @@ class GO_Wrapper (loadWrapper.LoadWrapper):
                 return
 
         def setID (self):
-                self.name = "GO"
+                self.name = self.config.getConstant('VOCAB_NAME')
                 return
 
 if __name__ == '__main__':
