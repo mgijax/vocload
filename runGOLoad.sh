@@ -14,7 +14,7 @@
 # History:
 #
 #	lec	03/25/2003
-#	- use new Configuration and ConfigGO files
+#	- use new Configuration and GO.config files
 #
 
 
@@ -246,6 +246,9 @@ echo "Job Complete: `date`"                                                     
 #cat $MAIL_FILE_NAME $FULL_LOG_FILE | mailx -s "$SUBJECT" $MAINTAINER 
 
 # $Log$
+# Revision 1.23  2003/03/25 15:48:16  lec
+# new configuration files
+#
 # Revision 1.22  2003/03/25 14:59:30  lec
 # new configuration files/names
 #

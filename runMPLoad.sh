@@ -1,32 +1,45 @@
 #!/bin/sh
 
 #
-# Program: runGOLoad.sh
+# Program: runMPLoad.sh
 #
 # Purpose:
 #
-# Main Wrapper Script for Downloading Ontology files and generating GO Terms and GO DAG
+# Main Wrapper Script for Processing MP Terms and DAGs
 # 
 # Usage:
 #
-#	runGOLoad.sh [load|noload] [full|incremental]
+#	runMPLoad.sh [load|noload] [full|incremental]
 #
 # History:
 #
 #	lec	03/25/2003
-#	- use new Configuration and ConfigGO files
+#	- use new Configuration and MP.config files
 #
 
 
 # change to directory where this file resides
 cd `dirname $0`
 
-. GO.config
+. MP.config
+
+installOntologyFiles()
+{
+  if test ! -f ${RUNTIME_DIR}/${TRONTFILE}
+  then
+      ln -s ${TRDIR}/${TRONTFILE} ${RUNTIME_DIR}
+  fi
+
+  if test ! -f ${RUNTIME_DIR}/${TRDEFSFILE}
+  then
+      ln -s ${TRDIR}/${TRDEFSFILE} ${RUNTIME_DIR}
+  fi
+}
 
 die()
 {
    echo $1
-   cat $FULL_LOG_FILE | mailx -s "GO Load Catastrophic FAILURE" $MAINTAINER 
+   cat $FULL_LOG_FILE | mailx -s "Mammalian Phenotype Load Catastrophic FAILURE" $MAINTAINER 
    exit $FAILURE
 }
 
@@ -65,38 +78,10 @@ writePgmLogFile()
    echo "*****************************************" >> $FULL_LOG_FILE 2>&1
 }
 
-godownload()
-{
-   GO_DOWNLOADER_PROGRAM=GOdownloader.py
-   GO_DOWNLOADER_PROGRAM_CALL="./GOdownloader.py"
-
-   writePgmExecutionHeaders $GO_DOWNLOADER_PROGRAM
-   echo $GO_DOWNLOADER_PROGRAM_CALL                 >> $FULL_LOG_FILE 2>&1
-   echo "*****************************************" >> $FULL_LOG_FILE 2>&1
-
-   msg=`$GO_DOWNLOADER_PROGRAM_CALL`
-   rc=$?
-   writePgmLogFile $GO_DOWNLOADER_PROGRAM, $GO_DOWNLOADER_LOG_FILE
-   case $rc in
-     $FAILURE)
-        ERROR_MSG="GOdownloader.py FAILED!!!! - Check Log File: $FULL_LOG_FILE"
-        echo $ERROR_MSG
-        echo $0:$ERROR_MSG                >> $FULL_LOG_FILE 2>&1
-        echo "$0:GOdownloader.py Ouput is: $msg" >> $FULL_LOG_FILE 2>&1
-        die "$ERROR_MSG";;
-
-     $SUCCESS)
-        ERROR_MSG="GOdownloader.py Was Successful - No Errors Encountered"
-        echo $ERROR_MSG
-        echo $0:$ERROR_MSG                >> $FULL_LOG_FILE 2>&1;;
-   esac
-
-   GO_DOWNLOADER_ERROR_MSG=$ERROR_MSG
-   cat $GO_DOWNLOADER_LOG_FILE               >> $FULL_LOG_FILE 2>&1
-}
-
 JOB_SUCCESSFUL="false"
 
+installOntologyFiles
+exit 0
 changeToRunDirectory
 umask 002
 createDir $RUNTIME_DIR
@@ -132,50 +117,40 @@ esac
 echo  "MODE STATUS is $2" >> $FULL_LOG_FILE 2>&1
 echo "*****************************************" >> $FULL_LOG_FILE 2>&1
 
-#############################################################
-# 1. Run GOdownloader.py program to get latest ontology files
-#############################################################
-#godownload
-
 ######################################################
-# 2. Run GOload.py program
+# 1. Run GOload.py program
 ######################################################
-GO_LOAD_PROGRAM=GOload.py
-GO_LOAD_PROGRAM_CALL="${GO_LOAD_PROGRAM} $LOAD_FLAG $MODE_FLAG -l $GO_LOAD_LOG_FILE ${RCD_FILE}"
+MP_LOAD_PROGRAM=GOload.py
+MP_LOAD_PROGRAM_CALL="${MP_LOAD_PROGRAM} $LOAD_FLAG $MODE_FLAG -l $MP_LOAD_LOG_FILE ${RCD_FILE}"
 
-writePgmExecutionHeaders $GO_LOAD_PROGRAM
-echo $GO_LOAD_PROGRAM_CALL                       >> $FULL_LOG_FILE 2>&1
+writePgmExecutionHeaders $MP_LOAD_PROGRAM
+echo $MP_LOAD_PROGRAM_CALL                       >> $FULL_LOG_FILE 2>&1
 echo "*****************************************" >> $FULL_LOG_FILE 2>&1
 
-msg=`$GO_LOAD_PROGRAM_CALL 2>&1`
+msg=`$MP_LOAD_PROGRAM_CALL 2>&1`
 rc=$?
 
-writePgmLogFile $GO_LOAD_PROGRAM, $GO_LOAD_LOG_FILE
+writePgmLogFile $MP_LOAD_PROGRAM, $MP_LOAD_LOG_FILE
 
 case $rc in
      $FAILURE)
-        ERROR_MSG="${GO_LOAD_PROGRAM} FAILED!!!! - Check Log File: $FULL_LOG_FILE"
+        ERROR_MSG="${MP_LOAD_PROGRAM} FAILED!!!! - Check Log File: $FULL_LOG_FILE"
         echo $ERROR_MSG
         echo $0:$ERROR_MSG                 >> $FULL_LOG_FILE 2>&1
-        echo "$0:${GO_LOAD_PROGRAM} Ouput is: $msg" >> $FULL_LOG_FILE 2>&1
+        echo "$0:${MP_LOAD_PROGRAM} Ouput is: $msg" >> $FULL_LOG_FILE 2>&1
         die "$ERROR_MSG";;
 
      $SUCCESS)
-        ERROR_MSG="${GO_LOAD_PROGRAM} Was Successful - No Errors Encountered"
+        ERROR_MSG="${MP_LOAD_PROGRAM} Was Successful - No Errors Encountered"
         JOB_SUCCESSFUL="true"
         echo $ERROR_MSG
         echo $0:$ERROR_MSG                 >> $FULL_LOG_FILE 2>&1;;
 esac
-cat $GO_LOAD_LOG_FILE                      >> $FULL_LOG_FILE 2>&1
-GO_LOAD_ERROR_MSG=$ERROR_MSG
+cat $MP_LOAD_LOG_FILE                      >> $FULL_LOG_FILE 2>&1
+MP_LOAD_ERROR_MSG=$ERROR_MSG
 
 ######################################################
-# 3. Remove annotations to obsoleted terms
-######################################################
-GOremoveannot.py -S$DBSERVER -D$DATABASE -U$DBUSER -P$DBPASSWORD_FILE
-
-######################################################
-# 4. Finally, archive the files
+# 2. Finally, archive the files
 ######################################################
 # We are using "jar" rather than "tar", because jar compressed
 # the files to 6 times smaller than tar and its syntax is 
@@ -218,17 +193,17 @@ JAR_PROGRAM_ERROR_MSG=$ERROR_MSG
 ######################################################
 if test $JOB_SUCCESSFUL = "true"
 then
-   SUBJECT="GO Load Successful"
+   SUBJECT="Mammalian Phenotype Load Successful"
 else
-   SUBJECT="GO Load Failed"
+   SUBJECT="Mammalian Phenotype Load Failed"
 fi
 echo $SUBJECT
 
 echo "Run Summary:"                                                                  > $MAIL_FILE_NAME
 echo "****************************************************************************" >> $MAIL_FILE_NAME
-echo "GO Downloader Completion Status:   $GO_DOWNLOADER_ERROR_MSG"                  >> $MAIL_FILE_NAME
+echo "Mammalian Phenotype Downloader Completion Status:   $MP_DOWNLOADER_ERROR_MSG" >> $MAIL_FILE_NAME
 echo "****************************************************************************" >> $MAIL_FILE_NAME
-echo "GO Load Program Completion Status: $GO_LOAD_ERROR_MSG"                        >> $MAIL_FILE_NAME
+echo "Mammalian Phenotype Load Program Completion Status: $MP_LOAD_ERROR_MSG"       >> $MAIL_FILE_NAME
 echo "****************************************************************************" >> $MAIL_FILE_NAME
 echo "Archive Program Completion Status: $JAR_PROGRAM_ERROR_MSG"                    >> $MAIL_FILE_NAME
 echo "****************************************************************************" >> $MAIL_FILE_NAME
@@ -246,16 +221,4 @@ echo "Job Complete: `date`"                                                     
 #cat $MAIL_FILE_NAME $FULL_LOG_FILE | mailx -s "$SUBJECT" $MAINTAINER 
 
 # $Log$
-# Revision 1.22  2003/03/25 14:59:30  lec
-# new configuration files/names
-#
-# Revision 1.21  2003/03/25 14:50:20  lec
-# new Configuraiton files
-#
-# Revision 1.20  2003/03/25 14:23:56  lec
-# new Configuration files
-#
-# Revision 1.19  2003/03/25 13:31:04  lec
-# new Configuration files
-#
 
