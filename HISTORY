@@ -1,3 +1,10 @@
+TAG: vocload-6-0-0
+DATE: 01/28/2004
+STAFF: lec
+RELEASE: A
+CHANGES:
+1) JSAM branch merge
+
 TAG: vocload-5-0-3
 TAG: vocload-5-0-2
 DATE: 01/28/2004
@@ -27,6 +34,13 @@ STAFF: lec
 RELEASE: A
 CHANGES:
 1) MGI 2.96
+
+TAG: vocload-jsam-1-0-0
+DATE: 01/28/2004
+STAFF: lec
+RELEASE: A
+CHANGES:
+1) JSAM tag
 
 TAG: vocload-jsam_BP
 DATE: 05/20/2003
