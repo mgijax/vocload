@@ -16,19 +16,21 @@ FAILURE=1
 RUNTIME_DIR="./runTime/"
 ARCHIVE_DIR="./archive/"
 
-SYBASE=/opt/sybase
+SYBASE=/opt/sybase/12.5
 PYTHONPATH=/usr/local/mgi/lib/python
-PATH=$PATH:.:/usr/bin:$SYBASE/bin:/usr/java/bin
+PATH=$PATH:.:/usr/bin:$SYBASE/ASE-12_5/bin:$SYBASE/OCS-12_5/bin:/usr/java/bin
 FULL_LOG_FILE=$RUNTIME_DIR"fullLog.txt"
 MAINTAINER="lec@informatics.jax.org"
 ARCHIVE_FILE_NAME=$ARCHIVE_DIR"vocload.`date +%Y%m%d:%H:%M`.jar"
 GO_DOWNLOADER_LOG_FILE=$RUNTIME_DIR"godownloader.log"
 GO_LOAD_LOG_FILE=$RUNTIME_DIR"log.txt"
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$SYBASE/OCS-12_5/lib
 
 export RUNTIME_DIR
 export SYBASE
 export PYTHONPATH
 export PATH
+export LD_LIBRARY_PATH
 
 
 die()

@@ -30,6 +30,7 @@ export RUNTIME_DIR
 export SYBASE
 export PYTHONPATH
 export PATH
+export LD_LIBRARY_PATH
 
 
 die()
