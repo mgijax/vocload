@@ -1,13 +1,18 @@
 #!/bin/sh
 
 #
-# Script for Downloading Ontology files and generating GO Terms and GO DAG
+# Main Wrapper Script for Downloading Ontology files and generating GO Terms and GO DAG
 #
 
 # Define return codes
 SUCCESS=0
 FAILURE=1
 
+# These environment variables should really be placed inside the go.rcd; however,
+# since the go.rcd is python-based they are temporarily placed here.  To address
+# this problem in the future, we should write a python program which reads
+# and exports all environment variables in an .rcd file, placing the call inside
+# to the program inside the shell script. For now, the variables are placed here.
 RUNTIME_DIR="./runTime/"
 ARCHIVE_DIR="./archive/"
 
@@ -110,9 +115,6 @@ echo "*****************************************" >> $FULL_LOG_FILE 2>&1
 #############################################################
 GO_DOWNLOADER_PROGRAM=godownloader.py
 GO_DOWNLOADER_PROGRAM_CALL="./godownloader.py"
-#TAKE OUT!!!
-# echo "Replace godownloader call!!!"
-# GO_DOWNLOADER_PROGRAM_CALL=""
 
 writePgmExecutionHeaders $GO_DOWNLOADER_PROGRAM
 echo $GO_DOWNLOADER_PROGRAM_CALL                 >> $FULL_LOG_FILE 2>&1
@@ -173,6 +175,14 @@ GO_LOAD_ERROR_MSG=$ERROR_MSG
 ######################################################
 # 3. Finally, archive the files
 ######################################################
+# We are using "jar" rather than "tar", because jar compressed
+# the files to 6 times smaller than tar and its syntax is 
+# identical to tar
+# We are archiving everything at this point since this is the
+# first release of the software and, for that reason it might
+# be helpful to archive everything in case of problems; however,
+# we might want to be more selective in the future.  We will
+# also need an archival clean-up routine in the future as well
 JAR_PROGRAM=jar
 JAR_PROGRAM_CALL="jar cvf $ARCHIVE_FILE_NAME $RUNTIME_DIR/*"
 
@@ -234,5 +244,3 @@ echo "Job Complete: `date`"                                                     
 cat $$.txt $FULL_LOG_FILE | mailx -s "$SUBJECT" $MAINTAINER 
 
 rm -rf $$.txt
-
-# cleanup
