@@ -101,8 +101,6 @@ DELETE_ALL_SYNONYMS ='''delete from VOC_Synonym where _Term_key = %d'''
 
 UPDATE_TERM = '''update VOC_Term set term = '%s', isObsolete = %d where _Term_key = %d '''
 
-UPDATE_SYNONYM = '''update VOC_Synonym set synonym = '%s' where _Term_key = %d'''
-
 MERGE_TERMS = '''exec VOC_mergeTerms %d, %d'''
 ########################################################################
 ########################################################################
@@ -912,7 +910,7 @@ class TermLoad:
        # Now write report discrepancy record(s) if necessary######################
        ###########################################################################
        if ( definitionDescrepancy or obsoleteTermDiscrepancy ):
-          annotations = vocloadlib.getAnyTermsCrossReferenced ( termKey, self.ANNOT_TYPE_KEY )
+          annotations = vocloadlib.getAnyTermMarkerCrossReferences ( termKey, self.ANNOT_TYPE_KEY )
           # only write record if annotations exist
           if len ( annotations ) >= 1:
              symbols = ""

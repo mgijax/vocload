@@ -94,6 +94,7 @@ class VOCLoad:
 
             vocloadlib.setupSql (self.server, self.database,
                 self.username, self.password)
+            # confirm the sql setup worked by doing simple query
             vocloadlib.sql ('select count(1) from VOC_Vocab')
         except:
             raise error, 'failed SQL initialization: %s' % \
