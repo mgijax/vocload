@@ -76,6 +76,9 @@ class GO_Wrapper (loadWrapper.LoadWrapper):
                                     if parent and obsolete.has_key(parent):
                                         status = 'obsolete'
                                         obsolete[childID] = 1
+				    elif string.find(child.getLabel(), 'obsolete') >= 0:
+                                        status = 'obsolete'
+                                        obsolete[childID] = 1
                                     elif child.getLabel() == 'obsolete':
                                         status = 'obsolete'
                                         obsolete[childID] = 1
