@@ -23,7 +23,6 @@ PATH=$PATH:.:/usr/bin:$SYBASE/OCS-12_5/bin:$SYBASE/ASE-12_5/bin:/usr/java/bin
 FULL_LOG_FILE=$RUNTIME_DIR"fullLog.txt"
 MAINTAINER="lec@informatics.jax.org"
 ARCHIVE_FILE_NAME=$ARCHIVE_DIR"vocload.`date +%Y%m%d:%H:%M`.jar"
-MOUSEADULT_DOWNLOADER_LOG_FILE=$RUNTIME_DIR"mouseadultdownloader.log"
 MOUSEADULT_LOAD_LOG_FILE=$RUNTIME_DIR"log.txt"
 LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$SYBASE/OCS-12_5/lib
 
@@ -114,36 +113,6 @@ esac
 echo  "MODE STATUS is $2" >> $FULL_LOG_FILE 2>&1
 echo "*****************************************" >> $FULL_LOG_FILE 2>&1
 
-#############################################################
-# 1. Run mouseadultdownloader.py program to get latest ontology files
-#############################################################
-#MOUSEADULT_DOWNLOADER_PROGRAM=mouseadultdownloader.py
-#MOUSEADULT_DOWNLOADER_PROGRAM_CALL="./mouseadultdownloader.py"
-
-#writePgmExecutionHeaders $MOUSEADULT_DOWNLOADER_PROGRAM
-#echo $MOUSEADULT_DOWNLOADER_PROGRAM_CALL                 >> $FULL_LOG_FILE 2>&1
-#echo "*****************************************" >> $FULL_LOG_FILE 2>&1
-
-#msg=`$MOUSEADULT_DOWNLOADER_PROGRAM_CALL`
-#rc=$?
-#writePgmLogFile $MOUSEADULT_DOWNLOADER_PROGRAM, $MOUSEADULT_DOWNLOADER_LOG_FILE
-#case $rc in
-#     $FAILURE)
-#        ERROR_MSG="mouseadultdownloader.py FAILED!!!! - Check Log File: $FULL_LOG_FILE"
-#        echo $ERROR_MSG
-#        echo $0:$ERROR_MSG                >> $FULL_LOG_FILE 2>&1
-#        echo "$0:mouseadultdownloader.py Ouput is: $msg" >> $FULL_LOG_FILE 2>&1
-#        die "$ERROR_MSG";;
-#
-#     $SUCCESS)
-#        ERROR_MSG="mouseadultdownloader.py Was Successful - No Errors Encountered"
-#        echo $ERROR_MSG
-#        echo $0:$ERROR_MSG                >> $FULL_LOG_FILE 2>&1;;
-#esac
-
-#MOUSEADULT_DOWNLOADER_ERROR_MSG=$ERROR_MSG
-#cat $MOUSEADULT_DOWNLOADER_LOG_FILE               >> $FULL_LOG_FILE 2>&1
-
 ######################################################
 # 2. Run go.load program
 ######################################################
@@ -227,8 +196,6 @@ fi
 echo $SUBJECT
 
 echo "Run Summary:"                                                                  > $$.txt
-echo "****************************************************************************" >> $$.txt
-echo "MOUSEADULT Downloader Completion Status:   $MOUSEADULT_DOWNLOADER_ERROR_MSG"                  >> $$.txt
 echo "****************************************************************************" >> $$.txt
 echo "MOUSEADULT Load Program Completion Status: $MOUSEADULT_LOAD_ERROR_MSG"                        >> $$.txt
 echo "****************************************************************************" >> $$.txt

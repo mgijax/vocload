@@ -10,7 +10,7 @@ DBPASSWORD_FILE = /usr/local/mgi/dbutils/mgidbutilities/.mgd_dbo_password
 # vocabulary attributes:
 
 VOCAB_NAME = Adult Mouse Anatomy
-JNUM = J:72460
+JNUM = J:81861
 IS_SIMPLE = 0
 IS_PRIVATE = 0
 LOGICALDB_KEY = 42
@@ -24,7 +24,7 @@ MGITYPE = 13
 RUNTIME_DIR = ./runTimeMouseAdult/
 
 TERM_FILE = ${RUNTIME_DIR}/Termfile
-DEFS_FILE = ${RUNTIME_DIR}/MA.defs
+DEFS_FILE = ${RUNTIME_DIR}/Anat.defs
 
 #BCP log and error files
 BCP_LOG_FILE = ${RUNTIME_DIR}/bcpLog.bcp
@@ -52,6 +52,6 @@ FULL_MODE_DATA_LOADER = bcp
 [
         NAME = Adult Mouse Anatomy
         ABBREV = MA
-        ONTOLOGY_FILE = ${RUNTIME_DIR}/adult_mouse_anatomy.txt
+        ONTOLOGY_FILE = ${RUNTIME_DIR}/adult_mouse_anatomy
         LOAD_FILE = ${RUNTIME_DIR}/dag.ma
 ]
