@@ -33,7 +33,7 @@ unknown_dag_key = 'unknown DAG key "%s"'
 unknown_vocab = 'unknown vocabulary name "%s"'
 unknown_vocab_key = 'unknown vocabulary key "%s"'
 
-bad_line = 'Incorrect Line Format for Line Number %d'
+bad_line = '%s:Incorrect Line Format for Line Number %d\n%s'
 
 ###--- Globals ---###
 
@@ -677,7 +677,7 @@ def readTabFile (
         fields = regsub.split (line[:-1], '\t')
 
         if len(fields) != num_fields:
-            raise error, bad_line % lineNbr
+            raise error, bad_line % (filename, lineNbr, line)
 
         # map each tab-delimited field to its corresponding fieldname
         i = 0
