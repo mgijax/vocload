@@ -1,5 +1,5 @@
-DBSERVER = MGD_DEV
-DATABASE = mgd_release
+DBSERVER = PROD_MGI
+DATABASE = mgd
 DBUSER = mgd_dbo
 DBPASSWORD_FILE = /usr/local/mgi/dbutils/mgidbutilities/.mgd_dbo_password
 
@@ -9,7 +9,7 @@ IS_SIMPLE = 1
 IS_PRIVATE = 0
 LOGICALDB_KEY = 1
 
-MGITYPE = 12
+MGITYPE = 13
 
 RUNTIME_DIR = ./runTime/
 TERM_FILE = ${RUNTIME_DIR}/go.ecodes.termfile

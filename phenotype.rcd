@@ -2,8 +2,8 @@
 
 # database access:
 
-DBSERVER = DEV_MGI
-DATABASE = mgd_release
+DBSERVER = PROD_MGI
+DATABASE = mgd
 DBUSER = mgd_dbo
 DBPASSWORD_FILE = /usr/local/mgi/dbutils/mgidbutilities/.mgd_dbo_password
 
