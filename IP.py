@@ -35,6 +35,7 @@
 import sys
 import os
 import string
+import regsub
 
 #globals
 
@@ -49,8 +50,7 @@ outFile = open(outFileName, 'w')
 		
 for line in inFile.readlines():
 
-	tokens = string.split(line[:-1], ' ')
-	accID = tokens[0]
-	term = tokens[1]
+	accID = line[:10]
+	term = line[10:-1]
 	outFile.write(term + DELIM + accID + DELIM + DELIM + CRT)
 
