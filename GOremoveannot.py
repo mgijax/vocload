@@ -100,10 +100,14 @@ def exit(
     try:
         diagFile.write('\n\nEnd Date/Time: %s\n' % (mgi_utils.date()))
         diagFile.close()
+    except:
+        pass
+
+    try:
         reportlib.trailer(reportFile)
         reportlib.finish_nonps(reportFile)
     except:
-        pass
+	pass
 
     db.useOneConnection(0)
     sys.exit(status)
@@ -161,7 +165,7 @@ def init():
  
     head, tail = os.path.split(sys.argv[0])
     diagFileName = os.environ['RUNTIME_DIR'] + '/' + tail + '.diagnostics'
-    reportFileName = os.environ['RUNTIME_DIR'] + '/' + tail + '.rpt'
+    reportFileName = tail + '.rpt'
 
     try:
         diagFile = open(diagFileName, 'w')
@@ -169,7 +173,7 @@ def init():
         exit(1, 'Could not open file %s\n' % diagFileName)
 		
     try:
-	reportFile = reportlib.init(reportFileName, 'Deleted:  Marker Annotations To Obsolete Terms')
+	reportFile = reportlib.init(reportFileName, 'Deleted:  Marker Annotations To Obsolete Terms', outputdir = os.environ['RUNTIME_DIR'])
     except:
         exit(1, 'Could not open file %s\n' % reportFileName)
 		
@@ -245,6 +249,9 @@ process()
 exit(0)
 
 # $Log$
+# Revision 1.2  2003/03/25 15:02:46  lec
+# new configuration files/names
+#
 # Revision 1.1  2003/03/25 14:58:36  lec
 # renamed from goremoveannot.py
 #
