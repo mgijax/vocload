@@ -4,7 +4,7 @@
 #
 # Purpose:
 #
-#	Translate OMIM file (mim_title) into tab-delimited format for VOC load
+#	Translate OMIM file (mim_title) into tab-delimited format for simpleLoad.py
 #
 # Assumes:
 #
@@ -12,21 +12,22 @@
 #
 # Input:
 #
-#	mim_title
-#	(ftp.ncbi.nih.gov/repository/OMIM/mim_title)
+#	/data/downloads/ftp.ncbi...
 #
 # Output:
 #
-#	omim.in
+#	OMIM.tab; a tab-delimited file of:
 #
-#	mim id
-#	term
+#	OMIM term
+#	OMIM ID
+#	Abbreviation
+#	Definition
 #
 # Processing:
 #
 # History:
 #
-# lec	02/04/2003
+# lec	03/25/2003
 #	- created
 #
 '''
@@ -34,22 +35,23 @@
 import sys
 import os
 import string
+import regsub
 
 #globals
 
 DELIM = '\t'
 CRT = '\n'
 
-omimFileName = 'mim_title'
-outFileName= 'omim.tab'
+inFileName = os.environ['OMIM_FILE']
+outFileName = os.environ['DATA_FILE']
 
-omimFile = open(omimFileName, 'r')
+inFile = open(inFileName, 'r')
 outFile = open(outFileName, 'w')
 		
-for line in omimFile.readlines():
+for line in inFile.readlines():
 
 	tokens = string.split(line[:-1], ' : ')
 	mim = tokens[0][1:]
 	term = tokens[1]
-	outFile.write(mim + DELIM + term + CRT)
+	outFile.write(term + DELIM + mim + DELIM + DELIM + CRT)
 
