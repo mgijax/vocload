@@ -19,6 +19,11 @@
 #
 #   The Installation Directory (INSTALL_DIR) variable is defined.
 #
+# History:
+#
+#	03/25/2003	lec
+#	- new Configuration file
+#
 
 RUNTIME_DIR="${INSTALL_DIR}/runTimeGO/"
 ARCHIVE_DIR="${INSTALL_DIR}/archiveGO/"
@@ -40,3 +45,4 @@ export ARCHIVE_FILE_NAME
 export GO_DOWNLOADER_LOG_FILE
 export GO_LOAD_LOG_FILE
 
+# $Log$
