@@ -109,6 +109,12 @@ INSERT_TERM = '''insert VOC_Term (_Term_key, _Vocab_key, term,
         "%s", %s, %d)'''
 BCP_INSERT_TERM = '''%d|%d|%s|%s|%s|%d||\n'''
 
+INSERT_TERM_JSAM = '''insert VOC_Term (_Term_key, _Vocab_key, term,
+        abbreviation, sequenceNum, isObsolete, _CreatedBy_key, _ModifiedBy_key)
+    values (%d, %d, "%s",
+        "%s", %s, %d, %d, %s)'''
+BCP_INSERT_TERM_JSAM = '''%d|%d|%s|%s|%s|%d|%s|%s||\n'''
+
 INSERT_TEXT = '''insert VOC_Text (_Term_key, sequenceNum, note)
     values (%d, %d, "%s")'''
 BCP_INSERT_TEXT = '''%d|%d|%s||\n'''
@@ -197,6 +203,11 @@ class TermLoad:
 
         self.primaryAccIDFileList = {}
         self.secondaryAccIDFileList = Set.Set()
+
+	try:
+	    self.createdBy = os.environ['CREATED_BY']
+        except:
+	    self.createdBy = ''
 
         # find vocab key and name (propagate vocloadlib.error if
         # invalid)
@@ -308,7 +319,7 @@ class TermLoad:
             self.log.writeline ( msg )
             raise msg
         # always update accession statistics after the load has run
-        vocloadlib.updateStatistics ( "ACC_Accession", self.log )
+#        vocloadlib.updateStatistics ( "ACC_Accession", self.log )
         return
 
     def openBCPFiles ( self ):
@@ -526,24 +537,53 @@ class TermLoad:
         # add record to VOC_Term:
         if self.isBCPLoad:
            self.loadTermBCP = 1
-           self.termTermBCPFile.write (BCP_INSERT_TERM % \
-                                      (self.max_term_key,
-                                      self.vocab_key,
-                                      record['term'],
-                                      record['abbreviation'],
-                                      vocloadlib.setNull ( termSeqNum ),
-                                      self.getIsObsolete( record['status'] ) ) )
+
+	   if len(self.createdBy) == 0:
+               self.termTermBCPFile.write (BCP_INSERT_TERM % \
+                                          (self.max_term_key,
+                                          self.vocab_key,
+                                          record['term'],
+                                          record['abbreviation'],
+                                          vocloadlib.setNull ( termSeqNum ),
+                                          self.getIsObsolete( record['status'] ) ) )
+	   else:
+               self.termTermBCPFile.write (BCP_INSERT_TERM_JSAM % \
+                                          (self.max_term_key,
+                                          self.vocab_key,
+                                          record['term'],
+                                          record['abbreviation'],
+                                          vocloadlib.setNull ( termSeqNum ),
+                                          self.getIsObsolete( record['status'] ),
+					  self.createdBy,
+					  self.createdBy) )
+
         else: # asserts self.isIncrementalLoad() or full load with on-line sql:
-           vocloadlib.nl_sqlog (INSERT_TERM % \
-                       (self.max_term_key,
-                       self.vocab_key,
-                       vocloadlib.escapeDoubleQuotes (
-                       record['term']),
-                       vocloadlib.escapeDoubleQuotes (
-                       record['abbreviation']),
-                       termSeqNum,
-                       self.getIsObsolete( record['status'] ) ),
-                       self.log)
+
+	   if len(self.createdBy) == 0:
+               vocloadlib.nl_sqlog (INSERT_TERM % \
+                           (self.max_term_key,
+                           self.vocab_key,
+                           vocloadlib.escapeDoubleQuotes (
+                           record['term']),
+                           vocloadlib.escapeDoubleQuotes (
+                           record['abbreviation']),
+                           termSeqNum,
+                           self.getIsObsolete( record['status'] ) ),
+                           self.log)
+
+	   else:
+               vocloadlib.nl_sqlog (INSERT_TERM_JSAM % \
+                           (self.max_term_key,
+                           self.vocab_key,
+                           vocloadlib.escapeDoubleQuotes (
+                           record['term']),
+                           vocloadlib.escapeDoubleQuotes (
+                           record['abbreviation']),
+                           termSeqNum,
+                           self.getIsObsolete( record['status'] ),
+			   self.createdBy,
+			   self.createdBy),
+                           self.log)
 
         # add records as needed to VOC_Text:
         self.generateDefinitionSQL ( record['definition'], self.max_term_key )
