@@ -21,6 +21,7 @@ PYTHONPATH=/usr/local/mgi/lib/python
 PATH=$PATH:.:/usr/bin:$SYBASE/ASE-12_5/bin:$SYBASE/OCS-12_5/bin:/usr/java/bin
 FULL_LOG_FILE=$RUNTIME_DIR"fullLog.txt"
 MAINTAINER="lec@informatics.jax.org"
+MAIL_FILE_NAME=$RUNTIME_DIR"mail.txt"
 ARCHIVE_FILE_NAME=$ARCHIVE_DIR"vocload.`date +%Y%m%d:%H:%M`.jar"
 LOAD_LOG_FILE=$RUNTIME_DIR"log.txt"
 LOAD_DATA_FILE="omim.tab"
@@ -193,23 +194,22 @@ else
 fi
 echo $SUBJECT
 
-echo "Run Summary:"                                                                  > $$.txt
-echo "****************************************************************************" >> $$.txt
-echo "OMIM Load Program Completion Status: $LOAD_ERROR_MSG"                         >> $$.txt
-echo "****************************************************************************" >> $$.txt
-echo "Archive Program Completion Status: $JAR_PROGRAM_ERROR_MSG"                    >> $$.txt
-echo "****************************************************************************" >> $$.txt
-echo ""   >> $$.txt
-echo ""   >> $$.txt
-echo ""   >> $$.txt
-echo "Full Log File is as follows:"                                                 >> $$.txt
-echo "************************************************************************"     >> $$.txt
-echo "************************************************************************"     >> $$.txt
+echo "Run Summary:"                                                                  > $MAIL_FILE_NAME
+echo "****************************************************************************" >> $MAIL_FILE_NAME
+echo "OMIM Load Program Completion Status: $LOAD_ERROR_MSG"                         >> $MAIL_FILE_NAME
+echo "****************************************************************************" >> $MAIL_FILE_NAME
+echo "Archive Program Completion Status: $JAR_PROGRAM_ERROR_MSG"                    >> $MAIL_FILE_NAME
+echo "****************************************************************************" >> $MAIL_FILE_NAME
+echo ""   >> $MAIL_FILE_NAME
+echo ""   >> $MAIL_FILE_NAME
+echo ""   >> $MAIL_FILE_NAME
+echo "Full Log File is as follows:"                                                 >> $MAIL_FILE_NAME
+echo "************************************************************************"     >> $MAIL_FILE_NAME
+echo "************************************************************************"     >> $MAIL_FILE_NAME
 
 
 echo "Job Complete: `date`"
 echo "Job Complete: `date`"                                                         >> $FULL_LOG_FILE 2>&1
 
-cat $$.txt $FULL_LOG_FILE | mailx -s "$SUBJECT" $MAINTAINER 
+cat $MAIL_FILE_NAME $FULL_LOG_FILE | mailx -s "$SUBJECT" $MAINTAINER 
 
-rm -rf $$.txt
