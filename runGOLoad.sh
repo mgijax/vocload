@@ -13,6 +13,7 @@ FAILURE=1
 # this problem in the future, we should write a python program which reads
 # and exports all environment variables in an .rcd file, placing the call
 # to the program inside the shell script. For now, the variables are placed here.
+
 RUNTIME_DIR="./runTimeGO/"
 ARCHIVE_DIR="./archiveGO/"
 
@@ -26,12 +27,20 @@ GO_DOWNLOADER_LOG_FILE=$RUNTIME_DIR"godownloader.log"
 GO_LOAD_LOG_FILE=$RUNTIME_DIR"log.txt"
 LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$SYBASE/OCS-12_5/lib
 
+DBSERVER=PROD_MGI
+DATABASE=mgd
+DBUSER=mgd_dbo
+DBPASSWORD_FILE=/usr/local/mgi/dbutils/mgidbutilities/.mgd_dbo_password
+
 export RUNTIME_DIR
 export SYBASE
 export PYTHONPATH
 export PATH
 export LD_LIBRARY_PATH
-
+export DBSERVER
+export DATABASE
+export DBUSER
+export DBPASSWORD_FILE
 
 die()
 {
@@ -180,7 +189,12 @@ cat $GO_LOAD_LOG_FILE                      >> $FULL_LOG_FILE 2>&1
 GO_LOAD_ERROR_MSG=$ERROR_MSG
 
 ######################################################
-# 3. Finally, archive the files
+# 3. Remove annotations to obsoleted terms
+######################################################
+goremoveannot.py -SDBSERVER -DDATABASE -UDBUSER -PDBPASSWORD_FILE
+
+######################################################
+# 4. Finally, archive the files
 ######################################################
 # We are using "jar" rather than "tar", because jar compressed
 # the files to 6 times smaller than tar and its syntax is 
