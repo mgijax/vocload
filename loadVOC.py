@@ -183,12 +183,10 @@ class VOCLoad:
                         where _Vocab_key = %d''' % \
                         self.vocab_key)
             for dag in dags:
-                vocloadlib.truncateTransactionLog (
-                    self.database, self.log)
+#                vocloadlib.truncateTransactionLog (self.database, self.log)
                 vocloadlib.nl_sqlog ( 'delete from DAG_DAG where _DAG_key = %d' % dag['_DAG_key'], self.log )
 
-            vocloadlib.truncateTransactionLog (
-                self.database, self.log)
+#            vocloadlib.truncateTransactionLog (self.database, self.log)
             vocloadlib.deleteVocabTerms (self.vocab_key, self.log)
 
 	    # don't delete the master VOC_Vocab record; a simple vocab may be used 
@@ -229,7 +227,7 @@ class VOCLoad:
             dag['KEY'] = dag_key
             dag_key = dag_key + 1
 
-        vocloadlib.truncateTransactionLog (self.database, self.log)
+#        vocloadlib.truncateTransactionLog (self.database, self.log)
         
         # Now load the terms
         termload = loadTerms.TermLoad (self.termfile, self.mode,
@@ -239,8 +237,7 @@ class VOCLoad:
         # Now load the DAGs if it is a complex vocabulary
         if not self.isSimple:
             for (key, dag) in self.config.items():
-                vocloadlib.truncateTransactionLog (
-                    self.database, self.log)
+#                vocloadlib.truncateTransactionLog (self.database, self.log)
                 dagload = loadDAG.DAGLoad (dag['LOAD_FILE'],
                     self.mode, dag['NAME'], self.log, self.passwordFileName )
                 dagload.go()
@@ -273,8 +270,7 @@ class VOCLoad:
         # load DAGs
         if not self.isSimple:
             for (key, dag) in self.config.items():
-                vocloadlib.truncateTransactionLog (
-                    self.database, self.log)
+#                vocloadlib.truncateTransactionLog (self.database, self.log)
                 dagload = loadDAG.DAGLoad (dag['LOAD_FILE'],
                     self.mode, dag['NAME'], self.log, self.passwordFileName )
                 dagload.go()
@@ -298,6 +294,9 @@ if __name__ == '__main__':
 #   vocload.go()
 
 # $Log$
+# Revision 1.14  2003/04/23 15:35:53  lec
+# JSAM fix
+#
 # Revision 1.13  2003/04/02 18:54:49  lec
 # TR 4564
 #
