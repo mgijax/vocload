@@ -26,3 +26,5 @@ RUNTIME_DIR = runTimeMA
         ONTOLOGY_FILE = ${RUNTIME_DIR}/adult_mouse_anatomy.gxd
         LOAD_FILE = ${RUNTIME_DIR}/dag.ma
 ]
+
+# $Log$

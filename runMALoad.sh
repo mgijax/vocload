@@ -33,7 +33,7 @@ installOntologyFiles()
 die()
 {
    echo $1
-#   cat $FULL_LOG_FILE | mailx -s "Adult Mouse Anatomy Load Catastrophic FAILURE" $MAINTAINER 
+   cat $FULL_LOG_FILE | mailx -s "Adult Mouse Anatomy Load Catastrophic FAILURE" $MAINTAINER 
    exit $FAILURE
 }
 
@@ -206,9 +206,12 @@ echo "************************************************************************" 
 echo "Job Complete: `date`"
 echo "Job Complete: `date`"                                                         >> $FULL_LOG_FILE 2>&1
 
-#cat $MAIL_FILE_NAME $FULL_LOG_FILE | mailx -s "$SUBJECT" $MAINTAINER 
+cat $MAIL_FILE_NAME $FULL_LOG_FILE | mailx -s "$SUBJECT" $MAINTAINER 
 
 # $Log$
+# Revision 1.3  2003/03/25 17:39:34  lec
+# new Configuration files
+#
 # Revision 1.2  2003/03/25 17:35:26  lec
 # new Configuration files
 #
