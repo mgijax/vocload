@@ -17,26 +17,11 @@
 #	- use new Configuration and GO.config files
 #
 
-
-# change to directory where this file resides
-cd `dirname $0`
-
-. GO.config
-
 die()
 {
    echo $1
    cat $FULL_LOG_FILE | mailx -s "GO Load Catastrophic FAILURE" $MAINTAINER 
    exit $FAILURE
-}
-
-changeToRunDirectory()
-{
-   APPDIR=`dirname $0`
-   if test $APPDIR != "."
-   then
-      cd "$APPDIR"
-   fi
 }
 
 createDir()
@@ -97,8 +82,9 @@ godownload()
 
 JOB_SUCCESSFUL="false"
 
-changeToRunDirectory
-umask 002
+# change to directory where this file resides
+cd `dirname $0`
+. GO.config
 createDir $RUNTIME_DIR
 createDir $ARCHIVE_DIR
 echo "Job Started: `date`"
@@ -246,6 +232,9 @@ echo "Job Complete: `date`"                                                     
 cat $MAIL_FILE_NAME $FULL_LOG_FILE | mailx -s "$SUBJECT" $MAINTAINER 
 
 # $Log$
+# Revision 1.25  2003/03/25 17:13:52  lec
+# new Configuration files
+#
 # Revision 1.24  2003/03/25 17:12:58  lec
 # new Configuration files
 #

@@ -1,27 +1,27 @@
 #!/bin/sh
 
 #
-# Program: runMPLoad.sh
+# Program: runMALoad.sh
 #
 # Purpose:
 #
-# Main Wrapper Script for Processing MP Terms and DAGs
+# Main Wrapper Script for Processing MA Terms and DAGs
 # 
 # Usage:
 #
-#	runMPLoad.sh [load|noload] [full|incremental]
+#	runMALoad.sh [load|noload] [full|incremental]
 #
 # History:
 #
 #	lec	03/25/2003
-#	- use new Configuration and MP.config files
+#	- use new Configuration and MA.config files
 #
 
 
 # change to directory where this file resides
 cd `dirname $0`
 
-. MP.config
+. MA.config
 
 installOntologyFiles()
 {
@@ -39,7 +39,7 @@ installOntologyFiles()
 die()
 {
    echo $1
-#   cat $FULL_LOG_FILE | mailx -s "Mammalian Phenotype Load Catastrophic FAILURE" $MAINTAINER 
+#   cat $FULL_LOG_FILE | mailx -s "Adult Mouse Anatomy Load Catastrophic FAILURE" $MAINTAINER 
    exit $FAILURE
 }
 
@@ -119,34 +119,34 @@ echo "*****************************************" >> $FULL_LOG_FILE 2>&1
 ######################################################
 # 1. Run GOload.py program
 ######################################################
-MP_LOAD_PROGRAM=GOload.py
-MP_LOAD_PROGRAM_CALL="${MP_LOAD_PROGRAM} $LOAD_FLAG $MODE_FLAG -l $MP_LOAD_LOG_FILE ${RCD_FILE}"
+MA_LOAD_PROGRAM=GOload.py
+MA_LOAD_PROGRAM_CALL="${MA_LOAD_PROGRAM} $LOAD_FLAG $MODE_FLAG -l $MA_LOAD_LOG_FILE ${RCD_FILE}"
 
-writePgmExecutionHeaders $MP_LOAD_PROGRAM
-echo $MP_LOAD_PROGRAM_CALL                       >> $FULL_LOG_FILE 2>&1
+writePgmExecutionHeaders $MA_LOAD_PROGRAM
+echo $MA_LOAD_PROGRAM_CALL                       >> $FULL_LOG_FILE 2>&1
 echo "*****************************************" >> $FULL_LOG_FILE 2>&1
 
-msg=`$MP_LOAD_PROGRAM_CALL 2>&1`
+msg=`$MA_LOAD_PROGRAM_CALL 2>&1`
 rc=$?
 
-writePgmLogFile $MP_LOAD_PROGRAM, $MP_LOAD_LOG_FILE
+writePgmLogFile $MA_LOAD_PROGRAM, $MA_LOAD_LOG_FILE
 
 case $rc in
      $FAILURE)
-        ERROR_MSG="${MP_LOAD_PROGRAM} FAILED!!!! - Check Log File: $FULL_LOG_FILE"
+        ERROR_MSG="${MA_LOAD_PROGRAM} FAILED!!!! - Check Log File: $FULL_LOG_FILE"
         echo $ERROR_MSG
         echo $0:$ERROR_MSG                 >> $FULL_LOG_FILE 2>&1
-        echo "$0:${MP_LOAD_PROGRAM} Ouput is: $msg" >> $FULL_LOG_FILE 2>&1
+        echo "$0:${MA_LOAD_PROGRAM} Ouput is: $msg" >> $FULL_LOG_FILE 2>&1
         die "$ERROR_MSG";;
 
      $SUCCESS)
-        ERROR_MSG="${MP_LOAD_PROGRAM} Was Successful - No Errors Encountered"
+        ERROR_MSG="${MA_LOAD_PROGRAM} Was Successful - No Errors Encountered"
         JOB_SUCCESSFUL="true"
         echo $ERROR_MSG
         echo $0:$ERROR_MSG                 >> $FULL_LOG_FILE 2>&1;;
 esac
-cat $MP_LOAD_LOG_FILE                      >> $FULL_LOG_FILE 2>&1
-MP_LOAD_ERROR_MSG=$ERROR_MSG
+cat $MA_LOAD_LOG_FILE                      >> $FULL_LOG_FILE 2>&1
+MA_LOAD_ERROR_MSG=$ERROR_MSG
 
 ######################################################
 # 2. Finally, archive the files
@@ -192,17 +192,17 @@ JAR_PROGRAM_ERROR_MSG=$ERROR_MSG
 ######################################################
 if test $JOB_SUCCESSFUL = "true"
 then
-   SUBJECT="Mammalian Phenotype Load Successful"
+   SUBJECT="Adult Mouse Anatomy Load Successful"
 else
-   SUBJECT="Mammalian Phenotype Load Failed"
+   SUBJECT="Adult Mouse Anatomy Load Failed"
 fi
 echo $SUBJECT
 
 echo "Run Summary:"                                                                  > $MAIL_FILE_NAME
 echo "****************************************************************************" >> $MAIL_FILE_NAME
-echo "Mammalian Phenotype Downloader Completion Status:   $MP_DOWNLOADER_ERROR_MSG" >> $MAIL_FILE_NAME
+echo "Adult Mouse Anatomy Downloader Completion Status:   $MA_DOWNLOADER_ERROR_MSG" >> $MAIL_FILE_NAME
 echo "****************************************************************************" >> $MAIL_FILE_NAME
-echo "Mammalian Phenotype Load Program Completion Status: $MP_LOAD_ERROR_MSG"       >> $MAIL_FILE_NAME
+echo "Adult Mouse Anatomy Load Program Completion Status: $MA_LOAD_ERROR_MSG"       >> $MAIL_FILE_NAME
 echo "****************************************************************************" >> $MAIL_FILE_NAME
 echo "Archive Program Completion Status: $JAR_PROGRAM_ERROR_MSG"                    >> $MAIL_FILE_NAME
 echo "****************************************************************************" >> $MAIL_FILE_NAME
