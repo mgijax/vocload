@@ -164,8 +164,6 @@ class TermLoad:
             self.vocab_name = vocloadlib.getVocabName (vocab)
             self.vocab_key = vocab
 
-        self.ANNOT_TYPE_KEY = self.config.getConstant('ANNOT_TYPE_KEY')
-               
         # write heading to log
 
         self.log.writeline ('=' * 40)
@@ -622,6 +620,8 @@ class TermLoad:
             termSeqNum = 'null'
 
         # each record in the data file should be added as a new term:
+        
+        self.ANNOT_TYPE_KEY = self.config.getConstant('ANNOT_TYPE_KEY')
 
         #get the Accession IDs/Terms
         print "Getting Accession IDs/Terms..."
