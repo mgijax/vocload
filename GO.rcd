@@ -17,27 +17,31 @@
 #
 
 RUNTIME_DIR = runTimeGO
+DATA_DIR = /data/downloads/genome-ftp.stanford.edu/pub/go/ontology
 
 [
         NAME = Molecular Function
         ABBREV = F
-        ONTOLOGY_FILE = ${RUNTIME_DIR}/function.ontology
+        ONTOLOGY_FILE = ${DATA_DIR}/function.ontology
         LOAD_FILE = ${RUNTIME_DIR}/dag.f
 ]
 [
         NAME = Biological Process
         ABBREV = P
-        ONTOLOGY_FILE = ${RUNTIME_DIR}/process.ontology
+        ONTOLOGY_FILE = ${DATA_DIR}/process.ontology
         LOAD_FILE = ${RUNTIME_DIR}/dag.p
 ]
 [
         NAME = Cellular Component
         ABBREV = C
-        ONTOLOGY_FILE = ${RUNTIME_DIR}/component.ontology
+        ONTOLOGY_FILE = ${DATA_DIR}/component.ontology
         LOAD_FILE = ${RUNTIME_DIR}/dag.c
 ]
 
 # $Log$
+# Revision 1.4  2003/03/27 13:14:49  lec
+# change ONTOLOGY_FILE names
+#
 # Revision 1.3  2003/03/25 15:48:17  lec
 # new configuration files
 #
