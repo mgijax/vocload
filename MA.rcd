@@ -16,7 +16,7 @@
 #	- moved simple vocab variables to MA.config
 #
 
-RUNTIME_DIR = runTimeMA
+RUNTIME_DIR = /data/loads/mgi/vocload/runTimeMA
 
 # DAGs which are part of the vocabulary (for complex vocabularies)
 
@@ -28,3 +28,6 @@ RUNTIME_DIR = runTimeMA
 ]
 
 # $Log$
+# Revision 1.2  2003/03/25 18:07:56  lec
+# new Configuration files
+#

@@ -16,7 +16,7 @@
 #	- moved simple vocab variables to GO.config
 #
 
-RUNTIME_DIR = runTimeGO
+RUNTIME_DIR = /data/loads/mgi/vocload/runTimeGO
 DATA_DIR = /data/downloads/genome-ftp.stanford.edu/pub/go/ontology
 
 [
@@ -39,6 +39,9 @@ DATA_DIR = /data/downloads/genome-ftp.stanford.edu/pub/go/ontology
 ]
 
 # $Log$
+# Revision 1.5  2003/04/18 12:34:15  lec
+# use new /data/downloads
+#
 # Revision 1.4  2003/03/27 13:14:49  lec
 # change ONTOLOGY_FILE names
 #
