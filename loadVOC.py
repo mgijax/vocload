@@ -141,6 +141,7 @@ class VOCLoad:
              self.goFull()
          else:
              self.goIncremental()
+	 db.useOneConnection(0)
          return
 
     def goFull (self):

@@ -54,7 +54,7 @@ def setupSql (server,   # string; name of database server
     # Throws: nothing
 
     db.set_sqlLogin (username, password, server, database)
-    db.useOneConnection = 1
+    db.useOneConnection(1)
     return
 
 def sql (
