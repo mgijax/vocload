@@ -24,14 +24,14 @@
 umask 002
 
 SYBASE=/opt/sybase/12.5
-PYTHONPATH=/usr/local/mgi/lib/python
+PYTHONPATH=/usr/local/mgi/live/lib/python
 PATH=.:$PATH:/usr/bin:$SYBASE/ASE-12_5/bin:$SYBASE/OCS-12_5/bin:/usr/java/bin
 LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$SYBASE/OCS-12_5/lib
 
 DBSERVER=PROD_MGI	# database server
 DATABASE=mgd		# database name
 DBUSER=mgd_dbo		# database user with r/w privileges
-DBPASSWORD_FILE=/usr/local/mgi/dbutils/mgidbutilities/.mgd_dbo_password
+DBPASSWORD_FILE=/usr/local/mgi/live/dbutils/mgidbutilities/.mgd_dbo_password
 
 SUCCESS=0
 FAILURE=1
@@ -100,6 +100,9 @@ export DAG_DISCREP_FILE
 export FULL_MODE_DATA_LOADER
 
 # $Log$
+# Revision 1.9  2003/04/17 15:20:29  lec
+# fixed PATH
+#
 # Revision 1.8  2003/04/02 16:35:20  lec
 # TR 4564
 #
