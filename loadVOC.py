@@ -103,8 +103,7 @@ class VOCLoad:
         self.vocab_name = config.getConstant('VOCAB_NAME')
         self.isSimple = string.atoi(config.getConstant('IS_SIMPLE'))
         self.isPrivate = string.atoi(config.getConstant('IS_PRIVATE'))
-        self.logicalDBkey = string.atoi(config.getConstant(
-            'LOGICALDB_KEY'))
+        self.logicalDBkey = string.atoi(config.getConstant('LOGICALDB_KEY'))
         self.mgitype_key = string.atoi(config.getConstant('MGITYPE'))
 
         vocloadlib.setVocabMGITypeKey (self.mgitype_key)
