@@ -137,9 +137,9 @@ class DAGLoad:
 
         self.passwordFile = passwordFile
 
-        self.dagEdgeBCPFileName    = os.environ('DAG_EDGE_BCP_FILE')
-        self.dagNodeBCPFileName    = os.environ('DAG_NODE_BCP_FILE')
-        self.dagClosureBCPFileName = os.environ('DAG_CLOSURE_BCP_FILE')
+        self.dagEdgeBCPFileName    = os.environ['DAG_EDGE_BCP_FILE']
+        self.dagNodeBCPFileName    = os.environ['DAG_NODE_BCP_FILE']
+        self.dagClosureBCPFileName = os.environ['DAG_CLOSURE_BCP_FILE']
                                                          
         self.dagEdgeBCPFile    = open( self.dagEdgeBCPFileName   , 'w')
         self.dagNodeBCPFile    = open( self.dagNodeBCPFileName   , 'w')
@@ -236,7 +236,7 @@ class DAGLoad:
         # Throws:  propagates all exceptions opening files
 
         # open the discrepancy file
-        self.dagDiscrepFileName = self.os.environ('DAG_DISCREP_FILE')
+        self.dagDiscrepFileName = os.environ['DAG_DISCREP_FILE']
         self.dagDiscrepFile     = open( self.dagDiscrepFileName     , 'w')
 
         # now write HTML header information
@@ -279,8 +279,8 @@ class DAGLoad:
         # Assumes: nothing
         # Effects: nothing
 
-        bcpLogFile   = self.os.environ('BCP_LOG_FILE')
-        bcpErrorFile = self.os.environ('BCP_ERROR_FILE')
+        bcpLogFile   = os.environ['BCP_LOG_FILE']
+        bcpErrorFile = os.environ['BCP_ERROR_FILE']
 
         if not vocloadlib.NO_LOAD:
            if self.loadEdgeBCP:

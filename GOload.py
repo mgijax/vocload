@@ -6,8 +6,8 @@
 #
 # 08/26/2002 lec
 #	- TR 3809 (adding support for processing Phenotype vocabulary in GO format)
-#	- added call to govocab.initializeRegExps (self.config.getConstant('ACC_PREFIX'))
-#	- modified setID() to : self.name = self.config.getConstant('VOCAB_NAME')
+#	- added call to govocab.initializeRegExps (os.environ['ACC_PREFIX'])
+#	- modified setID() to : self.name = os.environ['VOCAB_NAME']
 #
 '''
 
@@ -19,12 +19,6 @@ import vocloadlib
 import loadWrapper
 import tempfile
 import GOVocab
-
-d = os.environ("DEFS_FILE")
-DEFS_FILE = os.environ("DEFS_FILE")
-TERM_FILE = os.environ("TERM_FILE")
-VOCAB_NAME = os.environ("VOCAB_NAME")
-ACC_PREFIX = os.environ("ACC_PREFIX")
 
 def textEdgeType (char):
         if char == '%':
@@ -43,16 +37,16 @@ class GO_Wrapper (loadWrapper.LoadWrapper):
         NUM_ARGS = 1
 
         def preProcess (self):
-                defs_file = DEFS_FILE
+                defs_file = os.environ["DEFS_FILE"]
 
-                term_fp = open (TERM_FILE, 'w')
+                term_fp = open (os.environ["TERM_FILE"], 'w')
 
                 for (key, dag) in self.config.items():
                         self.log.writeline ('Pre-processing %s to create %s' \
                                 % (dag['ONTOLOGY_FILE'], dag['LOAD_FILE']))
 
                         govocab = GOVocab.GOVocab ()
-			govocab.initializeRegExps (ACC_PREFIX)
+			govocab.initializeRegExps (os.environ["ACC_PREFIX"])
                         govocab.buildVocab (defs_file, dag['ONTOLOGY_FILE'])
 
                         dag_fp = open (dag['LOAD_FILE'], 'w')
@@ -121,7 +115,7 @@ class GO_Wrapper (loadWrapper.LoadWrapper):
                 return
 
         def setID (self):
-                self.name = VOCAB_NAME
+                self.name = os.environ["VOCAB_NAME"]
                 return
 
 if __name__ == '__main__':

@@ -13,8 +13,10 @@
 # History:
 #
 #	03/25/2003	lec
-#	- moved simple vocab variables to ConfigGO.default
+#	- moved simple vocab variables to GO.config
 #
+
+RUNTIME_DIR = runTimeGO
 
 [
         NAME = Molecular Function
@@ -36,6 +38,9 @@
 ]
 
 # $Log$
+# Revision 1.2  2003/03/25 15:02:46  lec
+# new configuration files/names
+#
 # Revision 1.1  2003/03/25 14:55:00  lec
 # new
 #

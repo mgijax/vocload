@@ -78,7 +78,7 @@ class VOCLoad:
 
         self.log = log
         self.config = config
-        self.termfile = os.environ('TERM_FILE')
+        self.termfile = os.environ['TERM_FILE']
 
         if mode in [ 'full', 'incremental' ]:
             self.mode = mode
@@ -86,10 +86,10 @@ class VOCLoad:
             raise error, unknown_mode % mode
 
         try:
-            self.server = os.environ('DBSERVER')
-            self.database = os.environ('DATABASE')
-            self.username = os.environ('DBUSER')
-            self.passwordFileName = os.environ('DBPASSWORD_FILE')
+            self.server = os.environ['DBSERVER']
+            self.database = os.environ['DATABASE']
+            self.username = os.environ['DBUSER']
+            self.passwordFileName = os.environ['DBPASSWORD_FILE']
             self.passwordFile = open ( self.passwordFileName, 'r' )
             self.password = string.strip ( self.passwordFile.readline() )
 
@@ -101,11 +101,11 @@ class VOCLoad:
             raise error, 'failed SQL initialization: %s' % \
                 sys.exc_value
 
-        self.vocab_name = os.environ('VOCAB_NAME')
-        self.isSimple = string.atoi(os.environ('IS_SIMPLE'))
-        self.isPrivate = string.atoi(os.environ('IS_PRIVATE'))
-        self.logicalDBkey = string.atoi(os.environ('LOGICALDB_KEY'))
-        self.mgitype_key = string.atoi(os.environ('MGITYPE'))
+        self.vocab_name = os.environ['VOCAB_NAME']
+        self.isSimple = string.atoi(os.environ['IS_SIMPLE'])
+        self.isPrivate = string.atoi(os.environ['IS_PRIVATE'])
+        self.logicalDBkey = string.atoi(os.environ['LOGICALDB_KEY'])
+        self.mgitype_key = string.atoi(os.environ['MGITYPE'])
 
         vocloadlib.setVocabMGITypeKey (self.mgitype_key)
 
@@ -121,7 +121,7 @@ class VOCLoad:
         else:
             self.vocab_key = None
 
-        self.jnum = os.environ('JNUM')
+        self.jnum = os.environ['JNUM']
 
         result = vocloadlib.sql ('''select _Refs_key
                     from BIB_View

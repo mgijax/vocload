@@ -1,0 +1,30 @@
+#
+# Progam:  MP.rcd
+#
+# Purpose:
+#
+#	Configuration file for MP Vocabulary load
+#	which defines the MP DAGs
+#
+# Usage:
+#
+#	Used by Python Configuration module
+#
+# History:
+#
+#	03/25/2003	lec
+#	- moved simple vocab variables to MP.config
+#
+
+RUNTIME_DIR = runTimeMP
+
+# DAGs which are part of the vocabulary (for complex vocabularies)
+
+[
+        NAME = Mammalian Phenotype
+        ABBREV = MP
+        ONTOLOGY_FILE = ${RUNTIME_DIR}/MPheno.ontology
+        LOAD_FILE = ${RUNTIME_DIR}/dag.mp
+]
+
+# $Log$

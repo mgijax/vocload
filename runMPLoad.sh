@@ -1,43 +1,32 @@
 #!/bin/sh
 
 #
-# Main Wrapper Script for Downloading Mammalian Phenotype files and 
-# generating Phenotype Terms and Phenotype DAG
+# Program: runGOLoad.sh
+#
+# Purpose:
+#
+# Main Wrapper Script for Downloading Ontology files and generating GO Terms and GO DAG
+# 
+# Usage:
+#
+#	runGOLoad.sh [load|noload] [full|incremental]
+#
+# History:
+#
+#	lec	03/25/2003
+#	- use new Configuration and ConfigGO files
 #
 
-# Define return codes
-SUCCESS=0
-FAILURE=1
 
-# These environment variables should really be placed inside the phenotype.rcd; however,
-# since the phenotype.rcd is python-based they are temporarily placed here.  To address
-# this problem in the future, we should write a python program which reads
-# and exports all environment variables in an .rcd file, placing the call
-# to the program inside the shell script. For now, the variables are placed here.
-RUNTIME_DIR="./runTimePheno/"
-ARCHIVE_DIR="./archivePheno/"
+# change to directory where this file resides
+cd `dirname $0`
 
-SYBASE=/opt/sybase/12.5
-PYTHONPATH=/usr/local/mgi/lib/python
-PATH=$PATH:.:/usr/bin:$SYBASE/OCS-12_5/bin:$SYBASE/ASE-12_5/bin:/usr/java/bin
-FULL_LOG_FILE=$RUNTIME_DIR"fullLog.txt"
-MAINTAINER="lec@informatics.jax.org, csmith@informatics.jax.org"
-MAIL_FILE_NAME=$RUNTIME_DIR"mail.txt"
-ARCHIVE_FILE_NAME=$ARCHIVE_DIR"vocload.`date +%Y%m%d:%H:%M`.jar"
-PHENOTYPE_LOAD_LOG_FILE=$RUNTIME_DIR"log.txt"
-LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$SYBASE/OCS-12_5/lib
-
-export RUNTIME_DIR
-export SYBASE
-export PYTHONPATH
-export PATH
-export LD_LIBRARY_PATH
-
+. GO.config
 
 die()
 {
    echo $1
-   cat $FULL_LOG_FILE | mailx -s "PHENOTYPE Load Catastrophic FAILURE" $MAINTAINER 
+   cat $FULL_LOG_FILE | mailx -s "GO Load Catastrophic FAILURE" $MAINTAINER 
    exit $FAILURE
 }
 
@@ -76,6 +65,35 @@ writePgmLogFile()
    echo "*****************************************" >> $FULL_LOG_FILE 2>&1
 }
 
+godownload()
+{
+   GO_DOWNLOADER_PROGRAM=GOdownloader.py
+   GO_DOWNLOADER_PROGRAM_CALL="./GOdownloader.py"
+
+   writePgmExecutionHeaders $GO_DOWNLOADER_PROGRAM
+   echo $GO_DOWNLOADER_PROGRAM_CALL                 >> $FULL_LOG_FILE 2>&1
+   echo "*****************************************" >> $FULL_LOG_FILE 2>&1
+
+   msg=`$GO_DOWNLOADER_PROGRAM_CALL`
+   rc=$?
+   writePgmLogFile $GO_DOWNLOADER_PROGRAM, $GO_DOWNLOADER_LOG_FILE
+   case $rc in
+     $FAILURE)
+        ERROR_MSG="GOdownloader.py FAILED!!!! - Check Log File: $FULL_LOG_FILE"
+        echo $ERROR_MSG
+        echo $0:$ERROR_MSG                >> $FULL_LOG_FILE 2>&1
+        echo "$0:GOdownloader.py Ouput is: $msg" >> $FULL_LOG_FILE 2>&1
+        die "$ERROR_MSG";;
+
+     $SUCCESS)
+        ERROR_MSG="GOdownloader.py Was Successful - No Errors Encountered"
+        echo $ERROR_MSG
+        echo $0:$ERROR_MSG                >> $FULL_LOG_FILE 2>&1;;
+   esac
+
+   GO_DOWNLOADER_ERROR_MSG=$ERROR_MSG
+   cat $GO_DOWNLOADER_LOG_FILE               >> $FULL_LOG_FILE 2>&1
+}
 
 JOB_SUCCESSFUL="false"
 
@@ -114,40 +132,50 @@ esac
 echo  "MODE STATUS is $2" >> $FULL_LOG_FILE 2>&1
 echo "*****************************************" >> $FULL_LOG_FILE 2>&1
 
-######################################################
-# 2. Run go.load program
-######################################################
-PHENOTYPE_LOAD_PROGRAM=go.load
-PHENOTYPE_LOAD_PROGRAM_CALL="go.load $LOAD_FLAG $MODE_FLAG -l $PHENOTYPE_LOAD_LOG_FILE phenotype.rcd"
+#############################################################
+# 1. Run GOdownloader.py program to get latest ontology files
+#############################################################
+#godownload
 
-writePgmExecutionHeaders $PHENOTYPE_LOAD_PROGRAM
-echo $PHENOTYPE_LOAD_PROGRAM_CALL                       >> $FULL_LOG_FILE 2>&1
+######################################################
+# 2. Run GOload.py program
+######################################################
+GO_LOAD_PROGRAM=GOload.py
+GO_LOAD_PROGRAM_CALL="${GO_LOAD_PROGRAM} $LOAD_FLAG $MODE_FLAG -l $GO_LOAD_LOG_FILE ${RCD_FILE}"
+
+writePgmExecutionHeaders $GO_LOAD_PROGRAM
+echo $GO_LOAD_PROGRAM_CALL                       >> $FULL_LOG_FILE 2>&1
 echo "*****************************************" >> $FULL_LOG_FILE 2>&1
 
-msg=`$PHENOTYPE_LOAD_PROGRAM_CALL 2>&1`
+msg=`$GO_LOAD_PROGRAM_CALL 2>&1`
 rc=$?
 
-writePgmLogFile $PHENOTYPE_LOAD_PROGRAM, $PHENOTYPE_LOAD_LOG_FILE
+writePgmLogFile $GO_LOAD_PROGRAM, $GO_LOAD_LOG_FILE
 
 case $rc in
      $FAILURE)
-        ERROR_MSG="phenotype.load FAILED!!!! - Check Log File: $FULL_LOG_FILE"
+        ERROR_MSG="${GO_LOAD_PROGRAM} FAILED!!!! - Check Log File: $FULL_LOG_FILE"
         echo $ERROR_MSG
         echo $0:$ERROR_MSG                 >> $FULL_LOG_FILE 2>&1
-        echo "$0:phenotypeload.py Ouput is: $msg" >> $FULL_LOG_FILE 2>&1
+        echo "$0:${GO_LOAD_PROGRAM} Ouput is: $msg" >> $FULL_LOG_FILE 2>&1
         die "$ERROR_MSG";;
 
      $SUCCESS)
-        ERROR_MSG="phenotype.load Was Successful - No Errors Encountered"
+        ERROR_MSG="${GO_LOAD_PROGRAM} Was Successful - No Errors Encountered"
         JOB_SUCCESSFUL="true"
         echo $ERROR_MSG
         echo $0:$ERROR_MSG                 >> $FULL_LOG_FILE 2>&1;;
 esac
-cat $PHENOTYPE_LOAD_LOG_FILE                      >> $FULL_LOG_FILE 2>&1
-PHENOTYPE_LOAD_ERROR_MSG=$ERROR_MSG
+cat $GO_LOAD_LOG_FILE                      >> $FULL_LOG_FILE 2>&1
+GO_LOAD_ERROR_MSG=$ERROR_MSG
 
 ######################################################
-# 3. Finally, archive the files
+# 3. Remove annotations to obsoleted terms
+######################################################
+GOremoveannot.py -S$DBSERVER -D$DATABASE -U$DBUSER -P$DBPASSWORD_FILE
+
+######################################################
+# 4. Finally, archive the files
 ######################################################
 # We are using "jar" rather than "tar", because jar compressed
 # the files to 6 times smaller than tar and its syntax is 
@@ -190,15 +218,17 @@ JAR_PROGRAM_ERROR_MSG=$ERROR_MSG
 ######################################################
 if test $JOB_SUCCESSFUL = "true"
 then
-   SUBJECT="PHENOTYPE Load Successful"
+   SUBJECT="GO Load Successful"
 else
-   SUBJECT="PHENOTYPE Load Failed"
+   SUBJECT="GO Load Failed"
 fi
 echo $SUBJECT
 
 echo "Run Summary:"                                                                  > $MAIL_FILE_NAME
 echo "****************************************************************************" >> $MAIL_FILE_NAME
-echo "PHENOTYPE Load Program Completion Status: $PHENOTYPE_LOAD_ERROR_MSG"          >> $MAIL_FILE_NAME
+echo "GO Downloader Completion Status:   $GO_DOWNLOADER_ERROR_MSG"                  >> $MAIL_FILE_NAME
+echo "****************************************************************************" >> $MAIL_FILE_NAME
+echo "GO Load Program Completion Status: $GO_LOAD_ERROR_MSG"                        >> $MAIL_FILE_NAME
 echo "****************************************************************************" >> $MAIL_FILE_NAME
 echo "Archive Program Completion Status: $JAR_PROGRAM_ERROR_MSG"                    >> $MAIL_FILE_NAME
 echo "****************************************************************************" >> $MAIL_FILE_NAME
@@ -213,5 +243,19 @@ echo "************************************************************************" 
 echo "Job Complete: `date`"
 echo "Job Complete: `date`"                                                         >> $FULL_LOG_FILE 2>&1
 
-cat $MAIL_FILE_NAME $FULL_LOG_FILE | mailx -s "$SUBJECT" $MAINTAINER 
+#cat $MAIL_FILE_NAME $FULL_LOG_FILE | mailx -s "$SUBJECT" $MAINTAINER 
+
+# $Log$
+# Revision 1.22  2003/03/25 14:59:30  lec
+# new configuration files/names
+#
+# Revision 1.21  2003/03/25 14:50:20  lec
+# new Configuraiton files
+#
+# Revision 1.20  2003/03/25 14:23:56  lec
+# new Configuration files
+#
+# Revision 1.19  2003/03/25 13:31:04  lec
+# new Configuration files
+#
 

@@ -135,13 +135,13 @@ echo "*****************************************" >> $FULL_LOG_FILE 2>&1
 #############################################################
 # 1. Run GOdownloader.py program to get latest ontology files
 #############################################################
-godownload
+#godownload
 
 ######################################################
-# 2. Run GO.load program
+# 2. Run GOload.py program
 ######################################################
-GO_LOAD_PROGRAM=GO.load
-GO_LOAD_PROGRAM_CALL="GO.load $LOAD_FLAG $MODE_FLAG -l $GO_LOAD_LOG_FILE GO.rcd"
+GO_LOAD_PROGRAM=GOload.py
+GO_LOAD_PROGRAM_CALL="${GO_LOAD_PROGRAM} $LOAD_FLAG $MODE_FLAG -l $GO_LOAD_LOG_FILE ${RCD_FILE}"
 
 writePgmExecutionHeaders $GO_LOAD_PROGRAM
 echo $GO_LOAD_PROGRAM_CALL                       >> $FULL_LOG_FILE 2>&1
@@ -154,14 +154,14 @@ writePgmLogFile $GO_LOAD_PROGRAM, $GO_LOAD_LOG_FILE
 
 case $rc in
      $FAILURE)
-        ERROR_MSG="GO.load FAILED!!!! - Check Log File: $FULL_LOG_FILE"
+        ERROR_MSG="${GO_LOAD_PROGRAM} FAILED!!!! - Check Log File: $FULL_LOG_FILE"
         echo $ERROR_MSG
         echo $0:$ERROR_MSG                 >> $FULL_LOG_FILE 2>&1
-        echo "$0:GOload.py Ouput is: $msg" >> $FULL_LOG_FILE 2>&1
+        echo "$0:${GO_LOAD_PROGRAM} Ouput is: $msg" >> $FULL_LOG_FILE 2>&1
         die "$ERROR_MSG";;
 
      $SUCCESS)
-        ERROR_MSG="GO.load Was Successful - No Errors Encountered"
+        ERROR_MSG="${GO_LOAD_PROGRAM} Was Successful - No Errors Encountered"
         JOB_SUCCESSFUL="true"
         echo $ERROR_MSG
         echo $0:$ERROR_MSG                 >> $FULL_LOG_FILE 2>&1;;
@@ -243,9 +243,12 @@ echo "************************************************************************" 
 echo "Job Complete: `date`"
 echo "Job Complete: `date`"                                                         >> $FULL_LOG_FILE 2>&1
 
-cat $MAIL_FILE_NAME $FULL_LOG_FILE | mailx -s "$SUBJECT" $MAINTAINER 
+#cat $MAIL_FILE_NAME $FULL_LOG_FILE | mailx -s "$SUBJECT" $MAINTAINER 
 
 # $Log$
+# Revision 1.22  2003/03/25 14:59:30  lec
+# new configuration files/names
+#
 # Revision 1.21  2003/03/25 14:50:20  lec
 # new Configuraiton files
 #
