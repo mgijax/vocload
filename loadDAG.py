@@ -761,3 +761,4 @@ if __name__ == '__main__':
     vocloadlib.setupSql (server, database, username, password)
     load = DAGLoad (input_file, mode, dag_key, log)
     load.go()
+    db.useOneConnection(0)
