@@ -42,9 +42,6 @@ import DAG, Vocab, GONode
 
 GO_re = None
 syn_re = None
-id_re = None
-def_re = None
-cmt_re = None
 
 class Stack:
     """
@@ -136,10 +133,10 @@ class GOVocab(Vocab.Vocab):
     """
 
     definitions = { }		# cache of definition files loaded so far...
-				#	filename -> result of self.getDefs()
+				#	filename -> result of self.getDefsCmts()
 
     comments = { }		# cache of comments files loaded so far...
-				#	filename -> result of self.getDefs()
+				#	filename -> result of self.getDefsCmts()
 
     def initializeRegExps(self, accPrefix):
 	"""
@@ -149,12 +146,12 @@ class GOVocab(Vocab.Vocab):
 	# Effects:
 	#	initializes regular expressions
 	# Modifies:
-	#	GO_re, syn_re, id_re, def_re, cmt_re
+	#	GO_re, syn_re
 	# Returns:
 	# Exceptions:
 	"""
 
-        global GO_re, syn_re, id_re, def_re, cmt_re
+        global GO_re, syn_re
 
         # regular expression for GO id in ontology files
         GO_re = regex.compile( ' ; \(%s:[0-9]+\)' % (accPrefix))
@@ -162,16 +159,7 @@ class GOVocab(Vocab.Vocab):
         # regular expression for synonyms in ontology files
         syn_re = regex.compile('synonym:\([^;<%\n]+\)')
 
-        # regular expression for the GO id in definitions file
-        id_re = regex.compile( 'goid: \(%s:[0-9]+\)' % (accPrefix))
-
-        # regular expression for the definition in definitions file
-        def_re = regex.compile( 'definition: \(.+\)' )
-
-        # regular expression for the comment in definitions file
-        cmt_re = regex.compile( 'comment: \(.+\)' )
-
-    def getDefs(self, inFile):
+    def getDefsCmts(self, inFile):
 	"""
         #      Private
         #
@@ -183,79 +171,39 @@ class GOVocab(Vocab.Vocab):
 	#  Modifies:
 	#  Returns:
 	#    defs: dictionary
-	#  Exceptions:
-	"""
-
-        text = inFile.read()
-        text = regsub.gsub('\n', ' ', text)
-        text = regsub.gsub('definition_reference:', '\ndefinition_reference:', text)
-        defs = {}
-
-        while 1:
-
-            index = id_re.search(text)
-
-            if index == -1:
-                break
-
-            goid = id_re.group(1)
-            text = text[index:]
-
-            index = def_re.search(text)
-
-            if index == -1:
-                print "Couldn't find definition for %s" % goid
-                break
-
-            definition = string.strip(def_re.group(1))
-
-            if len(definition):
-                defs[goid] = definition
-
-            text = text[index:]
-
-	return defs
-
-    def getCmts(self, inFile):
-	"""
-        #      Private
-        #
-	#  Requires:
-	#    inFile: file handle (GO definitions file)
-	#  Effects:
-	#    Creates a dictionary of comments keyed by GO id
-	#  Modifies:
-	#  Returns:
 	#    cmts: dictionary
 	#  Exceptions:
 	"""
 
-        text = inFile.read()
-        text = regsub.gsub('\n', ' ', text)
-        text = regsub.gsub('term:', '\nterm:', text)
-        cmts = {}
+	# field tokens we're interested in grabbing
 
-        while 1:
+        ID_TAG = 'goid: '
+        DEF_TAG = 'definition: '
+        CMT_TAG = 'comment: '
 
-            index = id_re.search(text)
+	defs = {}
+	cmts = {}
 
-            if index == -1:
-                break
+        for line in inFile.readlines():
 
-            goid = id_re.group(1)
-            text = text[index:]
+		token = string.strip(line)
 
-            index = cmt_re.search(text)
+                if token == '!' or len(token) == 0:
+                    continue
 
-            if index != -1:
-                comment = string.strip(cmt_re.group(1))
-                if len(comment):
-                    cmts[goid] = comment
+                if string.find(token, ID_TAG) != -1:
+                    goID = token[string.index(token, ID_TAG) + len(ID_TAG):]
 
-            text = text[index:]
+                if string.find(token, DEF_TAG) != -1:
+                    definition = token[string.index(token, DEF_TAG) + len(DEF_TAG):]
+		    defs[goID] = definition
 
-        return cmts
-        
+                if string.find(token, CMT_TAG) != -1:
+                    comment = token[string.index(token, CMT_TAG) + len(CMT_TAG):]
+		    cmts[goID] = comment
+
+	return defs, cmts
+
     def parseGOline(self, line):
 	"""
         #      Private
@@ -435,11 +383,7 @@ class GOVocab(Vocab.Vocab):
 	if not self.definitions.has_key (defs_file):
 
 		defFile = open (defs_file, 'r')
-		self.definitions[defs_file] = self.getDefs (defFile)
-		defFile.close()
-
-		defFile = open (defs_file, 'r')
-		self.comments[defs_file] = self.getCmts (defFile)
+		self.definitions[defs_file], self.comments[defs_file] = self.getDefsCmts (defFile)
 		defFile.close()
 
 	defs = self.definitions[defs_file]	# use cached result
