@@ -21,23 +21,26 @@ RUNTIME_DIR = runTimeGO
 [
         NAME = Molecular Function
         ABBREV = F
-        ONTOLOGY_FILE = ${RUNTIME_DIR}/function.ontology.txt
+        ONTOLOGY_FILE = ${RUNTIME_DIR}/function.ontology
         LOAD_FILE = ${RUNTIME_DIR}/dag.f
 ]
 [
         NAME = Biological Process
         ABBREV = P
-        ONTOLOGY_FILE = ${RUNTIME_DIR}/process.ontology.txt
+        ONTOLOGY_FILE = ${RUNTIME_DIR}/process.ontology
         LOAD_FILE = ${RUNTIME_DIR}/dag.p
 ]
 [
         NAME = Cellular Component
         ABBREV = C
-        ONTOLOGY_FILE = ${RUNTIME_DIR}/component.ontology.txt
+        ONTOLOGY_FILE = ${RUNTIME_DIR}/component.ontology
         LOAD_FILE = ${RUNTIME_DIR}/dag.c
 ]
 
 # $Log$
+# Revision 1.3  2003/03/25 15:48:17  lec
+# new configuration files
+#
 # Revision 1.2  2003/03/25 15:02:46  lec
 # new configuration files/names
 #
