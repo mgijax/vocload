@@ -111,8 +111,8 @@ echo "*****************************************" >> $FULL_LOG_FILE 2>&1
 GO_DOWNLOADER_PROGRAM=godownloader.py
 GO_DOWNLOADER_PROGRAM_CALL="./godownloader.py"
 #TAKE OUT!!!
-echo "Replace godownloader call!!!"
-GO_DOWNLOADER_PROGRAM_CALL=""
+# echo "Replace godownloader call!!!"
+# GO_DOWNLOADER_PROGRAM_CALL=""
 
 writePgmExecutionHeaders $GO_DOWNLOADER_PROGRAM
 echo $GO_DOWNLOADER_PROGRAM_CALL                 >> $FULL_LOG_FILE 2>&1
