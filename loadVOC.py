@@ -8,11 +8,12 @@
 #   Usage: see USAGE below
 #   Uses:
 #   Envvars:
-#   Inputs:
+#   Inputs: Configuration file, mode (full or incremental), and a log file
 #   Outputs:
-#   Exit Codes:
+#   Exit Codes: throws exception if unsuccessful
 #   Other System Requirements:
 # Assumes:
+#   We assume no other users are adding/modifying database records during
 # Implementation:
 #   Modules:
 
@@ -34,8 +35,8 @@ unknown_vocab = 'cannot find _Vocab_key for vocab "%s"'
 
 ###--- SQL INSERT Statements ---###
 
-    # We define these template here to aid reability of the code.  They
-    # are formatted to increase readability of the log file.
+# We define these template here to aid reability of the code.  They
+# are formatted to increase readability of the log file.
 
 INSERT_VOCAB = '''insert VOC_Vocab (_Vocab_key, _Refs_key, isSimple, isPrivate,
         _LogicalDB_key, name)
@@ -129,24 +130,35 @@ class VOCLoad:
         self.refs_key = result[0]['_Refs_key']
         return
 
-    #def go (self):
-    #    self.goFull()
-    #    return
-
     def go (self):
-            # TAKE OUT try:
-            if self.mode == 'full':
-                self.goFull()
-            else:
-                self.goIncremental()
-            # TAKE OUT except:
-                # TAKE OUT raise error, sys.exc_value
-            return
+        # Purpose: run the load in full or incremental mode
+        # Returns: nothing
+        # Assumes: see self.goFull() and self.goIncremental()
+        # Effects: nothing
+        # Throws: propagates all exceptions from self.goFull() or
+        #   self.goIncremental(), whichever is called
+         if self.mode == 'full':
+             self.goFull()
+         else:
+             self.goIncremental()
+         return
 
     def goFull (self):
+        # Purpose: controls the processing of performing full
+        #   loads of a vocabulary and, in the cases of complex
+        #   vocabulary, a DAG structure
+        # Returns: nothing
+        # Assumes: vocloadlib.setupSql() has been called appropriatley
+        # Effects: prepares the database for a full load by deleting
+        #   all existing vocabulary and DAG structures as applicable,
+        #   loading the VOC_Vocab, DAG_DAG, and VOC_VocabDAG
+        #   tables, and instantiating and executing the TermLoad
+        #   and DAGLoad objects.
+        # Throws: propagates all exceptions
         self.log.writeline (vocloadlib.timestamp (
             'Full VOC Load Start:'))
 
+        # Only delete data if it currently exists in the database
         if self.vocab_key:
             dags = vocloadlib.sql ('''select _DAG_key
                         from VOC_VocabDAG
@@ -155,9 +167,6 @@ class VOCLoad:
             for dag in dags:
                 vocloadlib.truncateTransactionLog (
                     self.database, self.log)
-                # deleting from DAG_DAG should cascade to other tables
-                #vocloadlib.deleteDagComponents (
-                #    dag['_DAG_key'], self.log)
                 vocloadlib.nl_sqlog ( 'delete from DAG_DAG where _DAG_key = %d' % dag['_DAG_key'], self.log )
 
             vocloadlib.truncateTransactionLog (
@@ -172,6 +181,7 @@ class VOCLoad:
                     from VOC_Vocab''')
             self.vocab_key = max (0, result[0]['']) + 1
 
+        #insert into VOC_Vocab table
         vocloadlib.nl_sqlog (INSERT_VOCAB % (self.vocab_key,
             self.refs_key, self.isSimple, self.isPrivate,
             self.logicalDBkey, self.vocab_name),
@@ -181,10 +191,13 @@ class VOCLoad:
         dag_key = max (0, result[0]['']) + 1
 
         for (key, dag) in self.config.items():
+            #insert into DAG_DAG table
             vocloadlib.nl_sqlog (INSERT_DAG % (dag_key,
                 self.refs_key, self.mgitype_key,
                 dag['ABBREV'], dag['NAME']),
                 self.log)
+
+            #insert into VOC_Vocab table
             vocloadlib.nl_sqlog (INSERT_VOCABDAG % (
                 self.vocab_key, dag_key),
                 self.log)
@@ -192,15 +205,14 @@ class VOCLoad:
             dag['KEY'] = dag_key
             dag_key = dag_key + 1
 
-        # load terms
-
         vocloadlib.truncateTransactionLog (self.database, self.log)
+        
+        # Now load the terms
         termload = loadTerms.TermLoad (self.termfile, self.mode,
             self.vocab_key, self.log, self.config, self.passwordFileName )
         termload.go()
 
-        # load DAGs
-
+        # Now load the DAGs if it is a complex vocabulary
         if not self.isSimple:
             for (key, dag) in self.config.items():
                 vocloadlib.truncateTransactionLog (
@@ -215,12 +227,22 @@ class VOCLoad:
         return
 
     def goIncremental (self):
+        # Purpose: controls the processing of performing incremental
+        #   loads of a vocabulary and, in the cases of complex
+        #   vocabulary, a DAG structure.
+        # Returns: nothing
+        # Assumes: vocloadlib.setupSql() has been called appropriatley
+        # Effects: Instantiates and executes the TermLoad
+        #   and DAGLoad objects.
+        # Throws: propagates all exceptions
+
         self.log.writeline (vocloadlib.timestamp (
             'Incremental VOC Load Start:'))
 
         if not self.vocab_key:
             raise error, unknown_vocab % self.vocab_name
 
+        # Now load the terms
         termload = loadTerms.TermLoad (self.termfile, self.mode,
             self.vocab_key, self.log, self.config, self.passwordFileName )
         termload.go()
