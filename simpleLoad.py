@@ -10,7 +10,7 @@
 #
 # Purpose:
 #
-#	To load a simple, non-strucuted vocabulary into MGI VOC tables
+#	To load a simple, non-structured vocabulary into MGI VOC tables
 #
 # Requirements Satisfied by This Program:
 #
@@ -19,6 +19,15 @@
 # Envvars:
 #
 # Inputs:
+#
+#	Tab-delimited file with these columns:
+#
+#	term
+#	accession id
+#	abbreviation
+#	definition
+#
+#	accession id, abbreviation and definition can be blank
 #
 # Outputs:
 #
@@ -43,7 +52,7 @@ import tempfile
 class SimpleVoc_Wrapper (loadWrapper.LoadWrapper):
 	def preProcess (self):
 		datafile = vocloadlib.readTabFile (self.inputFile,
-			[ 'term', 'abbrev', 'definition', 'blank' ])
+			[ 'term', 'id', 'abbrev', 'definition' ])
 
 		self.loadfile = os.environ['TERM_FILE']
 		fp = open (self.loadfile, 'w')
@@ -51,13 +60,13 @@ class SimpleVoc_Wrapper (loadWrapper.LoadWrapper):
 		for row in datafile:
 			fp.write (loadWrapper.TERM_LINE % (
 				row['term'],
-				'',			# acc ID
+				row['id'],
 				'current',
 				row['abbrev'],
 				row['definition'],
 				'',			# synonyms
 				''			# secondary IDs
-				))
+			        ))	
 		fp.close()
 		return
 
@@ -74,4 +83,7 @@ if __name__ == '__main__':
 	wrapper.go()
 
 # $Log$
+# Revision 1.3  2003/03/25 18:41:12  lec
+# new Configuration files
+#
 

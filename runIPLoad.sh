@@ -92,7 +92,39 @@ echo  "MODE STATUS is $2" >> $FULL_LOG_FILE 2>&1
 echo "*****************************************" >> $FULL_LOG_FILE 2>&1
 
 ######################################################
-# 1. Run simpleLoad.py program
+# 1. Run IP.py program
+######################################################
+IP_LOAD_PROGRAM=IP.py
+IP_LOAD_PROGRAM_CALL="${IP_LOAD_PROGRAM}"
+
+writePgmExecutionHeaders $IP_LOAD_PROGRAM
+echo $IP_LOAD_PROGRAM_CALL                       >> $FULL_LOG_FILE 2>&1
+echo "*****************************************" >> $FULL_LOG_FILE 2>&1
+
+msg=`$IP_LOAD_PROGRAM_CALL 2>&1`
+rc=$?
+
+writePgmLogFile $IP_LOAD_PROGRAM, $IP_LOAD_LOG_FILE
+
+case $rc in
+     $FAILURE)
+        ERROR_MSG="${IP_LOAD_PROGRAM} FAILED!!!! - Check Log File: $FULL_LOG_FILE"
+        echo $ERROR_MSG
+        echo $0:$ERROR_MSG                 >> $FULL_LOG_FILE 2>&1
+        echo "$0:${IP_LOAD_PROGRAM} Ouput is: $msg" >> $FULL_LOG_FILE 2>&1
+        die "$ERROR_MSG";;
+
+     $SUCCESS)
+        ERROR_MSG="${IP_LOAD_PROGRAM} Was Successful - No Errors Encountered"
+        JOB_SUCCESSFUL="true"
+        echo $ERROR_MSG
+        echo $0:$ERROR_MSG                 >> $FULL_LOG_FILE 2>&1;;
+esac
+cat $IP_LOAD_LOG_FILE                      >> $FULL_LOG_FILE 2>&1
+IP_LOAD_ERROR_MSG=$ERROR_MSG
+
+######################################################
+# 2. Run simpleLoad.py program
 ######################################################
 IP_LOAD_PROGRAM=simpleLoad.py
 IP_LOAD_PROGRAM_CALL="${IP_LOAD_PROGRAM} $LOAD_FLAG $MODE_FLAG -l $IP_LOAD_LOG_FILE ${RCD_FILE} ${DATA_FILE}"
@@ -124,7 +156,7 @@ cat $IP_LOAD_LOG_FILE                      >> $FULL_LOG_FILE 2>&1
 IP_LOAD_ERROR_MSG=$ERROR_MSG
 
 ######################################################
-# 2. Finally, archive the files
+# 3. Finally, archive the files
 ######################################################
 # We are using "jar" rather than "tar", because jar compressed
 # the files to 6 times smaller than tar and its syntax is 
@@ -195,6 +227,9 @@ echo "Job Complete: `date`"                                                     
 #cat $MAIL_FILE_NAME $FULL_LOG_FILE | mailx -s "$SUBJECT" $MAINTAINER 
 
 # $Log$
+# Revision 1.3  2003/03/25 18:41:12  lec
+# new Configuration files
+#
 # Revision 1.2  2003/03/25 18:29:43  lec
 # new Configuration files
 #
