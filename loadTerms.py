@@ -920,7 +920,7 @@ class TermLoad:
              for annotation in annotations: #build list of symbols
                 symbols = symbols + " " + annotation['symbol']
              if definitionDescrepancy:
-                msg = "Old Definition: %s, New Definition: %s, Symbols: %s" % ( dbRecord[0]['notes'], record['definition'], symbols ) 
+                msg = "Definition change for Term with annotations.  Old Definition: %s, New Definition: %s, Symbols: %s" % ( dbRecord[0]['notes'], record['definition'], symbols ) 
                 self.writeDiscrepancyFile ( record['accID'], record['term'], msg )  
              if obsoleteTermDiscrepancy:
                 msg = "Term has been obsoleted but has annotations, Symbols: %s" % ( symbols ) 
