@@ -1,0 +1,42 @@
+#!/bin/sh
+
+#
+# Program: Configuration.default
+#
+# Purpose:
+#
+#   Configuration file for GO load
+#
+# Usage:
+#
+#   After installing the vocload product, copy this file to Configuration
+#   and edit for the specific installation (if necessary).
+#
+#   Execute this file from runGOLoad.sh (or command line) to 
+#   set global environment variables for any vocload.
+#
+
+# Installation directory of this product
+INSTALL_DIR="/usr/local/mgi/dataload/vocload"
+export INSTALL_DIR
+
+# Database stuff
+SYBASE=/opt/sybase/12.5
+PYTHONPATH=/usr/local/mgi/lib/python
+PATH=$PATH:.:/usr/bin:$SYBASE/ASE-12_5/bin:$SYBASE/OCS-12_5/bin:/usr/java/bin
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$SYBASE/OCS-12_5/lib
+
+DBSERVER=PROD_MGI	# database server
+DATABASE=mgd		# database name
+DBUSER=mgd_dbo		# database user with r/w privileges
+DBPASSWORD_FILE=/usr/local/mgi/dbutils/mgidbutilities/.mgd_dbo_password
+
+export SYBASE
+export PYTHONPATH
+export PATH
+export LD_LIBRARY_PATH
+export DBSERVER
+export DATABASE
+export DBUSER
+export DBPASSWORD_FILE
+

@@ -1,0 +1,42 @@
+#!/bin/sh
+
+#
+# Program: ConfigGO.default
+#
+# Purpose:
+#
+#   Configuration file for GO load
+#
+# Usage:
+#
+#   After installing the vocload product, copy this file to ConfigGO
+#   and edit for the specific installation (if necessary).
+#
+#   Execute this file from runGOLoad.sh (or command line) to 
+#   set environment variables for GO load
+#
+# Assumes:
+#
+#   The Installation Directory (INSTALL_DIR) variable is defined.
+#
+
+RUNTIME_DIR="${INSTALL_DIR}/runTimeGO/"
+ARCHIVE_DIR="${INSTALL_DIR}/archiveGO/"
+
+export RUNTIME_DIR
+export ARCHIVE_DIR
+
+ARCHIVE_FILE_NAME=${ARCHIVE_DIR}"vocload.`date +%Y%m%d:%H:%M`.jar"
+FULL_LOG_FILE=${RUNTIME_DIR}"fullLog.txt"
+MAINTAINER="lec@informatics.jax.org, hjd@informatics.jax.org"
+MAIL_FILE_NAME=${RUNTIME_DIR}"mail.txt"
+GO_DOWNLOADER_LOG_FILE=${RUNTIME_DIR}"godownloader.log"
+GO_LOAD_LOG_FILE=${RUNTIME_DIR}"log.txt"
+
+export FULL_LOG_FILE
+export MAINTAINER
+export MAIL_FILE_NAME
+export ARCHIVE_FILE_NAME
+export GO_DOWNLOADER_LOG_FILE
+export GO_LOAD_LOG_FILE
+
