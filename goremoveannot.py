@@ -100,8 +100,8 @@ def exit(
     try:
         diagFile.write('\n\nEnd Date/Time: %s\n' % (mgi_utils.date()))
         diagFile.close()
-        reportlib.trailer(fp)
-        reportlib.finish_nonps(fp)
+        reportlib.trailer(reportFile)
+        reportlib.finish_nonps(reportFile)
     except:
         pass
 
@@ -245,6 +245,9 @@ process()
 exit(0)
 
 # $Log$
+# Revision 1.2  2003/03/17 19:37:15  lec
+# TR 4623
+#
 # Revision 1.1  2003/03/17 19:03:15  lec
 # TR 4623
 #
