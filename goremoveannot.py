@@ -159,10 +159,9 @@ def init():
     db.set_sqlLogin(user, password, server, database)
     db.useOneConnection(1)
  
-    fdate = mgi_utils.date('%m%d%Y')	# current date
     head, tail = os.path.split(sys.argv[0])
-    diagFileName = os.environ['RUNTIME_DIR'] + '/' + tail + '.' + fdate + '.diagnostics'
-    reportFileName = os.environ['RUNTIME_DIR'] + '/' + tail + '.' + fdate + '.rpt'
+    diagFileName = os.environ['RUNTIME_DIR'] + '/' + tail + '.diagnostics'
+    reportFileName = os.environ['RUNTIME_DIR'] + '/' + tail + '.rpt'
 
     try:
         diagFile = open(diagFileName, 'w')
@@ -246,3 +245,6 @@ process()
 exit(0)
 
 # $Log$
+# Revision 1.1  2003/03/17 19:03:15  lec
+# TR 4623
+#
