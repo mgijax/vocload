@@ -80,7 +80,7 @@ cd `dirname $0`
 . ./Configuration
 
 echo "**************************************************" >> ${FULL_LOG_FILE}
-echo "Start topological sort ordering: ${HEADER_FILE}" >> ${FULL_LOG_FILE}
+echo "Start topological sort ordering" >> ${FULL_LOG_FILE}
 
 #
 #  Truncate the VOC_DAGSort table in the RADAR database to remove any

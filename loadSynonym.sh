@@ -87,6 +87,7 @@ echo "Start synonym file processing: ${SYNONYM_FILE}" >> ${FULL_LOG_FILE}
 #  Truncate the VOC_Synonym table in the RADAR database to remove any
 #  current records.
 #
+echo "Truncate VOC_Synonym table" >> ${FULL_LOG_FILE}
 cat - <<EOSQL | isql -S${DBSERVER} -U${DBUSER} -P`cat ${DBPASSWORD_FILE}` >> ${FULL_LOG_FILE}
 
 use ${RADAR_DATABASE}
@@ -104,12 +105,15 @@ EOSQL
 #
 #  Load the VOC_Synonym table from the synonym file using bcp.
 #
+echo "Load the synonym file into the VOC_Synonym table" >> ${FULL_LOG_FILE}
 cat ${DBPASSWORD_FILE} | bcp ${RADAR_DATABASE}..VOC_Synonym in ${SYNONYM_FILE} -c -t\\t -S${DBSERVER} -U${DBUSER} >> ${BCP_LOG_FILE}
 
 #
 #  Call the Python script.
 #
+echo "Start loadSynonym.py" >> ${FULL_LOG_FILE}
 loadSynonym.py >> ${FULL_LOG_FILE}
+echo "End loadSynonym.py" >> ${FULL_LOG_FILE}
 
 echo "End synonym file processing" >> ${FULL_LOG_FILE}
 echo "**************************************************" >> ${FULL_LOG_FILE}
