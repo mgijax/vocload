@@ -24,7 +24,7 @@ MGITYPE = 13
 RUNTIME_DIR = ./runTimeMouseAdult/
 
 TERM_FILE = ${RUNTIME_DIR}/Termfile
-DEFS_FILE = ${RUNTIME_DIR}/Anat.defs
+DEFS_FILE = ${RUNTIME_DIR}/anatomy_defs.gxd
 
 #BCP log and error files
 BCP_LOG_FILE = ${RUNTIME_DIR}/bcpLog.bcp
@@ -52,6 +52,6 @@ FULL_MODE_DATA_LOADER = bcp
 [
         NAME = Adult Mouse Anatomy
         ABBREV = MA
-        ONTOLOGY_FILE = ${RUNTIME_DIR}/adult_mouse_anatomy
+        ONTOLOGY_FILE = ${RUNTIME_DIR}/adult_mouse_anatomy.gxd
         LOAD_FILE = ${RUNTIME_DIR}/dag.ma
 ]
