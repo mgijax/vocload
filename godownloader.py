@@ -125,6 +125,7 @@ def alias():
         # check for parsing errors before replacing old file
         try:
             GO = GOVocab.GOVocab()
+	    GO.initializeRegExps ("GO")
             graph = GO.parseGOfile(ifile)
             os.rename(fname, newName)
             ifile.close()
