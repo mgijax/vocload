@@ -1,0 +1,41 @@
+#!/usr/local/bin/python
+
+import sys
+import os
+
+import vocloadlib
+import loadWrapper
+import tempfile
+
+class PS_Wrapper (loadWrapper.LoadWrapper):
+	def preProcess (self):
+		datafile = vocloadlib.readTabFile (self.inputFile,
+			[ 'term', 'blank', 'definition', 'blank' ])
+
+		self.loadfile = self.config.getConstant('TERM_FILE')
+		fp = open (self.loadfile, 'w')
+
+		for row in datafile:
+			fp.write (loadWrapper.TERM_LINE % (
+				row['term'],
+				'',			# acc ID
+				'current',
+				'',			# abbreviation
+				row['definition'],
+				'',			# synonyms
+				''			# secondary IDs
+				))
+		fp.close()
+		return
+
+	def postProcess (self):
+		os.remove (self.loadfile)
+		return
+
+	def setID (self):
+		self.name = "PhenoSlim Terms"
+		return
+
+if __name__ == '__main__':
+	wrapper = PS_Wrapper (sys.argv[1:])
+	wrapper.go()
