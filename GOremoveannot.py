@@ -228,7 +228,7 @@ def process():
         'and e._Refs_key in (59154,61933,73199)')
 
     cmds.append('delete VOC_Annot from VOC_Annot a ' + \
-	'where not exists (select 1 from VOC_Evidence e where a._Annot_key = e._Annot_key)')
+	'where a._AnnotType_key = 1000 and not exists (select 1 from VOC_Evidence e where a._Annot_key = e._Annot_key)')
 
 
     results = db.sql(cmds, 'auto')
@@ -249,6 +249,9 @@ process()
 exit(0)
 
 # $Log$
+# Revision 1.4  2003/04/18 14:46:07  lec
+# MGI 2.96
+#
 # Revision 1.3  2003/03/25 16:08:49  lec
 # new configuration files
 #
