@@ -197,18 +197,16 @@ def process():
     # Effects: 
     # Throws: nothing
 
-    cmds = []
-
-    cmds.append('select a.accID, a._Object_key, t.term ' + \
+    db.sql('select a.accID, a._Object_key, t.term ' + \
 	'into #obsolete ' + \
 	'from VOC_Term_ACC_View a, VOC_Term t ' + \
 	'where t._Vocab_key = 4 ' + \
 	'and t.isObsolete = 1 ' + \
-	'and t._Term_key = a._Object_key')
+	'and t._Term_key = a._Object_key', None)
 
-    cmds.append('create clustered index idx_key on #obsolete(_Object_key)')
+    db.sql('create clustered index idx_key on #obsolete(_Object_key)', None)
 
-    cmds.append('select m.symbol, m.name, ma.accID, goid = o.accID, o.term ' + \
+    results = db.sql('select m.symbol, m.name, ma.accID, goid = o.accID, o.term ' + \
         'from #obsolete o, VOC_Annot a, VOC_Evidence e, MRK_Marker m, MRK_Acc_View ma ' + \
         'where a._AnnotType_key = 1000 ' + \
         'and a._Term_key = o._Object_key ' + \
@@ -218,27 +216,25 @@ def process():
 	'and a._Object_key = ma._Object_key ' + \
 	'and ma._LogicalDB_key = 1 ' + \
 	'and ma.prefixPart = "MGI:" ' + \
-	'and ma.preferred = 1')
+	'and ma.preferred = 1', 'auto')
 
-    cmds.append('delete VOC_Evidence ' + \
-        'from #obsolete o, VOC_Annot a, VOC_Evidence e ' + \
-        'where a._AnnotType_key = 1000 ' + \
-        'and a._Term_key = o._Object_key ' + \
-        'and a._Annot_key = e._Annot_key ' + \
-        'and e._Refs_key in (59154,61933,73199)')
-
-    cmds.append('delete VOC_Annot from VOC_Annot a ' + \
-	'where a._AnnotType_key = 1000 and not exists (select 1 from VOC_Evidence e where a._Annot_key = e._Annot_key)')
-
-
-    results = db.sql(cmds, 'auto')
-
-    for r in results[2]:
+    for r in results:
 	reportFile.write(r['accID'] + TAB + \
 	    r['symbol'] + TAB + \
 	    r['name'] + TAB + \
 	    r['goid'] + TAB + \
 	    r['term'] + CRT)
+
+    db.sql('delete VOC_Evidence ' + \
+        'from #obsolete o, VOC_Annot a, VOC_Evidence e ' + \
+        'where a._AnnotType_key = 1000 ' + \
+        'and a._Term_key = o._Object_key ' + \
+        'and a._Annot_key = e._Annot_key ' + \
+        'and e._Refs_key in (59154,61933,73199)', None)
+
+    db.sql('delete VOC_Annot from VOC_Annot a ' + \
+	'where a._AnnotType_key = 1000 and not exists (select 1 from VOC_Evidence e where a._Annot_key = e._Annot_key)', None)
+
 
 #
 # Main
@@ -249,6 +245,9 @@ process()
 exit(0)
 
 # $Log$
+# Revision 1.6  2004/01/28 16:19:51  lec
+# JSAM branch merge
+#
 # Revision 1.5  2003/12/01 15:05:46  lec
 # fix
 #

@@ -946,7 +946,6 @@ class TermLoad:
         #          if they are primary IDs
         # Effects: Terms are merged and new accession records are added as necessary
         # Throws:  propagates any exceptions raised 
-	fp = open('other', 'a')
         otherIDs = string.strip (record['otherIDs'])
         if otherIDs:
             for id in string.split (otherIDs, OTHER_ID_DELIMITER ):
