@@ -191,7 +191,7 @@ GO_LOAD_ERROR_MSG=$ERROR_MSG
 ######################################################
 # 3. Remove annotations to obsoleted terms
 ######################################################
-goremoveannot.py -SDBSERVER -DDATABASE -UDBUSER -PDBPASSWORD_FILE
+goremoveannot.py -S$DBSERVER -D$DATABASE -U$DBUSER -P$DBPASSWORD_FILE
 
 ######################################################
 # 4. Finally, archive the files
