@@ -21,7 +21,7 @@
 # Envvars:
 #
 #	RUNTIME_DIR		the directory where the data files reside
-#	DOWNLOADER_LOG_FILE	the file to use for logging errors raised by this program
+#	VERIFY_LOG_FILE		the file to use for logging errors raised by this program
 #	RCD_FILE		the name of the RCD config file
 #
 # Inputs:
@@ -30,7 +30,7 @@
 #
 # Outputs:
 #
-#	DOWNLOADER_LOG_FILE
+#	VERIFY_LOG_FILE
 #
 # Exit Codes:
 #
@@ -69,7 +69,7 @@ import rcdlib
 
 ParseError = 'Error parsing input file:  '
 data_dir = os.environ['RUNTIME_DIR']
-logFile = os.environ['DOWNLOADER_LOG_FILE']
+logFile = os.environ['VERIFY_LOG_FILE']
 rcdFile = os.environ['RCD_FILE']
 
 try:
@@ -103,4 +103,7 @@ errLog.close()
 sys.exit(0)
 
 # $Log$
+# Revision 1.1  2003/03/27 13:22:25  lec
+# replacement for GOdownloader.py
+#
 
