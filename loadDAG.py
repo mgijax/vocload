@@ -212,12 +212,12 @@ class DAGLoad:
         # Throws: raises 'error' if any exceptions occur
 
         try:
-           self.openDiscrepancyFiles()
+           self.openDiscrepancyFile()
            if self.mode == 'full':
                self.goFull()
            else:
                self.goIncremental()
-           self.closeDiscrepancyFiles()
+           self.closeDiscrepancyFile()
            self.closeBCPFiles()
            self.loadBCPFiles()
         except:
@@ -229,7 +229,7 @@ class DAGLoad:
 
         return
 
-    def openDiscrepancyFiles ( self ):
+    def openDiscrepancyFile ( self ):
         # Purpose: opens discrepancy file, and begins writing the HTML
         #          tags for the report content
         # Returns: nothing
@@ -249,7 +249,7 @@ class DAGLoad:
         self.dagDiscrepFile.write ( html.getTableHeaderLabelHTML ( "Message" ) )
         self.dagDiscrepFile.write ( html.getEndTableRowHTML () )
 
-    def closeDiscrepancyFiles ( self ):
+    def closeDiscrepancyFile ( self ):
         # Purpose: writes HTML tags to close the table and document tags
         #          and physically closes discrepancy file
         # Returns: nothing
@@ -325,8 +325,6 @@ class DAGLoad:
             'Full DAG Load Start:'))
 
         # delete existing information for the structure of this DAG.
-        # tcw - commenting this out because it is already called
-        # in loadVOC.py
         count = vocloadlib.countNodes (self.dag_key)
         vocloadlib.deleteDagComponents (self.dag_key, self.log)
         self.log.writeline ('   deleted all (%d) remaining nodes' % \
@@ -440,7 +438,7 @@ class DAGLoad:
             # this data line and proceed with the rest of the load
 
             if errors:
-                msg = 'ERROR: Skipped line %d:' % lineNum
+                msg = 'Input File: %s - ERROR: Skipped line %d:' % ( self.filename, lineNum )
                 for error in errors:
                     msg = msg + " " + error
                 self.writeDiscrepancyFile ( childID, msg )
