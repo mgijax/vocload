@@ -91,7 +91,7 @@ class TermLoad:
 	#	and the load itself:
 	#	vocab_key, vocab_name, isPrivate, isSimple, mode, filename,
 	#	datafile, log, max_term_key, max_synonym_key,
-	#	max_accession_key
+	#	max_accession_key, self.id2key
 	# DOES: reads from an input data file of term info to load it into
 	#	the MGI database
 
@@ -181,6 +181,8 @@ class TermLoad:
 
 		self.mgitype_key = vocloadlib.VOCABULARY_TERM_TYPE
 
+		self.id2key = {}	# maps term IDs to term keys
+
 		self.log.writeline (vocloadlib.timestamp ('Init Stop:'))
 		return
 
@@ -245,6 +247,12 @@ class TermLoad:
 			if self.isSimple:
 				termSeqNum = termSeqNum + 1
 			self.addTerm (record, termSeqNum)
+
+		# if we're running as no-load, we need to pass the ID to key
+		# mapping to vocloadlib in case the DAG load needs it
+
+		if vocloadlib.isNoLoad():
+			vocloadlib.setTermIDs (self.id2key)
 
 		self.log.writeline (vocloadlib.timestamp (
 			'Full Term Load Stop:'))
@@ -328,6 +336,7 @@ class TermLoad:
 
 		if record['accID']:
 			self.addAccID (record['accID'], self.logicalDBkey > 1)
+			self.id2key[record['accID']] = self.max_term_key
 
 		# add the secondary IDs, if there are any:
 
