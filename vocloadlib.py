@@ -558,7 +558,7 @@ def getTermIDs (
 
     if type(vocab) == types.StringType:
         vocab = getVocabKey (vocab)
-    result = sql ('''select acc.accID, vt._Term_key, vt.isObsolete
+    result = sql ('''select acc.accID, vt._Term_key, vt.isObsolete, vt.term
             from VOC_Term vt, ACC_Accession acc
             where vt._Vocab_key = %d
                 and acc._MGIType_key = %d
@@ -567,7 +567,10 @@ def getTermIDs (
             (vocab, VOCABULARY_TERM_TYPE))
     ids = {}
     for row in result:
-        ids[row['accID']] = [row['_Term_key'], row['isObsolete']]
+        #NOTE: The '0' added to the end of the list is a flag used to 
+        #track whether or not a term in the database has a corresponding
+        #term in the input file
+        ids[row['accID']] = [row['_Term_key'], row['isObsolete'], row['term'], 0]
     return ids
 
 def getSecondaryTermIDs (
@@ -583,7 +586,7 @@ def getSecondaryTermIDs (
     if type(vocab) == types.StringType:
         vocab = getVocabKey (vocab)
 
-    result = sql ('''select acc.accID, vt._Term_key
+    result = sql ('''select acc.accID, vt._Term_key, vt.term
             from VOC_Term vt, ACC_Accession acc
             where vt._Vocab_key = %d
                 and acc._MGIType_key = %d
@@ -592,7 +595,10 @@ def getSecondaryTermIDs (
             (vocab, VOCABULARY_TERM_TYPE))
     ids = {}
     for row in result:
-        ids[row['accID']] = row['_Term_key']
+        #NOTE: The '0' added to the end of the list is a flag used to 
+        #track whether or not a term in the database has a corresponding
+        #term in the input file
+        ids[row['accID']] = [row['_Term_key'], row['term'], 0]
     return ids
 
 def readTabFile (
