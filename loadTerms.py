@@ -36,6 +36,12 @@
 #
 # History
 #
+# lec	05/15/2002
+#	- MGI_LOGICALDB_KEY is an int, but self.LOGICALDB_KEY is a string, so the 
+#	  check in checkForDuplication was always falling through the "if" statement
+#	  because the values will never be equal.  so, MGI_LOGICALDB_KEY is now set to '1';
+#	  a string.
+#
 # lec	05/09/2002
 #	- TR 3670; UPDATE_TERM was using single quotes; all other SQL was using double quotes
 #
@@ -124,7 +130,7 @@ PRIMARY_SECONDARY_COLLISION_MSG = "Duplicate Primary/Secondary Accession ID Used
 TERM_MISSING_FROM_INPUT_FILE = "Term Exists in Database but NOT in the Input File.  This is a non-fatal error."
 OTHER_ID_DELIMITER = '|'
 SYNONYM_DELIMITER = '|'
-MGI_LOGICALDB_KEY = 1
+MGI_LOGICALDB_KEY = '1'		# compared to self.LOGICALDB_KEY which is returned as a string
 
 ###--- Classes ---###
 
@@ -807,37 +813,44 @@ class TermLoad:
         # Effects: writes duplicates to the discrepancy report
         # Throws:  propagates any exceptions raised 
 
-        duplicate = 0
+	duplicate = 0
 
-        # only check if using actual accession ids (mgi ids will be blank in 
-        # the Termfile)
-        if self.LOGICALDB_KEY != MGI_LOGICALDB_KEY:
+        # only check if using actual accession ids (mgi ids will be blank in # the Termfile)
+
+	if self.LOGICALDB_KEY != MGI_LOGICALDB_KEY:
+
            # the primaryAccIDFileList and secondaryAccIDFileList are simply individual
            # lists of accIDs contained in the input file; if duplicates are found
            # either within a list or across both lists, the record is a potential 
            # duplicate
-           if self.primaryAccIDFileList.has_key ( accID ) or self.secondaryAccIDFileList.contains ( accID ):
-              if termType == SECONDARY:
-                 # if it is a secondary term that is also an obsolete primary term
-                 # it is permissible for it to appear on the list
-                 # otherwise it is a duplicate
-                 if self.primaryAccIDFileList.has_key ( accID ):
-                     isObsolete = self.primaryAccIDFileList[accID]
-                     if isObsolete == 0:
-                        self.writeDiscrepancyFile ( accID, term, PRIMARY_SECONDARY_COLLISION_MSG )  
-                        duplicate = 1
-                 else: #accID already appears in secondary list
-                    self.writeDiscrepancyFile ( accID, term, PRIMARY_SECONDARY_COLLISION_MSG )  
-                    duplicate = 1
-              else: #duplicate primary term
-                 self.writeDiscrepancyFile ( accID, term, PRIMARY_SECONDARY_COLLISION_MSG )  
-                 duplicate = 1
-           else: #new term - add to list
-              if termType == PRIMARY:
-                 self.primaryAccIDFileList[accID] = isObsolete
-              else:
-                 self.secondaryAccIDFileList.add ( accID )
-        return duplicate
+
+		if self.primaryAccIDFileList.has_key ( accID ) or self.secondaryAccIDFileList.contains ( accID ):
+
+              		if termType == SECONDARY:
+                 	# if it is a secondary term that is also an obsolete primary term
+                 	# it is permissible for it to appear on the list
+                 	# otherwise it is a duplicate
+                 		if self.primaryAccIDFileList.has_key ( accID ):
+					isObsolete = self.primaryAccIDFileList[accID]
+					if isObsolete == 0:
+						self.writeDiscrepancyFile ( accID, term, PRIMARY_SECONDARY_COLLISION_MSG )  
+						duplicate = 1
+
+				else: #accID already appears in secondary list
+					self.writeDiscrepancyFile ( accID, term, PRIMARY_SECONDARY_COLLISION_MSG )  
+					duplicate = 1
+
+			else: #duplicate primary term
+                 		self.writeDiscrepancyFile ( accID, term, PRIMARY_SECONDARY_COLLISION_MSG )  
+                 		duplicate = 1
+
+		else: #new term - add to list
+			if termType == PRIMARY:
+				self.primaryAccIDFileList[accID] = isObsolete
+			else:
+				self.secondaryAccIDFileList.add ( accID )
+
+	return duplicate
 
     def writeDiscrepancyFile (self, accID, term, msg ):
         # Purpose: write a record to the discrepancy file
