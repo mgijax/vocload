@@ -1,53 +1,21 @@
-# RCD file for the GO vocabulary load
 
-# database access:
-
-DBSERVER = PROD_MGI
-DATABASE = mgd
-DBUSER = mgd_dbo
-DBPASSWORD_FILE = /usr/local/mgi/dbutils/mgidbutilities/.mgd_dbo_password
-
-# vocabulary attributes:
-
-VOCAB_NAME = GO
-JNUM = J:73041
-IS_SIMPLE = 0
-IS_PRIVATE = 0
-LOGICALDB_KEY = 31
-ANNOT_TYPE_KEY = 1000
-ACC_PREFIX = GO
-
-# _MGIType_key for vocabulary terms:
-
-MGITYPE = 13
-
-RUNTIME_DIR = ./runTimeGO/
-
-TERM_FILE = ${RUNTIME_DIR}/Termfile
-DEFS_FILE = ${RUNTIME_DIR}/GO.defs
-
-#BCP log and error files
-BCP_LOG_FILE = ${RUNTIME_DIR}/bcpLog.bcp
-BCP_ERROR_FILE = ${RUNTIME_DIR}/bcpError.bcp
-
-# DAG BCP Files
-DAG_EDGE_BCP_FILE = ${RUNTIME_DIR}/dagEdge.bcp
-DAG_NODE_BCP_FILE = ${RUNTIME_DIR}/dagNode.bcp
-DAG_CLOSURE_BCP_FILE = ${RUNTIME_DIR}/dagClosure.bcp
-
-# Term BCP Files
-TERM_TERM_BCP_FILE    = ${RUNTIME_DIR}/termTerm.bcp
-TERM_TEXT_BCP_FILE    = ${RUNTIME_DIR}/termText.bcp
-TERM_SYNONYM_BCP_FILE = ${RUNTIME_DIR}/termSynonym.bcp
-ACCESSION_BCP_FILE    = ${RUNTIME_DIR}/accAccession.bcp
-
-# Discrepancy File
-DISCREP_FILE      = ${RUNTIME_DIR}/discrepancy.html
-DAG_DISCREP_FILE  = ${RUNTIME_DIR}/dagDiscrepancy.html
-
-FULL_MODE_DATA_LOADER = bcp
-
-# DAGs which are part of the vocabulary (for complex vocabularies)
+#
+# Progam:  go.rcd
+#
+# Purpose:
+#
+#	Configuration file for GO Vocabulary load
+#	which defines the GO DAGs
+#
+# Usage:
+#
+#	Used by Python Configuration module
+#
+# History:
+#
+#	03/25/2003	lec
+#	- moved simple vocab variables to ConfigGO.default
+#
 
 [
         NAME = Molecular Function
@@ -67,3 +35,5 @@ FULL_MODE_DATA_LOADER = bcp
         ONTOLOGY_FILE = ${RUNTIME_DIR}/component.ontology.txt
         LOAD_FILE = ${RUNTIME_DIR}/dag.c
 ]
+
+# $Log$

@@ -38,11 +38,80 @@ MAIL_FILE_NAME=${RUNTIME_DIR}"mail.txt"
 GO_DOWNLOADER_LOG_FILE=${RUNTIME_DIR}"godownloader.log"
 GO_LOAD_LOG_FILE=${RUNTIME_DIR}"log.txt"
 
+# note that this functionality will be moved to the mirrorFTP product (see TR 4630)
+FTPSERVER="genome-ftp.stanford.edu"       # GO FTP server
+FTPONT_DIR="pub/go/ontology"              # ontology file directory
+FTPDEFS_DIR="pub/go/doc"                  # definitions file directory
+
 export FULL_LOG_FILE
 export MAINTAINER
 export MAIL_FILE_NAME
 export ARCHIVE_FILE_NAME
 export GO_DOWNLOADER_LOG_FILE
 export GO_LOAD_LOG_FILE
+export FTPSERVER, FTPONT_DIR, FTPDEFS_DIR
+
+# vocabulary attributes:
+
+VOCAB_NAME="GO"		# name of vocabulary (VOC_Vocab.name)
+ACC_PREFIX="GO"		# acc ID prefix
+JNUM="J:73041"		# reference for this vocabulary
+IS_SIMPLE=0		# structured vocabulary; should be a .rcd file
+IS_PRIVATE=0		# acc IDs are public
+LOGICALDB_KEY=31	# ACC_LogicalDB._LogicalDB_key
+ANNOT_TYPE_KEY=1000     # VOC_AnnotType._AnnotType_key
+MGITYPE=13		# ACC_MGIType._MGIType_key
+
+export VOCAB_NAME
+export ACC_PREFIX
+export JNUM
+export IS_SIMPLE
+export IS_PRIVATE
+export LOGICALDB_KEY
+export ANNOT_TYPE_KEY
+export MGITYPE
+
+TERM_FILE="${RUNTIME_DIR}/Termfile"
+DEFS_FILE="${RUNTIME_DIR}/GO.defs"
+
+#BCP log and error files
+BCP_LOG_FILE="${RUNTIME_DIR}/bcpLog.bcp"
+BCP_ERROR_FILE="${RUNTIME_DIR}/bcpError.bcp"
+
+# DAG BCP Files
+DAG_EDGE_BCP_FILE="${RUNTIME_DIR}/dagEdge.bcp"
+DAG_NODE_BCP_FILE="${RUNTIME_DIR}/dagNode.bcp"
+DAG_CLOSURE_BCP_FILE="${RUNTIME_DIR}/dagClosure.bcp"
+
+# Term BCP Files
+TERM_TERM_BCP_FILE="${RUNTIME_DIR}/termTerm.bcp"
+TERM_TEXT_BCP_FILE="${RUNTIME_DIR}/termText.bcp"
+TERM_SYNONYM_BCP_FILE="${RUNTIME_DIR}/termSynonym.bcp"
+ACCESSION_BCP_FILE="${RUNTIME_DIR}/accAccession.bcp"
+
+# Discrepancy File
+DISCREP_FILE="${RUNTIME_DIR}/discrepancy.html"
+DAG_DISCREP_FILE="${RUNTIME_DIR}/dagDiscrepancy.html"
+
+FULL_MODE_DATA_LOADER="bcp"
+
+export TERM_FILE
+export DEFS_FILE
+export BCP_LOG_FILE
+export BCP_ERROR_FILE
+export DAG_EDGE_BCP_FILE
+export DAG_NODE_BCP_FILE
+export DAG_CLOSURE_BCP_FILE
+export TERM_TERM_BCP_FILE
+export TERM_TEXT_BCP_FILE
+export TERM_SYNONYM_BCP_FILE
+export ACCESSION_BCP_FILE
+export DISCREP_FILE
+export DAG_DISCREP_FILE
+
+. Configuration
 
 # $Log$
+# Revision 1.2  2003/03/25 13:30:19  lec
+# new
+#

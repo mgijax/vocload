@@ -50,4 +50,43 @@ export DBPASSWORD_FILE
 export SUCCESS
 export FAILURE
 
+#BCP log and error files
+BCP_LOG_FILE="${RUNTIME_DIR}/bcpLog.bcp"
+BCP_ERROR_FILE="${RUNTIME_DIR}/bcpError.bcp"
+
+# DAG BCP Files
+DAG_EDGE_BCP_FILE="${RUNTIME_DIR}/dagEdge.bcp"
+DAG_NODE_BCP_FILE="${RUNTIME_DIR}/dagNode.bcp"
+DAG_CLOSURE_BCP_FILE="${RUNTIME_DIR}/dagClosure.bcp"
+
+# Term BCP Files
+TERM_TERM_BCP_FILE="${RUNTIME_DIR}/termTerm.bcp"
+TERM_TEXT_BCP_FILE="${RUNTIME_DIR}/termText.bcp"
+TERM_SYNONYM_BCP_FILE="${RUNTIME_DIR}/termSynonym.bcp"
+ACCESSION_BCP_FILE="${RUNTIME_DIR}/accAccession.bcp"
+
+# Discrepancy File
+DISCREP_FILE="${RUNTIME_DIR}/discrepancy.html"
+DAG_DISCREP_FILE="${RUNTIME_DIR}/dagDiscrepancy.html"
+
+FULL_MODE_DATA_LOADER="bcp"
+
+export TERM_FILE
+export DEFS_FILE
+export BCP_LOG_FILE
+export BCP_ERROR_FILE
+export DAG_EDGE_BCP_FILE
+export DAG_NODE_BCP_FILE
+export DAG_CLOSURE_BCP_FILE
+export TERM_TERM_BCP_FILE
+export TERM_TEXT_BCP_FILE
+export TERM_SYNONYM_BCP_FILE
+export ACCESSION_BCP_FILE
+export DISCREP_FILE
+export DAG_DISCREP_FILE
+export FULL_MODE_DATA_LOADER
+
 # $Log$
+# Revision 1.2  2003/03/25 13:30:20  lec
+# new
+#
