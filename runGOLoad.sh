@@ -9,7 +9,7 @@
 # 
 # Usage:
 #
-#	runGOLoad.sh
+#	runGOLoad.sh [load|noload] [full|incremental]
 #
 # History:
 #
@@ -21,10 +21,7 @@
 # change to directory where this file resides
 cd `dirname $0`
 
-# execute the Configuration files
-
-. Configuration
-. ConfigGO
+. go.config
 
 die()
 {
@@ -249,6 +246,9 @@ echo "Job Complete: `date`"                                                     
 cat $MAIL_FILE_NAME $FULL_LOG_FILE | mailx -s "$SUBJECT" $MAINTAINER 
 
 # $Log$
+# Revision 1.20  2003/03/25 14:23:56  lec
+# new Configuration files
+#
 # Revision 1.19  2003/03/25 13:31:04  lec
 # new Configuration files
 #
