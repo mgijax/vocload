@@ -489,7 +489,7 @@ def getTerms (
             and vt._Term_key = vs._Term_key
         order by vs.synonym''' % vocab,
 
-	'''select n._Object_key, comment = nc.note, nc.sequenceNum
+	'''select n._Object_key, nc.note, nc.sequenceNum
 	from VOC_Term vt, MGI_Note n, MGI_NoteChunk nc
 	where vt._Vocab_key = %d
 	and vt._Term_key = n._Object_key
@@ -518,9 +518,9 @@ def getTerms (
     for row in voc_comment:
         term_key = row['_Object_key']
         if comments.has_key (term_key):
-            comments[term_key] = comments[term_key] + row['comment']
+            comments[term_key] = comments[term_key] + row['note']
         else:
-            comments[term_key] = row['comment']
+            comments[term_key] = row['note']
 
     # build a dictionary of 'synonyms', mapping a term key to a list of
     # strings (each of which is one synonym)

@@ -1100,7 +1100,7 @@ class TermLoad:
                 self.writeDiscrepancyFile ( record['accID'], record['term'], msg )  
 	   
              if commentDiscrepancy:
-                msg = "Comment change for Term with annotations.  Old Comment: %s, New Comment: %s, Symbols: %s" % ( dbRecord[0]['comment'], record['comment'], symbols ) 
+                msg = "Comment change for Term with annotations.  Old Comment: %s, New Comment: %s, Symbols: %s" % ( dbRecord[0]['comments'], record['comment'], symbols ) 
                 self.writeDiscrepancyFile ( record['accID'], record['term'], msg )  
 
              if obsoleteTermDiscrepancy:
