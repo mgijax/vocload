@@ -21,7 +21,7 @@ SYBASE=/opt/sybase/12.5
 PYTHONPATH=/usr/local/mgi/lib/python
 PATH=$PATH:.:/usr/bin:$SYBASE/OCS-12_5/bin:$SYBASE/ASE-12_5/bin:/usr/java/bin
 FULL_LOG_FILE=$RUNTIME_DIR"fullLog.txt"
-MAINTAINER="lec@informatics.jax.org"
+MAINTAINER="lec@informatics.jax.org, terryh@informatics.jax.org"
 ARCHIVE_FILE_NAME=$ARCHIVE_DIR"vocload.`date +%Y%m%d:%H:%M`.jar"
 MOUSEADULT_LOAD_LOG_FILE=$RUNTIME_DIR"log.txt"
 LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$SYBASE/OCS-12_5/lib
@@ -212,6 +212,6 @@ echo "************************************************************************" 
 echo "Job Complete: `date`"
 echo "Job Complete: `date`"                                                         >> $FULL_LOG_FILE 2>&1
 
-#cat $$.txt $FULL_LOG_FILE | mailx -s "$SUBJECT" $MAINTAINER 
+cat $$.txt $FULL_LOG_FILE | mailx -s "$SUBJECT" $MAINTAINER 
 
 rm -rf $$.txt
