@@ -147,7 +147,7 @@ procName = data_dir + '/process.ontology'       # process ontology file name
 compName = data_dir + '/component.ontology'     # component ontology file name
 defsName = data_dir + '/GO.defs'                # definitions file name
 
-logFile = data_dir +'/godownloader.log'
+logFile = data_dir +'/GOdownloader.log'
 
 errLog = open(logFile, 'w')
 
@@ -183,7 +183,7 @@ except:
     errLog.write(sys.exc_type + ': ' + sys.exc_value + '\n')
     sys.exit(1)
 
-errLog.write ( 'godownloader.py completed successfully: ' + data_dir )
+errLog.write ( sys.argv[0] + ' completed successfully: ' + data_dir )
 errLog.write ( 'compName = ' + funcName )
 errLog.write ( 'procName = ' + funcName )
 errLog.close()
