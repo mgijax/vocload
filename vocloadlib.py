@@ -29,6 +29,9 @@ VOCABULARY_TERM_TYPE = 13	# default _MGIType_key for vocab terms
 NOT_SPECIFIED = -1		# traditional 'n.s.' for vocabs
 NO_LOAD = 0			# boolean (0/1); are we in a no-load state?
 				#	(log SQL, but don't run it)
+TERM_IDS = None			# dictionary mapping term ID to term key,
+				#	set by TermLoad when running in
+				#	no-load mode
 
 ###--- Functions ---###
 
@@ -410,6 +413,22 @@ def getLabels ():
 		labels[row['label']] = row['_Label_key']
 	return labels
 
+def setTermIDs (
+	dict		# dictionary mapping term IDs to term keys
+	):
+	# Purpose: To have the TermLoad and DAGLoad cooperate for the no-load
+	#	option, we need to be able to pass the ID to key mapping to
+	#	the DAG Load rather than getting it from the db.
+	# Returns: nothing
+	# Assumes: nothing
+	# Effects: sets global TERM_IDS
+	# Throws: nothing
+
+	global TERM_IDS
+
+	TERM_IDS = dict
+	return
+
 def getTermIDs (
 	vocab		# integer vocabulary key or string vocabulary name
 	):
@@ -419,6 +438,9 @@ def getTermIDs (
 	# Assumes: nothing
 	# Effects: queries the database
 	# Throws: propagates any exceptions from sql()
+
+	if TERM_IDS:			# if global is set, use it
+		return TERM_IDS
 
 	if type(vocab) == types.StringType:
 		vocab = getVocabKey (vocab)
@@ -599,6 +621,16 @@ def deleteDagComponents (
 		elif not NO_LOAD:
 			sql (delete)
 	return
+
+def isNoLoad ():
+	# Purpose: returns boolean (0/1) telling if we are running as no-load
+	#	(1) or not (0)
+	# Returns: 0/1
+	# Assumes: nothing
+	# Effects: nothing
+	# Throws: nothing
+
+	return NO_LOAD
 
 def truncateTransactionLog (
 	database,		# string; name of the database
