@@ -817,7 +817,7 @@ class TermLoad:
 
         # only check if using actual accession ids (mgi ids will be blank in # the Termfile)
 
-	if self.LOGICALDB_KEY != MGI_LOGICALDB_KEY:
+	if self.LOGICALDB_KEY != MGI_LOGICALDB_KEY and self.LOGICALDB_KEY != '-1':
 
            # the primaryAccIDFileList and secondaryAccIDFileList are simply individual
            # lists of accIDs contained in the input file; if duplicates are found
