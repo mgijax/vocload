@@ -17,15 +17,21 @@
 #	- new
 #
 
-CONFIG_FILE=$1
-export CONFIG_FILE
+RCD_FILE=simple.rcd
+export RCD_FILE
+
+LOAD_PROGRAM=simpleLoad.py
+export LOAD_PROGRAM
 
 cd `dirname $0`
 . VOClib.config
 
-setUp ${CONFIG_FILE} load full
+setUp $1 load full
 executePrograms ${LOAD_PROGRAM}
 archive
 finishUp
 
 # $Log$
+# Revision 1.1  2003/03/26 15:27:46  lec
+# new
+#
