@@ -1,5 +1,16 @@
 #!/usr/local/bin/python
 
+'''
+#
+# History
+#
+# 08/26/2002 lec
+#	- TR 3809 (adding support for processing Phenotype vocabulary in GO format)
+#	- added call to govocab.initializeRegExps (self.config.getConstant('ACC_PREFIX'))
+#	- modified setID() to : self.name = self.config.getConstant('VOCAB_NAME')
+#
+'''
+
 import sys
 import os
 import string

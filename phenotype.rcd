@@ -1,4 +1,4 @@
-# RCD file for the GO vocabulary load
+# RCD file for the Phenotype vocabulary load
 
 # database access:
 
@@ -9,22 +9,22 @@ DBPASSWORD_FILE = /usr/local/mgi/dbutils/mgidbutilities/.mgd_dbo_password
 
 # vocabulary attributes:
 
-VOCAB_NAME = GO
-JNUM = J:73041
+VOCAB_NAME = Phenotype
+JNUM = J:72460
 IS_SIMPLE = 0
 IS_PRIVATE = 0
-LOGICALDB_KEY = 31
-ANNOT_TYPE_KEY = 1000
-ACC_PREFIX = GO
+LOGICALDB_KEY = 34
+ANNOT_TYPE_KEY = 0
+ACC_PREFIX = MP
 
 # _MGIType_key for vocabulary terms:
 
 MGITYPE = 13
 
-RUNTIME_DIR = ./runTime/
+RUNTIME_DIR = ./runTimePheno/
 
 TERM_FILE = ${RUNTIME_DIR}/Termfile
-DEFS_FILE = ${RUNTIME_DIR}/GO.defs
+DEFS_FILE = ${RUNTIME_DIR}/MP.defs
 
 #BCP log and error files
 BCP_LOG_FILE = ${RUNTIME_DIR}/bcpLog.bcp
@@ -50,20 +50,8 @@ FULL_MODE_DATA_LOADER = bcp
 # DAGs which are part of the vocabulary (for complex vocabularies)
 
 [
-        NAME = Molecular Function
-        ABBREV = F
-        ONTOLOGY_FILE = ${RUNTIME_DIR}/function.ontology.txt
-        LOAD_FILE = ${RUNTIME_DIR}/dag.f
-]
-[
-        NAME = Biological Process
-        ABBREV = P
-        ONTOLOGY_FILE = ${RUNTIME_DIR}/process.ontology.txt
-        LOAD_FILE = ${RUNTIME_DIR}/dag.p
-]
-[
-        NAME = Cellular Component
-        ABBREV = C
-        ONTOLOGY_FILE = ${RUNTIME_DIR}/component.ontology.txt
-        LOAD_FILE = ${RUNTIME_DIR}/dag.c
+        NAME = Mammalian Phenotype
+        ABBREV = MP
+        ONTOLOGY_FILE = ${RUNTIME_DIR}/MPheno.ontology
+        LOAD_FILE = ${RUNTIME_DIR}/dag.mp
 ]
