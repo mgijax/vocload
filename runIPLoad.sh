@@ -1,20 +1,20 @@
 #!/bin/sh
 
 #
-# Program: runMALoad.sh
+# Program: runIPLoad.sh
 #
 # Purpose:
 #
-# Main Wrapper Script for Processing MA Terms and DAGs
+# Main Wrapper Script for Processing IP Terms and DAGs
 # 
 # Usage:
 #
-#	runMALoad.sh [load|noload] [full|incremental]
+#	runIPLoad.sh [load|noload] [full|incremental]
 #
 # History:
 #
 #	lec	03/25/2003
-#	- use new Configuration and MA.config files
+#	- use new Configuration and IP.config files
 #
 
 installOntologyFiles()
@@ -33,7 +33,7 @@ installOntologyFiles()
 die()
 {
    echo $1
-#   cat $FULL_LOG_FILE | mailx -s "Adult Mouse Anatomy Load Catastrophic FAILURE" $MAINTAINER 
+#   cat $FULL_LOG_FILE | mailx -s "InterPro Domains Load Catastrophic FAILURE" $MAINTAINER 
    exit $FAILURE
 }
 
@@ -70,7 +70,7 @@ umask 002
 # change to directory where this file resides
 cd `dirname $0`
 # read in configuration variables
-. MA.config
+. IP.config
 createDir $RUNTIME_DIR
 createDir $ARCHIVE_DIR
 installOntologyFiles
@@ -108,34 +108,34 @@ echo "*****************************************" >> $FULL_LOG_FILE 2>&1
 ######################################################
 # 1. Run GOload.py program
 ######################################################
-MA_LOAD_PROGRAM=GOload.py
-MA_LOAD_PROGRAM_CALL="${MA_LOAD_PROGRAM} $LOAD_FLAG $MODE_FLAG -l $MA_LOAD_LOG_FILE ${RCD_FILE}"
+IP_LOAD_PROGRAM=GOload.py
+IP_LOAD_PROGRAM_CALL="${IP_LOAD_PROGRAM} $LOAD_FLAG $MODE_FLAG -l $IP_LOAD_LOG_FILE"
 
-writePgmExecutionHeaders $MA_LOAD_PROGRAM
-echo $MA_LOAD_PROGRAM_CALL                       >> $FULL_LOG_FILE 2>&1
+writePgmExecutionHeaders $IP_LOAD_PROGRAM
+echo $IP_LOAD_PROGRAM_CALL                       >> $FULL_LOG_FILE 2>&1
 echo "*****************************************" >> $FULL_LOG_FILE 2>&1
 
-msg=`$MA_LOAD_PROGRAM_CALL 2>&1`
+msg=`$IP_LOAD_PROGRAM_CALL 2>&1`
 rc=$?
 
-writePgmLogFile $MA_LOAD_PROGRAM, $MA_LOAD_LOG_FILE
+writePgmLogFile $IP_LOAD_PROGRAM, $IP_LOAD_LOG_FILE
 
 case $rc in
      $FAILURE)
-        ERROR_MSG="${MA_LOAD_PROGRAM} FAILED!!!! - Check Log File: $FULL_LOG_FILE"
+        ERROR_MSG="${IP_LOAD_PROGRAM} FAILED!!!! - Check Log File: $FULL_LOG_FILE"
         echo $ERROR_MSG
         echo $0:$ERROR_MSG                 >> $FULL_LOG_FILE 2>&1
-        echo "$0:${MA_LOAD_PROGRAM} Ouput is: $msg" >> $FULL_LOG_FILE 2>&1
+        echo "$0:${IP_LOAD_PROGRAM} Ouput is: $msg" >> $FULL_LOG_FILE 2>&1
         die "$ERROR_MSG";;
 
      $SUCCESS)
-        ERROR_MSG="${MA_LOAD_PROGRAM} Was Successful - No Errors Encountered"
+        ERROR_MSG="${IP_LOAD_PROGRAM} Was Successful - No Errors Encountered"
         JOB_SUCCESSFUL="true"
         echo $ERROR_MSG
         echo $0:$ERROR_MSG                 >> $FULL_LOG_FILE 2>&1;;
 esac
-cat $MA_LOAD_LOG_FILE                      >> $FULL_LOG_FILE 2>&1
-MA_LOAD_ERROR_MSG=$ERROR_MSG
+cat $IP_LOAD_LOG_FILE                      >> $FULL_LOG_FILE 2>&1
+IP_LOAD_ERROR_MSG=$ERROR_MSG
 
 ######################################################
 # 2. Finally, archive the files
@@ -181,17 +181,17 @@ JAR_PROGRAM_ERROR_MSG=$ERROR_MSG
 ######################################################
 if test $JOB_SUCCESSFUL = "true"
 then
-   SUBJECT="Adult Mouse Anatomy Load Successful"
+   SUBJECT="InterPro Domains Load Successful"
 else
-   SUBJECT="Adult Mouse Anatomy Load Failed"
+   SUBJECT="InterPro Domains Load Failed"
 fi
 echo $SUBJECT
 
 echo "Run Summary:"                                                                  > $MAIL_FILE_NAME
 echo "****************************************************************************" >> $MAIL_FILE_NAME
-echo "Adult Mouse Anatomy Downloader Completion Status:   $MA_DOWNLOADER_ERROR_MSG" >> $MAIL_FILE_NAME
+echo "InterPro Domains Downloader Completion Status:   $IP_DOWNLOADER_ERROR_MSG"    >> $MAIL_FILE_NAME
 echo "****************************************************************************" >> $MAIL_FILE_NAME
-echo "Adult Mouse Anatomy Load Program Completion Status: $MA_LOAD_ERROR_MSG"       >> $MAIL_FILE_NAME
+echo "InterPro Domains Load Program Completion Status: $IP_LOAD_ERROR_MSG"          >> $MAIL_FILE_NAME
 echo "****************************************************************************" >> $MAIL_FILE_NAME
 echo "Archive Program Completion Status: $JAR_PROGRAM_ERROR_MSG"                    >> $MAIL_FILE_NAME
 echo "****************************************************************************" >> $MAIL_FILE_NAME
@@ -209,4 +209,7 @@ echo "Job Complete: `date`"                                                     
 #cat $MAIL_FILE_NAME $FULL_LOG_FILE | mailx -s "$SUBJECT" $MAINTAINER 
 
 # $Log$
+# Revision 1.1  2003/03/25 18:02:44  lec
+# new Configuration files
+#
 
