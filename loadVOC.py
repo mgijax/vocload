@@ -1,9 +1,12 @@
 #!/usr/local/bin/python
 
 # Program: loadVOC.py
+#
 # Purpose: do a vocabulary load.  This includes terms for a simple vocabulary
 #   and the terms and DAG structure for complex vocabularies.
+#
 # User Requirements Satisfied by This Program:
+#
 # System Requirements Satisfied by This Program:
 #   Usage: see USAGE below
 #   Uses:
@@ -12,10 +15,22 @@
 #   Outputs:
 #   Exit Codes: throws exception if unsuccessful
 #   Other System Requirements:
+#
 # Assumes:
 #   We assume no other users are adding/modifying database records during
+#
 # Implementation:
 #   Modules:
+#
+# Modification History
+#
+#	03/26/2003	lec
+#	- TR 3702 (InterPro); do not delete VOC_Vocab record during a full load.
+#	A simple vocabulary may be associated with an Annotation Type (VOC_AnnotType).
+#	For InterPro, the Annotations will be deleted, the IP Vocab will be reloaded,
+#	and the Annotations will be reloaded.  However, we don't want to have to
+#	re-create the Annotation Type record, because then the IP Annotation load.
+#	
 
 import sys      # standard Python libraries
 import string
@@ -174,20 +189,27 @@ class VOCLoad:
             vocloadlib.truncateTransactionLog (
                 self.database, self.log)
             vocloadlib.deleteVocabTerms (self.vocab_key, self.log)
-            vocloadlib.nl_sqlog ('''delete from VOC_Vocab
-                    where _Vocab_key = %d''' % \
-                    self.vocab_key,
-                self.log)
+
+	    # don't delete the master VOC_Vocab record; a simple vocab may be used 
+	    # in an VOC_AnnotType record.  for example, InterPro; the annotations get deleted;
+	    # the vocabulary gets a full reload; the annotations get re-added;
+	    # but the Annotation Type record still needs to exist.
+
+#            vocloadlib.nl_sqlog ('''delete from VOC_Vocab
+#                    where _Vocab_key = %d''' % \
+#                    self.vocab_key,
+#                self.log)
         else:
             result = vocloadlib.sql ('''select max(_Vocab_key)
                     from VOC_Vocab''')
             self.vocab_key = max (0, result[0]['']) + 1
 
-        #insert into VOC_Vocab table
-        vocloadlib.nl_sqlog (INSERT_VOCAB % (self.vocab_key,
-            self.refs_key, self.isSimple, self.isPrivate,
-            self.logicalDBkey, self.vocab_name),
-            self.log)
+        #insert into VOC_Vocab table only if a record does not already exist
+	if not self.vocab_key:
+            vocloadlib.nl_sqlog (INSERT_VOCAB % (self.vocab_key,
+                self.refs_key, self.isSimple, self.isPrivate,
+                self.logicalDBkey, self.vocab_name),
+                self.log)
 
         result = vocloadlib.sql ('select max(_DAG_key) from DAG_DAG')
         dag_key = max (0, result[0]['']) + 1
@@ -274,3 +296,5 @@ if __name__ == '__main__':
 #   config = rcdlib.RcdFile ('voc.rcd', rcdlib.Rcd, 'NAME')
 #   vocload = VOCLoad (config, 'full', Log.Log())
 #   vocload.go()
+
+# $Log$
