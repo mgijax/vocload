@@ -21,10 +21,6 @@
 #	- new Configuration file
 #
 
-# Installation directory of this product
-INSTALL_DIR="/usr/local/mgi/dataload/vocload"
-export INSTALL_DIR
-
 # Database stuff
 SYBASE=/opt/sybase/12.5
 PYTHONPATH=/usr/local/mgi/lib/python
@@ -71,8 +67,6 @@ DAG_DISCREP_FILE="${RUNTIME_DIR}/dagDiscrepancy.html"
 
 FULL_MODE_DATA_LOADER="bcp"
 
-export TERM_FILE
-export DEFS_FILE
 export BCP_LOG_FILE
 export BCP_ERROR_FILE
 export DAG_EDGE_BCP_FILE
@@ -87,6 +81,9 @@ export DAG_DISCREP_FILE
 export FULL_MODE_DATA_LOADER
 
 # $Log$
+# Revision 1.3  2003/03/25 13:49:26  lec
+# new Configuration files
+#
 # Revision 1.2  2003/03/25 13:30:20  lec
 # new
 #

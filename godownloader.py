@@ -148,12 +148,12 @@ if os.environ.has_key("RUNTIME_DIR"):
 else:
     data_dir = './'
 
-funcName = data_dir + 'function.ontology'      # function ontolgy file name
-procName = data_dir + 'process.ontology'       # process ontology file name
-compName = data_dir + 'component.ontology'     # component ontology file name
-defsName = data_dir + 'GO.defs'                # definitions file name
+funcName = data_dir + '/function.ontology'      # function ontolgy file name
+procName = data_dir + '/process.ontology'       # process ontology file name
+compName = data_dir + '/component.ontology'     # component ontology file name
+defsName = data_dir + '/GO.defs'                # definitions file name
 
-logFile = data_dir +'godownloader.log'
+logFile = data_dir +'/godownloader.log'
 
 errLog = open(logFile, 'w')
 
@@ -163,8 +163,8 @@ c_out = open(compName, 'w')
 defs_out = open(defsName, 'w')
     
 try:
-   getOntologies(FTPSERVER, FTPONT_DIR)
-   getDefsFile(FTPSERVER, FTPDEFS_DIR)
+   getOntologies(os.environ('FTPSERVER'), os.environ('FTPONT_DIR'))
+   getDefsFile(os.environ('FTPSERVER'), os.environ('FTPDEFS_DIR'))
 except:
    errLog.write('Error getting ontology and/or def files from Stanford\n')
    errLog.write(sys.exc_type + ': ' + sys.exc_value + '\n')
@@ -196,3 +196,6 @@ errLog.close()
 sys.exit(0)
 
 # $Log$
+# Revision 1.5  2003/03/25 13:34:48  lec
+# new Configuration files
+#
