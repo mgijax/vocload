@@ -37,16 +37,16 @@ class GO_Wrapper (loadWrapper.LoadWrapper):
         NUM_ARGS = 1
 
         def preProcess (self):
-                defs_file = os.environ["DEFS_FILE"]
+                defs_file = os.environ['DEFS_FILE']
 
-                term_fp = open (os.environ["TERM_FILE"], 'w')
+                term_fp = open (os.environ['TERM_FILE'], 'w')
 
                 for (key, dag) in self.config.items():
                         self.log.writeline ('Pre-processing %s to create %s' \
                                 % (dag['ONTOLOGY_FILE'], dag['LOAD_FILE']))
 
                         govocab = GOVocab.GOVocab ()
-			govocab.initializeRegExps (os.environ["ACC_PREFIX"])
+			govocab.initializeRegExps (os.environ['ACC_PREFIX'])
                         govocab.buildVocab (defs_file, dag['ONTOLOGY_FILE'])
 
                         dag_fp = open (dag['LOAD_FILE'], 'w')
@@ -115,9 +115,10 @@ class GO_Wrapper (loadWrapper.LoadWrapper):
                 return
 
         def setID (self):
-                self.name = os.environ["VOCAB_NAME"]
+                self.name = os.environ['VOCAB_NAME']
                 return
 
 if __name__ == '__main__':
         wrapper = GO_Wrapper (sys.argv[1:])
         wrapper.go()
+
