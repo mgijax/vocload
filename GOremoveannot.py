@@ -4,7 +4,7 @@
 # $NAME$
 
 #
-# Program: goremoveannot.py
+# Program: GOremoveannot.py
 #
 # Original Author: Lori Corbani
 #
@@ -38,7 +38,7 @@
 #
 # Outputs:
 #
-#	Report: goremoveannot.rpt
+#	Report: GOremoveannot.rpt
 #
 # Exit Codes:
 #
@@ -245,6 +245,9 @@ process()
 exit(0)
 
 # $Log$
+# Revision 1.1  2003/03/25 14:58:36  lec
+# renamed from goremoveannot.py
+#
 # Revision 1.1  2003/03/25 14:56:21  lec
 # renamed from goremoveannot.py
 #

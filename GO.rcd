@@ -1,5 +1,5 @@
 #
-# Progam:  go.rcd
+# Progam:  GO.rcd
 #
 # Purpose:
 #
@@ -36,6 +36,9 @@
 ]
 
 # $Log$
+# Revision 1.1  2003/03/25 14:55:00  lec
+# new
+#
 # Revision 1.8  2003/03/25 14:23:58  lec
 # new Configuration files
 #
