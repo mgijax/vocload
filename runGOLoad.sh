@@ -16,15 +16,14 @@ FAILURE=1
 RUNTIME_DIR="./runTime/"
 ARCHIVE_DIR="./archive/"
 
-SYBASE=/opt/sybase/12.5
+SYBASE=/opt/sybase
 PYTHONPATH=/usr/local/mgi/lib/python
-PATH=$PATH:.:/usr/bin:$SYBASE/OCS-12_5/bin:$SYBASE/ASE-12_5/bin:/usr/java/bin
+PATH=$PATH:.:/usr/bin:$SYBASE/bin:/usr/java/bin
 FULL_LOG_FILE=$RUNTIME_DIR"fullLog.txt"
 MAINTAINER="lec@informatics.jax.org"
 ARCHIVE_FILE_NAME=$ARCHIVE_DIR"vocload.`date +%Y%m%d:%H:%M`.jar"
 GO_DOWNLOADER_LOG_FILE=$RUNTIME_DIR"godownloader.log"
 GO_LOAD_LOG_FILE=$RUNTIME_DIR"log.txt"
-LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$SYBASE/OCS-12_5/lib
 
 export RUNTIME_DIR
 export SYBASE
@@ -74,6 +73,35 @@ writePgmLogFile()
    echo "*****************************************" >> $FULL_LOG_FILE 2>&1
 }
 
+godownload()
+{
+   GO_DOWNLOADER_PROGRAM=godownloader.py
+   GO_DOWNLOADER_PROGRAM_CALL="./godownloader.py"
+
+   writePgmExecutionHeaders $GO_DOWNLOADER_PROGRAM
+   echo $GO_DOWNLOADER_PROGRAM_CALL                 >> $FULL_LOG_FILE 2>&1
+   echo "*****************************************" >> $FULL_LOG_FILE 2>&1
+
+   msg=`$GO_DOWNLOADER_PROGRAM_CALL`
+   rc=$?
+   writePgmLogFile $GO_DOWNLOADER_PROGRAM, $GO_DOWNLOADER_LOG_FILE
+   case $rc in
+     $FAILURE)
+        ERROR_MSG="godownloader.py FAILED!!!! - Check Log File: $FULL_LOG_FILE"
+        echo $ERROR_MSG
+        echo $0:$ERROR_MSG                >> $FULL_LOG_FILE 2>&1
+        echo "$0:godownloader.py Ouput is: $msg" >> $FULL_LOG_FILE 2>&1
+        die "$ERROR_MSG";;
+
+     $SUCCESS)
+        ERROR_MSG="godownloader.py Was Successful - No Errors Encountered"
+        echo $ERROR_MSG
+        echo $0:$ERROR_MSG                >> $FULL_LOG_FILE 2>&1;;
+   esac
+
+   GO_DOWNLOADER_ERROR_MSG=$ERROR_MSG
+   cat $GO_DOWNLOADER_LOG_FILE               >> $FULL_LOG_FILE 2>&1
+}
 
 JOB_SUCCESSFUL="false"
 
@@ -115,32 +143,7 @@ echo "*****************************************" >> $FULL_LOG_FILE 2>&1
 #############################################################
 # 1. Run godownloader.py program to get latest ontology files
 #############################################################
-GO_DOWNLOADER_PROGRAM=godownloader.py
-GO_DOWNLOADER_PROGRAM_CALL="./godownloader.py"
-
-writePgmExecutionHeaders $GO_DOWNLOADER_PROGRAM
-echo $GO_DOWNLOADER_PROGRAM_CALL                 >> $FULL_LOG_FILE 2>&1
-echo "*****************************************" >> $FULL_LOG_FILE 2>&1
-
-msg=`$GO_DOWNLOADER_PROGRAM_CALL`
-rc=$?
-writePgmLogFile $GO_DOWNLOADER_PROGRAM, $GO_DOWNLOADER_LOG_FILE
-case $rc in
-     $FAILURE)
-        ERROR_MSG="godownloader.py FAILED!!!! - Check Log File: $FULL_LOG_FILE"
-        echo $ERROR_MSG
-        echo $0:$ERROR_MSG                >> $FULL_LOG_FILE 2>&1
-        echo "$0:godownloader.py Ouput is: $msg" >> $FULL_LOG_FILE 2>&1
-        die "$ERROR_MSG";;
-
-     $SUCCESS)
-        ERROR_MSG="godownloader.py Was Successful - No Errors Encountered"
-        echo $ERROR_MSG
-        echo $0:$ERROR_MSG                >> $FULL_LOG_FILE 2>&1;;
-esac
-
-GO_DOWNLOADER_ERROR_MSG=$ERROR_MSG
-cat $GO_DOWNLOADER_LOG_FILE               >> $FULL_LOG_FILE 2>&1
+#godownload
 
 ######################################################
 # 2. Run go.load program
