@@ -45,7 +45,7 @@ class SimpleVoc_Wrapper (loadWrapper.LoadWrapper):
 		datafile = vocloadlib.readTabFile (self.inputFile,
 			[ 'term', 'abbrev', 'definition', 'blank' ])
 
-		self.loadfile = self.config.getConstant('TERM_FILE')
+		self.loadfile = os.environ['TERM_FILE']
 		fp = open (self.loadfile, 'w')
 
 		for row in datafile:

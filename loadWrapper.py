@@ -62,6 +62,7 @@ class LoadWrapper:
 
 		if len(args) > 1:
 			self.inputFile = args[1]
+
 		self.config = rcdlib.RcdFile (args[0], rcdlib.Rcd, 'NAME')
 
 		noload = 0

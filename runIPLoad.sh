@@ -17,19 +17,6 @@
 #	- use new Configuration and IP.config files
 #
 
-installOntologyFiles()
-{
-  if test ! -f ${RUNTIME_DIR}/${TRONTFILE}
-  then
-      ln -s ${TRDIR}/${TRONTFILE} ${RUNTIME_DIR}
-  fi
-
-  if test ! -f ${RUNTIME_DIR}/${TRDEFSFILE}
-  then
-      ln -s ${TRDIR}/${TRDEFSFILE} ${RUNTIME_DIR}
-  fi
-}
-
 die()
 {
    echo $1
@@ -73,7 +60,6 @@ cd `dirname $0`
 . IP.config
 createDir $RUNTIME_DIR
 createDir $ARCHIVE_DIR
-installOntologyFiles
 echo "Job Started: `date`"
 echo "Job Started: `date`"                          > $FULL_LOG_FILE 2>&1
 echo "Directory is: `pwd`"
@@ -106,10 +92,10 @@ echo  "MODE STATUS is $2" >> $FULL_LOG_FILE 2>&1
 echo "*****************************************" >> $FULL_LOG_FILE 2>&1
 
 ######################################################
-# 1. Run GOload.py program
+# 1. Run simpleLoad.py program
 ######################################################
-IP_LOAD_PROGRAM=GOload.py
-IP_LOAD_PROGRAM_CALL="${IP_LOAD_PROGRAM} $LOAD_FLAG $MODE_FLAG -l $IP_LOAD_LOG_FILE"
+IP_LOAD_PROGRAM=simpleLoad.py
+IP_LOAD_PROGRAM_CALL="${IP_LOAD_PROGRAM} $LOAD_FLAG $MODE_FLAG -l $IP_LOAD_LOG_FILE ${RCD_FILE} ${DATA_FILE}"
 
 writePgmExecutionHeaders $IP_LOAD_PROGRAM
 echo $IP_LOAD_PROGRAM_CALL                       >> $FULL_LOG_FILE 2>&1
@@ -209,6 +195,9 @@ echo "Job Complete: `date`"                                                     
 #cat $MAIL_FILE_NAME $FULL_LOG_FILE | mailx -s "$SUBJECT" $MAINTAINER 
 
 # $Log$
+# Revision 1.2  2003/03/25 18:29:43  lec
+# new Configuration files
+#
 # Revision 1.1  2003/03/25 18:02:44  lec
 # new Configuration files
 #
