@@ -51,6 +51,9 @@
 #      1) Truncate the VOC_Header table in the RADAR database.
 #      2) Use bcp to load the header file into the VOC_Header table.
 #      3) Call the loadHeader.py script to identify the header nodes.
+#      4) Call the VOC_processAnnotHeaderAll stored procedure to
+#         re-evaluate the headers for all of the existing MP/Genotype
+#         annotations.
 #
 #  Notes:  None
 #
@@ -87,6 +90,7 @@ echo "Start header file processing: ${HEADER_FILE}" >> ${FULL_LOG_FILE}
 #  Truncate the VOC_Header table in the RADAR database to remove any
 #  current records.
 #
+echo "Truncate VOC_Header table" >> ${FULL_LOG_FILE}
 cat - <<EOSQL | isql -S${DBSERVER} -U${DBUSER} -P`cat ${DBPASSWORD_FILE}` >> ${FULL_LOG_FILE}
 
 use ${RADAR_DATABASE}
@@ -104,12 +108,38 @@ EOSQL
 #
 #  Load the VOC_Header table from the header file using bcp.
 #
+echo "Load the header file into the VOC_Header table" >> ${FULL_LOG_FILE}
 cat ${DBPASSWORD_FILE} | bcp ${RADAR_DATABASE}..VOC_Header in ${HEADER_FILE} -c -t\\t -S${DBSERVER} -U${DBUSER} >> ${BCP_LOG_FILE}
 
 #
 #  Call the Python script.
 #
+echo "Start loadHeader.py" >> ${FULL_LOG_FILE}
 loadHeader.py >> ${FULL_LOG_FILE}
+echo "End loadHeader.py" >> ${FULL_LOG_FILE}
+
+#
+#  Execute the VOC_processAnnotHeaderAll stored procedure.
+#
+if [ "${HEADER_ANNOT_TYPE_KEY}" != "" ]
+then
+    echo "Execute VOC_processAnnotHeaderAll procedure: (AnnotType key: ${HEADER_ANNOT_TYPE_KEY})" >> ${FULL_LOG_FILE}
+
+cat - <<EOSQL | isql -S${DBSERVER} -U${DBUSER} -P`cat ${DBPASSWORD_FILE}` >> ${FULL_LOG_FILE}
+
+use ${DATABASE}
+go
+
+exec VOC_processAnnotHeaderAll ${HEADER_ANNOT_TYPE_KEY}
+go
+
+checkpoint
+go
+
+quit
+EOSQL
+
+fi
 
 echo "End header file processing" >> ${FULL_LOG_FILE}
 echo "**************************************************" >> ${FULL_LOG_FILE}
