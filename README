@@ -67,6 +67,9 @@ All Vocabulary loads require:
 
 2.  A Config file (name = ${label}.config (GO.config, MA.config, etc.)).  
 
+    . Use GO.config as a template for a new DAG vocabulary that
+      uses GO format.
+
     . Use an existing config file as a template.  Not all variables
       will be used by all loads.
 
