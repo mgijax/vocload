@@ -242,7 +242,7 @@ def anyTermsCrossReferenced (
             ])
     return results[0][0]['ct'] + results[1][0]['ct'] > 0
 
-def getAnyTermsCrossReferenced (
+def getAnyTermMarkerCrossReferences (
     termKey,       # integer; corresponds to VOC_Term._Term_key
     annotationKey  # integer; corresponds to the VOC_AnnotType._AnnotType_key
     ):
@@ -250,7 +250,9 @@ def getAnyTermsCrossReferenced (
     # Returns: list of annotations
     # Assumes: see sql()
     # Effects: queries the database
-    # Throws: propagates any exceptions raised by sql()
+    # Throws:  propagates any exceptions raised by sql()
+    # Notes:   please be aware that this function only
+    #          gets term to marker annotations
 
     try:
        results = sql ( 
