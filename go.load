@@ -102,10 +102,6 @@ class GO_Wrapper (loadWrapper.LoadWrapper):
                 term_fp.close()
                 return
 
-        def postProcess (self):
-#               os.remove (self.loadfile)
-                return
-
         def setID (self):
                 self.name = "GO"
                 return
