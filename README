@@ -40,6 +40,8 @@ Structured (DAGs)
 	2.  A DAG vocabulary which uses the GO format (MA and MP both do),
 	    can use GOload.py.
 
+	3.  use runDAGIncLoad.sh for an incremental load
+
 Simple
 	Cannot perform an incremental load (at this time)
 
@@ -49,3 +51,4 @@ Simple
 	
 	2.  Use simpleLoad.py
 
+	3.  use runSimpleFullLoad.sh for a full load
