@@ -77,6 +77,7 @@ writePgmLogFile()
 JOB_SUCCESSFUL="false"
 
 changeToRunDirectory
+umask 002
 createDir $RUNTIME_DIR
 createDir $ARCHIVE_DIR
 echo "Job Started: `date`"
