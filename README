@@ -1,0 +1,47 @@
+
+How to Use This Product
+-----------------------
+
+Product:  vocload
+
+Vocabularies:
+
+	Structured (DAGs):
+
+	GO = Gene Ontology
+	MA = Mouse Adult Anatomy
+	MP = Mammalian Phenotype
+
+	Simple (No DAGs):
+
+	IP = InterPro Domains
+	OMIM = Online Mendelian Inheritance in Main
+
+All Vocabulary loads require:
+
+1.  An uppercase label for the Vocabulary
+
+2.  A Config file (name = ${label}.config).  Use an
+    existing config file as a template.
+
+3.  All Vocabs use the global Configuration file.
+
+In addition, each specific type of Vocabulary is implemented
+slightly differently:
+
+Structured (DAGs)
+
+	Example:  GO
+
+	1.  XX.rcd file
+	
+    	This file contains the DAG definitions.  See GO.rcd.
+
+Simple
+
+	Example:  IP (InterPro Domains)
+
+	1.  Use simple.rcd
+	
+	2.  Use simpleLoad.py
+
