@@ -32,6 +32,13 @@
 #   the run of this script.
 # Implementation:
 #   Modules:
+#
+#
+# History
+#
+# lec	05/09/2002
+#	- TR 3670; UPDATE_TERM was using single quotes; all other SQL was using double quotes
+#
 
 import sys          # standard Python libraries
 import types
@@ -99,7 +106,7 @@ DELETE_TEXT = '''delete from VOC_Text where _Term_key = %d'''
 
 DELETE_ALL_SYNONYMS ='''delete from VOC_Synonym where _Term_key = %d'''
 
-UPDATE_TERM = '''update VOC_Term set term = '%s', isObsolete = %d where _Term_key = %d '''
+UPDATE_TERM = '''update VOC_Term set term = "%s", isObsolete = %d where _Term_key = %d '''
 
 MERGE_TERMS = '''exec VOC_mergeTerms %d, %d'''
 ########################################################################
@@ -953,7 +960,7 @@ class TermLoad:
           ( fileIsObsoleteField != dbRecord[0]['isObsolete'] ):
           # If either (or both) of the fields change, it's simpler and probably more
           # efficient to just update both fields in 1 statement
-          vocloadlib.nl_sqlog ( UPDATE_TERM % ( record['term'], fileIsObsoleteField, termKey ), self.log )
+          vocloadlib.nl_sqlog ( UPDATE_TERM % ( vocloadlib.escapeDoubleQuotes(record['term']), fileIsObsoleteField, termKey ), self.log )
           recordChanged = 1
 
           # Now write report record if the term is obsoleted 
