@@ -288,11 +288,11 @@ class GOVocab(Vocab.Vocab):
         searchSectionStart = 3 + index + len ( goid )
         searchSection = self.findSectionEnd ( inLine[ searchSectionStart : ] )
 
-        # Finally, split the section by the "," to get each ID
-        # start at position 1 rather than 0 to bypass leading ","
+        # Finally, split the section by the ", " to get each ID
+        # start at position 2 rather than 0 to bypass leading ", "
         # (e.g., ", GO:123456)
-        if  len ( searchSection[1:] ) > 0:
-           return string.split ( searchSection[1:], "," )
+        if  len ( searchSection[2:] ) > 0:
+           return string.split ( searchSection[2:], ", " )
         else:
            return []
         
