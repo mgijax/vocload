@@ -211,7 +211,6 @@ class DAGLoad:
         # Throws: raises 'error' if any exceptions occur
 
         try:
-            # TAKE OUT!!! vocloadlib.NO_LOAD=0
             if self.mode == 'full':
                 self.goFull()
             else:
