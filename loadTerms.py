@@ -1104,4 +1104,4 @@ if __name__ == '__main__':
     vocloadlib.setupSql (server, database, username, password)
     load = TermLoad (input_file, mode, vocab_key, log)
     load.go()
-    db.useOneConnection(0)
+    vocloadlib.unsetupSql ()

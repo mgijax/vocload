@@ -57,6 +57,16 @@ def setupSql (server,   # string; name of database server
     db.useOneConnection(1)
     return
 
+def unsetupSql ():
+    # Purpose: un-initialize the 'db' module
+    # Returns: nothing
+    # Assumes: nothing
+    # Effects: resets the db.useOneConnection() value
+    # Throws: nothing
+
+    db.useOneConnection(0)
+    return
+
 def sql (
     commands    # string of SQL, or list of SQL strings
     ):
