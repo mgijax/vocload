@@ -130,9 +130,10 @@ def beginTransaction (
     # Throws: propagates any exceptions raised by db.sql()
     # Notes: This is the no-load version. It will check the 
     # no-load flag before opening the transaction.
-
-    log.writeline ( "Beginning Transaction" )
+    
     beginTransactionString = "begin transaction"
+
+    log.writeline ( "Beginning Transaction..." )
     log.writeline ( beginTransactionString )
     if not NO_LOAD:
         sql (beginTransactionString)
@@ -152,7 +153,7 @@ def commitTransaction (
 
     commitTransactionString = "commit transaction"
 
-    log.writeline ( "Committing Transaction" )
+    log.writeline ( "Committing Transaction..." )
     log.writeline ( commitTransactionString )
     if not NO_LOAD:
         sql (commitTransactionString)
@@ -172,7 +173,7 @@ def rollbackTransaction (
 
     rollbackTransactionString = "rollback transaction"
 
-    log.writeline ( "Rolling Back Transaction" )
+    log.writeline ( "Rolling Back Transaction..." )
     log.writeline ( rollbackTransactionString )
     if not NO_LOAD:
         sql (rollbackTransactionString)
@@ -192,7 +193,7 @@ def updateStatistics ( tableName,
 
     updateStatisticsString = "update statistics %s" % tableName
 
-    log.writeline ( "Update Statistics for %s" % tableName )
+    log.writeline ( "Updating Statistics for %s..." % tableName )
     log.writeline ( updateStatisticsString )
     if not NO_LOAD:
         sql (updateStatisticsString)
@@ -245,7 +246,7 @@ def getAnyTermsCrossReferenced (
     termKey,       # integer; corresponds to VOC_Term._Term_key
     annotationKey  # integer; corresponds to the VOC_AnnotType._AnnotType_key
     ):
-    # Purpose: get any annotations to a term
+    # Purpose: get any annotations to a term/annotationType
     # Returns: list of annotations
     # Assumes: see sql()
     # Effects: queries the database
@@ -544,7 +545,7 @@ def getTermIDs (
     vocab       # integer vocabulary key or string vocabulary name
     ):
     # Purpose: get a dictionary which maps from a primary accession ID
-    #   to its associated term key
+    #   to its associated term key and isObsolete value
     # Returns: see Purpose
     # Assumes: nothing
     # Effects: queries the database
@@ -710,6 +711,7 @@ def setNull (
     if s == 'null':
        s = ""
     return s
+
 def deleteVocabTerms (
     vocab_key,  # integer; vocabulary key from VOC_Vocab._Vocab_key
     log = None  # Log.Log object; where to log the deletions
@@ -717,31 +719,16 @@ def deleteVocabTerms (
     # Purpose: delete all terms for the given vocabulary key, and any
     #   associated attributes (like text blocks and synonyms)
     # Returns: nothing
-    # Assumes: setupSql() has been called appropriately
-    # Effects: removes records from VOC_Term, VOC_Text, and VOC_Synonym
-    # Throws: propagates any exceptions from sqlog() or sql()
-    # Notes: Due to the firing of triggers when we delete from the main
-    #   table (VOC_Term), the sybase log was filling up quickly.  To
-    #   circumvent the triggers, we will delete from tables
-    #   individually here.  Also, we need to check that we are not in
-    #   a no-load state before calling the sql() function.
+    # Assumes: setupSql() has been called appropriately, and VOC_Term_Delete
+    #          trigger exists
+    # Effects: removes records from all tables defined by the
+    #          VOC_Term_Delete trigger
+    # Throws:  propagates any exceptions from sqlog() or sql()
+    # Notes:   VOC_Term has a trigger VOC_Term_Delete which propogates
+    #          deletions to all underlying term-related tables
+    #          Also, we need to check that we are not in
+    #          a no-load state before calling the sql() function.
 
-    #deletes = [
-        #'''delete from VOC_Text where _Term_key in
-        #(select _Term_key from VOC_Term where _Vocab_key = %d)''' % \
-            #vocab_key,
-
-        #'''delete from VOC_Synonym where _Term_key in
-        #(select _Term_key from VOC_Term where _Vocab_key = %d)''' % \
-            #vocab_key,
-
-        #'delete from VOC_Term where _Vocab_key = %d' % vocab_key,
-        #]
-    #for delete in deletes:
-        #if log:
-            #nl_sqlog (delete, log)
-        #elif not NO_LOAD:
-            #sql (delete)
     sql = 'delete from VOC_Term where _Vocab_key = %d' % vocab_key
     nl_sqlog ( sql, log)
     return
@@ -755,26 +742,16 @@ def deleteDagComponents (
     #   DAG_DAG entry)
     # Returns: nothing
     # Assumes: setupSql() has been called appropriately
-    # Effects: removes records from DAG_Node, DAG_Edge, and DAG_Closure
-    # Throws: propagates any exceptions from sqlog() or sql()
-    # Notes: Due to the firing of triggers when we delete from the main
-    #   table (DAG_Node), the sybase log was filling up quickly.  To
-    #   circumvent the triggers, we will delete from tables
-    #   individually here.  We need to be sure to check the no-load
-    #   option before calling sql().
+    # Effects: removes records from all tables defined by the
+    #          DAG_Node_Delete trigger
+    # Throws:  propagates any exceptions from sqlog() or sql()
+    # Notes:   DAG_Node has a trigger DAG_Node_Delete which propogates
+    #          deletions to all underlying dag-related tables,
+    #          namely DAG_edge and DAG_Closure, in addition to DAG_Node
+    #          Also, we need to check that we are not in
+    #          a no-load state before calling the sql() function.
 
-    #deletes = [
-        #'delete from DAG_Edge where _DAG_key = %d' % dag_key,
-        #'delete from DAG_Closure where _DAG_key = %d' % dag_key,
-        #'delete from DAG_Node where _DAG_key = %d' % dag_key,
-        #]
-    #for delete in deletes:
-        #if log:
-            #nl_sqlog (delete, log)
-        #elif not NO_LOAD:
-            #sql (delete)
-    
-    sql = 'delete from DAG_NODE where _DAG_key = %d' % dag_key
+    sql = 'delete from DAG_Node where _DAG_key = %d' % dag_key
     nl_sqlog ( sql, log)
     return
 
@@ -789,24 +766,12 @@ def isNoLoad ():
     return NO_LOAD
 
 def loadBCPFile ( bcpFileName, bcpLogFileName, bcpErrorFileName, tableName, passwordFile ):
-    # Purpose: loads BCP files to the database
-    # Returns: ?
-    # Assumes: ?
-    # Effects: ?
-    # Throws:  ?
-
-    #Take out: deal with hardcoded pipe!!!
-    #Also, need to add output redirection!!!
-
-    #bcpCmd = 'bcp %s..%s in %s -c -t\"^" -e %s -S%s -U%s -P%s >> %s' \
-    #  % (db.get_sqlDatabase(), \
-    #  tableName, bcpFileName, bcpErrorFileName,
-    #   db.get_sqlServer(), db.get_sqlUser(), db.get_sqlPassword,
-    #   bcpLogFileName )
-    #bcpCmd = 'bcp %s..%s in %s -c -t\"^" -e %s -S%s -P%s -U%s -m0' \
-      #% (db.get_sqlDatabase(), \
-      #tableName, bcpFileName, bcpErrorFileName, \
-       #db.get_sqlServer(), db.get_sqlPassword(), db.get_sqlUser()  )
+    # Purpose: Physically loads BCP files to the database via a system command to bcp
+    # Returns: nothing
+    # Assumes: bcp is available and exists in PATH
+    # Effects: loads data to whatever table it is executing on
+    # Raises:  raises an exception if bcp returns a non-zero (i.e.,
+    #          value
 
     bcpCmd = 'cat %s | bcp %s..%s in %s -c -t\"^" -e %s -S%s -U%s >> %s' \
       % (passwordFile, db.get_sqlDatabase(), \
