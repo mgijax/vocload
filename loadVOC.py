@@ -159,7 +159,7 @@ class VOCLoad:
 			vocloadlib.truncateTransactionLog (
 				self.database, self.log)
 			vocloadlib.deleteVocabTerms (self.vocab_key, self.log)
-			vocloadlib.sqlog ('''delete from VOC_Vocab
+			vocloadlib.nl_sqlog ('''delete from VOC_Vocab
 					where _Vocab_key = %d''' % \
 					self.vocab_key,
 				self.log)
@@ -168,7 +168,7 @@ class VOCLoad:
 					from VOC_Vocab''')
 			self.vocab_key = max (0, result[0]['']) + 1
 
-		vocloadlib.sqlog (INSERT_VOCAB % (self.vocab_key,
+		vocloadlib.nl_sqlog (INSERT_VOCAB % (self.vocab_key,
 			self.refs_key, self.isSimple, self.isPrivate,
 			self.logicalDBkey, self.vocab_name),
 			self.log)
@@ -177,11 +177,11 @@ class VOCLoad:
 		dag_key = max (0, result[0]['']) + 1
 
 		for (key, dag) in self.config.items():
-			vocloadlib.sqlog (INSERT_DAG % (dag_key,
+			vocloadlib.nl_sqlog (INSERT_DAG % (dag_key,
 				self.refs_key, self.mgitype_key,
 				dag['ABBREV'], dag['NAME']),
 				self.log)
-			vocloadlib.sqlog (INSERT_VOCABDAG % (
+			vocloadlib.nl_sqlog (INSERT_VOCABDAG % (
 				self.vocab_key, dag_key),
 				self.log)
 
