@@ -42,6 +42,7 @@ ACCESSION_BCP_FILE    = ${RUNTIME_DIR}/accAccession.bcp
 
 # Discrepancy File
 DISCREP_FILE      = ${RUNTIME_DIR}/discrepancy.html
+DAG_DISCREP_FILE  = ${RUNTIME_DIR}/dagDiscrepancy.html
 
 FULL_MODE_DATA_LOADER = bcp
 
