@@ -25,10 +25,29 @@ cd `dirname $0`
 
 setUp $1 load incremental
 executePrograms ${LOAD_PROGRAM}
+
+if [ "${HEADER_FILE}" != "" ]
+then
+    loadHeader.sh $1 ${HEADER_FILE}
+fi
+
+if [ "${NOTE_FILE}" != "" ]
+then
+    loadNote.sh $1 ${NOTE_FILE}
+fi
+
+if [ "${SYNONYM_FILE}" != "" ]
+then
+    loadSynonym.sh $1 ${SYNONYM_FILE}
+fi
+
 archive
 finishUp
 
 # $Log$
+# Revision 1.2  2003/03/26 16:02:16  lec
+# continuing to factor out common tasks/variables
+#
 # Revision 1.1  2003/03/26 16:00:12  lec
 # continuing to factor out common tasks/variables
 #

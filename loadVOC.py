@@ -231,7 +231,7 @@ class VOCLoad:
         
         # Now load the terms
         termload = loadTerms.TermLoad (self.termfile, self.mode,
-            self.vocab_key, self.log, self.passwordFileName )
+            self.vocab_key, self.refs_key, self.log, self.passwordFileName )
         termload.go()
 
         # Now load the DAGs if it is a complex vocabulary
@@ -264,7 +264,7 @@ class VOCLoad:
 
         # Now load the terms
         termload = loadTerms.TermLoad (self.termfile, self.mode,
-            self.vocab_key, self.log, self.passwordFileName )
+            self.vocab_key, self.refs_key, self.log, self.passwordFileName )
         termload.go()
 
         # load DAGs
@@ -294,6 +294,9 @@ if __name__ == '__main__':
 #   vocload.go()
 
 # $Log$
+# Revision 1.15  2004/06/03 17:27:45  lec
+# comment out truncateTransactionLog
+#
 # Revision 1.14  2003/04/23 15:35:53  lec
 # JSAM fix
 #

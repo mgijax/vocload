@@ -32,6 +32,7 @@ unknown_dag = 'unknown DAG name "%s"'
 unknown_dag_key = 'unknown DAG key "%s"'
 unknown_vocab = 'unknown vocabulary name "%s"'
 unknown_vocab_key = 'unknown vocabulary key "%s"'
+unknown_synonymtype = 'unknown synonym type "%s"'
 
 bad_line = '%s:Incorrect Line Format for Line Number %d\n%s'
 
@@ -375,6 +376,21 @@ def getVocabKey (
         raise error, unknown_vocab % vocab
     return result[0]['_Vocab_key']
 
+def getSynonymTypeKey (
+    synonymType       # string; synonym type from MGI_SynonymType.synonymType
+    ):
+    # Purpose: return the synonym type key for the given 'vocab' synonym type
+    # Returns: integer
+    # Assumes: nothing
+    # Effects: queries the database
+    # Throws: 1. error if the given synonym type is not in the database
+    #   2. propagates any exceptions raised by sql()
+
+    result = sql ('select _SynonymType_key from MGI_SynonymType where synonymType = "%s" and _MGIType_key = %d' % (synonymType, VOCABULARY_TERM_TYPE))
+    if len(result) != 1:
+        raise error, unknown_synonymtype % synonymType
+    return result[0]['_SynonymType_key']
+
 def checkVocabKey (
     vocab_key   # integer; key for vocabulary, as VOC_Vocab._Vocab_key
     ):
@@ -484,10 +500,11 @@ def getTerms (
         order by vx._Term_key, vx.sequenceNum''' % vocab,
 
         '''select vs.*              -- synonyms for term
-        from VOC_Synonym vs, VOC_Term vt
+        from MGI_Synonym vs, VOC_Term vt
         where vt._Vocab_key = %d
-            and vt._Term_key = vs._Term_key
-        order by vs.synonym''' % vocab,
+            and vt._Term_key = vs._Object_key
+            and vs._MGIType_key = %d
+        order by vs.synonym''' % (vocab, VOCABULARY_TERM_TYPE),
 
 	'''select n._Object_key, nc.note, nc.sequenceNum
 	from VOC_Term vt, MGI_Note n, MGI_NoteChunk nc
@@ -527,7 +544,7 @@ def getTerms (
 
     synonyms = {}
     for row in voc_synonym:
-        term_key = row['_Term_key']
+        term_key = row['_Object_key']
         if not synonyms.has_key (term_key):
             synonyms[term_key] = []
         synonyms[term_key].append (row['synonym'])
