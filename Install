@@ -1,0 +1,12 @@
+#!/bin/sh
+
+chmod 775 *
+
+echo "Installation Complete.  To Execute the GO Load Program:"
+echo "   runGOLoad.sh [load|noload] [full|incremental]"
+echo "            for example:"
+echo "   runGOLoad.sh load incremental"
+echo "For executing other programs in the product, refer to" 
+echo "the individual programs themselves."
+echo "To unarchive a file, proceed to the archive directory"
+echo "and use 'jar'; jar uses the same parameters as 'tar'."
