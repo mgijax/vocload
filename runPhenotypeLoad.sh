@@ -24,6 +24,7 @@ MAINTAINER="lec@informatics.jax.org"
 ARCHIVE_FILE_NAME=$ARCHIVE_DIR"vocload.`date +%Y%m%d:%H:%M`.jar"
 PHENOTYPE_DOWNLOADER_LOG_FILE=$RUNTIME_DIR"phenotypedownloader.log"
 PHENOTYPE_LOAD_LOG_FILE=$RUNTIME_DIR"log.txt"
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$SYBASE/OCS-12_5/lib
 
 export RUNTIME_DIR
 export SYBASE
