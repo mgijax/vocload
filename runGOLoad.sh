@@ -1,47 +1,30 @@
 #!/bin/sh
 
 #
+# Program: runGOLoad.sh
+#
+# Purpose:
+#
 # Main Wrapper Script for Downloading Ontology files and generating GO Terms and GO DAG
+# 
+# Usage:
+#
+#	runGOLoad.sh
+#
+# History:
+#
+#	lec	03/25/2003
+#	- use new Configuration and ConfigGO files
 #
 
-# Define return codes
-SUCCESS=0
-FAILURE=1
 
-# These environment variables should really be placed inside the go.rcd; however,
-# since the go.rcd is python-based they are temporarily placed here.  To address
-# this problem in the future, we should write a python program which reads
-# and exports all environment variables in an .rcd file, placing the call
-# to the program inside the shell script. For now, the variables are placed here.
+# change to directory where this file resides
+cd `dirname $0`
 
-RUNTIME_DIR="./runTimeGO/"
-ARCHIVE_DIR="./archiveGO/"
+# execute the Configuration files
 
-SYBASE=/opt/sybase/12.5
-PYTHONPATH=/usr/local/mgi/lib/python
-PATH=$PATH:.:/usr/bin:$SYBASE/ASE-12_5/bin:$SYBASE/OCS-12_5/bin:/usr/java/bin
-FULL_LOG_FILE=$RUNTIME_DIR"fullLog.txt"
-MAINTAINER="lec@informatics.jax.org, hjd@informatics.jax.org"
-MAIL_FILE_NAME=$RUNTIME_DIR"mail.txt"
-ARCHIVE_FILE_NAME=$ARCHIVE_DIR"vocload.`date +%Y%m%d:%H:%M`.jar"
-GO_DOWNLOADER_LOG_FILE=$RUNTIME_DIR"godownloader.log"
-GO_LOAD_LOG_FILE=$RUNTIME_DIR"log.txt"
-LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$SYBASE/OCS-12_5/lib
-
-DBSERVER=PROD_MGI
-DATABASE=mgd
-DBUSER=mgd_dbo
-DBPASSWORD_FILE=/usr/local/mgi/dbutils/mgidbutilities/.mgd_dbo_password
-
-export RUNTIME_DIR
-export SYBASE
-export PYTHONPATH
-export PATH
-export LD_LIBRARY_PATH
-export DBSERVER
-export DATABASE
-export DBUSER
-export DBPASSWORD_FILE
+. Configuration
+. ConfigGO
 
 die()
 {
@@ -264,4 +247,6 @@ echo "Job Complete: `date`"
 echo "Job Complete: `date`"                                                         >> $FULL_LOG_FILE 2>&1
 
 cat $MAIL_FILE_NAME $FULL_LOG_FILE | mailx -s "$SUBJECT" $MAINTAINER 
+
+# $Log$
 

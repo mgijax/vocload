@@ -1,4 +1,5 @@
 #!/usr/local/bin/python
+
 """
 #    GO_downloader.py
 #
@@ -6,15 +7,19 @@
 #    GO FTP site.  It checks each new file for parsing errors - if
 #    none are found, it overwrites the existing local file.
 #
+#
+# History:
+#
+#	03/25/2003	lec
+#	- use new Configuration file
+#	- note that the functionality of downloading the FTP files
+#	  will be moved to the mirrorFTP product (TR 4630).  however,
+#	  the error checking should remain within the vocload product.
+#
 """
 
 import sys, os, ftplib
 import GOVocab
-
-SERVER = 'genome-ftp.stanford.edu'       # GO FTP server
-ONT_DIR = 'pub/go/ontology'              # ontology file directory
-DEFS_DIR = 'pub/go/doc'                  # definitions file directory
-
 
 # Functions
 ############
@@ -158,8 +163,8 @@ c_out = open(compName, 'w')
 defs_out = open(defsName, 'w')
     
 try:
-   getOntologies(SERVER, ONT_DIR)
-   getDefsFile(SERVER, DEFS_DIR)
+   getOntologies(FTPSERVER, FTPONT_DIR)
+   getDefsFile(FTPSERVER, FTPDEFS_DIR)
 except:
    errLog.write('Error getting ontology and/or def files from Stanford\n')
    errLog.write(sys.exc_type + ': ' + sys.exc_value + '\n')
@@ -190,3 +195,4 @@ errLog.write ( 'procName = ' + funcName )
 errLog.close()
 sys.exit(0)
 
+# $Log$
