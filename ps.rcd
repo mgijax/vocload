@@ -3,7 +3,7 @@ DATABASE = mgd_jsb
 DBUSER = mgd_dbo
 DBPASSWORD = raysen5
 
-VOCAB_NAME = PhenoSlim Terms
+VOCAB_NAME = PhenoSlim
 JNUM = J:72460
 IS_SIMPLE = 1
 IS_PRIVATE = 0
