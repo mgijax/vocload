@@ -118,6 +118,7 @@ SECONDARY = "Secondary"
 PRIMARY_SECONDARY_COLLISION_MSG = "Duplicate Primary/Secondary Accession ID Used. This is a fatal error - no data was loaded to the database"
 OTHER_ID_DELIMITER = '|'
 SYNONYM_DELIMITER = '|'
+MGI_LOGICALDB_KEY = 1
 
 ###--- Classes ---###
 
@@ -173,6 +174,8 @@ class TermLoad:
         else:
             self.vocab_name = vocloadlib.getVocabName (vocab)
             self.vocab_key = vocab
+
+        self.LOGICALDB_KEY = self.config.getConstant('LOGICALDB_KEY')
 
         # write heading to log
 
@@ -744,32 +747,37 @@ class TermLoad:
         #          and the primary term is obsolete
         # Effects: writes duplicates to the discrepancy report
         # Throws:  propagates any exceptions raised 
+
         duplicate = 0
-        # the primaryAccIDFileList and secondaryAccIDFileList are simply individual
-        # lists of accIDs contained in the input file; if duplicates are found
-        # either within a list or across both lists, the record is a potential 
-        # duplicate
-        if self.primaryAccIDFileList.has_key ( accID ) or self.secondaryAccIDFileList.contains ( accID ):
-           if termType == SECONDARY:
-              # if it is a secondary term that is also an obsolete primary term
-              # it is permissible for it to appear on the list
-              # otherwise it is a duplicate
-              if self.primaryAccIDFileList.has_key ( accID ):
-                  isObsolete = self.primaryAccIDFileList[accID]
-                  if isObsolete == 0:
-                     self.writeDiscrepancyFile ( accID, term, PRIMARY_SECONDARY_COLLISION_MSG )  
-                     duplicate = 1
-              else: #accID already appears in secondary list
+
+        # only check if using actual accession ids (mgi ids will be blank in 
+        # the Termfile)
+        if self.LOGICALDB_KEY != MGI_LOGICALDB_KEY:
+           # the primaryAccIDFileList and secondaryAccIDFileList are simply individual
+           # lists of accIDs contained in the input file; if duplicates are found
+           # either within a list or across both lists, the record is a potential 
+           # duplicate
+           if self.primaryAccIDFileList.has_key ( accID ) or self.secondaryAccIDFileList.contains ( accID ):
+              if termType == SECONDARY:
+                 # if it is a secondary term that is also an obsolete primary term
+                 # it is permissible for it to appear on the list
+                 # otherwise it is a duplicate
+                 if self.primaryAccIDFileList.has_key ( accID ):
+                     isObsolete = self.primaryAccIDFileList[accID]
+                     if isObsolete == 0:
+                        self.writeDiscrepancyFile ( accID, term, PRIMARY_SECONDARY_COLLISION_MSG )  
+                        duplicate = 1
+                 else: #accID already appears in secondary list
+                    self.writeDiscrepancyFile ( accID, term, PRIMARY_SECONDARY_COLLISION_MSG )  
+                    duplicate = 1
+              else: #duplicate primary term
                  self.writeDiscrepancyFile ( accID, term, PRIMARY_SECONDARY_COLLISION_MSG )  
                  duplicate = 1
-           else: #duplicate primary term
-              self.writeDiscrepancyFile ( accID, term, PRIMARY_SECONDARY_COLLISION_MSG )  
-              duplicate = 1
-        else: #new term - add to list
-           if termType == PRIMARY:
-              self.primaryAccIDFileList[accID] = isObsolete
-           else:
-              self.secondaryAccIDFileList.add ( accID )
+           else: #new term - add to list
+              if termType == PRIMARY:
+                 self.primaryAccIDFileList[accID] = isObsolete
+              else:
+                 self.secondaryAccIDFileList.add ( accID )
         return duplicate
 
     def writeDiscrepancyFile (self, accID, term, msg ):
