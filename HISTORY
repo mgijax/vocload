@@ -1,3 +1,10 @@
+TAG: vocload-2-0-0
+DATE: 08/26/2002
+STAFF: lec
+RELEASE: A
+CHANGES:
+1) TR 3809; modifications to enable processing of Phenotype terms in GO format
+
 TAG: vocload-1-0-7
 DATE: 05/31/2002
 STAFF: lec
