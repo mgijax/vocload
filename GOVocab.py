@@ -3,6 +3,18 @@
 #
 # History
 #
+# 04/02/2003 lec
+#	TR 4564
+#
+#	- getDefs; added processing of comments from definitions file;
+#	  revised from using regular expressions to reading file line by line
+#	  and extracting the data by tokens instead.  just couldn't get the
+#         thing to work the other way...
+#
+#	- removed id_re, def_re because they are no longer used by getDefs
+#
+#	- added call to node.setComment() in buildVocab()
+#
 # 08/26/2002 lec
 # 	TR 3809
 #
@@ -133,10 +145,10 @@ class GOVocab(Vocab.Vocab):
     """
 
     definitions = { }		# cache of definition files loaded so far...
-				#	filename -> result of self.getDefsCmts()
+				#	filename -> result of self.getDefs()
 
     comments = { }		# cache of comments files loaded so far...
-				#	filename -> result of self.getDefsCmts()
+				#	filename -> result of self.getDefs()
 
     def initializeRegExps(self, accPrefix):
 	"""
@@ -159,7 +171,7 @@ class GOVocab(Vocab.Vocab):
         # regular expression for synonyms in ontology files
         syn_re = regex.compile('synonym:\([^;<%\n]+\)')
 
-    def getDefsCmts(self, inFile):
+    def getDefs(self, inFile):
 	"""
         #      Private
         #
@@ -383,7 +395,7 @@ class GOVocab(Vocab.Vocab):
 	if not self.definitions.has_key (defs_file):
 
 		defFile = open (defs_file, 'r')
-		self.definitions[defs_file], self.comments[defs_file] = self.getDefsCmts (defFile)
+		self.definitions[defs_file], self.comments[defs_file] = self.getDefs (defFile)
 		defFile.close()
 
 	defs = self.definitions[defs_file]	# use cached result
