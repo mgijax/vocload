@@ -1,9 +1,4 @@
 
-How to Use This Product
------------------------
-
-Product:  vocload
-
 Current Vocabularies Being Loaded by this Product:
 
 	Structured (DAGs):
@@ -17,38 +12,71 @@ Current Vocabularies Being Loaded by this Product:
 	IP = InterPro Domains (TR 3702)
 	OMIM = Online Mendelian Inheritance in Man (TR 3853)
 
+Global Configs:
+
+1. Configuration.default
+   . contains environment variable definitions common to all loads
+   . during installation, copy Configuration.default to Configuration 
+   . edit Configuration for a specific installation
+
+2. VOClib.config
+   . contains shell functions used by all loads
+
+Global Run Scripts:
+
+1.  runSimpleFullLoad.sh [config file]
+    . processes a simple (non-DAG) vocabulary using "full" mode
+    . uses RCD_FILE = simple.rcd
+    . uses LOAD_PROGRAM = simpleLoad.py
+
+2.  runDAGIncLoad.sh [config file]
+    . processes a DAG vocabulary using "incremental" mode
+    . uses LOAD_PROGRAM = GOload.py
+    . config file must set RCD_FILE
+
+3.  runDAGFullLoad.sh [config file]
+    . processes a DAG vocabulary using "full" mode
+    . uses LOAD_PROGRAM = GOload.py
+    . config file must set RCD_FILE
+
+Note:  Simple Vocabularies cannot currently be processed in incremental
+       mode.  This may have to change (maybe with OMIM?).
+ 
+Other Globals:
+
+1.  simple.rcd
+    . a placeholder rcd file that simple vocabulary loads use
+      to satisfy the input parameter requirements of the python
+      load program.
+
+2.  GOload.py
+    . a python LOAD_PROGRAM which can be used by any vocabulary
+      whose files use GO-DAG format (GO, MA, MP).
+
+3.  simpleLoad.py
+    . a python LOAD_PROGRAM which can be used by any simple
+      vocabulary which can be loaded using "full" mode.
+
+4.  GOverify.py
+    . a python program which uses an rcd file to verify that the
+      DAG files are in the correct format (no parsing errors).
+
 All Vocabulary loads require:
 
-1.  An uppercase label for the Vocabulary
+1.  An uppercase label for the Vocabulary (XX)
 
 2.  A Config file (name = ${label}.config (GO.config, MA.config, etc.)).  
-    Use an existing config file as a template.  Not all variables
-    will be used by all loads.
+
+    . Use an existing config file as a template.  Not all variables
+      will be used by all loads.
+
+    Note that if the load needs to execute more than one program,
+    the config file can append the extra programs to the LOAD_PROGRAM
+    env variable. For example, the GO.config file defines LOAD_PROGRAM
+    as:
+	LOAD_PROGRAM="GOverify.py ${LOAD_PROGRAM}"
 
 3.  All Vocabs use the global Configuration file.
 
-In addition, the 2 types of Vocabularies are implemented slightly differently:
+4.  Structured Vocabs require rcd file to define their DAGs.
 
-Structured (DAGs)
-
-	Example:  GO
-
-	1.  XX.rcd file
-	
-    	This file contains the DAG definitions.  See GO.rcd.
-
-	2.  A DAG vocabulary which uses the GO format (MA and MP both do),
-	    can use GOload.py.
-
-	3.  use runDAGIncLoad.sh for an incremental load
-
-Simple
-	Cannot perform an incremental load (at this time)
-
-	Example:  IP (InterPro Domains)
-
-	1.  Use simple.rcd
-	
-	2.  Use simpleLoad.py
-
-	3.  use runSimpleFullLoad.sh for a full load
