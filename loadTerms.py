@@ -946,6 +946,7 @@ class TermLoad:
         #          if they are primary IDs
         # Effects: Terms are merged and new accession records are added as necessary
         # Throws:  propagates any exceptions raised 
+	fp = open('other', 'a')
         otherIDs = string.strip (record['otherIDs'])
         if otherIDs:
             for id in string.split (otherIDs, OTHER_ID_DELIMITER ):
@@ -963,10 +964,12 @@ class TermLoad:
                     # and we therefore need to execute a merge
                     # but only if the primary term is NOT obsolete
                     [termKey, isObsolete, term, termFound] = primaryTermIDs[id]
-                    if not isObsolete:
-                       oldKey = termKey
-                       newKey = associatedTermKey
-                       vocloadlib.nl_sqlog ( ( MERGE_TERMS % (oldKey, newKey) ), self.log )
+		# 01/31/2005; this is causing a problem because sometimes obsoleted terms
+		# are merged.
+#                    if not isObsolete:
+                    oldKey = termKey
+                    newKey = associatedTermKey
+                    vocloadlib.nl_sqlog ( ( MERGE_TERMS % (oldKey, newKey) ), self.log )
                 else:
                     # check to see if secondary id already exists in database;
                     # if not, add it to accession table
