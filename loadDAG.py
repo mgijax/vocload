@@ -217,7 +217,6 @@ class DAGLoad:
                 self.goIncremental()
             self.closeBCPFiles()
             self.loadBCPFiles()
-            self.finish()
         except:
             # raise 'error' with whatever the descriptive message
             # was originally
@@ -255,12 +254,6 @@ class DAGLoad:
         self.dagEdgeBCPFile.close()    
         self.dagNodeBCPFile.close()    
         self.dagClosureBCPFile.close() 
-
-
-    def finish (self):
-        # close output BCP files
-        print "Pgm Done!!!"
-
 
 
               ###--- Private Methods ---###
