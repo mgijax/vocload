@@ -21,7 +21,7 @@ ACC_PREFIX = GO
 
 MGITYPE = 13
 
-RUNTIME_DIR = ./runTime/
+RUNTIME_DIR = ./runTimeGO/
 
 TERM_FILE = ${RUNTIME_DIR}/Termfile
 DEFS_FILE = ${RUNTIME_DIR}/GO.defs

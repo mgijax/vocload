@@ -14,7 +14,7 @@ FAILURE=1
 # and exports all environment variables in an .rcd file, placing the call
 # to the program inside the shell script. For now, the variables are placed here.
 RUNTIME_DIR="./runTimeGO/"
-ARCHIVE_DIR="./archive/"
+ARCHIVE_DIR="./archiveGO/"
 
 SYBASE=/opt/sybase/12.5
 PYTHONPATH=/usr/local/mgi/lib/python
