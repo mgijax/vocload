@@ -1,0 +1,44 @@
+#
+# Progam:  go.rcd
+#
+# Purpose:
+#
+#	Configuration file for GO Vocabulary load
+#	which defines the GO DAGs
+#
+# Usage:
+#
+#	Used by Python Configuration module
+#
+# History:
+#
+#	03/25/2003	lec
+#	- moved simple vocab variables to ConfigGO.default
+#
+
+[
+        NAME = Molecular Function
+        ABBREV = F
+        ONTOLOGY_FILE = ${RUNTIME_DIR}/function.ontology.txt
+        LOAD_FILE = ${RUNTIME_DIR}/dag.f
+]
+[
+        NAME = Biological Process
+        ABBREV = P
+        ONTOLOGY_FILE = ${RUNTIME_DIR}/process.ontology.txt
+        LOAD_FILE = ${RUNTIME_DIR}/dag.p
+]
+[
+        NAME = Cellular Component
+        ABBREV = C
+        ONTOLOGY_FILE = ${RUNTIME_DIR}/component.ontology.txt
+        LOAD_FILE = ${RUNTIME_DIR}/dag.c
+]
+
+# $Log$
+# Revision 1.8  2003/03/25 14:23:58  lec
+# new Configuration files
+#
+# Revision 1.7  2003/03/25 13:53:39  lec
+# new Configuration files
+#
