@@ -243,9 +243,12 @@ echo "************************************************************************" 
 echo "Job Complete: `date`"
 echo "Job Complete: `date`"                                                         >> $FULL_LOG_FILE 2>&1
 
-#cat $MAIL_FILE_NAME $FULL_LOG_FILE | mailx -s "$SUBJECT" $MAINTAINER 
+cat $MAIL_FILE_NAME $FULL_LOG_FILE | mailx -s "$SUBJECT" $MAINTAINER 
 
 # $Log$
+# Revision 1.24  2003/03/25 17:12:58  lec
+# new Configuration files
+#
 # Revision 1.23  2003/03/25 15:48:16  lec
 # new configuration files
 #

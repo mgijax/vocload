@@ -81,7 +81,6 @@ writePgmLogFile()
 JOB_SUCCESSFUL="false"
 
 installOntologyFiles
-exit 0
 changeToRunDirectory
 umask 002
 createDir $RUNTIME_DIR
