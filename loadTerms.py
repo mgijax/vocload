@@ -92,29 +92,29 @@ INSERT_TERM = '''insert VOC_Term (_Term_key, _Vocab_key, term,
         abbreviation, sequenceNum, isObsolete)
     values (%d, %d, "%s",
         "%s", %s, %d)'''
-BCP_INSERT_TERM = '''%d^%d^%s^%s^%s^%d^^\n'''
+BCP_INSERT_TERM = '''%d|%d|%s|%s|%s|%d||\n'''
 
 INSERT_TEXT = '''insert VOC_Text (_Term_key, sequenceNum, note)
     values (%d, %d, "%s")'''
-BCP_INSERT_TEXT = '''%d^%d^%s^^\n'''
+BCP_INSERT_TEXT = '''%d|%d|%s||\n'''
 
 INSERT_NOTE = '''insert MGI_Note (_Note_key, _Object_key, _MGIType_key, _NoteType_key)
     values (%d, %d, %s, %s)'''
-BCP_INSERT_NOTE = '''%d^%d^%s^%s^^\n'''
+BCP_INSERT_NOTE = '''%d|%d|%s|%s||||\n'''
 
 INSERT_NOTECHUNK = '''insert MGI_NoteChunk (_Note_key, sequenceNum, note)
     values (%d, %d, "%s")'''
-BCP_INSERT_NOTECHUNK = '''%d^%d^%s^^\n'''
+BCP_INSERT_NOTECHUNK = '''%d|%d|%s||||\n'''
 
 INSERT_SYNONYM ='''insert VOC_Synonym (_Synonym_key, _Term_key, synonym)
     values (%d, %d, "%s")'''
-BCP_INSERT_SYNONYM ='''%d^%d^%s^^\n'''
+BCP_INSERT_SYNONYM ='''%d|%d|%s||\n'''
 
 INSERT_ACCESSION = '''insert ACC_Accession (_Accession_key, accID, prefixPart, numericPart,
         _LogicalDB_key, _Object_key, _MGIType_key, private, preferred)
     values (%d, "%s", "%s", %s,
         %d, %d, %d, %d, %d)'''
-BCP_INSERT_ACCESSION = '''%d^%s^%s^%s^%d^%d^%d^%d^%d^^^\n'''
+BCP_INSERT_ACCESSION = '''%d|%s|%s|%s|%d|%d|%d|%d|%d|||\n'''
 
 DELETE_TEXT = '''delete from VOC_Text where _Term_key = %d'''
 

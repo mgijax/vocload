@@ -68,19 +68,19 @@ unknown_mode = 'unknown load mode: %s'
 INSERT_NODE = '''insert DAG_Node (_DAG_key, _Node_key, _Object_key, _Label_key)
     values (%d, %d, %d, %d)'''
 
-BCP_INSERT_NODE = '''%d^%d^%d^%d^^\n'''
+BCP_INSERT_NODE = '''%d|%d|%d|%d||\n'''
 
 INSERT_EDGE = '''insert DAG_Edge (_Edge_key, _DAG_key, _Parent_key,
         _Child_key, _Label_key, sequenceNum)
     values (%d, %d, %d,
         %d, %d, %d)'''
 
-BCP_INSERT_EDGE = '''%d^%d^%d^%d^%d^%d^^\n'''
+BCP_INSERT_EDGE = '''%d|%d|%d|%d|%d|%d||\n'''
 
 INSERT_CLOSURE = '''insert DAG_Closure (_DAG_key, _Ancestor_key, _Descendent_key)
     values (%d, %d, %d)'''
 
-BCP_INSERT_CLOSURE = '''%d^%d^%d^^\n'''
+BCP_INSERT_CLOSURE = '''%d|%d|%d||\n'''
 
 ###--- Classes ---###
 

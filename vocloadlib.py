@@ -823,7 +823,7 @@ def loadBCPFile ( bcpFileName, bcpLogFileName, bcpErrorFileName, tableName, pass
     # Raises:  raises an exception if bcp returns a non-zero (i.e.,
     #          value
 
-    bcpCmd = 'cat %s | bcp %s..%s in %s -c -t\"^" -e %s -S%s -U%s >> %s' \
+    bcpCmd = 'cat %s | bcp %s..%s in %s -c -t"|" -e %s -S%s -U%s >> %s' \
       % (passwordFile, db.get_sqlDatabase(), \
       tableName, bcpFileName, bcpErrorFileName, \
       db.get_sqlServer(), db.get_sqlUser(), bcpLogFileName  )
