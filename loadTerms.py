@@ -856,7 +856,12 @@ class TermLoad:
        # Check definition#########################################################
        ###########################################################################
        definitionDescrepancy = obsoleteTermDiscrepancy = 0
-       if record['definition'] == dbRecord[0]['notes']:
+       #Get dbRecord in sync with file record by converting "None" to blank
+       dbDefinition = dbRecord[0]['notes']
+       if dbDefinition == None:
+          dbDefinition = ""
+       if ( string.strip ( record['definition'] ) != string.strip ( dbDefinition ) ):
+          self.log.writeline ( "File: [%s], Database: [%s]" %  ( record['definition'], dbDefinition ) )
           # can't do simple update because of 255 size limit; therefore, do a delete
           # and insert
           vocloadlib.nl_sqlog ( DELETE_TEXT % termKey, self.log )
