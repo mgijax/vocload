@@ -37,7 +37,7 @@ export LD_LIBRARY_PATH
 die()
 {
    echo $1
-#   cat $FULL_LOG_FILE | mailx -s "PHENOTYPE Load Catastrophic FAILURE" $MAINTAINER 
+   cat $FULL_LOG_FILE | mailx -s "PHENOTYPE Load Catastrophic FAILURE" $MAINTAINER 
    exit $FAILURE
 }
 
