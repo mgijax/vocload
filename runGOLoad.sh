@@ -13,7 +13,7 @@ FAILURE=1
 # this problem in the future, we should write a python program which reads
 # and exports all environment variables in an .rcd file, placing the call
 # to the program inside the shell script. For now, the variables are placed here.
-RUNTIME_DIR="./runTime/"
+RUNTIME_DIR="./runTimeGO/"
 ARCHIVE_DIR="./archive/"
 
 SYBASE=/opt/sybase/12.5
