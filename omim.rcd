@@ -13,7 +13,7 @@ MGITYPE = 13
 
 RUNTIME_DIR = ./runTimeOMIM/
 TERM_FILE =  ${RUNTIME_DIR}/omim.term
-DATA_FILE = /home/lec/loads/vocload/omim.tab
+DATA_FILE = ${RUNTIME_DIR}/omim.tab
 DISCREP_FILE = ${RUNTIME_DIR}/omim.discrepancy.html
 
 FULL_MODE_DATA_LOADER = bcp
