@@ -1,7 +1,7 @@
 #!/usr/local/bin/python
 
-# $HEADER$
-# $NAME$
+# $Header$
+# $Name$
 
 #
 # Program: GOremoveannot.py
@@ -249,6 +249,9 @@ process()
 exit(0)
 
 # $Log$
+# Revision 1.3  2003/03/25 16:08:49  lec
+# new configuration files
+#
 # Revision 1.2  2003/03/25 15:02:46  lec
 # new configuration files/names
 #

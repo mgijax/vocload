@@ -1,7 +1,7 @@
 #!/usr/local/bin/python
 
-# $HEADER$
-# $NAME$
+# $Header$
+# $Name$
 
 #
 # Program: GOverify.py
@@ -103,6 +103,9 @@ errLog.close()
 sys.exit(0)
 
 # $Log$
+# Revision 1.3  2003/04/02 18:54:48  lec
+# TR 4564
+#
 # Revision 1.2  2003/03/27 13:26:57  lec
 # replacement for GOdownloader.py
 #

@@ -1,7 +1,7 @@
 #!/usr/local/bin/python
 
-# $HEADER$
-# $NAME$
+# $Header$
+# $Name$
 
 #
 # Program: simpleLoad.py
@@ -90,6 +90,9 @@ if __name__ == '__main__':
 	wrapper.go()
 
 # $Log$
+# Revision 1.6  2003/04/02 18:54:49  lec
+# TR 4564
+#
 # Revision 1.5  2003/04/02 13:28:53  lec
 # TR 4564
 #
