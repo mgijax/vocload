@@ -187,4 +187,5 @@ errLog.write ( 'godownloader.py completed successfully: ' + data_dir )
 errLog.write ( 'compName = ' + funcName )
 errLog.write ( 'procName = ' + funcName )
 errLog.close()
+sys.exit(0)
 
