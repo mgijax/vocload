@@ -861,7 +861,6 @@ class TermLoad:
        if dbDefinition == None:
           dbDefinition = ""
        if ( string.strip ( record['definition'] ) != string.strip ( dbDefinition ) ):
-          self.log.writeline ( "File: [%s], Database: [%s]" %  ( record['definition'], dbDefinition ) )
           # can't do simple update because of 255 size limit; therefore, do a delete
           # and insert
           vocloadlib.nl_sqlog ( DELETE_TEXT % termKey, self.log )
