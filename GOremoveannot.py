@@ -249,6 +249,12 @@ process()
 exit(0)
 
 # $Log$
+# Revision 1.5  2003/12/01 15:05:46  lec
+# fix
+#
+# Revision 1.4.2.1  2003/12/01 15:05:46  lec
+# fix
+#
 # Revision 1.4  2003/04/18 14:46:07  lec
 # MGI 2.96
 #
