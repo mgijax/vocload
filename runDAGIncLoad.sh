@@ -17,6 +17,9 @@
 #	- new
 #
 
+LOAD_PROGRAM="GOload.py"
+export LOAD_PROGRAM
+
 cd `dirname $0`
 . VOClib.config
 
@@ -26,3 +29,6 @@ archive
 finishUp
 
 # $Log$
+# Revision 1.1  2003/03/26 16:00:12  lec
+# continuing to factor out common tasks/variables
+#
