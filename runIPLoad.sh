@@ -60,9 +60,14 @@ cd `dirname $0`
 . IP.config
 createDir $RUNTIME_DIR
 createDir $ARCHIVE_DIR
+
+rm -rf $FULL_LOG_FILE $MAIL_FILE_NAME $IP_LOAD_LOG_FILE
+touch $FULL_LOG_FILE $MAIL_FILE_NAME $IP_LOAD_LOG_FILE
+
 echo "Job Started: `date`"
-echo "Job Started: `date`"                          > $FULL_LOG_FILE 2>&1
+echo "Job Started: `date`"                          >> $FULL_LOG_FILE 2>&1
 echo "Directory is: `pwd`"
+
 #################################################################################
 # Check Usage and options
 #################################################################################
@@ -220,13 +225,15 @@ echo "Full Log File is as follows:"                                             
 echo "************************************************************************"     >> $MAIL_FILE_NAME
 echo "************************************************************************"     >> $MAIL_FILE_NAME
 
-
 echo "Job Complete: `date`"
 echo "Job Complete: `date`"                                                         >> $FULL_LOG_FILE 2>&1
 
 #cat $MAIL_FILE_NAME $FULL_LOG_FILE | mailx -s "$SUBJECT" $MAINTAINER 
 
 # $Log$
+# Revision 1.4  2003/03/25 19:01:24  lec
+# new Configuration files
+#
 # Revision 1.3  2003/03/25 18:41:12  lec
 # new Configuration files
 #

@@ -71,9 +71,14 @@ cd `dirname $0`
 createDir $RUNTIME_DIR
 createDir $ARCHIVE_DIR
 installOntologyFiles
+
+rm -rf $FULL_LOG_FILE $MAIL_FILE_NAME $MP_LOAD_LOG_FILE
+touch $FULL_LOG_FILE $MAIL_FILE_NAME $MP_LOAD_LOG_FILE
+
 echo "Job Started: `date`"
 echo "Job Started: `date`"                          > $FULL_LOG_FILE 2>&1
 echo "Directory is: `pwd`"
+
 #################################################################################
 # Check Usage and options
 #################################################################################
@@ -206,6 +211,9 @@ echo "Job Complete: `date`"                                                     
 cat $MAIL_FILE_NAME $FULL_LOG_FILE | mailx -s "$SUBJECT" $MAINTAINER 
 
 # $Log$
+# Revision 1.7  2003/03/25 18:08:56  lec
+# new Configuration files
+#
 # Revision 1.6  2003/03/25 17:39:34  lec
 # new Configuration files
 #

@@ -57,9 +57,14 @@ cd `dirname $0`
 . OMIM.config
 createDir $RUNTIME_DIR
 createDir $ARCHIVE_DIR
+
+rm -rf $FULL_LOG_FILE $MAIL_FILE_NAME $OMIM_LOAD_LOG_FILE
+touch $FULL_LOG_FILE $MAIL_FILE_NAME $OMIM_LOAD_LOG_FILE
+
 echo "Job Started: `date`"
 echo "Job Started: `date`"                          > $FULL_LOG_FILE 2>&1
 echo "Directory is: `pwd`"
+
 #################################################################################
 # Check Usage and options
 #################################################################################
@@ -190,4 +195,7 @@ echo "Job Complete: `date`"                                                     
 cat $MAIL_FILE_NAME $FULL_LOG_FILE | mailx -s "$SUBJECT" $MAINTAINER 
 
 # $Log$
+# Revision 1.3  2003/03/26 13:19:21  lec
+# TR 3853
+#
 
