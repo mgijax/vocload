@@ -37,6 +37,7 @@ import getopt
 
 import Log      # MGI-written Python libraries
 import vocloadlib
+import html
 
 DEBUG = 0
 
@@ -141,7 +142,7 @@ class DAGLoad:
         self.dagEdgeBCPFileName    = config.getConstant('DAG_EDGE_BCP_FILE')
         self.dagNodeBCPFileName    = config.getConstant('DAG_NODE_BCP_FILE')
         self.dagClosureBCPFileName = config.getConstant('DAG_CLOSURE_BCP_FILE')
-
+                                                         
         self.dagEdgeBCPFile    = open( self.dagEdgeBCPFileName   , 'w')
         self.dagNodeBCPFile    = open( self.dagNodeBCPFileName   , 'w')
         self.dagClosureBCPFile = open( self.dagClosureBCPFileName, 'w')
@@ -211,20 +212,68 @@ class DAGLoad:
         # Throws: raises 'error' if any exceptions occur
 
         try:
-            if self.mode == 'full':
-                self.goFull()
-            else:
-                self.goIncremental()
-            self.closeBCPFiles()
-            self.loadBCPFiles()
+           self.openDiscrepancyFiles()
+           if self.mode == 'full':
+               self.goFull()
+           else:
+               self.goIncremental()
+           self.closeDiscrepancyFiles()
+           self.closeBCPFiles()
+           self.loadBCPFiles()
         except:
-            # raise 'error' with whatever the descriptive message
-            # was originally
-            raise error, sys.exc_value
+           # raise 'error' with whatever the descriptive message
+           # was originally
+           raise error, sys.exc_value
+
         self.log.writeline ('=' * 40)
 
         return
 
+    def openDiscrepancyFiles ( self ):
+        # Purpose: opens discrepancy file, and begins writing the HTML
+        #          tags for the report content
+        # Returns: nothing
+        # Assumes: user executing program has write access in output directory;
+        # Effects: discrepancy files are open for writing
+        # Throws:  propagates all exceptions opening files
+
+        # open the discrepancy file
+        self.dagDiscrepFileName = self.config.getConstant('DAG_DISCREP_FILE')
+        self.dagDiscrepFile     = open( self.dagDiscrepFileName     , 'w')
+
+        # now write HTML header information
+        self.dagDiscrepFile.write ( html.getStartHTMLDocumentHTML ( "DAG Discrepancy Report" ) )
+        self.dagDiscrepFile.write ( html.getStartTableHTML () )
+        self.dagDiscrepFile.write ( html.getStartTableRowHTML () )
+        self.dagDiscrepFile.write ( html.getTableHeaderLabelHTML ( "Accession ID" ) )
+        self.dagDiscrepFile.write ( html.getTableHeaderLabelHTML ( "Message" ) )
+        self.dagDiscrepFile.write ( html.getEndTableRowHTML () )
+
+    def closeDiscrepancyFiles ( self ):
+        # Purpose: writes HTML tags to close the table and document tags
+        #          and physically closes discrepancy file
+        # Returns: nothing
+        # Assumes: discrepancy file is open
+        # Effects: discrepancy files are closed
+        # Throws:  propagates all exceptions closing files
+
+        # write html tags to end the table and html document
+        self.dagDiscrepFile.write ( html.getEndTableHTML () )
+        self.dagDiscrepFile.write ( html.getEndHTMLDocumentHTML ( ) )
+
+        # now, close the file
+        self.dagDiscrepFile.close ()
+
+    def writeDiscrepancyFile (self, accID, msg ):
+        # Purpose: write a record to the discrepancy file
+        # Returns: nothing
+        # Assumes: discrepancy file is open and writeable
+        # Effects: report output
+        # Throws:  propagates any exceptions raised 
+        self.dagDiscrepFile.write ( html.getStartTableRowHTML () )
+        self.dagDiscrepFile.write ( html.getCellHTML ( accID ) )
+        self.dagDiscrepFile.write ( html.getCellHTML ( msg   ) )
+        self.dagDiscrepFile.write ( html.getEndTableRowHTML () )
 
     def loadBCPFiles (self):
         # Purpose: runs the BCP load
@@ -335,7 +384,7 @@ class DAGLoad:
                 errors.append ('Unknown child ID %s' % \
                     childID)
             else:
-                [termKey, isObsolete] = ids[childID]
+                [termKey, isObsolete, term, termFound] = ids[childID]
                 child_key = termKey
 
             # if we have a valid parentID, look up its key.  If we
@@ -350,7 +399,7 @@ class DAGLoad:
                 errors.append ('Unknown parent ID %s' % \
                     parentID)
             else:
-                [termKey, isObsolete] = ids[parentID]
+                [termKey, isObsolete, term, termFound] = ids[parentID]
                 parent_key = termKey
 
             # if we have a label for this (child) node, then find
@@ -391,10 +440,11 @@ class DAGLoad:
             # this data line and proceed with the rest of the load
 
             if errors:
-                self.log.writeline ('ERROR: Skipped line %d:'\
-                    % lineNum)
+                msg = 'ERROR: Skipped line %d:' % lineNum
                 for error in errors:
-                    self.log.writeline ('\t' + error)
+                    msg = msg + " " + error
+                self.writeDiscrepancyFile ( childID, msg )
+                self.log.writeline ( msg )
                 continue    # to next line
 
             # now, remember that this child node is a child of
