@@ -980,7 +980,7 @@ class TermLoad:
 
     def processRecordChanges (self, record, dbRecord, termKey ):
        # Purpose: Check to see if input file record is different from the database
-       #          in terms of the definition, the synonyms, the 
+       #          in terms of the definition, the comments, the synonyms, the 
        #          isObsolete field, and the term field.  Writes a 
        #          record to the Curator/Discrepancy Report if there are definition
        #          differences or the record has been obsoleted AND there
@@ -1010,8 +1010,7 @@ class TermLoad:
           dbDefinition = ""
 
        if ( string.strip ( record['definition'] ) != string.strip ( dbDefinition ) ):
-          # can't do simple update because of 255 size limit; therefore, do a delete
-          # and insert
+          # can't do simple update because of 255 size limit; therefore, do a delete and insert
           vocloadlib.nl_sqlog ( DELETE_TEXT % termKey, self.log )
           self.generateDefinitionSQL( record['definition'], termKey )
           recordChanged = 1

@@ -492,7 +492,7 @@ def getTerms (
 	'''select n._Object_key, comment = nc.note, nc.sequenceNum
 	from VOC_Term vt, MGI_Note n, MGI_NoteChunk nc
 	where vt._Vocab_key = %d
-	and vt._Vocab_key = n._Object_key
+	and vt._Term_key = n._Object_key
 	and n._NoteType_key = %s
 	and n._Note_key = nc._Note_key
 	order by n._Object_key, nc.sequenceNum''' % (vocab, os.environ['VOCAB_COMMENT_KEY'])
