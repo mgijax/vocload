@@ -113,7 +113,8 @@ GO_ROOT_ID = "GO:0003673"
 # defines used for convenience
 PRIMARY   = "Primary"
 SECONDARY = "Secondary"
-PRIMARY_SECONDARY_COLLISION_MSG = "Duplicate Primary/Secondary Accession ID Used. This is a fatal error - no data was loaded to the database"
+PRIMARY_SECONDARY_COLLISION_MSG = "Duplicate Primary/Secondary Accession ID Used. This is a fatal error - no data was loaded to the database."
+TERM_MISSING_FROM_INPUT_FILE = "Term Exists in Database but NOT in the Input File.  This is a non-fatal error."
 OTHER_ID_DELIMITER = '|'
 SYNONYM_DELIMITER = '|'
 MGI_LOGICALDB_KEY = 1
@@ -427,7 +428,6 @@ class TermLoad:
         for record in self.datafile:
             if record['accID'] != GO_ROOT_ID:
                # Check for duplication on the primary term
-               # Need to decide how to exit if this returns a dupe!!!!!
                duplicate = self.checkForDuplication ( record['accID'], record['term'], "Primary", self.getIsObsolete ( record['status'] ) )
                if duplicate:
                    self.commitTransaction = 0
@@ -691,9 +691,11 @@ class TermLoad:
         # process data file
         vocloadlib.beginTransaction ( self.log )
         for record in self.datafile:
+            # Cross reference input file records to database records
+            # Check for duplication on the primary term - primary accIDs
+            # may not refer to more than one term
+            self.crossReferenceFileToDB ( record['accID'], primaryTermIDs, secondaryTermIDs )
             if record['accID'] != GO_ROOT_ID:
-                # Check for duplication on the primary term - primary accIDs
-                # may not refer to more than one term
                 duplicate = self.checkForDuplication ( record['accID'], record['term'], "Primary", self.getIsObsolete ( record['status'] ) )
                 if duplicate:
                     # this is considered a serious error, so data will not
@@ -708,7 +710,7 @@ class TermLoad:
             # check for changes to it and process the 
             # secondary terms
             if primaryTermIDs.has_key ( record['accID'] ):
-               [termKey, isObsolete] = primaryTermIDs[record['accID'] ]
+               [termKey, isObsolete, term, termFound] = primaryTermIDs[record['accID'] ]
                dbRecord = recordSet.find ( '_Term_key', termKey )
                if dbRecord == []:
                   raise error, 'Accession ID in ACC_Accession does not exist \
@@ -728,7 +730,59 @@ class TermLoad:
            vocloadlib.commitTransaction ( self.log )
         else:
            vocloadlib.rollbackTransaction ( self.log )
+        self.checkForMissingTermsInInputFile( primaryTermIDs, secondaryTermIDs )
         return
+
+    def crossReferenceFileToDB (self, accID, primaryTermIDs, secondaryTermIDs ):
+        # Purpose: Obsoleted terms should always remain in the input file.
+        #          This subroutine is used to cross reference each record
+        #          in the database to the input file; if the input file record 
+        #          exists in the database, it is flagged as such in the
+        #          primaryTermID or secondaryTermID structure.  Once processing
+        #          is complete, this structure will be iterated through; if 
+        #          any terms exist in the database but not the input file,
+        #          a discrepancy report record will be written.
+        # Returns: nothing
+        # Effects: primaryTermID and secondaryTermID structures
+        # Throws:  propagates any exceptions raised 
+
+        if primaryTermIDs.has_key ( accID ):
+           [termKey, isObsolete, term, termFound] = primaryTermIDs[accID]
+           termFound = 1
+           primaryTermIDs[accID] = [termKey, isObsolete, term, termFound]
+        if secondaryTermIDs.has_key ( accID ):
+           [ termKey, term, termFound ] = secondaryTermIDs[accID]
+           termFound = 1
+           secondaryTermIDs[accID] = [termKey, term, termFound]
+
+
+    def checkForMissingTermsInInputFile (self, primaryTermIDs, secondaryTermIDs ):
+        # Purpose: Obsoleted terms should always remain in the input file.
+        #          This subroutine is used to check and make sure that all records
+        #          in the database also exist in the input file; if the input file
+        #          exists in the database, it is flagged as such in the
+        #          primaryTermID or secondaryTermID structure in the crossReferenceFileToDB
+        #          subroutine.  All records which were not flagged in that routine
+        #          are considered non-fatal discrepancies and are written to the Discrepancy 
+        #          Report file.
+        # Returns: nothing
+        # Effects: Discrepancy Report file
+        # Throws:  propagates any exceptions raised 
+
+        # Check both the primary AND secondary lists because 
+        # if it is a secondary term that is also an obsolete primary term
+        # it is permissible for it to appear on both lists
+        for accID in primaryTermIDs.keys():
+            [termKey, isObsolete, term, termFound] = primaryTermIDs[accID]
+            if not termFound:
+               self.writeDiscrepancyFile ( accID, term, TERM_MISSING_FROM_INPUT_FILE )  
+
+        for accID in secondaryTermIDs.keys():
+            [termKey, term, termFound] = secondaryTermIDs[accID]
+            if not termFound:
+              self.writeDiscrepancyFile ( accID, term, TERM_MISSING_FROM_INPUT_FILE )  
+
+
 
     def checkForDuplication (self, accID, term, termType, isObsolete ):
         # Purpose: Check to see if id is duplicated across primary
@@ -805,6 +859,7 @@ class TermLoad:
         if otherIDs:
             for id in string.split (otherIDs, OTHER_ID_DELIMITER ):
                 id = string.strip ( id )
+                self.crossReferenceFileToDB ( id, primaryTermIDs, secondaryTermIDs )
                 # Check to see if secondary term is a duplicated
                 duplicate = self.checkForDuplication ( id, record['term'], "Secondary", 0 )
                 if duplicate:
@@ -816,7 +871,7 @@ class TermLoad:
                     # that the prefered bit is set to true in mgd 
                     # and we therefore need to execute a merge
                     # but only if the primary term is NOT obsolete
-                    [termKey, isObsolete] = primaryTermIDs[id]
+                    [termKey, isObsolete, term, termFound] = primaryTermIDs[id]
                     if not isObsolete:
                        oldKey = termKey
                        newKey = associatedTermKey
