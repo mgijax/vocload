@@ -86,6 +86,7 @@ class GO_Wrapper (loadWrapper.LoadWrapper):
                                                 status,
                                                 '',             # abbrev
                                                 child.getDefinition(),
+                                                child.getComment(),
                                                 string.join (
                                                         child.getSynonyms(),
                                                         '|'),

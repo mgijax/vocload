@@ -15,6 +15,7 @@
 #           Status (required - 'current' or 'obsolete')
 #           Abbreviation (optional)
 #           Definition (optional)
+#           Comment (optional)
 #           Synonyms (optional)
 #           Secondary Accession IDs (optional)
 #       2. mode (full or incremental)
@@ -97,6 +98,13 @@ INSERT_TEXT = '''insert VOC_Text (_Term_key, sequenceNum, note)
     values (%d, %d, "%s")'''
 BCP_INSERT_TEXT = '''%d^%d^%s^^\n'''
 
+INSERT_NOTE = '''insert MGI_Note (_Note_key, _Object_key, _MGIType_key, _NoteType_key)
+    values (%d, %d, %s, %s)'''
+BCP_INSERT_NOTE = '''%d^%d^%s^%s^^\n'''
+
+INSERT_NOTECHUNK = '''insert MGI_NoteChunk (_Note_key, sequenceNum, note)
+    values (%d, %d, "%s")'''
+BCP_INSERT_NOTECHUNK = '''%d^%d^%s^^\n'''
 
 INSERT_SYNONYM ='''insert VOC_Synonym (_Synonym_key, _Term_key, synonym)
     values (%d, %d, "%s")'''
@@ -108,8 +116,9 @@ INSERT_ACCESSION = '''insert ACC_Accession (_Accession_key, accID, prefixPart, n
         %d, %d, %d, %d, %d)'''
 BCP_INSERT_ACCESSION = '''%d^%s^%s^%s^%d^%d^%d^%d^%d^^^\n'''
 
-
 DELETE_TEXT = '''delete from VOC_Text where _Term_key = %d'''
+
+DELETE_NOTE = '''delete from MGI_Note where _Object_key = %d and _NoteType_key = %s'''
 
 DELETE_ALL_SYNONYMS ='''delete from VOC_Synonym where _Term_key = %d'''
 
@@ -229,12 +238,12 @@ class TermLoad:
 
         self.max_term_key = None    # to be filled in once at the
         self.max_synonym_key = None # start of the load
+	self.max_note_key = None
 
         if self.isBCPLoad:
            # Need to look up this number immediately and only once
            # for BCP
-           self.max_accession_key = max (0, vocloadlib.getMax (
-               '_Accession_key', 'ACC_Accession'))
+           self.max_accession_key = vocloadlib.getMax ('_Accession_key', 'ACC_Accession')
         else:
            self.max_accession_key = None   # to be filled in later for
                            # each term (because MGI IDs
@@ -245,7 +254,7 @@ class TermLoad:
         self.filename = filename
         self.datafile = vocloadlib.readTabFile (filename,
             [ 'term', 'accID', 'status', 'abbreviation',
-            'definition', 'synonyms', 'otherIDs' ])
+            'definition', 'comment', 'synonyms', 'otherIDs' ])
 
         self.mgitype_key = vocloadlib.VOCABULARY_TERM_TYPE
 
@@ -301,18 +310,24 @@ class TermLoad:
         # file has been created
         self.loadTermBCP      = 0
         self.loadTextBCP      = 0
+        self.loadNoteBCP      = 0
+        self.loadNoteChunkBCP = 0
         self.loadSynonymBCP   = 0
         self.loadAccessionBCP = 0
             
-        self.termTermBCPFileName     = os.environ['TERM_TERM_BCP_FILE']
-        self.termTextBCPFileName     = os.environ['TERM_TEXT_BCP_FILE']
-        self.termSynonymBCPFileName  = os.environ['TERM_SYNONYM_BCP_FILE']
-        self.accAccessionBCPFileName = os.environ['ACCESSION_BCP_FILE']
+        self.termTermBCPFileName      = os.environ['TERM_TERM_BCP_FILE']
+        self.termTextBCPFileName      = os.environ['TERM_TEXT_BCP_FILE']
+        self.termNoteBCPFileName      = os.environ['TERM_NOTE_BCP_FILE']
+        self.termNoteChunkBCPFileName = os.environ['TERM_NOTECHUNK_BCP_FILE']
+        self.termSynonymBCPFileName   = os.environ['TERM_SYNONYM_BCP_FILE']
+        self.accAccessionBCPFileName  = os.environ['ACCESSION_BCP_FILE']
 
-        self.termTermBCPFile      = open( self.termTermBCPFileName     , 'w')
-        self.termTextBCPFile      = open( self.termTextBCPFileName     , 'w')
-        self.termSynonymBCPFile   = open( self.termSynonymBCPFileName  , 'w')
-        self.accAccessionBCPFile  = open( self.accAccessionBCPFileName , 'w')
+        self.termTermBCPFile      = open( self.termTermBCPFileName, 'w')
+        self.termTextBCPFile      = open( self.termTextBCPFileName, 'w')
+        self.termNoteBCPFile      = open( self.termNoteBCPFileName, 'w')
+        self.termNoteChunkBCPFile = open( self.termNoteChunkBCPFileName, 'w')
+        self.termSynonymBCPFile   = open( self.termSynonymBCPFileName, 'w')
+        self.accAccessionBCPFile  = open( self.accAccessionBCPFileName, 'w')
 
     def openDiscrepancyFiles ( self ):
         # Purpose: opens discrepancy file, and begins writing the HTML
@@ -360,6 +375,8 @@ class TermLoad:
 
         self.termTermBCPFile.close()    
         self.termTextBCPFile.close()    
+        self.termNoteBCPFile.close()    
+        self.termNoteChunkBCPFile.close()    
         self.termSynonymBCPFile.close() 
         self.accAccessionBCPFile.close() 
 
@@ -376,13 +393,19 @@ class TermLoad:
 
         if not vocloadlib.NO_LOAD:
            if self.loadTermBCP:
-              vocloadlib.loadBCPFile ( self.termTermBCPFileName    , bcpLogFile, bcpErrorFile, 'VOC_Term', self.passwordFile )
+              vocloadlib.loadBCPFile ( self.termTermBCPFileName, bcpLogFile, bcpErrorFile, 'VOC_Term', self.passwordFile )
                                                                    
-           if self.loadTextBCP:                                    
-              vocloadlib.loadBCPFile ( self.termTextBCPFileName    , bcpLogFile, bcpErrorFile, 'VOC_Text', self.passwordFile )
+           if self.loadTextBCP:
+              vocloadlib.loadBCPFile ( self.termTextBCPFileName, bcpLogFile, bcpErrorFile, 'VOC_Text', self.passwordFile )
+                                                                   
+           if self.loadNoteBCP:
+              vocloadlib.loadBCPFile ( self.termNoteBCPFileName, bcpLogFile, bcpErrorFile, 'MGI_Note', self.passwordFile )
+                                                                   
+           if self.loadNoteChunkBCP:
+              vocloadlib.loadBCPFile ( self.termNoteChunkBCPFileName, bcpLogFile, bcpErrorFile, 'MGI_NoteChunk', self.passwordFile )
                                                                    
            if self.loadSynonymBCP:                                 
-              vocloadlib.loadBCPFile ( self.termSynonymBCPFileName , bcpLogFile, bcpErrorFile, 'VOC_Synonym', self.passwordFile )
+              vocloadlib.loadBCPFile ( self.termSynonymBCPFileName, bcpLogFile, bcpErrorFile, 'VOC_Synonym', self.passwordFile )
                                                                    
            if self.loadAccessionBCP:                               
               vocloadlib.loadBCPFile ( self.accAccessionBCPFileName, bcpLogFile, bcpErrorFile, 'ACC_Accession', self.passwordFile )
@@ -409,17 +432,12 @@ class TermLoad:
         # delete the existing terms, and report how many were deleted.
         count = vocloadlib.countTerms (self.vocab_key)
         vocloadlib.deleteVocabTerms (self.vocab_key, self.log)
-        self.log.writeline ('   deleted all (%d) remaining terms' % \
-            count)
+        self.log.writeline ('   deleted all (%d) remaining terms' % count)
 
-        # look up the maximum keys for remaining items in VOC_Term
-        # and VOC_Synonym.  We use the max() function to initialize
-        # to 0 if the call to getMax() returns None.
-
-        self.max_term_key = max (0, vocloadlib.getMax ('_Term_key',
-            'VOC_Term'))
-        self.max_synonym_key = max (0, vocloadlib.getMax (
-            '_Synonym_key', 'VOC_Synonym'))
+        # look up the maximum keys for remaining items in VOC_Term and VOC_Synonym.
+        self.max_term_key = vocloadlib.getMax ('_Term_key', 'VOC_Term')
+        self.max_synonym_key = vocloadlib.getMax ('_Synonym_key', 'VOC_Synonym')
+        self.max_note_key = vocloadlib.getMax ('_Note_key', 'MGI_Note')
 
         # if this is a simple vocabulary, we provide sequence numbers
         # for the terms.  if it isn't simple, the sequence number is
@@ -482,11 +500,11 @@ class TermLoad:
         # Returns: nothing
         # Assumes: nothing
         # Effects: adds a record to VOC_Term and records to
-        #   VOC_Synonym and VOC_Text as needed
+        #   VOC_Synonym and VOC_Text, MGI_Note and MGI_NoteChunk as needed
         # Throws: propagates all exceptions
         # Notes: 'record' must contain values for the following
         #   fieldnames- term, abbreviation, status, definition,
-        #   synonyms, accID, otherIDs
+        #   comment, synonyms, accID, otherIDs
 
         self.max_term_key = self.max_term_key + 1
         #self.log.writeline ('------ Term: %s ------' % record['term'])
@@ -513,11 +531,11 @@ class TermLoad:
                        self.getIsObsolete( record['status'] ) ),
                        self.log)
 
-
-
-
         # add records as needed to VOC_Text:
         self.generateDefinitionSQL ( record['definition'], self.max_term_key )
+
+        # add records as needed to MGI_Note:
+        self.generateCommentSQL ( record['comment'], self.max_term_key )
 
         # add records as needed to VOC_Synonym:
         synonyms = string.split (record['synonyms'], SYNONYM_DELIMITER )
@@ -533,13 +551,9 @@ class TermLoad:
 
         # note that we look up the maximum accession key here, as the
         # addition to VOC_Term may have caused a trigger to add a new
-        # MGI number for the term.  We use the max() function to start
-        # at 0 in the event that getMax() returns None.  Note also
-        # that we only do this if the program is performing on-line
-        # updates.
+        # MGI number for the term.
         if not self.isBCPLoad:
-           self.max_accession_key = max (0, vocloadlib.getMax (
-               '_Accession_key', 'ACC_Accession'))
+           self.max_accession_key = vocloadlib.getMax ('_Accession_key', 'ACC_Accession')
 
         # add the primary ID, if there is one.  If the logical DB is
         # non-MGI, then it is the preferred ID.
@@ -562,7 +576,7 @@ class TermLoad:
         # Effects: makes call to addAccID (to add record to ACC_Accession)
         # Throws: propagates all exceptions
         # Notes: 'record' must contain values (or None) for the following
-        #   fieldnames- term, abbreviation, status, definition,
+        #   fieldnames- term, abbreviation, status, definition, comments,
         #   synonyms, accID, otherIDs
 
         otherIDs = string.strip (record['otherIDs'])
@@ -584,6 +598,10 @@ class TermLoad:
        # Effects: adds records to VOC_Text in the database
        # Throws: propagates any exceptions raised by vocloadlib's
        #   nl_sqlog() function
+
+       if len(definitionRecord) == 0:
+	   return
+
        defSeqNum = 0   # sequence number for definition chunks
        for chunk in vocloadlib.splitBySize( definitionRecord, 255 ):
            defSeqNum = defSeqNum + 1
@@ -601,8 +619,52 @@ class TermLoad:
                       vocloadlib.escapeDoubleQuotes(chunk)),
                       self.log)
 
+    def generateCommentSQL ( self, commentRecord, termKey ):
+       # Purpose: generates SQL/BCP for MGI_Note and MGI_NoteChunk tables (must be max size 255)
+       # Returns: nothing
+       # Assumes: nothing
+       # Effects: adds records to MGI_Note, MGI_NoteChunk in the database
+       # Throws: propagates any exceptions raised by vocloadlib's nl_sqlog() function
 
+       if len(commentRecord) == 0:
+	   return
 
+       self.max_note_key = self.max_note_key + 1
+
+       if self.isBCPLoad:
+           self.loadNoteBCP = 1
+           self.termNoteBCPFile.write (BCP_INSERT_NOTE % (self.max_note_key, 
+	       termKey, os.environ['MGITYPE'], os.environ['VOCAB_COMMENT_KEY']))
+       else:
+           vocloadlib.nl_sqlog (INSERT_NOTE % \
+                      (self.max_note_key, 
+		       termKey, 
+		       os.environ['MGITYPE'], 
+		       os.environ['VOCAB_COMMENT_KEY']), 
+		       self.log)
+
+       cmtSeqNum = 0   # sequence number for comment chunks
+
+       for chunk in vocloadlib.splitBySize( commentRecord, 255 ):
+
+           cmtSeqNum = cmtSeqNum + 1
+
+           if self.isBCPLoad:
+
+              self.loadNoteChunkBCP = 1
+
+              self.termNoteChunkBCPFile.write (BCP_INSERT_NOTECHUNK % \
+                                          (self.max_note_key,
+                                           cmtSeqNum,
+                                           chunk))
+
+           else: # asserts self.isIncrementalLoad() or full load with on-line sql:
+
+              vocloadlib.nl_sqlog (INSERT_NOTECHUNK % \
+                      (self.max_note_key,
+                      cmtSeqNum,
+                      vocloadlib.escapeDoubleQuotes(chunk)),
+                      self.log)
 
     def addAccID (self,
         accID,      # string; accession ID to add
@@ -670,20 +732,16 @@ class TermLoad:
         self.log.writeline (vocloadlib.timestamp (
             'Incremental Term Load Start:'))
 
-        # look up the maximum keys for remaining items in VOC_Term
-        # and VOC_Synonym.  We use the max() function to initialize
-        # to 0 if the call to getMax() returns None.
-        self.max_term_key = max (0, vocloadlib.getMax ('_Term_key',
-            'VOC_Term'))
-        self.max_synonym_key = max (0, vocloadlib.getMax (
-            '_Synonym_key', 'VOC_Synonym'))
+        # look up the maximum keys for remaining items in VOC_Term and VOC_Synonym.
+        self.max_term_key = vocloadlib.getMax ('_Term_key', 'VOC_Term')
+        self.max_synonym_key = vocloadlib.getMax ( '_Synonym_key', 'VOC_Synonym')
+        self.max_note_key = vocloadlib.getMax ( '_Note_key', 'MGI_Note')
 
         # if this is a simple vocabulary, we provide sequence numbers
         # for the terms.  if it isn't simple, the sequence number is
         # null.
         if self.isSimple:
-            termSeqNum = max (0, vocloadlib.getMax ('sequenceNum',
-            'VOC_Term where _Vocab_key = %d') % self.vocab_key )
+            termSeqNum = vocloadlib.getMax ('sequenceNum', 'VOC_Term where _Vocab_key = %d') % self.vocab_key
         else:
             termSeqNum = 'null'
 
@@ -901,8 +959,7 @@ class TermLoad:
                        # The secondary term doesn't exist, so add the term to the
                        # database and point it to the primary term
                        if not self.isBCPLoad:
-                          self.max_accession_key = max (0, vocloadlib.getMax (
-                              '_Accession_key', 'ACC_Accession'))
+                          self.max_accession_key = vocloadlib.getMax ('_Accession_key', 'ACC_Accession')
                        self.addAccID ( id, associatedTermKey, 0 )
 
         return
@@ -922,15 +979,22 @@ class TermLoad:
        #          note that, for efficiency, both the status and term fields
        #          are updated if either or both fields have to be updated
        # Throws:  propagates any exceptions raised 
+
        recordChanged = 0
+
        ###########################################################################
        # Check definition#########################################################
        ###########################################################################
-       definitionDescrepancy = obsoleteTermDiscrepancy = 0
+
+       definitionDiscrepancy = obsoleteTermDiscrepancy = 0
+
        #Get dbRecord in sync with file record by converting "None" to blank
+
        dbDefinition = dbRecord[0]['notes']
+
        if dbDefinition == None:
           dbDefinition = ""
+
        if ( string.strip ( record['definition'] ) != string.strip ( dbDefinition ) ):
           # can't do simple update because of 255 size limit; therefore, do a delete
           # and insert
@@ -941,7 +1005,31 @@ class TermLoad:
           # Now write report record if the DB record is not null or blank
           # and the term has annotations associated with it
           if dbRecord[0]['notes'] > 0:
-             definitionDescrepancy = 1
+             definitionDiscrepancy = 1
+
+       ###########################################################################
+       # Check comment#########################################################
+       ###########################################################################
+
+       commentDiscrepancy = obsoleteTermDiscrepancy = 0
+
+       #Get dbRecord in sync with file record by converting "None" to blank
+
+       dbComment = dbRecord[0]['comments']
+
+       if dbComment == None:
+          dbComment = ""
+
+       if ( string.strip ( record['comment'] ) != string.strip ( dbComment ) ):
+          # can't do simple update because of 255 size limit; therefore, do a delete and insert
+          vocloadlib.nl_sqlog ( DELETE_NOTE % (termKey, os.environ['VOCAB_COMMENT_KEY']), self.log )
+          self.generateCommentSQL( record['comment'], termKey )
+          recordChanged = 1
+
+          # Now write report record if the DB record is not null or blank
+          # and the term has annotations associated with it
+          if dbRecord[0]['comments'] > 0:
+             commentDiscrepancy = 1
 
        ###########################################################################
        # Check synonyms###########################################################
@@ -982,16 +1070,26 @@ class TermLoad:
        ###########################################################################
        # Now write report discrepancy record(s) if necessary######################
        ###########################################################################
-       if ( definitionDescrepancy or obsoleteTermDiscrepancy ):
+       if ( definitionDiscrepancy or commentDiscrepancy or obsoleteTermDiscrepancy ):
+
           annotations = vocloadlib.getAnyTermMarkerCrossReferences ( termKey, self.ANNOT_TYPE_KEY )
+
           # only write record if annotations exist
           if len ( annotations ) >= 1:
+
              symbols = ""
+
              for annotation in annotations: #build list of symbols
                 symbols = symbols + " " + annotation['symbol']
-             if definitionDescrepancy:
+
+             if definitionDiscrepancy:
                 msg = "Definition change for Term with annotations.  Old Definition: %s, New Definition: %s, Symbols: %s" % ( dbRecord[0]['notes'], record['definition'], symbols ) 
                 self.writeDiscrepancyFile ( record['accID'], record['term'], msg )  
+	   
+             if commentDiscrepancy:
+                msg = "Comment change for Term with annotations.  Old Comment: %s, New Comment: %s, Symbols: %s" % ( dbRecord[0]['comment'], record['comment'], symbols ) 
+                self.writeDiscrepancyFile ( record['accID'], record['term'], msg )  
+
              if obsoleteTermDiscrepancy:
                 msg = "Term has been obsoleted but has annotations, Symbols: %s" % ( symbols ) 
                 self.writeDiscrepancyFile ( record['accID'], record['term'], msg )  

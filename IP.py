@@ -22,6 +22,7 @@
 #	IP ID
 #	Abbreviation
 #	Definition
+#	Comment
 #
 # Processing:
 #
@@ -52,5 +53,5 @@ for line in inFile.readlines():
 
 	accID = line[:9]
 	term = line[10:-1]
-	outFile.write(term + DELIM + accID + DELIM + DELIM + CRT)
+	outFile.write(term + DELIM + accID + DELIM + DELIM + DELIM + CRT)
 

@@ -30,7 +30,7 @@ bad_line = 'Incorrect Line Format for Line Number %d'
 ###--- Globals ---###
 
 VOCABULARY_TERM_TYPE = 13   # default _MGIType_key for vocab terms
-NOT_SPECIFIED = -1      # traditional 'n.s.' for vocabs
+NOT_SPECIFIED = -1          # traditional 'n.s.' for vocabs
 NO_LOAD = 0         # boolean (0/1); are we in a no-load state?
                 #   (log SQL, but don't run it)
 TERM_IDS = None         # dictionary mapping term ID to term key,
@@ -463,7 +463,8 @@ def getTerms (
 
     if type(vocab) == types.StringType:
         vocab = getVocabKey (vocab)
-    [ voc_term, voc_text, voc_synonym ] = sql( [
+
+    [ voc_term, voc_text, voc_synonym, voc_comment ] = sql( [
         '''select *             -- basic term info
         from VOC_Term
         where _Vocab_key = %d''' % vocab,
@@ -479,9 +480,17 @@ def getTerms (
         where vt._Vocab_key = %d
             and vt._Term_key = vs._Term_key
         order by vs.synonym''' % vocab,
+
+	'''select n._Object_key, comment = nc.note, nc.sequenceNum
+	from VOC_Term vt, MGI_Note n, MGI_NoteChunk nc
+	where vt._Vocab_key = %d
+	and vt._Vocab_key = n._Object_key
+	and n._NoteType_key = %s
+	and n._Note_key = nc._Note_key
+	order by n._Object_key, nc.sequenceNum''' % (vocab, os.environ['VOCAB_COMMENT_KEY'])
         ] )
     
-    # build a dictionary of 'notes', map`ping a term key to a string of
+    # build a dictionary of 'notes', mapping a term key to a string of
     # notes.  We take care to join multiple 255-character chunks into
     # one string.
 
@@ -492,6 +501,18 @@ def getTerms (
             notes[term_key] = notes[term_key] + row['note']
         else:
             notes[term_key] = row['note']
+
+    # build a dictionary of 'comments', mapping a term key to a string of
+    # notes.  We take care to join multiple 255-character chunks into
+    # one string.
+
+    comments = {}
+    for row in voc_comment:
+        term_key = row['_Object_key']
+        if comments.has_key (term_key):
+            comments[term_key] = comments[term_key] + row['comment']
+        else:
+            comments[term_key] = row['comment']
 
     # build a dictionary of 'synonyms', mapping a term key to a list of
     # strings (each of which is one synonym)
@@ -506,14 +527,21 @@ def getTerms (
 
     # Each dictionary in 'voc_term' represents one term and contains all
     # its basic attributes.  We step through the list to add any 'notes'
-    # and 'synonyms' for each.
+    # 'comments' and 'synonyms' for each.
 
     for row in voc_term:
         term_key = row['_Term_key']
+
         if notes.has_key (term_key):
             row['notes'] = notes[term_key]
         else:
             row['notes'] = None
+
+        if comments.has_key (term_key):
+            row['comments'] = comments[term_key]
+        else:
+            row['comments'] = None
+
         if synonyms.has_key (term_key):
             row['synonyms'] = synonyms[term_key]
         else:
@@ -687,7 +715,11 @@ def getMax (
     # Throws: propagates all exceptions from sql()
 
     result = sql ('select mx=max(%s) from %s' % (fieldname, table))
-    return result[0]['mx']
+
+    if result[0]['mx'] == None:
+	return 0
+    else:
+	return result[0]['mx']
 
 def getLogicalDBkey (
     vocab       # integer vocabulary key or string vocabulary name

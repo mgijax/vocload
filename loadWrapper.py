@@ -11,7 +11,7 @@ import loadVOC
 ###--- Global Constants ---###
 
 # format for writing tab-delimited files for loading terms and a DAG:
-TERM_LINE = '%s\t%s\t%s\t%s\t%s\t%s\t%s\n'
+TERM_LINE = '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n'
 DAG_LINE = '%s\t%s\t%s\t%s\n'
 
 ###--- Classes ---###

@@ -14,7 +14,7 @@ class GONode(Node.Node):
         #    id: string
         #    label: string
         #  Effects:
-        #    constructor (adds definition attribute)
+        #    constructor (adds definition, comment and secondary ID attributes)
         #  Modifies:
         #    self.definition
         #  Returns:
@@ -23,6 +23,7 @@ class GONode(Node.Node):
 
         Node.Node.__init__(self, id, label)
         self.definition = ''
+        self.comment = ''
         self.secondaryGOIDs = []
         return
 
@@ -39,6 +40,20 @@ class GONode(Node.Node):
         """
 
         self.definition = definition
+
+    def setComment(self, comment):
+        """
+        #  Requires:
+        #    comment: string
+        #  Effects:
+        #    Sets the GO term's comment to the given string
+        #  Modifies:
+        #    self.comment (attribute specific to GONode)
+        #  Returns:
+        #  Exceptions:
+        """
+
+        self.comment = comment
 
     def setSecondaryGOIDs(self, secondaryGOIDs):
         """
@@ -65,6 +80,19 @@ class GONode(Node.Node):
         """
 
         return self.definition
+ 
+    def getComment(self):
+        """
+        #  Requires:
+        #  Effects:
+        #    Returns the GO term's comment
+        #  Modifies:
+        #  Returns:
+        #    self.comment: string
+        #  Exceptions:
+        """
+
+        return self.comment
  
     def getSecondaryGOIDs(self):
         """

@@ -10,7 +10,7 @@
 #	  in "GO" format 
 #
 #	- moved global definitions of regular expressions into GO_Vocab method initializeRegExps().
-#	  (GO_re, syn_re, id_re, def_re)
+#	  (GO_re, syn_re, id_re, def_re, cmt_re)
 #
 #	- the following were removed because they were part of the original GO browser which
 #	  is not used anymore...
@@ -44,6 +44,7 @@ GO_re = None
 syn_re = None
 id_re = None
 def_re = None
+cmt_re = None
 
 class Stack:
     """
@@ -137,6 +138,9 @@ class GOVocab(Vocab.Vocab):
     definitions = { }		# cache of definition files loaded so far...
 				#	filename -> result of self.getDefs()
 
+    comments = { }		# cache of comments files loaded so far...
+				#	filename -> result of self.getDefs()
+
     def initializeRegExps(self, accPrefix):
 	"""
 	#
@@ -145,12 +149,12 @@ class GOVocab(Vocab.Vocab):
 	# Effects:
 	#	initializes regular expressions
 	# Modifies:
-	#	GO_re, syn_re, id_re, def_re
+	#	GO_re, syn_re, id_re, def_re, cmt_re
 	# Returns:
 	# Exceptions:
 	"""
 
-        global GO_re, syn_re, id_re, def_re
+        global GO_re, syn_re, id_re, def_re, cmt_re
 
         # regular expression for GO id in ontology files
         GO_re = regex.compile( ' ; \(%s:[0-9]+\)' % (accPrefix))
@@ -164,6 +168,9 @@ class GOVocab(Vocab.Vocab):
         # regular expression for the definition in definitions file
         def_re = regex.compile( 'definition: \(.+\)' )
 
+        # regular expression for the comment in definitions file
+        cmt_re = regex.compile( 'comment: \(.+\)' )
+
     def getDefs(self, inFile):
 	"""
         #      Private
@@ -172,6 +179,7 @@ class GOVocab(Vocab.Vocab):
 	#    inFile: file handle (GO definitions file)
 	#  Effects:
 	#    Creates a dictionary of definitions keyed by GO id
+	#    Creates a dictionary of comments keyed by GO id
 	#  Modifies:
 	#  Returns:
 	#    defs: dictionary
@@ -180,25 +188,73 @@ class GOVocab(Vocab.Vocab):
 
         text = inFile.read()
         text = regsub.gsub('\n', ' ', text)
-        text = regsub.gsub('definition_reference:', \
-                           '\ndefinition_reference:', text)
+        text = regsub.gsub('definition_reference:', '\ndefinition_reference:', text)
         defs = {}
+
         while 1:
+
             index = id_re.search(text)
+
             if index == -1:
                 break
+
             goid = id_re.group(1)
             text = text[index:]
+
             index = def_re.search(text)
+
             if index == -1:
                 print "Couldn't find definition for %s" % goid
                 break
+
             definition = string.strip(def_re.group(1))
+
             if len(definition):
                 defs[goid] = definition
+
             text = text[index:]
 
-        return defs
+	return defs
+
+    def getCmts(self, inFile):
+	"""
+        #      Private
+        #
+	#  Requires:
+	#    inFile: file handle (GO definitions file)
+	#  Effects:
+	#    Creates a dictionary of comments keyed by GO id
+	#  Modifies:
+	#  Returns:
+	#    cmts: dictionary
+	#  Exceptions:
+	"""
+
+        text = inFile.read()
+        text = regsub.gsub('\n', ' ', text)
+        text = regsub.gsub('term:', '\nterm:', text)
+        cmts = {}
+
+        while 1:
+
+            index = id_re.search(text)
+
+            if index == -1:
+                break
+
+            goid = id_re.group(1)
+            text = text[index:]
+
+            index = cmt_re.search(text)
+
+            if index != -1:
+                comment = string.strip(cmt_re.group(1))
+                if len(comment):
+                    cmts[goid] = comment
+
+            text = text[index:]
+
+        return cmts
         
     def parseGOline(self, line):
 	"""
@@ -370,20 +426,24 @@ class GOVocab(Vocab.Vocab):
 
 
     def buildVocab (self, defs_file, dag_file):
-	# build this GOVocab using the specified definitions file and dag
-	# file
+	# build this GOVocab using the specified definitions file and dag file
 
 	self.etypes = ['%', '<' ]
 
-	# if we don't already have this definitions file in the cache, then
-	# add it:
+	# if we don't already have this definitions file in the cache, then add it:
 
 	if not self.definitions.has_key (defs_file):
+
 		defFile = open (defs_file, 'r')
 		self.definitions[defs_file] = self.getDefs (defFile)
 		defFile.close()
 
+		defFile = open (defs_file, 'r')
+		self.comments[defs_file] = self.getCmts (defFile)
+		defFile.close()
+
 	defs = self.definitions[defs_file]	# use cached result
+	cmts = self.comments[defs_file]		# use cached result
 
 	fh = open (dag_file, 'r')
 	self.graph = self.parseGOfile(fh)
@@ -398,6 +458,9 @@ class GOVocab(Vocab.Vocab):
 
 		if defs.has_key(id):
 			node.setDefinition (defs[id])
+
+		if cmts.has_key(id):
+			node.setComment (cmts[id])
 
 		to_do = to_do + self.graph.getChildrenOf (node)
 	return
