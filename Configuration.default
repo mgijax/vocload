@@ -21,7 +21,8 @@
 #	- new Configuration file
 #
 
-# Database stuff
+umask 002
+
 SYBASE=/opt/sybase/12.5
 PYTHONPATH=/usr/local/mgi/lib/python
 PATH=$PATH:.:/usr/bin:$SYBASE/ASE-12_5/bin:$SYBASE/OCS-12_5/bin:/usr/java/bin
@@ -46,7 +47,10 @@ export DBPASSWORD_FILE
 export SUCCESS
 export FAILURE
 
-#BCP log and error files
+MGITYPE=13	# ACC_MGIType._MGIType_key for Vocabulary
+export MGITYPE
+
+# BCP log and error files
 BCP_LOG_FILE="${RUNTIME_DIR}/bcpLog.bcp"
 BCP_ERROR_FILE="${RUNTIME_DIR}/bcpError.bcp"
 
@@ -81,6 +85,9 @@ export DAG_DISCREP_FILE
 export FULL_MODE_DATA_LOADER
 
 # $Log$
+# Revision 1.4  2003/03/25 14:44:14  lec
+# new Configuration files
+#
 # Revision 1.3  2003/03/25 13:49:26  lec
 # new Configuration files
 #

@@ -17,12 +17,6 @@
 #	- use new Configuration and MP.config files
 #
 
-
-# change to directory where this file resides
-cd `dirname $0`
-
-. MP.config
-
 installOntologyFiles()
 {
   if test ! -f ${RUNTIME_DIR}/${TRONTFILE}
@@ -41,15 +35,6 @@ die()
    echo $1
 #   cat $FULL_LOG_FILE | mailx -s "Mammalian Phenotype Load Catastrophic FAILURE" $MAINTAINER 
    exit $FAILURE
-}
-
-changeToRunDirectory()
-{
-   APPDIR=`dirname $0`
-   if test $APPDIR != "."
-   then
-      cd "$APPDIR"
-   fi
 }
 
 createDir()
@@ -80,11 +65,12 @@ writePgmLogFile()
 
 JOB_SUCCESSFUL="false"
 
-installOntologyFiles
-changeToRunDirectory
-umask 002
+# change to directory where this file resides
+cd `dirname $0`
+. MP.config
 createDir $RUNTIME_DIR
 createDir $ARCHIVE_DIR
+installOntologyFiles
 echo "Job Started: `date`"
 echo "Job Started: `date`"                          > $FULL_LOG_FILE 2>&1
 echo "Directory is: `pwd`"

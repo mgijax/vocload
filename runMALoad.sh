@@ -17,12 +17,6 @@
 #	- use new Configuration and MA.config files
 #
 
-
-# change to directory where this file resides
-cd `dirname $0`
-
-. MA.config
-
 installOntologyFiles()
 {
   if test ! -f ${RUNTIME_DIR}/${TRONTFILE}
@@ -41,15 +35,6 @@ die()
    echo $1
 #   cat $FULL_LOG_FILE | mailx -s "Adult Mouse Anatomy Load Catastrophic FAILURE" $MAINTAINER 
    exit $FAILURE
-}
-
-changeToRunDirectory()
-{
-   APPDIR=`dirname $0`
-   if test $APPDIR != "."
-   then
-      cd "$APPDIR"
-   fi
 }
 
 createDir()
@@ -80,11 +65,15 @@ writePgmLogFile()
 
 JOB_SUCCESSFUL="false"
 
-installOntologyFiles
-changeToRunDirectory
 umask 002
+
+# change to directory where this file resides
+cd `dirname $0`
+# read in configuration variables
+. MA.config
 createDir $RUNTIME_DIR
 createDir $ARCHIVE_DIR
+installOntologyFiles
 echo "Job Started: `date`"
 echo "Job Started: `date`"                          > $FULL_LOG_FILE 2>&1
 echo "Directory is: `pwd`"
@@ -220,4 +209,7 @@ echo "Job Complete: `date`"                                                     
 #cat $MAIL_FILE_NAME $FULL_LOG_FILE | mailx -s "$SUBJECT" $MAINTAINER 
 
 # $Log$
+# Revision 1.2  2003/03/25 17:35:26  lec
+# new Configuration files
+#
 
