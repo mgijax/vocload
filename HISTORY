@@ -1,3 +1,10 @@
+TAG: vocload-3-1-0-2
+DATE: 01/31/2005
+STAFF: lec
+RELEASE: A
+CHANGES:
+1) loadTerms.py; merge terms even if merged term is obsolete
+
 TAG: vocload-3-1-0-1
 DATE: 12/23/2004
 STAFF: lec
