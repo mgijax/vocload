@@ -50,7 +50,7 @@ outFile = open(outFileName, 'w')
 		
 for line in inFile.readlines():
 
-	accID = line[:10]
+	accID = line[:9]
 	term = line[10:-1]
 	outFile.write(term + DELIM + accID + DELIM + DELIM + CRT)
 
