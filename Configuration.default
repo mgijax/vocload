@@ -53,6 +53,7 @@ export MGITYPE
 ARCHIVE_FILE_NAME="${ARCHIVE_DIR}/vocload.`date +%Y%m%d:%H:%M`.jar"
 FULL_LOG_FILE="${RUNTIME_DIR}/fullLog.txt"
 LOAD_LOG_FILE="${RUNTIME_DIR}/log.txt"
+VERIFY_LOG_FILE="${RUNTIME_DIR}/verify.txt"
 MAIL_FILE_NAME="${RUNTIME_DIR}/mail.txt"
 
 # BCP log and error files
@@ -79,6 +80,7 @@ FULL_MODE_DATA_LOADER="bcp"
 export ARCHIVE_FILE_NAME
 export FULL_LOG_FILE
 export LOAD_LOG_FILE
+export VERIFY_LOG_FILE
 export MAIL_FILE_NAME
 export BCP_LOG_FILE
 export BCP_ERROR_FILE
@@ -94,6 +96,9 @@ export DAG_DISCREP_FILE
 export FULL_MODE_DATA_LOADER
 
 # $Log$
+# Revision 1.6  2003/03/26 15:51:10  lec
+# moved call to Configuration and other comman vars to VOClib.config and Configuration
+#
 # Revision 1.5  2003/03/25 17:39:38  lec
 # new Configuration files
 #
