@@ -42,6 +42,11 @@
 #
 #    Modules:
 #
+# Modification History
+#
+# 04/03/2003	lec
+#	- TR 4564; added support for comments
+#
 
 import sys
 import os
@@ -85,6 +90,9 @@ if __name__ == '__main__':
 	wrapper.go()
 
 # $Log$
+# Revision 1.5  2003/04/02 13:28:53  lec
+# TR 4564
+#
 # Revision 1.4  2003/03/25 19:01:24  lec
 # new Configuration files
 #

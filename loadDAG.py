@@ -1,13 +1,21 @@
 #!/usr/local/bin/python
 
+#
 # Program: loadDAG.py
+#
 # Purpose: to load the input file for a DAG into database tables
 #   DAG_Node, DAG_Edge, DAG_Closure
+#
 # User Requirements Satisfied by This Program:
+#
 # System Requirements Satisfied by This Program:
+#
 #   Usage: see USAGE definition below
+#
 #   Uses:
+#
 #   Envvars:
+#
 #   Inputs:
 #       1. tab-delimitd input file with the following columns:
 #           Accession ID of object in child node (required)
@@ -18,17 +26,29 @@
 #       2. mode (full or incremental)
 #       3. primary ke of DAG being loaded
 #           (why not the name?)
+#
 #   Outputs:
+#
 #   Exit Codes:
 #       0. script completed successfully, data loaded okay
 #       1. script halted, data did not load, error noted in stderr
 #           (database is left in a consistent state)
+#
 #   Other System Requirements:
+#
 # Assumes:
 #   We assume no other users are adding/modifying database records during
 #   the run of this script.
+#
 # Implementation:
 #   Modules:
+#
+# History
+#
+# 04/02/2003 lec
+#	- added os.environ calls
+#	- changed bcp delimiter to pipe (|)
+#
 
 import sys      # standard Python libraries
 import types

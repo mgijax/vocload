@@ -1,5 +1,6 @@
 #!/usr/local/bin/python
 
+#
 # Program: loadVOC.py
 #
 # Purpose: do a vocabulary load.  This includes terms for a simple vocabulary
@@ -298,3 +299,6 @@ if __name__ == '__main__':
 #   vocload.go()
 
 # $Log$
+# Revision 1.12  2003/03/26 15:42:20  lec
+# don't delete VOC_Vocab
+#

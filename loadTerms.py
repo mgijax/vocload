@@ -1,13 +1,21 @@
 #!/usr/local/bin/python
 
+#
 # Program: loadTerms
+#
 # Purpose: to load the input file of vocabulary terms to database tables
 #   VOC_Vocab, VOC_Term, VOC_Text, VOC_Synonym
+#
 # User Requirements Satisfied by This Program:
+#
 # System Requirements Satisfied by This Program:
+#
 #   Usage: see USAGE definition below
+#
 #   Uses:
+#
 #   Envvars:
+#
 #   Inputs:
 #       1. tab-delimited input file in with the following columns:
 #           Term (required)
@@ -23,19 +31,26 @@
 #       3. primary key of Vocabulary being loaded
 #           (why not the name?)
 #   Outputs:
+#
 #   Exit Codes:
 #       0. script completed successfully, data loaded okay
 #       1. script halted, data did not load, error noted in stderr
 #           (database is left in a consistent state)
+#
 #   Other System Requirements:
+#
 # Assumes:
 #   We assume no other users are adding/modifying database records during
 #   the run of this script.
+#
 # Implementation:
 #   Modules:
 #
-#
 # History
+#
+# lec	04/02/2003
+#	- TR 4564; added support for comments
+#	- changed GO_ROOT_ID to DAG_ROOT_ID and define an environment variable to store this value
 #
 # lec	05/15/2002
 #	- MGI_LOGICALDB_KEY is an int, but self.LOGICALDB_KEY is a string, so the 
@@ -128,10 +143,9 @@ MERGE_TERMS = '''exec VOC_mergeTerms %d, %d'''
 ########################################################################
 ########################################################################
 
-# GO_ROOT_ID is for the GO load only - I hate to put in
-# in the code but it is necessary for processing
-# and should not adversely affect anything other apps
-GO_ROOT_ID = "GO:0003673"
+# if the vocabulary contains multiple DAGS, then the ID of the DAG ROOT Node
+# may be repeated in each dag file.  we don't want to consider this a duplicate ID.
+DAG_ROOT_ID = os.environ['DAG_ROOT_ID']
 
 # defines used for convenience
 PRIMARY   = "Primary"
@@ -455,7 +469,7 @@ class TermLoad:
            vocloadlib.beginTransaction ( self.log )
 
         for record in self.datafile:
-            if record['accID'] != GO_ROOT_ID:
+            if record['accID'] != DAG_ROOT_ID:
                # Check for duplication on the primary term
                duplicate = self.checkForDuplication ( record['accID'], record['term'], "Primary", self.getIsObsolete ( record['status'] ) )
                if duplicate:
@@ -764,7 +778,7 @@ class TermLoad:
             # Check for duplication on the primary term - primary accIDs
             # may not refer to more than one term
             self.crossReferenceFileToDB ( record['accID'], primaryTermIDs, secondaryTermIDs )
-            if record['accID'] != GO_ROOT_ID:
+            if record['accID'] != DAG_ROOT_ID:
                 duplicate = self.checkForDuplication ( record['accID'], record['term'], "Primary", self.getIsObsolete ( record['status'] ) )
                 if duplicate:
                     # this is considered a serious error, so data will not

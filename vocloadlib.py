@@ -1,11 +1,19 @@
 #!/usr/local/bin/python
 
 # Name: vocloadlib.py
+#
 # Purpose: provides standard functions for use throughout the vocabulary load
 #   product (including the DAG load as well)
+#
 # On Import: Following the importation of this module, you should make sure
 #   to call the setupSql() function to ensure you're looking at the right
 #   database.
+#
+# Modification History
+#
+# 04/03/2003	lec
+#	- TR 4564; added support for comments
+#
 
 import sys      # standard Python modules
 import time

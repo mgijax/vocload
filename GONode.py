@@ -1,5 +1,11 @@
 # Name: GONode.py
 # Purpose: representation of a node in the Gene Ontology
+#
+# History
+#
+# 04/02/2003 lec
+#	- TR 4564; added support for comments (self.comment, setComment(), getComment())
+#
 
 import Node
 

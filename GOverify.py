@@ -6,7 +6,7 @@
 #
 # Program: GOverify.py
 #
-# Original Author: Tom Weigers/Lori Corbani
+# Original Author: Lori Corbani
 #
 # Purpose:
 #
@@ -103,6 +103,9 @@ errLog.close()
 sys.exit(0)
 
 # $Log$
+# Revision 1.2  2003/03/27 13:26:57  lec
+# replacement for GOdownloader.py
+#
 # Revision 1.1  2003/03/27 13:22:25  lec
 # replacement for GOdownloader.py
 #

@@ -4,6 +4,9 @@
 #
 # History
 #
+# 04/02/2003 lec
+#	- TR 4564; added support for comments (getComment())
+#
 # 08/26/2002 lec
 #	- TR 3809 (adding support for processing Phenotype vocabulary in GO format)
 #	- added call to govocab.initializeRegExps (os.environ['ACC_PREFIX'])
