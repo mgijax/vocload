@@ -23,7 +23,6 @@ PATH=$PATH:.:/usr/bin:$SYBASE/OCS-12_5/bin:$SYBASE/ASE-12_5/bin:/usr/java/bin
 FULL_LOG_FILE=$RUNTIME_DIR"fullLog.txt"
 MAINTAINER="lec@informatics.jax.org, csmith@informatics.jax.org"
 ARCHIVE_FILE_NAME=$ARCHIVE_DIR"vocload.`date +%Y%m%d:%H:%M`.jar"
-PHENOTYPE_DOWNLOADER_LOG_FILE=$RUNTIME_DIR"phenotypedownloader.log"
 PHENOTYPE_LOAD_LOG_FILE=$RUNTIME_DIR"log.txt"
 LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$SYBASE/OCS-12_5/lib
 
@@ -114,36 +113,6 @@ esac
 echo  "MODE STATUS is $2" >> $FULL_LOG_FILE 2>&1
 echo "*****************************************" >> $FULL_LOG_FILE 2>&1
 
-#############################################################
-# 1. Run phenotypedownloader.py program to get latest ontology files
-#############################################################
-#PHENOTYPE_DOWNLOADER_PROGRAM=phenotypedownloader.py
-#PHENOTYPE_DOWNLOADER_PROGRAM_CALL="./phenotypedownloader.py"
-
-#writePgmExecutionHeaders $PHENOTYPE_DOWNLOADER_PROGRAM
-#echo $PHENOTYPE_DOWNLOADER_PROGRAM_CALL                 >> $FULL_LOG_FILE 2>&1
-#echo "*****************************************" >> $FULL_LOG_FILE 2>&1
-
-#msg=`$PHENOTYPE_DOWNLOADER_PROGRAM_CALL`
-#rc=$?
-#writePgmLogFile $PHENOTYPE_DOWNLOADER_PROGRAM, $PHENOTYPE_DOWNLOADER_LOG_FILE
-#case $rc in
-#     $FAILURE)
-#        ERROR_MSG="phenotypedownloader.py FAILED!!!! - Check Log File: $FULL_LOG_FILE"
-#        echo $ERROR_MSG
-#        echo $0:$ERROR_MSG                >> $FULL_LOG_FILE 2>&1
-#        echo "$0:phenotypedownloader.py Ouput is: $msg" >> $FULL_LOG_FILE 2>&1
-#        die "$ERROR_MSG";;
-#
-#     $SUCCESS)
-#        ERROR_MSG="phenotypedownloader.py Was Successful - No Errors Encountered"
-#        echo $ERROR_MSG
-#        echo $0:$ERROR_MSG                >> $FULL_LOG_FILE 2>&1;;
-#esac
-
-#PHENOTYPE_DOWNLOADER_ERROR_MSG=$ERROR_MSG
-#cat $PHENOTYPE_DOWNLOADER_LOG_FILE               >> $FULL_LOG_FILE 2>&1
-
 ######################################################
 # 2. Run go.load program
 ######################################################
@@ -227,8 +196,6 @@ fi
 echo $SUBJECT
 
 echo "Run Summary:"                                                                  > $$.txt
-echo "****************************************************************************" >> $$.txt
-echo "PHENOTYPE Downloader Completion Status:   $PHENOTYPE_DOWNLOADER_ERROR_MSG"                  >> $$.txt
 echo "****************************************************************************" >> $$.txt
 echo "PHENOTYPE Load Program Completion Status: $PHENOTYPE_LOAD_ERROR_MSG"                        >> $$.txt
 echo "****************************************************************************" >> $$.txt
