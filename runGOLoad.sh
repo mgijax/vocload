@@ -11,7 +11,7 @@ FAILURE=1
 # These environment variables should really be placed inside the go.rcd; however,
 # since the go.rcd is python-based they are temporarily placed here.  To address
 # this problem in the future, we should write a python program which reads
-# and exports all environment variables in an .rcd file, placing the call inside
+# and exports all environment variables in an .rcd file, placing the call
 # to the program inside the shell script. For now, the variables are placed here.
 RUNTIME_DIR="./runTime/"
 ARCHIVE_DIR="./archive/"
