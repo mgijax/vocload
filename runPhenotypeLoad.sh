@@ -1,7 +1,8 @@
 #!/bin/sh
 
 #
-# Main Wrapper Script for Downloading PhenoFat files and generating Phenotype Terms and Phenotype DAG
+# Main Wrapper Script for Downloading Mammalian Phenotype files and 
+# generating Phenotype Terms and Phenotype DAG
 #
 
 # Define return codes
@@ -160,14 +161,14 @@ writePgmLogFile $PHENOTYPE_LOAD_PROGRAM, $PHENOTYPE_LOAD_LOG_FILE
 
 case $rc in
      $FAILURE)
-        ERROR_MSG="go.load FAILED!!!! - Check Log File: $FULL_LOG_FILE"
+        ERROR_MSG="phenotype.load FAILED!!!! - Check Log File: $FULL_LOG_FILE"
         echo $ERROR_MSG
         echo $0:$ERROR_MSG                 >> $FULL_LOG_FILE 2>&1
         echo "$0:phenotypeload.py Ouput is: $msg" >> $FULL_LOG_FILE 2>&1
         die "$ERROR_MSG";;
 
      $SUCCESS)
-        ERROR_MSG="go.load Was Successful - No Errors Encountered"
+        ERROR_MSG="phenotype.load Was Successful - No Errors Encountered"
         JOB_SUCCESSFUL="true"
         echo $ERROR_MSG
         echo $0:$ERROR_MSG                 >> $FULL_LOG_FILE 2>&1;;

@@ -3,13 +3,13 @@
 # database access:
 
 DBSERVER = MGD_DEV
-DATABASE = mgd_lec
+DATABASE = mgd_release
 DBUSER = mgd_dbo
 DBPASSWORD_FILE = /usr/local/mgi/dbutils/mgidbutilities/.mgd_dbo_password
 
 # vocabulary attributes:
 
-VOCAB_NAME = Phenotype
+VOCAB_NAME = Mammalian Phenotype
 JNUM = J:72460
 IS_SIMPLE = 0
 IS_PRIVATE = 0
