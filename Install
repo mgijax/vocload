@@ -1,6 +1,7 @@
 #!/bin/sh
 
-PYTHONPATH=/usr/local/mgi/lib/python
+cd `dirname $0`
+. Configuration
 
 # Compile Python Programs
 echo "Compiling python programs..."
@@ -10,25 +11,3 @@ python -c 'import compileall; compileall.compile_dir(".")'
 echo "Setting modes..."
 chmod 775 *
 
-clear
-
-#Write simple instructions
-echo "*****************************************************************"
-echo "Installation Complete!  To Execute the GO Load Program:"
-echo "   runGOLoad.sh [load|noload] [full|incremental]"
-echo "            for example:"
-echo "   runGOLoad.sh load incremental"
-echo "For executing other programs in the product, refer to" 
-echo "the individual programs themselves."
-echo "-----------------------------------------------------------------"
-echo "To unarchive a file, proceed to the archive directory"
-echo "and use 'jar'; jar uses the same parameters as 'tar'"
-echo "(just make sure you have /usr/java/bin in your PATH)."
-echo "-----------------------------------------------------------------"
-echo "Please be aware that the RUNTIME_DIR environmental variable"
-echo "is set in BOTH the runGOLoad.sh script AND the go.rcd file."
-echo "It is strongly recommended that you not change the value of"
-echo "this variable, because the index.html file depends on it, "
-echo "but, if you must, make sure you change it in the go.rcd, the "
-echo "runGOLoad.sh, as well as where applicable in the index.html page."
-echo "-----------------------------------------------------------------"
