@@ -19,6 +19,7 @@
 
 import sys      # standard Python libraries
 import string
+import os
 
 import vocloadlib   # MGI-written Python libraries
 import loadDAG
@@ -60,7 +61,7 @@ class VOCLoad:
     #   structure for them
 
     def __init__ (self,
-        config,     # RcdFile for info about config, vocab, dags
+        config,     # RcdFile for info about dags
         mode,       # string; do a 'full' or 'incremental' load?
         log     # Log.Log object; where to do logging
         ):
@@ -77,7 +78,7 @@ class VOCLoad:
 
         self.log = log
         self.config = config
-        self.termfile = config.getConstant('TERM_FILE')
+        self.termfile = os.environ('TERM_FILE')
 
         if mode in [ 'full', 'incremental' ]:
             self.mode = mode
@@ -85,10 +86,10 @@ class VOCLoad:
             raise error, unknown_mode % mode
 
         try:
-            self.server = config.getConstant('DBSERVER')
-            self.database = config.getConstant('DATABASE')
-            self.username = config.getConstant('DBUSER')
-            self.passwordFileName = config.getConstant('DBPASSWORD_FILE')
+            self.server = os.environ('DBSERVER')
+            self.database = os.environ('DATABASE')
+            self.username = os.environ('DBUSER')
+            self.passwordFileName = os.environ('DBPASSWORD_FILE')
             self.passwordFile = open ( self.passwordFileName, 'r' )
             self.password = string.strip ( self.passwordFile.readline() )
 
@@ -100,11 +101,11 @@ class VOCLoad:
             raise error, 'failed SQL initialization: %s' % \
                 sys.exc_value
 
-        self.vocab_name = config.getConstant('VOCAB_NAME')
-        self.isSimple = string.atoi(config.getConstant('IS_SIMPLE'))
-        self.isPrivate = string.atoi(config.getConstant('IS_PRIVATE'))
-        self.logicalDBkey = string.atoi(config.getConstant('LOGICALDB_KEY'))
-        self.mgitype_key = string.atoi(config.getConstant('MGITYPE'))
+        self.vocab_name = os.environ('VOCAB_NAME')
+        self.isSimple = string.atoi(os.environ('IS_SIMPLE'))
+        self.isPrivate = string.atoi(os.environ('IS_PRIVATE'))
+        self.logicalDBkey = string.atoi(os.environ('LOGICALDB_KEY'))
+        self.mgitype_key = string.atoi(os.environ('MGITYPE'))
 
         vocloadlib.setVocabMGITypeKey (self.mgitype_key)
 
@@ -120,7 +121,7 @@ class VOCLoad:
         else:
             self.vocab_key = None
 
-        self.jnum = config.getConstant('JNUM')
+        self.jnum = os.environ('JNUM')
 
         result = vocloadlib.sql ('''select _Refs_key
                     from BIB_View
@@ -210,7 +211,7 @@ class VOCLoad:
         
         # Now load the terms
         termload = loadTerms.TermLoad (self.termfile, self.mode,
-            self.vocab_key, self.log, self.config, self.passwordFileName )
+            self.vocab_key, self.log, self.passwordFileName )
         termload.go()
 
         # Now load the DAGs if it is a complex vocabulary
@@ -219,8 +220,7 @@ class VOCLoad:
                 vocloadlib.truncateTransactionLog (
                     self.database, self.log)
                 dagload = loadDAG.DAGLoad (dag['LOAD_FILE'],
-                    self.mode, dag['NAME'], self.log,
-                                        self.config, self.passwordFileName )
+                    self.mode, dag['NAME'], self.log, self.passwordFileName )
                 dagload.go()
 
         self.log.writeline (vocloadlib.timestamp (
@@ -245,7 +245,7 @@ class VOCLoad:
 
         # Now load the terms
         termload = loadTerms.TermLoad (self.termfile, self.mode,
-            self.vocab_key, self.log, self.config, self.passwordFileName )
+            self.vocab_key, self.log, self.passwordFileName )
         termload.go()
 
         # load DAGs
@@ -254,8 +254,7 @@ class VOCLoad:
                 vocloadlib.truncateTransactionLog (
                     self.database, self.log)
                 dagload = loadDAG.DAGLoad (dag['LOAD_FILE'],
-                    self.mode, dag['NAME'], self.log,
-                                        self.config, self.passwordFileName )
+                    self.mode, dag['NAME'], self.log, self.passwordFileName )
                 dagload.go()
 
         self.log.writeline (vocloadlib.timestamp (

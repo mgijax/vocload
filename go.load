@@ -28,10 +28,10 @@ def textEdgeType (char):
 
 class GO_Wrapper (loadWrapper.LoadWrapper):
         USAGE = '''%s [-f|-i][-n][-l <file>] <RcdFile>
-        -f | -i : full load or incremental load? (default is full)
-        -n      : use no-load option (log changes, but don't execute them)
-        -l      : name of the log file to create (default is stderr only)
-        RcdFile : name of the RcdFile-formatted configuration file to read
+        -f | -i    : full load or incremental load? (default is full)
+        -n         : use no-load option (log changes, but don't execute them)
+        -l         : name of the log file to create (default is stderr only)
+        RcdFile    : name of the RcdFile-formatted configuration file to read
 ''' % sys.argv[0]
 
         NUM_ARGS = 1

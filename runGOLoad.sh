@@ -144,7 +144,7 @@ godownload
 # 2. Run go.load program
 ######################################################
 GO_LOAD_PROGRAM=go.load
-GO_LOAD_PROGRAM_CALL="go.load $LOAD_FLAG $MODE_FLAG -l $GO_LOAD_LOG_FILE go.rcd"
+GO_LOAD_PROGRAM_CALL="go.load $LOAD_FLAG $MODE_FLAG -l $GO_LOAD_LOG_FILE go.rcd go.config"
 
 writePgmExecutionHeaders $GO_LOAD_PROGRAM
 echo $GO_LOAD_PROGRAM_CALL                       >> $FULL_LOG_FILE 2>&1
@@ -249,4 +249,7 @@ echo "Job Complete: `date`"                                                     
 cat $MAIL_FILE_NAME $FULL_LOG_FILE | mailx -s "$SUBJECT" $MAINTAINER 
 
 # $Log$
+# Revision 1.19  2003/03/25 13:31:04  lec
+# new Configuration files
+#
 

@@ -1,4 +1,3 @@
-
 #
 # Progam:  go.rcd
 #
@@ -37,3 +36,6 @@
 ]
 
 # $Log$
+# Revision 1.7  2003/03/25 13:53:39  lec
+# new Configuration files
+#

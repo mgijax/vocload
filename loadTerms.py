@@ -50,6 +50,7 @@ import sys          # standard Python libraries
 import types
 import string
 import getopt
+import os
 
 USAGE = '''Usage: %s [-f|-i][-n][-l <file>] <server> <db> <user> <pwd> <key> <input>
     -f | -i : full load or incremental load? (default is full)
@@ -150,7 +151,6 @@ class TermLoad:
         vocab,       # integer vocab key or string vocab name;
                      # which vocabulary to load terms for
         log,         # Log.Log object; used for logging progress
-        config,      # configuration (.rcd) file reference
         passwordFile # password file for use with bcp
         ):
         # Purpose: constructor
@@ -170,8 +170,6 @@ class TermLoad:
 
         self.log = log
 
-        self.config = config
-
         self.passwordFile = passwordFile
 
         self.primaryAccIDFileList = {}
@@ -187,7 +185,7 @@ class TermLoad:
             self.vocab_name = vocloadlib.getVocabName (vocab)
             self.vocab_key = vocab
 
-        self.LOGICALDB_KEY = self.config.getConstant('LOGICALDB_KEY')
+        self.LOGICALDB_KEY = os.environ('LOGICALDB_KEY')
 
         # write heading to log
 
@@ -306,10 +304,10 @@ class TermLoad:
         self.loadSynonymBCP   = 0
         self.loadAccessionBCP = 0
             
-        self.termTermBCPFileName     = self.config.getConstant('TERM_TERM_BCP_FILE')
-        self.termTextBCPFileName     = self.config.getConstant('TERM_TEXT_BCP_FILE')
-        self.termSynonymBCPFileName  = self.config.getConstant('TERM_SYNONYM_BCP_FILE')
-        self.accAccessionBCPFileName = self.config.getConstant('ACCESSION_BCP_FILE')
+        self.termTermBCPFileName     = os.environ('TERM_TERM_BCP_FILE')
+        self.termTextBCPFileName     = os.environ('TERM_TEXT_BCP_FILE')
+        self.termSynonymBCPFileName  = os.environ('TERM_SYNONYM_BCP_FILE')
+        self.accAccessionBCPFileName = os.environ('ACCESSION_BCP_FILE')
 
         self.termTermBCPFile      = open( self.termTermBCPFileName     , 'w')
         self.termTextBCPFile      = open( self.termTextBCPFileName     , 'w')
@@ -325,7 +323,7 @@ class TermLoad:
         # Throws:  propagates all exceptions opening files
 
         # open the discrepancy file
-        self.accDiscrepFileName = self.config.getConstant('DISCREP_FILE')
+        self.accDiscrepFileName = os.environ('DISCREP_FILE')
         self.accDiscrepFile     = open( self.accDiscrepFileName     , 'w')
 
         # now write HTML header information
@@ -373,8 +371,8 @@ class TermLoad:
         # Effects: database is loaded
         # Throws:  propagates all bcp exceptions
 
-        bcpLogFile   = self.config.getConstant('BCP_LOG_FILE')
-        bcpErrorFile = self.config.getConstant('BCP_ERROR_FILE')
+        bcpLogFile   = os.environ('BCP_LOG_FILE')
+        bcpErrorFile = os.environ('BCP_ERROR_FILE')
 
         if not vocloadlib.NO_LOAD:
            if self.loadTermBCP:
@@ -690,7 +688,7 @@ class TermLoad:
             termSeqNum = 'null'
 
         # set annotation type key - this will be used for merging changes
-        self.ANNOT_TYPE_KEY = self.config.getConstant('ANNOT_TYPE_KEY')
+        self.ANNOT_TYPE_KEY = os.environ('ANNOT_TYPE_KEY')
 
         # get the existing Accession IDs/Terms from the database
         # all at once
@@ -1050,7 +1048,7 @@ class TermLoad:
        # Assumes: mode is 'full' or 'incremental'
        # Effects: nothing
        # Throws:  propagates any exceptions raised
-       fullModeDataLoader = self.config.getConstant('FULL_MODE_DATA_LOADER')
+       fullModeDataLoader = os.environ('FULL_MODE_DATA_LOADER')
        if fullModeDataLoader == None:
            return 0
        elif fullModeDataLoader == "bcp":

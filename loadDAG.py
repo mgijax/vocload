@@ -34,6 +34,7 @@ import sys      # standard Python libraries
 import types
 import string
 import getopt
+import os
 
 import Log      # MGI-written Python libraries
 import vocloadlib
@@ -107,7 +108,6 @@ class DAGLoad:
         dag,        # string dag name or integer dag key; the DAG
                 #   to be loaded
         log,     # log.Log object; what to use for logging
-        config,
         passwordFile
         ):
         # Purpose: constructor
@@ -135,13 +135,11 @@ class DAGLoad:
 
         # open output BCP files
 
-        self.config = config
-
         self.passwordFile = passwordFile
 
-        self.dagEdgeBCPFileName    = config.getConstant('DAG_EDGE_BCP_FILE')
-        self.dagNodeBCPFileName    = config.getConstant('DAG_NODE_BCP_FILE')
-        self.dagClosureBCPFileName = config.getConstant('DAG_CLOSURE_BCP_FILE')
+        self.dagEdgeBCPFileName    = os.environ('DAG_EDGE_BCP_FILE')
+        self.dagNodeBCPFileName    = os.environ('DAG_NODE_BCP_FILE')
+        self.dagClosureBCPFileName = os.environ('DAG_CLOSURE_BCP_FILE')
                                                          
         self.dagEdgeBCPFile    = open( self.dagEdgeBCPFileName   , 'w')
         self.dagNodeBCPFile    = open( self.dagNodeBCPFileName   , 'w')
@@ -238,7 +236,7 @@ class DAGLoad:
         # Throws:  propagates all exceptions opening files
 
         # open the discrepancy file
-        self.dagDiscrepFileName = self.config.getConstant('DAG_DISCREP_FILE')
+        self.dagDiscrepFileName = self.os.environ('DAG_DISCREP_FILE')
         self.dagDiscrepFile     = open( self.dagDiscrepFileName     , 'w')
 
         # now write HTML header information
@@ -281,8 +279,8 @@ class DAGLoad:
         # Assumes: nothing
         # Effects: nothing
 
-        bcpLogFile   = self.config.getConstant('BCP_LOG_FILE')
-        bcpErrorFile = self.config.getConstant('BCP_ERROR_FILE')
+        bcpLogFile   = self.os.environ('BCP_LOG_FILE')
+        bcpErrorFile = self.os.environ('BCP_ERROR_FILE')
 
         if not vocloadlib.NO_LOAD:
            if self.loadEdgeBCP:
