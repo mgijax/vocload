@@ -1,3 +1,10 @@
+TAG: vocload-6-0-1
+DATE: 06/03/2004
+STAFF: lec
+RELEASE: A
+CHANGES:
+1) don't truncate the transaction log
+
 TAG: vocload-6-0-0
 DATE: 01/28/2004
 STAFF: lec
