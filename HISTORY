@@ -1,3 +1,11 @@
+TAG: vocload-2-0-1
+DATE: 08/26/2002
+STAFF: lec
+RELEASE: A
+CHANGES:
+1) removed DAG.py, Set.py from this product.  they're duplicates of
+   existing products! (see lib_py_vocabbrowser, lib_py_misc)
+
 TAG: vocload-2-0-0
 DATE: 08/26/2002
 STAFF: lec
