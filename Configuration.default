@@ -25,7 +25,7 @@ umask 002
 
 SYBASE=/opt/sybase/12.5
 PYTHONPATH=/usr/local/mgi/lib/python
-PATH=$PATH:.:/usr/bin:$SYBASE/ASE-12_5/bin:$SYBASE/OCS-12_5/bin:/usr/java/bin
+PATH=.:$PATH:/usr/bin:$SYBASE/ASE-12_5/bin:$SYBASE/OCS-12_5/bin:/usr/java/bin
 LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$SYBASE/OCS-12_5/lib
 
 DBSERVER=PROD_MGI	# database server
@@ -100,6 +100,9 @@ export DAG_DISCREP_FILE
 export FULL_MODE_DATA_LOADER
 
 # $Log$
+# Revision 1.8  2003/04/02 16:35:20  lec
+# TR 4564
+#
 # Revision 1.7  2003/03/27 13:27:06  lec
 # added VERIFY_LOG_FILE
 #
