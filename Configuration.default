@@ -30,6 +30,7 @@ LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$SYBASE/OCS-12_5/lib
 
 DBSERVER=PROD_MGI	# database server
 DATABASE=mgd		# database name
+RADAR_DATABASE=radar
 DBUSER=mgd_dbo		# database user with r/w privileges
 DBPASSWORD_FILE=/usr/local/mgi/live/dbutils/mgidbutilities/.mgd_dbo_password
 
@@ -42,6 +43,7 @@ export PATH
 export LD_LIBRARY_PATH
 export DBSERVER
 export DATABASE
+export RADAR_DATABASE
 export DBUSER
 export DBPASSWORD_FILE
 export SUCCESS
@@ -49,6 +51,9 @@ export FAILURE
 
 MGITYPE=13	# ACC_MGIType._MGIType_key for Vocabulary
 export MGITYPE
+
+USER_KEY=1001   # Value used for _CreatedBy_key and _ModifiedBy_key
+export USER_KEY
 
 ARCHIVE_FILE_NAME="${ARCHIVE_DIR}/vocload.`date +%Y%m%d:%H:%M`.jar"
 FULL_LOG_FILE="${RUNTIME_DIR}/fullLog.txt"
@@ -100,6 +105,9 @@ export DAG_DISCREP_FILE
 export FULL_MODE_DATA_LOADER
 
 # $Log$
+# Revision 1.10  2005/02/08 18:37:05  lec
+# live
+#
 # Revision 1.9  2003/04/17 15:20:29  lec
 # fixed PATH
 #
