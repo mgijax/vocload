@@ -22,6 +22,7 @@
 #	OMIM ID
 #	Abbreviation
 #	Definition
+#	Comment
 #
 # Processing:
 #
@@ -152,7 +153,7 @@ while line:
 
 	# print previous term
 	if len(term) > 0:
-            outFile.write(convertTerm(term) + DELIM + mim + DELIM + DELIM + CRT)
+            outFile.write(convertTerm(term) + DELIM + mim + DELIM + DELIM + DELIM + CRT)
 
         line = inFile.readline()
 	mim = string.strip(line)
@@ -195,5 +196,5 @@ while line:
     line = inFile.readline()
 
 if len(term) > 0:
-    outFile.write(convertTerm(term) + DELIM + mim + DELIM + DELIM + CRT)
+    outFile.write(convertTerm(term) + DELIM + mim + DELIM + DELIM + DELIM + CRT)
 
