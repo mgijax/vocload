@@ -1,0 +1,26 @@
+#!/bin/sh
+
+#
+# Program: OMIM.setup
+#
+# Purpose:
+#
+# 	Copies compressed OMIM file to RUNTIME_DIR and uncompresses
+# 
+# Usage:
+#
+#	OMIM.setup
+#
+# History:
+#
+#	lec	04/12/2005
+#	- new
+#
+
+. OMIM.config
+rm -rf ${OMIM_FILE}
+echo "${DOWNLOAD_FILE_DIR}/${COMPRESSED_OMIM_FILE} ${RUNTIME_DIR}"
+cp ${DOWNLOAD_FILE_DIR}/${COMPRESSED_OMIM_FILE} ${RUNTIME_DIR}
+cd ${RUNTIME_DIR}
+gunzip ${COMPRESSED_OMIM_FILE}
+
