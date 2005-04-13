@@ -176,7 +176,9 @@ while line:
 	# the first token is a repeat of the MIM id, so ignore it
 
 	term = term + string.join(tokens[1:], ' ')
-	continueTerm = 1
+
+	if string.find(line, ';') < 0:
+	    continueTerm = 1
 
     elif continueTerm:
 
