@@ -15,6 +15,9 @@
 #	- moved simple vocab variables to OMIM.config
 #
 
-RUNTIME_DIR = runTimeOMIM
+RUNTIME_DIR = OMIM
 
 # $Log$
+# Revision 1.2  2003/03/25 18:07:56  lec
+# new Configuration files
+#
