@@ -4,7 +4,7 @@
 # Program: loadTerms
 #
 # Purpose: to load the input file of vocabulary terms to database tables
-#   VOC_Vocab, VOC_Term, VOC_Text, VOC_Synonym
+#   VOC_Vocab, VOC_Term, VOC_Text, MGI_Synonym
 #
 # User Requirements Satisfied by This Program:
 #
@@ -119,9 +119,9 @@ INSERT_NOTECHUNK = '''insert MGI_NoteChunk (_Note_key, sequenceNum, note)
     values (%d, %d, "%s")'''
 BCP_INSERT_NOTECHUNK = '''%d|%d|%s||||||\n'''
 
-INSERT_SYNONYM ='''insert VOC_Synonym (_Synonym_key, _Term_key, synonym)
-    values (%d, %d, "%s")'''
-BCP_INSERT_SYNONYM ='''%d|%d|%s||\n'''
+INSERT_SYNONYM ='''insert MGI_Synonym (_Synonym_key, _Object_key, _MGIType_key, _SynonymType_key, _Refs_key, synonym)
+    values (%d, %d, %d, %d, %d, "%s")'''
+BCP_INSERT_SYNONYM ='''%d|%d|%d|%d|%d|%s||||\n'''
 
 INSERT_ACCESSION = '''insert ACC_Accession (_Accession_key, accID, prefixPart, numericPart,
     _LogicalDB_key, _Object_key, _MGIType_key, private, preferred)
@@ -132,7 +132,7 @@ DELETE_TEXT = '''delete from VOC_Text where _Term_key = %d'''
 
 DELETE_NOTE = '''delete from MGI_Note where _Object_key = %d and _NoteType_key = %s'''
 
-DELETE_ALL_SYNONYMS ='''delete from VOC_Synonym where _Term_key = %d'''
+DELETE_ALL_SYNONYMS ='''delete from MGI_Synonym where _Object_key = %d and _MGIType_key = %d'''
 
 UPDATE_TERM = '''update VOC_Term 
 	set term = "%s", isObsolete = %d, modification_date = getdate(), _ModifiedBy_key = 1001
@@ -154,6 +154,7 @@ TERM_MISSING_FROM_INPUT_FILE = "Term Exists in Database but NOT in the Input Fil
 OTHER_ID_DELIMITER = '|'
 SYNONYM_DELIMITER = '|'
 MGI_LOGICALDB_KEY = '1'		# compared to self.LOGICALDB_KEY which is returned as a string
+EXACT_SYNONYM = 'exact'
 
 ###--- Classes ---###
 
@@ -172,6 +173,7 @@ class TermLoad:
         mode,        # string; do a 'full' or 'incremental' load?
         vocab,       # integer vocab key or string vocab name;
                      # which vocabulary to load terms for
+        refs_key,    # integer key for the load reference;
         log,         # Log.Log object; used for logging progress
         passwordFile # password file for use with bcp
         ):
@@ -269,6 +271,10 @@ class TermLoad:
             'definition', 'comment', 'synonyms', 'otherIDs' ])
 
         self.mgitype_key = vocloadlib.VOCABULARY_TERM_TYPE
+
+        self.synonymtype_key = vocloadlib.getSynonymTypeKey(EXACT_SYNONYM)
+
+        self.refs_key = refs_key
 
         self.id2key = {}    # maps term IDs to term keys
 
@@ -417,7 +423,7 @@ class TermLoad:
               vocloadlib.loadBCPFile ( self.termNoteChunkBCPFileName, bcpLogFile, bcpErrorFile, 'MGI_NoteChunk', self.passwordFile )
                                                                    
            if self.loadSynonymBCP:                                 
-              vocloadlib.loadBCPFile ( self.termSynonymBCPFileName, bcpLogFile, bcpErrorFile, 'VOC_Synonym', self.passwordFile )
+              vocloadlib.loadBCPFile ( self.termSynonymBCPFileName, bcpLogFile, bcpErrorFile, 'MGI_Synonym', self.passwordFile )
                                                                    
            if self.loadAccessionBCP:                               
               vocloadlib.loadBCPFile ( self.accAccessionBCPFileName, bcpLogFile, bcpErrorFile, 'ACC_Accession', self.passwordFile )
@@ -446,9 +452,9 @@ class TermLoad:
         vocloadlib.deleteVocabTerms (self.vocab_key, self.log)
         self.log.writeline ('   deleted all (%d) remaining terms' % count)
 
-        # look up the maximum keys for remaining items in VOC_Term and VOC_Synonym.
+        # look up the maximum keys for remaining items in VOC_Term and MGI_Synonym.
         self.max_term_key = vocloadlib.getMax ('_Term_key', 'VOC_Term')
-        self.max_synonym_key = vocloadlib.getMax ('_Synonym_key', 'VOC_Synonym')
+        self.max_synonym_key = vocloadlib.getMax ('_Synonym_key', 'MGI_Synonym')
         self.max_note_key = vocloadlib.getMax ('_Note_key', 'MGI_Note')
 
         # if this is a simple vocabulary, we provide sequence numbers
@@ -512,7 +518,7 @@ class TermLoad:
         # Returns: nothing
         # Assumes: nothing
         # Effects: adds a record to VOC_Term and records to
-        #   VOC_Synonym and VOC_Text, MGI_Note and MGI_NoteChunk as needed
+        #   MGI_Synonym and VOC_Text, MGI_Note and MGI_NoteChunk as needed
         # Throws: propagates all exceptions
         # Notes: 'record' must contain values for the following
         #   fieldnames- term, abbreviation, status, definition,
@@ -552,7 +558,7 @@ class TermLoad:
         # add records as needed to MGI_Note:
         self.generateCommentSQL ( record['comment'], self.max_term_key )
 
-        # add records as needed to VOC_Synonym:
+        # add records as needed to MGI_Synonym:
         synonyms = string.split (record['synonyms'], SYNONYM_DELIMITER )
         self.generateSynonymSQL( synonyms, self.max_term_key )
 
@@ -747,9 +753,9 @@ class TermLoad:
         self.log.writeline (vocloadlib.timestamp (
             'Incremental Term Load Start:'))
 
-        # look up the maximum keys for remaining items in VOC_Term and VOC_Synonym.
+        # look up the maximum keys for remaining items in VOC_Term and MGI_Synonym.
         self.max_term_key = vocloadlib.getMax ('_Term_key', 'VOC_Term')
-        self.max_synonym_key = vocloadlib.getMax ( '_Synonym_key', 'VOC_Synonym')
+        self.max_synonym_key = vocloadlib.getMax ( '_Synonym_key', 'MGI_Synonym')
         self.max_note_key = vocloadlib.getMax ( '_Note_key', 'MGI_Note')
 
         # if this is a simple vocabulary, we provide sequence numbers
@@ -991,7 +997,7 @@ class TermLoad:
        # Returns: 1 - true, record has changed, or 0 - false, record has not changed
        # Assumes: Database records for the Term have been retrieved into the dbRecord structure
        # Effects: Executes deletes/inserts into the VOC_Text table
-       #          Executes deletes/inserts into the VOC_Synonym table
+       #          Executes deletes/inserts into the MGI_Synonym table
        #          Executes updates to the term table (status and terms fields);
        #          note that, for efficiency, both the status and term fields
        #          are updated if either or both fields have to be updated
@@ -1063,7 +1069,7 @@ class TermLoad:
           # if there are any differences between the file and
           # the database, simply delete all existing synonyms
           # and reinsert them
-          vocloadlib.nl_sqlog ( DELETE_ALL_SYNONYMS % termKey, self.log )
+          vocloadlib.nl_sqlog ( DELETE_ALL_SYNONYMS % (termKey, self.mgitype_key), self.log )
           self.generateSynonymSQL ( fileSynonyms, termKey )
           recordChanged = 1
 
@@ -1122,11 +1128,11 @@ class TermLoad:
        return recordChanged
     
     def generateSynonymSQL (self, fileSynonyms, termKey ):
-       # Purpose: add records as needed to VOC_Synonym table
+       # Purpose: add records as needed to MGI_Synonym table
        # Returns: nothing
        # Assumes: open database connection or bcp file
        # Effects: inserts via online sql or bcp into the
-       #          VOC_Synonym table
+       #          MGI_Synonym table
        # Throws:  propagates any exceptions raised 
        for synonym in fileSynonyms:
           if synonym:
@@ -1136,11 +1142,17 @@ class TermLoad:
                 self.termSynonymBCPFile.write (BCP_INSERT_SYNONYM % \
                        (self.max_synonym_key,
                         termKey,
+                        self.mgitype_key,
+                        self.synonymtype_key,
+                        self.refs_key,
                         vocloadlib.escapeDoubleQuotes(synonym)) )
              else: # asserts self.isIncrementalLoad() or full load with on-line sql:
                 vocloadlib.nl_sqlog (INSERT_SYNONYM % \
                        (self.max_synonym_key,
                         termKey,
+                        self.mgitype_key,
+                        self.synonymtype_key,
+                        self.refs_key,
                         vocloadlib.escapeDoubleQuotes(synonym)),self.log)
 
     def getIsObsolete ( self, recordStatus ):
@@ -1204,7 +1216,7 @@ if __name__ == '__main__':
     mode = 'full'
     log = Log.Log()
     [ server, database, username, password ] = args[:4]
-    [ vocab_key, input_file ] = args[4:]
+    [ vocab_key, refs_key, input_file ] = args[4:]
     vocab_key = string.atoi(vocab_key)
 
     noload = 0
@@ -1223,6 +1235,6 @@ if __name__ == '__main__':
         log.writeline ('Operating in NO-LOAD mode')
 
     vocloadlib.setupSql (server, database, username, password)
-    load = TermLoad (input_file, mode, vocab_key, log)
+    load = TermLoad (input_file, mode, vocab_key, refs_key, log)
     load.go()
     vocloadlib.unsetupSql ()

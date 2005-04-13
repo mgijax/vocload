@@ -30,6 +30,7 @@ LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$SYBASE/OCS-12_5/lib
 
 DBSERVER=PROD_MGI	# database server
 DATABASE=mgd		# database name
+RADAR_DATABASE=radar
 DBUSER=mgd_dbo		# database user with r/w privileges
 DBPASSWORD_FILE=/usr/local/mgi/live/dbutils/mgidbutilities/.mgd_dbo_password
 
@@ -42,6 +43,7 @@ export PATH
 export LD_LIBRARY_PATH
 export DBSERVER
 export DATABASE
+export RADAR_DATABASE
 export DBUSER
 export DBPASSWORD_FILE
 export SUCCESS
@@ -49,6 +51,9 @@ export FAILURE
 
 MGITYPE=13	# ACC_MGIType._MGIType_key for Vocabulary
 export MGITYPE
+
+USER_KEY=1001   # Value used for _CreatedBy_key and _ModifiedBy_key
+export USER_KEY
 
 ARCHIVE_FILE_NAME="${ARCHIVE_DIR}/vocload.`date +%Y%m%d:%H:%M`.jar"
 FULL_LOG_FILE="${RUNTIME_DIR}/fullLog.txt"
@@ -73,6 +78,9 @@ TERM_NOTECHUNK_BCP_FILE="${RUNTIME_DIR}/termNoteChunk.bcp"
 TERM_SYNONYM_BCP_FILE="${RUNTIME_DIR}/termSynonym.bcp"
 ACCESSION_BCP_FILE="${RUNTIME_DIR}/accAccession.bcp"
 
+# Topological Sort BCP File
+VOC_DAG_SORT_BCP_FILE="${RUNTIME_DIR}/dagSort.bcp"
+
 # Discrepancy File
 DISCREP_FILE="${RUNTIME_DIR}/discrepancy.html"
 DAG_DISCREP_FILE="${RUNTIME_DIR}/dagDiscrepancy.html"
@@ -95,11 +103,21 @@ export TERM_NOTE_BCP_FILE
 export TERM_NOTECHUNK_BCP_FILE
 export TERM_SYNONYM_BCP_FILE
 export ACCESSION_BCP_FILE
+export VOC_DAG_SORT_BCP_FILE
 export DISCREP_FILE
 export DAG_DISCREP_FILE
 export FULL_MODE_DATA_LOADER
 
 # $Log$
+# Revision 1.10.2.2  2005/03/23 16:21:49  dbm
+# Added topological sort
+#
+# Revision 1.10.2.1  2005/03/17 14:57:32  dbm
+# Added RADAR_DATABASE and USER_KEY
+#
+# Revision 1.10  2005/02/08 18:37:05  lec
+# live
+#
 # Revision 1.9  2003/04/17 15:20:29  lec
 # fixed PATH
 #

@@ -1,3 +1,32 @@
+TAG: vocload-3-2-0-1
+DATE: 04/13/2005
+STAFF: lec
+RELEASE: A
+CHANGES:
+1) MPR merge
+
+TAG: vocload-mpr-3
+DATE: 03/24/2005
+STAFF: dbm
+RELEASE: A
+CHANGES:
+1) Added VOC_processAnnotHeaderAll procedure call after header load
+2) Cleaned up logging messages
+
+TAG: vocload-mpr-2
+DATE: 03/23/2005
+STAFF: dbm
+RELEASE: A
+CHANGES:
+1) Added topological sort
+
+TAG: vocload-mpr-1
+DATE: 03/17/2005
+STAFF: dbm
+RELEASE: A
+CHANGES:
+1) Tag for header, note and synonym fixes plus directory migration
+
 TAG: vocload-mpr-BP
 DATE: 03/04/2005
 STAFF: dbm
