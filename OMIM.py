@@ -28,8 +28,8 @@
 #
 # History:
 #
-# lec	03/25/2003
-#	- created
+# lec	04/13/2005
+#	- TR 3853, OMIM
 #
 '''
 
