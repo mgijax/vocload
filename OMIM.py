@@ -95,7 +95,7 @@ def convertTerm(term):
     for t in tokens:
         if t in ['And', 'Or', 'But', 'With', 'Without', 'Of', 'The', 'At', 'In', 'To', 'On', 'For', '-Like']:
             newTokens.append(string.lower(t))
-        elif t in ['Ii', 'Ii;', 'Iii', 'Iii;', 'Iv', 'Iv;', 'Vi', 'Vii' , 'Viii', 'x', 'Ia', 'Ib', 'Ic', 'Id', 'Ie', 'If', 'Ig', 'Ih', 'Ij', 'Ik', 'Il', 'Ix', 'Ia;', 'Ib;', 'Ic;', 'Ie;', 'If;', 'Ig;', 'Iia', 'Iib', 'Iic', 'Iid', 'Iie', 'Ixc', 'Iia;', 'Iib;', 'Iic;', 'Iii;', 'Xx', 'Xy', 'Pa', 'Rh-Null', 'Uv', 'Rna', 'Dna', '1a;', '1b;', '1c;', '1d;', '1e;', '1f', '1f;', '1g;', '1h;', '1i;', '1j;', '1k;', '1l;', '1m;', '1n;', '2a', '2a;', '2a1;', '2a2', '2a2;', '2b', '2b;', '2b1', '2b1;', '2b2', '2b2;', '2d;', '2e', '2e;', '2f', '2f;', '2g;', '2h', '2h;', '2i', '2i;', '2j', '2j;', '2k', '2l', '3a;', '4a;', '4b1', '4b2', '4c', '4d;', '(2a)', '11b;', '5a,', '5b,']:
+        elif t in ['Ii', 'Ii;', 'Ii,', 'Iii', 'Iii;', 'I/Iix', 'Ii/Iii,', 'Iiia', 'Iiia;', 'Iiib', 'Iiic', 'Iiid', 'Iv', 'Iv;', 'Iv,', 'Iva', 'Ivb', 'Vi', 'Vii' , 'Vii;', 'Viii', 'x', 'Ia', 'Ib', 'Ic', 'Id', 'Ie', 'If', 'Ig', 'Ih', 'Ij', 'Ik', 'Il', 'Ix', 'Ia;', 'Ib;', 'Ic;', 'Ie;', 'If;', 'Ig;', 'Iia', 'Iia,', 'Iib', 'Iic', 'Iic,', 'Iid', 'Iid,', 'Iie', 'Ixc', 'Iia;', 'Iib;', 'Iic;', 'Iii;', 'Xx', 'Xy', 'Pa', 'Rh-Null', 'Uv', 'Rna', 'Dna', '1a;', '1b;', '1c;', '1d;', '1e;', '1f', '1f;', '1g;', '1h;', '1i;', '1j;', '1k;', '1l;', '1m;', '1n;', '2a', '2a;', '2a1;', '2a2', '2a2;', '2b', '2b;', '2b1', '2b1;', '2b2', '2b2;', '2d;', '2e', '2e;', '2f', '2f;', '2g;', '2h', '2h;', '2i', '2i;', '2j', '2j;', '2k', '2l', '3a;', '4a;', '4b1', '4b2', '4c', '4d;', '(2a)', '11b;', '5a,', '5b,', 'Xib,', 'C-Ii', 'Abo', 'Xg, 'Xh', 'Xm', 'Xp24', 'Xp37', 'Xp40', 'Atp', 'Atp-', 'Atpaf2']:
 	    newTokens.append(string.upper(t))
 	else:
 	    newTokens.append(t)
@@ -122,9 +122,10 @@ def convertTerm(term):
     newTerm = regsub.gsub('-Coa', '-CoA', newTerm)
     newTerm = regsub.gsub('Syndrome Vib', 'Syndrome VIb', newTerm)
     newTerm = regsub.gsub('Group--Abh', 'Group--ABH', newTerm)
-    newTerm = regsub.gsub('Group--Abo', 'Group--ABO', newTerm)
     newTerm = regsub.gsub('Group--Lke', 'Group--LKE', newTerm)
+    newTerm = regsub.gsub('Group--Mn', 'Group--MN', newTerm)
     newTerm = regsub.gsub('Group--Ok', 'Group--OK', newTerm)
+    newTerm = regsub.gsub('Group--Ss', 'Group--SS', newTerm)
     newTerm = regsub.gsub('Group--Ul', 'Group--UL', newTerm)
     newTerm = regsub.gsub('Group--Yt', 'Group--YT', newTerm)
     newTerm = regsub.gsub('Oncogene Trk', 'Oncogene TRK', newTerm)
@@ -171,7 +172,8 @@ while line:
 	# we're only interested in disease terms
 	# exclude all other entries
 
-	if tokens[0][0] in ['*', '+', '^']:
+#	if tokens[0][0] in ['*', '+', '^']:
+	if tokens[0][0] in ['*', '^']:
 	    continue
 
 	# the first token is a repeat of the MIM id, so ignore it
