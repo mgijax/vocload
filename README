@@ -24,24 +24,26 @@ Global Configs:
 
 Global Run Scripts:
 
-1.  runSimpleFullLoad.sh [config file]
+1.  runSimpleIncLoad.sh
+    . processes a simple (non-DAG) vocabulary using "incremental" mode
+    . uses RCD_FILE = simple.rcd
+    . uses LOAD_PROGRAM = simpleLoad.py
+
+2.  runSimpleFullLoad.sh [config file]
     . processes a simple (non-DAG) vocabulary using "full" mode
     . uses RCD_FILE = simple.rcd
     . uses LOAD_PROGRAM = simpleLoad.py
 
-2.  runDAGIncLoad.sh [config file]
+3.  runDAGIncLoad.sh [config file]
     . processes a DAG vocabulary using "incremental" mode
     . uses LOAD_PROGRAM = GOload.py
     . config file must set RCD_FILE
 
-3.  runDAGFullLoad.sh [config file]
+4.  runDAGFullLoad.sh [config file]
     . processes a DAG vocabulary using "full" mode
     . uses LOAD_PROGRAM = GOload.py
     . config file must set RCD_FILE
 
-Note:  Simple Vocabularies cannot currently be processed in incremental
-       mode.  This may have to change (maybe with OMIM?).
- 
 Other Globals:
 
 1.  simple.rcd
@@ -55,7 +57,7 @@ Other Globals:
 
 3.  simpleLoad.py
     . a python LOAD_PROGRAM which can be used by any simple
-      vocabulary which can be loaded using "full" mode.
+      vocabulary which can be loaded using "full" or "incremental" mode.
 
 4.  GOverify.py
     . a python program which uses an rcd file to verify that the
