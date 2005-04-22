@@ -17,10 +17,20 @@
 #	- TR 3853, OMIM
 #
 
-. OMIM.config
+#. OMIM.config
+#. ./Configuration
+
+#
+# get new OMIM file
+# 
+
 rm -rf ${OMIM_FILE}
 echo "${DOWNLOAD_FILE_DIR}/${COMPRESSED_OMIM_FILE} ${RUNTIME_DIR}"
 cp ${DOWNLOAD_FILE_DIR}/${COMPRESSED_OMIM_FILE} ${RUNTIME_DIR}
+
+#
+# uncompress new file
+#
 cd ${RUNTIME_DIR}
 gunzip ${COMPRESSED_OMIM_FILE}
 
