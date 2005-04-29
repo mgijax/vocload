@@ -20,6 +20,7 @@
 #
 #	OMIM term
 #	OMIM ID
+#	Status
 #	Abbreviation
 #	Definition
 #	Comment
@@ -168,7 +169,23 @@ outFile = open(outFileName, 'w')
 		
 mim = ''
 term = ''
+activeStatus = 'current'
+obsoleteStatus = 'obsolete'
 continueTerm = 0
+
+#
+# cache existing MIM ids so we can detect obsoleted vs. current
+#
+
+omimCurrent = []
+omimInMGI = {}
+results = db.sql('select a.accID, t.term ' + \	
+	'from ACC_Accession a, VOC_Term t ' + \
+	'where a._LogicalDB_key = %s ' % (os.environ['LOGICALDB_KEY']) + \
+	'and a._MGIType_key = 13 ' + \
+	'and a._Object_key = t._Term_key', 'auto')
+for r in results:
+    omimInMGI[r['accID']] = r['term']
 
 line = inFile.readline()
 while line:
@@ -181,7 +198,8 @@ while line:
 
 	# print previous term
 	if len(term) > 0:
-            outFile.write(convertTerm(term) + DELIM + mim + DELIM + DELIM + DELIM + CRT)
+	    omimCurrent.append(mim)
+            outFile.write(convertTerm(term) + DELIM + mim + DELIM + activeStatus + DELIM + DELIM + DELIM + CRT)
 
         line = inFile.readline()
 	mim = string.strip(line)
@@ -225,5 +243,14 @@ while line:
     line = inFile.readline()
 
 if len(term) > 0:
-    outFile.write(convertTerm(term) + DELIM + mim + DELIM + DELIM + DELIM + CRT)
+    omimCurrent.append(mim)
+    outFile.write(convertTerm(term) + DELIM + mim + DELIM + activeStatus + DELIM + DELIM + DELIM + CRT)
 
+#
+# Now create records for obsoleted terms...those in omimInMGI but not in omimCurrent
+#
+
+for m in omimInMGI.keys():
+    if m not in omimCurrrent:
+        outFile.write(omimInMGI[m] + DELIM + m + DELIM + obsoleteStatus + DELIM + DELIM + DELIM + CRT)
+	

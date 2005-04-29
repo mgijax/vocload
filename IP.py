@@ -20,6 +20,7 @@
 #
 #	IP term
 #	IP ID
+#	Status
 #	Abbreviation
 #	Definition
 #	Comment
@@ -42,6 +43,7 @@ import regsub
 
 DELIM = '\t'
 CRT = '\n'
+status = 'current'
 
 inFileName = os.environ['IP_FILE']
 outFileName = os.environ['DATA_FILE']
@@ -53,5 +55,5 @@ for line in inFile.readlines():
 
 	accID = line[:9]
 	term = line[10:-1]
-	outFile.write(term + DELIM + accID + DELIM + DELIM + DELIM + CRT)
+	outFile.write(term + DELIM + accID + DELIM + status + DELIM + DELIM + DELIM + CRT)
 
