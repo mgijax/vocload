@@ -92,41 +92,37 @@ chunkSequence = 1
 #
 #  Get the vocabulary key for the current vocabulary.
 #
-cmds = []
-cmds.append('select _Vocab_key ' + \
-            'from VOC_Vocab ' + \
-            'where name = "' + vocabName + '"')
+results = db.sql('select _Vocab_key from VOC_Vocab where name = "' + vocabName + '"', 'auto')
+vocabKey = results[0]['_Vocab_key']
 
 #
 #  Get the maximum note key currently in use.
 #
-cmds.append('select max(_Note_key) "_Note_key" from MGI_Note')
-
-results = db.sql(cmds, 'auto')
-
-vocabKey = results[0][0]['_Vocab_key']
-maxKey = results[1][0]['_Note_key']
+results = db.sql('select max(_Note_key) "_Note_key" from MGI_Note', 'auto')
+maxKey = results[0]['_Note_key']
 
 print 'Vocab key: %d' % vocabKey
 
-cmds = []
 #
 #  Delete any note from the MGI_Note table if the note type exists
 #  in the VOC_Note table in the RADAR database and the term for the
 #  note belongs to the current vocabulary that is being loaded.
 #  A trigger will delete the corresponding MGI_NoteChunk records.
 #
-cmds.append('delete MGI_Note ' + \
-            'from MGI_Note n, ' + \
-                 'MGI_NoteType nt, ' + \
-                 'VOC_Term t ' + \
+noteTypes = []
+results = db.sql('select distinct nt._NoteType_key ' + \
+	'from ' + dbName_RADAR + '..VOC_Note v, MGI_NoteType nt ' + \
+	'where v.noteType = nt.noteType ' + \
+	'and nt._MGIType_key = ' + str(mgiType), 'auto')
+for r in results:
+    noteTypes.append(str(r['_NoteType_key']))
+noteTypesIn = string.join(noteTypes, ",")
+
+db.sql('delete MGI_Note ' + \
+            'from MGI_Note n, MGI_NoteType nt, VOC_Term t ' + \
             'where n._Object_key = t._Term_key and ' + \
                   't._Vocab_key = ' + str(vocabKey) + ' and ' + \
-                  'n._NoteType_key = nt._NoteType_key and ' + \
-                  'nt._MGIType_key = ' + str(mgiType) + ' and ' + \
-                  'exists (select 1 ' + \
-                          'from ' + dbName_RADAR + '..VOC_Note v ' + \
-                          'where v.noteType = nt.noteType)')
+                  'n._NoteType_key in (' + noteTypesIn + ')', None)
 
 #
 #  Create a temp table that has an idenity column that can be used to
@@ -134,7 +130,7 @@ cmds.append('delete MGI_Note ' + \
 #  table also contains the term key, note type key and note that are
 #  needed for adding notes.
 #
-cmds.append('select tempKey = identity(10), t._Term_key, ' + \
+db.sql('select tempKey = identity(10), t._Term_key, ' + \
                    'nt._NoteType_key, n.note ' + \
             'into #Notes ' + \
             'from ' + dbName_RADAR + '..VOC_Note n, ' + \
@@ -146,39 +142,33 @@ cmds.append('select tempKey = identity(10), t._Term_key, ' + \
                   'a._Object_key = t._Term_key and ' + \
                   't._Vocab_key = ' + str(vocabKey) + ' and ' + \
                   'n.noteType = nt.noteType and ' + \
-		  'nt._MGIType_key = ' + str(mgiType))
+		  'nt._MGIType_key = ' + str(mgiType), None)
 
-results = db.sql(cmds, 'auto')
-
-cmds = []
 #
 #  Count how many notes are to be added.
 #
-cmds.append('select count(*) "count" from #Notes')
+results = db.sql('select count(*) "count" from #Notes', 'auto')
+print 'Number of notes to add: %d' % results[0]['count']
 
 #
 #  Add the records to the MGI_Note table.
 #
-cmds.append('insert into MGI_Note ' + \
+db.sql('insert into MGI_Note ' + \
             'select tempKey+' + str(maxKey) + ', _Term_key, ' + \
                     str(mgiType) + ', _NoteType_key, ' + \
                     str(userKey) + ', ' + str(userKey) + ', ' + \
                    'getdate(), getdate() '
-            'from #Notes')
+            'from #Notes', None)
 
 #
 #  Add the records to the MGI_NoteChunk table.
 #
-cmds.append('insert into MGI_NoteChunk ' + \
+db.sql('insert into MGI_NoteChunk ' + \
             'select tempKey+' + str(maxKey) + ', ' + \
                     str(chunkSequence) + ', note, ' + \
                     str(userKey) + ', ' + str(userKey) + ', ' + \
                    'getdate(), getdate() '
-            'from #Notes')
-
-results = db.sql(cmds, 'auto')
-
-print 'Number of notes to add: %d' % results[0][0]['count']
+            'from #Notes', None)
 
 db.useOneConnection(0)
 sys.exit(0)
