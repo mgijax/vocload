@@ -28,5 +28,6 @@ cd `dirname $0`
 
 setUp $1 load incremental
 executePrograms ${LOAD_PROGRAM}
+executeExtra $1
 finishUp
 

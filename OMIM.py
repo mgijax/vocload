@@ -64,7 +64,7 @@ wordsToUpper = ['Ii', 'Ii;', 'Ii,', 'Iii', 'Iii;', 'Iii,',
 		'2a', '2a;', '2a1;', '2a2', '2a2;', '2b', '2b;', '2b1', '2b1;', '2b2', '2b2;', 
 		'2d;', '2e', '2e;', '2f', '2f;', '2g;', '2h', '2h;', '2i', '2i;', '2j', '2j;', '2k', '2l', 
 		'3a;', '4a;', '4b1', '4b2', '4c', '4d;', '(2a)', '11b;', '5a,', '5b,', 
-		'Abo', 'Atp', 'Atpaf2', 'C-Ii', 'Cd3', 'Cd4', 'Cd4/Cd8', 'Cd59', 'Cd8', 'Ceh10', 
+		'Aaa', 'Abo', 'Acps', 'Acs', 'Afd', 'Aldh', 'Atp', 'Atpaf2', 'C-Ii', 'Cd3', 'Cd4', 'Cd4/Cd8', 'Cd59', 'Cd8', 'Ceh10', 
 		'Icam1', 'Momo', 'Nk', 'Pta', 'Rd114',
 		'Xg', 'Xh', 'Xib', 'Xm', 'Xp24', 'Xp37', 'Xp40']
 
@@ -93,6 +93,7 @@ wordsToSubstitute = {
 
 inFileName = os.environ['OMIM_FILE']
 outFileName = os.environ['DATA_FILE']
+synFileName = os.environ['SYNONYM_FILE']
 
 def convertTerm(term):
 
@@ -160,18 +161,30 @@ def convertTerm(term):
 
     return newTerm
 
+def writeOMIM(term, mim, synonyms):
+
+    omimCurrent.append(mim)
+    outFile.write(convertTerm(term) + DELIM + mim + DELIM + activeStatus + DELIM + DELIM + DELIM + CRT)
+
+    for s in synonyms:
+	newSyn = regsub.gsub(';;', '', s)
+	synFile.write(mim + DELIM + 'exact' + DELIM + convertTerm(newSyn) + CRT)
+
 #
 # Main
 #
 
 inFile = open(inFileName, 'r')
 outFile = open(outFileName, 'w')
+synFile = open(synFileName, 'w')
 		
 mim = ''
 term = ''
+synonyms = []
 activeStatus = 'current'
 obsoleteStatus = 'obsolete'
 continueTerm = 0
+continueSynonym = 1
 
 #
 # cache existing MIM ids so we can detect obsoleted vs. current terms
@@ -198,13 +211,14 @@ while line:
 
 	# print previous term
 	if len(term) > 0:
-	    omimCurrent.append(mim)
-            outFile.write(convertTerm(term) + DELIM + mim + DELIM + activeStatus + DELIM + DELIM + DELIM + CRT)
+	    writeOMIM(term, mim, synonyms)
 
         line = inFile.readline()
 	mim = string.strip(line)
 	term = ''
+	synonyms = []
 	continueTerm = 0
+	continueSynonym = 1
 
     # the term itself
 
@@ -228,6 +242,13 @@ while line:
 	if string.find(line, ';') < 0:
 	    continueTerm = 1
 
+    elif string.find(line, '*FIELD* TX') == 0 or string.find(line, '*FIELD* MN') == 0:
+	continueTerm = 0
+	continueSynonym = 0
+
+    elif continueSynonym:
+	synonyms.append(line)
+
     elif continueTerm:
 
 	# next line may be a continuation of the term
@@ -237,14 +258,16 @@ while line:
 	   string.find(line, '*') == 0 or \
 	   string.find(line, 'INCLUDED') >= 0:
 	    continueTerm = 0
+	    if continueSynonym:
+	        synonyms.append(line)
+
 	else:
 	    term = term + ' ' + line
 
     line = inFile.readline()
 
 if len(term) > 0:
-    omimCurrent.append(mim)
-    outFile.write(convertTerm(term) + DELIM + mim + DELIM + activeStatus + DELIM + DELIM + DELIM + CRT)
+    writeOMIM(term, mim, synonyms)
 
 #
 # Now create records for obsoleted terms...those in omimInMGI but not in omimCurrent

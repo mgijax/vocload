@@ -25,26 +25,6 @@ cd `dirname $0`
 
 setUp $1 load incremental
 executePrograms ${LOAD_PROGRAM}
-
-if [ "${HEADER_FILE}" != "" ]
-then
-    loadHeader.sh $1 ${HEADER_FILE}
-fi
-
-if [ "${NOTE_FILE}" != "" ]
-then
-    loadNote.sh $1 ${NOTE_FILE}
-fi
-
-if [ "${SYNONYM_FILE}" != "" ]
-then
-    loadSynonym.sh $1 ${SYNONYM_FILE}
-fi
-
-if [ "${TOPOLOGICAL_SORT}" = "true" ]
-then
-    loadTopSort.sh $1
-fi
-
+executeExtra $1
 finishUp
 
