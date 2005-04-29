@@ -113,20 +113,19 @@ print 'Vocab key: %d' % vocabKey
 #
 
 synTypes = []
-results = db.sql('select distinct synonymType from ' + dbName_RADAR + '..VOC_Synonym', 'auto')
+results = db.sql('select distinct st._SynonymType_key ' + \
+	'from ' + dbName_RADAR + '..VOC_Synonym v, MGI_SynonymType st ' + \
+	'where v.synonymType = st.synonymType ' + \
+	'and st._MGIType_key = ' + str(mgiType), 'auto')
 for r in results:
-    synTypes.append(r['synonymType'])
-synTypesIn = string.join(synTypes, "\",\"")
+    synTypes.append(str(r['_SynonymType_key']))
+synTypesIn = string.join(synTypes, ",")
 
 db.sql('delete MGI_Synonym ' + \
-            'from MGI_Synonym s, ' + \
-                 'MGI_SynonymType st, ' + \
-                 'VOC_Term t ' + \
+            'from MGI_Synonym s, MGI_SynonymType st, VOC_Term t ' + \
             'where s._Object_key = t._Term_key and ' + \
                   't._Vocab_key = ' + str(vocabKey) + ' and ' + \
-                  's._SynonymType_key = st._SynonymType_key and ' + \
-                  'st._MGIType_key = ' + str(mgiType) + ' and ' + \
-		  'st.synonymType in ("' + synTypesIn + '")', None)
+                  's._SynonymType_key in (' + synTypesIn + ')', None)
 
 #
 #  Create a temp table that has an idenity column that can be used to
@@ -134,13 +133,9 @@ db.sql('delete MGI_Synonym ' + \
 #  The table also contains the term key, synonym type key and synonym
 #  that are needed for adding synonyms.
 #
-db.sql('select tempKey = identity(10), t._Term_key, ' + \
-                   'st._SynonymType_key, s.synonym ' + \
+db.sql('select tempKey = identity(10), t._Term_key, st._SynonymType_key, s.synonym ' + \
             'into #Synonyms ' + \
-            'from ' + dbName_RADAR + '..VOC_Synonym s, ' + \
-                 'ACC_Accession a, ' + \
-                 'VOC_Term t, ' + \
-                 'MGI_SynonymType st ' + \
+            'from ' + dbName_RADAR + '..VOC_Synonym s, ACC_Accession a, VOC_Term t, MGI_SynonymType st ' + \
             'where s.accID = a.accID and ' + \
                   'a._MGIType_key = ' + str(mgiType) + ' and ' + \
                   'a._Object_key = t._Term_key and ' + \
@@ -167,3 +162,4 @@ db.sql('insert into MGI_Synonym ' + \
 
 db.useOneConnection(0)
 sys.exit(0)
+
