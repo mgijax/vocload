@@ -174,12 +174,12 @@ obsoleteStatus = 'obsolete'
 continueTerm = 0
 
 #
-# cache existing MIM ids so we can detect obsoleted vs. current
+# cache existing MIM ids so we can detect obsoleted vs. current terms
 #
 
 omimCurrent = []
 omimInMGI = {}
-results = db.sql('select a.accID, t.term ' + \	
+results = db.sql('select a.accID, t.term ' + \
 	'from ACC_Accession a, VOC_Term t ' + \
 	'where a._LogicalDB_key = %s ' % (os.environ['LOGICALDB_KEY']) + \
 	'and a._MGIType_key = 13 ' + \
@@ -251,6 +251,6 @@ if len(term) > 0:
 #
 
 for m in omimInMGI.keys():
-    if m not in omimCurrrent:
+    if m not in omimCurrent:
         outFile.write(omimInMGI[m] + DELIM + m + DELIM + obsoleteStatus + DELIM + DELIM + DELIM + CRT)
 	

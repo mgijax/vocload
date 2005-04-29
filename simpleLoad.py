@@ -24,6 +24,7 @@
 #
 #	term
 #	accession id
+#	status
 #	abbreviation
 #	definition
 #	comment
@@ -44,6 +45,9 @@
 #
 # Modification History
 #
+# 04/29/2005	lec
+#	- OMIM, added support for status
+#
 # 04/03/2003	lec
 #	- TR 4564; added support for comments
 #
@@ -58,7 +62,7 @@ import tempfile
 class SimpleVoc_Wrapper (loadWrapper.LoadWrapper):
 	def preProcess (self):
 		datafile = vocloadlib.readTabFile (self.inputFile,
-			[ 'term', 'id', 'abbrev', 'definition' , 'comment' ])
+			[ 'term', 'id', 'status', 'abbrev', 'definition' , 'comment' ])
 
 		self.loadfile = os.environ['TERM_FILE']
 		fp = open (self.loadfile, 'w')
@@ -67,7 +71,7 @@ class SimpleVoc_Wrapper (loadWrapper.LoadWrapper):
 			fp.write (loadWrapper.TERM_LINE % (
 				row['term'],
 				row['id'],
-				'current',
+				row['status'],
 				row['abbrev'],
 				row['definition'],
 				row['comment'],
@@ -90,6 +94,9 @@ if __name__ == '__main__':
 	wrapper.go()
 
 # $Log$
+# Revision 1.7  2003/04/18 14:46:07  lec
+# MGI 2.96
+#
 # Revision 1.6  2003/04/02 18:54:49  lec
 # TR 4564
 #
