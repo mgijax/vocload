@@ -59,6 +59,9 @@
 #  Date        SE   Change Description
 #  ----------  ---  -------------------------------------------------------
 #
+#  04/29/2005  LEC  Need to check _MGIType_key for MGI_Note...
+#                   because a Note Type name is only unique for a given _MGIType_key
+#
 #  03/17/2005  DBM  Initial development
 #
 ###########################################################################

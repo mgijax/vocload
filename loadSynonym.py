@@ -56,6 +56,10 @@
 #  Date        SE   Change Description
 #  ----------  ---  -------------------------------------------------------
 #
+#  04/29/2005  LEC  Changes for OMIM vocabulary
+#	- need to check _MGIType_key of Synonym Type (for both deletions and inserts)
+#	  because a Synonym Type name is only unique for a given _MGIType_key.
+#
 #  03/17/2005  DBM  Initial development
 #
 ###########################################################################
