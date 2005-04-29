@@ -85,43 +85,40 @@ mgiType = os.environ['MGITYPE']
 jNumber = os.environ['JNUM']
 userKey = os.environ['USER_KEY']
 
-cmds = []
 #
 #  Get the vocabulary key for the current vocabulary.
 #
-cmds.append('select _Vocab_key ' + \
-            'from VOC_Vocab ' + \
-            'where name = "' + vocabName + '"')
+results = db.sql('select _Vocab_key from VOC_Vocab where name = "' + vocabName + '"', 'auto')
+vocabKey = results[0]['_Vocab_key']
 
 #
 #  Get the reference key for the J-Number.
 #
-cmds.append('select _Object_key ' + \
-            'from ACC_Accession ' + \
-            'where accID = "' + jNumber + '" and ' + \
-                  '_MGIType_key = 1 and ' + \
-                  '_LogicalDB_key = 1')
+results = db.sql('select _Object_key from ACC_Accession ' + \
+	'where accID = "' + jNumber + '" and _MGIType_key = 1 and _LogicalDB_key = 1', 'auto')
+refsKey = results[0]['_Object_key']
 
 #
 #  Get the maximum synonym key currently in use.
 #
-cmds.append('select max(_Synonym_key) "_Synonym_key" from MGI_Synonym')
-
-results = db.sql(cmds, 'auto')
-
-vocabKey = results[0][0]['_Vocab_key']
-refsKey = results[1][0]['_Object_key']
-maxKey = results[2][0]['_Synonym_key']
+results = db.sql('select max(_Synonym_key) "_Synonym_key" from MGI_Synonym', 'auto')
+maxKey = results[0]['_Synonym_key']
 
 print 'Vocab key: %d' % vocabKey
 
-cmds = []
 #
 #  Delete any synonym from the MGI_Synonym table if the synonym type
 #  exists in the VOC_Synonym table in the RADAR database and the term
 #  for the synonym belongs to the current vocabulary that is being loaded.
 #
-cmds.append('delete MGI_Synonym ' + \
+
+synTypes = []
+results = db.sql('select distinct synonymType from ' + dbName_RADAR + '..VOC_Synonym', 'auto')
+for r in results:
+    synTypes.append(r['synonymType'])
+synTypesIn = string.join(synTypes, "\",\"")
+
+db.sql('delete MGI_Synonym ' + \
             'from MGI_Synonym s, ' + \
                  'MGI_SynonymType st, ' + \
                  'VOC_Term t ' + \
@@ -129,9 +126,7 @@ cmds.append('delete MGI_Synonym ' + \
                   't._Vocab_key = ' + str(vocabKey) + ' and ' + \
                   's._SynonymType_key = st._SynonymType_key and ' + \
                   'st._MGIType_key = ' + str(mgiType) + ' and ' + \
-                  'exists (select 1 ' + \
-                          'from ' + dbName_RADAR + '..VOC_Synonym v ' + \
-                          'where v.synonymType = st.synonymType)')
+		  'st.synonymType in ("' + synTypesIn + '")', None)
 
 #
 #  Create a temp table that has an idenity column that can be used to
@@ -139,7 +134,7 @@ cmds.append('delete MGI_Synonym ' + \
 #  The table also contains the term key, synonym type key and synonym
 #  that are needed for adding synonyms.
 #
-cmds.append('select tempKey = identity(10), t._Term_key, ' + \
+db.sql('select tempKey = identity(10), t._Term_key, ' + \
                    'st._SynonymType_key, s.synonym ' + \
             'into #Synonyms ' + \
             'from ' + dbName_RADAR + '..VOC_Synonym s, ' + \
@@ -150,30 +145,25 @@ cmds.append('select tempKey = identity(10), t._Term_key, ' + \
                   'a._MGIType_key = ' + str(mgiType) + ' and ' + \
                   'a._Object_key = t._Term_key and ' + \
                   't._Vocab_key = ' + str(vocabKey) + ' and ' + \
-                  's.synonymType = st.synonymType')
+                  's.synonymType = st.synonymType ' + ' and ' + \
+		  'st._MGIType_key = ' + str(mgiType), None)
 
-results = db.sql(cmds, 'auto')
-
-cmds = []
 #
 #  Count how many synonyms are to be added.
 #
-cmds.append('select count(*) "count" from #Synonyms')
+results = db.sql('select count(*) "count" from #Synonyms', 'auto')
+print 'Number of synonyms to add: %d' % results[0]['count']
 
 #
 #  Add the records to the MGI_Synonym table.
 #
-cmds.append('insert into MGI_Synonym ' + \
+db.sql('insert into MGI_Synonym ' + \
             'select tempKey+' + str(maxKey) + ', _Term_key, ' + \
                     str(mgiType) + ', _SynonymType_key, ' + \
                     str(refsKey) + ', synonym, ' + \
                     str(userKey) + ', ' + str(userKey) + ', ' + \
                    'getdate(), getdate() '
-            'from #Synonyms')
-
-results = db.sql(cmds, 'auto')
-
-print 'Number of synonyms to add: %d' % results[0][0]['count']
+            'from #Synonyms', None)
 
 db.useOneConnection(0)
 sys.exit(0)

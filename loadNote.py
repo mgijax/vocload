@@ -145,7 +145,8 @@ cmds.append('select tempKey = identity(10), t._Term_key, ' + \
                   'a._MGIType_key = ' + str(mgiType) + ' and ' + \
                   'a._Object_key = t._Term_key and ' + \
                   't._Vocab_key = ' + str(vocabKey) + ' and ' + \
-                  'n.noteType = nt.noteType')
+                  'n.noteType = nt.noteType and ' + \
+		  'nt._MGIType_key = ' + str(mgiType))
 
 results = db.sql(cmds, 'auto')
 
