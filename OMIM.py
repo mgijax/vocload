@@ -18,12 +18,14 @@
 #
 #	OMIM.tab; a tab-delimited file of:
 #
-#	OMIM term
-#	OMIM ID
-#	Status
-#	Abbreviation
-#	Definition
-#	Comment
+#	1. OMIM term
+#	2. OMIM ID
+#	3. Status
+#	4. Abbreviation (none)
+#	5. Definition (none)
+#	6. Comment (none)
+#	7. Synonyms (none, using OMIM.synonym)
+#	8. Secondary Ids
 #
 # Processing:
 #
@@ -44,6 +46,14 @@ import db
 
 DELIM = '\t'
 CRT = '\n'
+
+activeStatus = 'current'
+obsoleteStatus = 'obsolete'
+synonymType = 'exact'
+
+omimNew = []	# OMIM ids that are in the new input file
+omimMGI = {}		# OMIM records (id/term) that are currently in MGI
+secondaryIds = {}
 
 wordsToLower = ['And', 'Or', 'But', 'With', 'Without', 'Of', 'Of,', 'The', 'At', 'In', 'To', 'To,', 'On', 'For']
 
@@ -91,9 +101,52 @@ wordsToSubstitute = {
 	'-Like' : '-like'
 	}
 
-inFileName = os.environ['OMIM_FILE']
-outFileName = os.environ['DATA_FILE']
-synFileName = os.environ['SYNONYM_FILE']
+def cacheExistingIds():
+
+    #
+    # cache existing MIM ids so we can detect obsoleted vs. current terms
+    #
+
+    global omimMGI
+
+    results = db.sql('select a.accID, t.term ' + \
+	'from ACC_Accession a, VOC_Term t ' + \
+	'where a._LogicalDB_key = %s ' % (os.environ['LOGICALDB_KEY']) + \
+	'and a._MGIType_key = 13 ' + \
+	'and a._Object_key = t._Term_key', 'auto')
+    for r in results:
+        omimMGI[r['accID']] = r['term']
+
+def cacheSecondaryIds():
+
+    #
+    # cache all secondary ids (those that have been "MOVED TO")
+    #
+
+    global omimNew
+    global secondaryIds
+
+    inFile = open(inFileName, 'r')
+    line = inFile.readline()
+    while line:
+        line = line[:-1]
+
+	# this term has been moved and is now a secondary id of another term
+
+        if string.find(line, ' MOVED TO') > 0:
+	    tokens = string.split(line, ' ')
+
+	    if tokens[0][0] == '^' and tokens[1] == 'MOVED':
+	        key = tokens[3]	# the mim id of the term this id is a secondary of...
+	        sid = tokens[0][1:] # the secondary id
+	        if not secondaryIds.has_key(key):
+	            secondaryIds[key] = []
+	        secondaryIds[key].append(sid)
+	        omimNew.append(sid)
+
+        line = inFile.readline()
+
+    inFile.close()
 
 def convertTerm(term):
 
@@ -163,117 +216,124 @@ def convertTerm(term):
 
 def writeOMIM(term, mim, synonyms):
 
-    omimCurrent.append(mim)
-    outFile.write(convertTerm(term) + DELIM + mim + DELIM + activeStatus + DELIM + DELIM + DELIM + CRT)
+    global omimNew
+
+    outFile.write(convertTerm(term) + DELIM + mim + DELIM + activeStatus + DELIM + DELIM + DELIM + DELIM + DELIM)
+    if secondaryIds.has_key(mim):
+	outFile.write(string.join(secondaryIds[mim], '|'))
+    outFile.write(CRT)
 
     for s in synonyms:
 	newSyn = regsub.gsub(';;', '', s)
-	synFile.write(mim + DELIM + 'exact' + DELIM + convertTerm(newSyn) + CRT)
+	synFile.write(mim + DELIM + synonymType + DELIM + convertTerm(newSyn) + CRT)
+
+    omimNew.append(mim)
+
+def processOMIM():
+
+    #
+    # process each OMIM that we want to load as a vocabulary term
+    #
+
+    mim = ''
+    term = ''
+    synonyms = []
+    continueTerm = 0
+    continueSynonym = 1
+
+    inFile = open(inFileName, 'r')
+    line = inFile.readline()
+    while line:
+
+        line = line[:-1]
+
+        # this means we've found a new term
+
+        if string.find(line, '*FIELD* NO') == 0:
+
+	    # print previous term
+	    if len(term) > 0:
+	        writeOMIM(term, mim, synonyms)
+
+            line = inFile.readline()
+	    mim = string.strip(line)
+	    term = ''
+	    synonyms = []
+	    continueTerm = 0
+	    continueSynonym = 1
+
+        # the term itself
+
+        elif string.find(line, '*FIELD* TI') == 0:
+
+            line = inFile.readline()
+            line = line[:-1]
+	    tokens = string.split(line, ' ')
+
+	    # we're only interested in disease terms
+	    # exclude all other entries
+
+	    if tokens[0][0] in ['*', '^']:
+	        continue
+
+	    # the first token is a repeat of the MIM id, so ignore it
+
+	    term = term + string.join(tokens[1:], ' ')
+
+	    if string.find(line, ';') < 0:
+	        continueTerm = 1
+
+        elif string.find(line, '*FIELD* TX') == 0 or string.find(line, '*FIELD* MN') == 0:
+	    continueTerm = 0
+	    continueSynonym = 0
+
+        elif continueSynonym:
+	    synonyms.append(line)
+
+        elif continueTerm:
+
+	    # next line may be a continuation of the term
+	    # or synonyms.  ignore synonyms (for now)
+
+	    if string.find(line, ';') >= 0 or \
+	       string.find(line, '*') == 0 or \
+	       string.find(line, 'INCLUDED') >= 0:
+	        continueTerm = 0
+	        if continueSynonym:
+	            synonyms.append(line)
+
+	    else:
+	        term = term + ' ' + line
+
+        line = inFile.readline()
+    inFile.close()
+
+    if len(term) > 0:
+        writeOMIM(term, mim, synonyms)
+
+    #
+    # Now create records for obsoleted terms...those in omimMGI but not in omimNew
+    #
+
+    for m in omimMGI.keys():
+        if m not in omimNew:
+            outFile.write(omimMGI[m] + DELIM + m + DELIM + obsoleteStatus + DELIM + DELIM + DELIM + DELIM + DELIM + CRT)
 
 #
 # Main
 #
 
-inFile = open(inFileName, 'r')
+inFileName = os.environ['OMIM_FILE']
+outFileName = os.environ['DATA_FILE']
+synFileName = os.environ['SYNONYM_FILE']
+
 outFile = open(outFileName, 'w')
 synFile = open(synFileName, 'w')
-		
-mim = ''
-term = ''
-synonyms = []
-activeStatus = 'current'
-obsoleteStatus = 'obsolete'
-continueTerm = 0
-continueSynonym = 1
 
-#
-# cache existing MIM ids so we can detect obsoleted vs. current terms
-#
+cacheExistingIds()
+cacheSecondaryIds()
+processOMIM()
 
-omimCurrent = []
-omimInMGI = {}
-results = db.sql('select a.accID, t.term ' + \
-	'from ACC_Accession a, VOC_Term t ' + \
-	'where a._LogicalDB_key = %s ' % (os.environ['LOGICALDB_KEY']) + \
-	'and a._MGIType_key = 13 ' + \
-	'and a._Object_key = t._Term_key', 'auto')
-for r in results:
-    omimInMGI[r['accID']] = r['term']
+outFile.close()
+synFile.close()
 
-line = inFile.readline()
-while line:
-
-    line = line[:-1]
-
-    # this means we've found a new term
-
-    if string.find(line, '*FIELD* NO') == 0:
-
-	# print previous term
-	if len(term) > 0:
-	    writeOMIM(term, mim, synonyms)
-
-        line = inFile.readline()
-	mim = string.strip(line)
-	term = ''
-	synonyms = []
-	continueTerm = 0
-	continueSynonym = 1
-
-    # the term itself
-
-    elif string.find(line, '*FIELD* TI') == 0:
-
-        line = inFile.readline()
-        line = line[:-1]
-	tokens = string.split(line, ' ')
-
-	# we're only interested in disease terms
-	# exclude all other entries
-
-#	if tokens[0][0] in ['*', '+', '^']:
-	if tokens[0][0] in ['*', '^']:
-	    continue
-
-	# the first token is a repeat of the MIM id, so ignore it
-
-	term = term + string.join(tokens[1:], ' ')
-
-	if string.find(line, ';') < 0:
-	    continueTerm = 1
-
-    elif string.find(line, '*FIELD* TX') == 0 or string.find(line, '*FIELD* MN') == 0:
-	continueTerm = 0
-	continueSynonym = 0
-
-    elif continueSynonym:
-	synonyms.append(line)
-
-    elif continueTerm:
-
-	# next line may be a continuation of the term
-	# or synonyms.  ignore synonyms (for now)
-
-	if string.find(line, ';') >= 0 or \
-	   string.find(line, '*') == 0 or \
-	   string.find(line, 'INCLUDED') >= 0:
-	    continueTerm = 0
-	    if continueSynonym:
-	        synonyms.append(line)
-
-	else:
-	    term = term + ' ' + line
-
-    line = inFile.readline()
-
-if len(term) > 0:
-    writeOMIM(term, mim, synonyms)
-
-#
-# Now create records for obsoleted terms...those in omimInMGI but not in omimCurrent
-#
-
-for m in omimInMGI.keys():
-    if m not in omimCurrent:
-        outFile.write(omimInMGI[m] + DELIM + m + DELIM + obsoleteStatus + DELIM + DELIM + DELIM + CRT)
-	

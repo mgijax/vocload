@@ -28,8 +28,10 @@
 #	abbreviation
 #	definition
 #	comment
+#	synonyms (|-delimited)
+#	secondary ids (|-delimited)
 #
-#	accession id, abbreviation, definition and comment can be blank
+#	accession id, abbreviation, definition, comment, synonyms secondary ids can be blank
 #
 # Outputs:
 #
@@ -62,7 +64,7 @@ import tempfile
 class SimpleVoc_Wrapper (loadWrapper.LoadWrapper):
 	def preProcess (self):
 		datafile = vocloadlib.readTabFile (self.inputFile,
-			[ 'term', 'id', 'status', 'abbrev', 'definition' , 'comment' ])
+			[ 'term', 'id', 'status', 'abbrev', 'definition' , 'comment', 'synonyms', 'secondaryids' ])
 
 		self.loadfile = os.environ['TERM_FILE']
 		fp = open (self.loadfile, 'w')
@@ -75,8 +77,8 @@ class SimpleVoc_Wrapper (loadWrapper.LoadWrapper):
 				row['abbrev'],
 				row['definition'],
 				row['comment'],
-				'',			# synonyms
-				''			# secondary IDs
+				row['synonyms'],
+				row['secondaryids']
 			        ))	
 		fp.close()
 		return
@@ -94,6 +96,9 @@ if __name__ == '__main__':
 	wrapper.go()
 
 # $Log$
+# Revision 1.8  2005/04/29 12:31:32  lec
+# OMIM
+#
 # Revision 1.7  2003/04/18 14:46:07  lec
 # MGI 2.96
 #

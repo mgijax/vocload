@@ -18,12 +18,14 @@
 #
 #	interpro.tab; a tab-delimited file of:
 #
-#	IP term
-#	IP ID
-#	Status
-#	Abbreviation
-#	Definition
-#	Comment
+#	1. IP term
+#	2. IP ID
+#	3. Status
+#	4. Abbreviation (none)
+#	5. Definition (none)
+#	6. Comment (none)
+#	7. Synonyms (none)
+#	8. Seconrdary IDs (none)
 #
 # Processing:
 #
@@ -55,5 +57,5 @@ for line in inFile.readlines():
 
 	accID = line[:9]
 	term = line[10:-1]
-	outFile.write(term + DELIM + accID + DELIM + status + DELIM + DELIM + DELIM + CRT)
+	outFile.write(term + DELIM + accID + DELIM + status + DELIM + DELIM + DELIM + DELIM + DELIM + CRT)
 
