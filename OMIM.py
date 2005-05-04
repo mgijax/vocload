@@ -212,6 +212,11 @@ def convertTerm(term):
     for w in wordsToSubstitute.keys():
 	newTerm = regsub.gsub(w, wordsToSubstitute[w], newTerm)
 
+    #
+    # get rid of the @ character
+    #
+    newTerm = regsub.gsub('@', '', newTerm)
+
     return newTerm
 
 def writeOMIM(term, mim, synonyms):
