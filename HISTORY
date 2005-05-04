@@ -1,3 +1,10 @@
+TAG: vocload-3-2-0-10
+DATE: 05/04/2005
+STAFF: lec
+RELEASE: A
+CHANGES:
+1) TR 3853, OMIM; don't lowercase the synonyms
+
 TAG: vocload-3-2-0-9
 TAG: vocload-3-2-0-8
 DATE: 05/02/2005

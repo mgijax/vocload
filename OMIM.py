@@ -225,7 +225,7 @@ def writeOMIM(term, mim, synonyms):
 
     for s in synonyms:
 	newSyn = regsub.gsub(';;', '', s)
-	synFile.write(mim + DELIM + synonymType + DELIM + convertTerm(newSyn) + CRT)
+	synFile.write(mim + DELIM + synonymType + DELIM + newSyn + CRT)
 
     omimNew.append(mim)
 
