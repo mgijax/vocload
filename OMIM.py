@@ -51,9 +51,10 @@ activeStatus = 'current'
 obsoleteStatus = 'obsolete'
 synonymType = 'exact'
 
-omimNew = []	# OMIM ids that are in the new input file
+omimNew = []		# OMIM ids that are in the new input file
 omimMGI = {}		# OMIM records (id/term) that are currently in MGI
 secondaryIds = {}
+translations = {}	# From-to-To term translations
 
 wordsToLower = ['And', 'Or', 'But', 'With', 'Without', 'Of', 'Of,', 'The', 'At', 'In', 'To', 'To,', 'On', 'For']
 
@@ -73,17 +74,10 @@ wordsToUpper = ['Ii', 'Ii;', 'Ii,', 'Iii', 'Iii;', 'Iii,',
 		'1a;', '1b;', '1c;', '1d;', '1e;', '1f', '1f;', '1g;', '1h;', '1i;', '1j;', '1k;', '1l;', '1m;', '1n;', 
 		'2a', '2a;', '2a1;', '2a2', '2a2;', '2b', '2b;', '2b1', '2b1;', '2b2', '2b2;', 
 		'2d;', '2e', '2e;', '2f', '2f;', '2g;', '2h', '2h;', '2i', '2i;', '2j', '2j;', '2k', '2l', 
-		'3a;', '4a;', '4b1', '4b2', '4c', '4d;', '(2a)', '11b;', '5a,', '5b,', 
-		'Aaa', 'Abo', 'Acps', 'Acs', 'Afd', 'Aldh', 'Atp', 'Atpaf2', 'C-Ii', 'Cd3', 'Cd4', 'Cd4/Cd8', 'Cd59', 'Cd8', 'Ceh10', 
-		'Icam1', 'Momo', 'Nk', 'Pta', 'Rd114',
-		'Xg', 'Xh', 'Xib', 'Xm', 'Xp24', 'Xp37', 'Xp40']
+		'3a;', '4a;', '4b1', '4b2', '4c', '4d;', '(2a)', '11b;', '5a,', '5b,']
 
 wordsToSubstitute = {
 	';;' : '',
-	'Abcd Syndrome' : 'ABCD Syndrome',
-	'Adult Syndrome' : 'ADULT Syndrome',
-	'Fg Syndrome' : 'FG Syndrome',
-	'Acth Deficiency' : 'ACTH Deficiency',
 	'Uv-' : 'UV-',
 	'-Coa' : '-CoA',
 	'Coq-' : 'CoQ-',
@@ -148,6 +142,22 @@ def cacheSecondaryIds():
 
     inFile.close()
 
+def cacheTranslations():
+
+    #
+    # cache Term Translations
+    #
+
+    global translations
+
+    transFile = open(transFileName, 'r')
+    for line in transFile.readlines():
+	tokens = string.split(line[:-1], '\t')
+	fromTerm = tokens[0]
+	toTerm = tokens[1]
+	translations[fromTerm] = toTerm
+    transFile.close()
+
 def convertTerm(term):
 
     # capitialize all words
@@ -211,6 +221,13 @@ def convertTerm(term):
     #
     for w in wordsToSubstitute.keys():
 	newTerm = regsub.gsub(w, wordsToSubstitute[w], newTerm)
+
+    #
+    # translations
+    #
+
+    if translations.has_key(newTerm):
+	newTerm = translations[newTerm]
 
     #
     # get rid of the @ character
@@ -331,12 +348,14 @@ def processOMIM():
 inFileName = os.environ['OMIM_FILE']
 outFileName = os.environ['DATA_FILE']
 synFileName = os.environ['SYNONYM_FILE']
+transFileName = os.environ['TRANS_FILE']
 
 outFile = open(outFileName, 'w')
 synFile = open(synFileName, 'w')
 
 cacheExistingIds()
 cacheSecondaryIds()
+cacheTranslations()
 processOMIM()
 
 outFile.close()
