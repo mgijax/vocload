@@ -11,7 +11,7 @@
 # Purpose:
 #
 #	To remove GO anntotations to obsoleted terms for
-#	evidence J:60000, J:77247 or J:56000.
+#	evidence J:60000, J:77247 or J:56000, J:72245.
 #
 #	To produce a tab-delimited report of deleted annotations:
 #
@@ -47,6 +47,11 @@
 # Bugs:
 #
 # Implementation:
+#
+# History
+#
+# 05/11/2005	lec
+#	- added J:72245
 #
 
 import sys
@@ -211,7 +216,7 @@ def process():
         'where a._AnnotType_key = 1000 ' + \
         'and a._Term_key = o._Object_key ' + \
         'and a._Annot_key = e._Annot_key ' + \
-        'and e._Refs_key in (59154,61933,73199) ' + \
+        'and e._Refs_key in (59154,61933,73199,73197) ' + \
         'and a._Object_key = m._Marker_key ' + \
 	'and a._Object_key = ma._Object_key ' + \
 	'and ma._LogicalDB_key = 1 ' + \
@@ -230,7 +235,7 @@ def process():
         'where a._AnnotType_key = 1000 ' + \
         'and a._Term_key = o._Object_key ' + \
         'and a._Annot_key = e._Annot_key ' + \
-        'and e._Refs_key in (59154,61933,73199)', None)
+        'and e._Refs_key in (59154,61933,73199,73197)', None)
 
     db.sql('delete VOC_Annot from VOC_Annot a ' + \
 	'where a._AnnotType_key = 1000 and not exists (select 1 from VOC_Evidence e where a._Annot_key = e._Annot_key)', None)
@@ -245,6 +250,9 @@ process()
 exit(0)
 
 # $Log$
+# Revision 1.7  2005/02/08 16:00:26  lec
+# removed open of other
+#
 # Revision 1.6  2004/01/28 16:19:51  lec
 # JSAM branch merge
 #
