@@ -328,7 +328,8 @@ def processOMIM():
 	    continueSynonym = 0
 
         elif continueSynonym:
-	    synonyms.append(line)
+	    if string.find(line, 'INCLUDED') < 0:
+	        synonyms.append(line)
 
         elif continueTerm:
 
@@ -338,7 +339,7 @@ def processOMIM():
 	    if string.find(line, ';') >= 0 or \
 	       string.find(line, '*') == 0:
 	        continueTerm = 0
-	        if continueSynonym:
+	        if continueSynonym and string.find(line, 'INCLUDED') < 0:
 	            synonyms.append(line)
 
 	    else:
