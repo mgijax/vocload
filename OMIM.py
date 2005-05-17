@@ -323,18 +323,17 @@ def processOMIM():
 	    if string.find(line, ';') < 0:
 	        continueTerm = 1
 
+	    if mim == '100100':
+		print line
+		print continueTerm
+
         elif string.find(line, '*FIELD* TX') == 0 or string.find(line, '*FIELD* MN') == 0:
 	    continueTerm = 0
 	    continueSynonym = 0
 
-        elif continueSynonym:
-	    if string.find(line, 'INCLUDED') < 0:
-	        synonyms.append(line)
-
         elif continueTerm:
 
-	    # next line may be a continuation of the term
-	    # or synonyms.  ignore synonyms (for now)
+	    # next line may be a continuation of the term or synonym.
 
 	    if string.find(line, ';') >= 0 or \
 	       string.find(line, '*') == 0:
@@ -344,6 +343,10 @@ def processOMIM():
 
 	    else:
 	        term = term + ' ' + line
+
+        elif continueSynonym:
+	    if string.find(line, 'INCLUDED') < 0:
+	        synonyms.append(line)
 
         line = inFile.readline()
     inFile.close()
