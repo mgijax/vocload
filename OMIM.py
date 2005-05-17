@@ -54,7 +54,8 @@ synonymType = 'exact'
 omimNew = []		# OMIM ids that are in the new input file
 omimMGI = {}		# OMIM records (id/term) that are currently in MGI
 secondaryIds = {}
-translations = {}	# From-to-To term translations
+mimToMGI = {}	# OMIM Term/MGI Term mimToMGI
+mimToTerm = {}		# MIM ID/Term mimToMGI
 
 wordsToLower = ['And', 'Or', 'But', 'With', 'Without', 'Of', 'Of,', 'The', 'At', 'In', 'To', 'To,', 'On', 'For']
 
@@ -148,17 +149,27 @@ def cacheTranslations():
     # cache Term Translations
     #
 
-    global translations
+    global mimToMGI
 
     transFile = open(transFileName, 'r')
     for line in transFile.readlines():
 	tokens = string.split(line[:-1], '\t')
-	fromTerm = tokens[0]
-	toTerm = tokens[1]
-	translations[fromTerm] = toTerm
+	mim = tokens[0]
+	mimTerm = tokens[1]
+	mgiTerm = tokens[2]
+	mimToMGI[mimTerm] = mgiTerm
+	mimToTerm[mim] = mimTerm
     transFile.close()
 
 def convertTerm(term):
+
+    #
+    # mimToMGI
+    #
+
+    if mimToMGI.has_key(term):
+	newTerm = mimToMGI[term]
+	return newTerm
 
     # capitialize all words
     newTerm = string.capwords(term)
@@ -223,13 +234,6 @@ def convertTerm(term):
 	newTerm = regsub.gsub(w, wordsToSubstitute[w], newTerm)
 
     #
-    # translations
-    #
-
-    if translations.has_key(newTerm):
-	newTerm = translations[newTerm]
-
-    #
     # get rid of the @ character
     #
     newTerm = regsub.gsub('@', '', newTerm)
@@ -247,9 +251,23 @@ def writeOMIM(term, mim, synonyms):
 
     for s in synonyms:
 	newSyn = regsub.gsub(';;', '', s)
-	synFile.write(mim + DELIM + synonymType + DELIM + newSyn + CRT)
+	synFile.write(mim + DELIM + synonymType + DELIM + convertTerm(newSyn) + CRT)
 
     omimNew.append(mim)
+
+    #
+    # report any MIM terms in the translation file that no longer
+    # match the original MIM term in the new OMIM file.
+    #
+
+    if mimToTerm.has_key(mim):
+	if term != mimToTerm[mim]:
+	    print '**************'
+	    print 'OMIM ID: ' + mim
+	    print 'OMIM Term: ' + term
+	    print 'OMIM Term in MGI translation file: ' + mimToTerm[mim]
+	    print '**************'
+
 
 def processOMIM():
 
@@ -318,8 +336,7 @@ def processOMIM():
 	    # or synonyms.  ignore synonyms (for now)
 
 	    if string.find(line, ';') >= 0 or \
-	       string.find(line, '*') == 0 or \
-	       string.find(line, 'INCLUDED') >= 0:
+	       string.find(line, '*') == 0:
 	        continueTerm = 0
 	        if continueSynonym:
 	            synonyms.append(line)
