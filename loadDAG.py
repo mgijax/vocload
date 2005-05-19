@@ -45,6 +45,10 @@
 #
 # History
 #
+#
+# 05/17/2004 lec
+#	- TR 6806/enhanced DAG_Closure table.  Added _AncestorObject_key and _DescendentObject_key
+#
 # 04/02/2003 lec
 #	- added os.environ calls
 #	- changed bcp delimiter to pipe (|)
@@ -97,10 +101,10 @@ INSERT_EDGE = '''insert DAG_Edge (_Edge_key, _DAG_key, _Parent_key,
 
 BCP_INSERT_EDGE = '''%d|%d|%d|%d|%d|%d||\n'''
 
-INSERT_CLOSURE = '''insert DAG_Closure (_DAG_key, _Ancestor_key, _Descendent_key)
-    values (%d, %d, %d)'''
+INSERT_CLOSURE = '''insert DAG_Closure (_DAG_key, _Ancestor_key, _Descendent_key, _AncestorObject_key, _DescendentObject_key)
+    values (%d, %d, %d, %d, %d)'''
 
-BCP_INSERT_CLOSURE = '''%d|%d|%d||\n'''
+BCP_INSERT_CLOSURE = '''%d|%d|%d|%d|%d||\n'''
 
 ###--- Classes ---###
 
@@ -339,14 +343,12 @@ class DAGLoad:
         #   Given time, it probably would be worthwhile to convert
         #   this over to use BCP files, thus improving efficiency.
 
-        self.log.writeline (vocloadlib.timestamp (
-            'Full DAG Load Start:'))
+        self.log.writeline (vocloadlib.timestamp ( 'Full DAG Load Start:'))
 
         # delete existing information for the structure of this DAG.
         count = vocloadlib.countNodes (self.dag_key)
         vocloadlib.deleteDagComponents (self.dag_key, self.log)
-        self.log.writeline ('   deleted all (%d) remaining nodes' % \
-            count)
+        self.log.writeline ('   deleted all (%d) remaining nodes' % count)
 
         # load dictionaries of labels and term IDs for the vocab which
         # contains this DAG.  (for efficiency, rather than looking
@@ -366,10 +368,8 @@ class DAGLoad:
         # and edge tables.  We use the max() function to ensure that
         # we start with 0 if getMax() returns None.
 
-        self.max_node_key = max(0, vocloadlib.getMax ('_Node_key',
-            'DAG_Node'))
-        self.max_edge_key = max(0, vocloadlib.getMax ('_Edge_key',
-            'DAG_Edge'))
+        self.max_node_key = max(0, vocloadlib.getMax ('_Node_key', 'DAG_Node'))
+        self.max_edge_key = max(0, vocloadlib.getMax ('_Edge_key', 'DAG_Edge'))
 
         # We need to keep track of which nodes we've added to DAG_Node
         # so we'll use a dictionary to remember which keys we add:
@@ -387,8 +387,7 @@ class DAGLoad:
             edge_label = record['edge_label']
             parentID = string.rstrip(record['parentID'])
 
-            # check that IDs and labels are valid, and look up
-            # the corresponding keys:
+            # check that IDs and labels are valid, and look up the corresponding keys:
 
             errors = [] # list of strings (data errors found)
 
@@ -397,8 +396,7 @@ class DAGLoad:
             if not childID:
                 errors.append ('Child ID is required')
             elif not ids.has_key (childID):
-                errors.append ('Unknown child ID %s' % \
-                    childID)
+                errors.append ('Unknown child ID %s' % childID)
             else:
                 [termKey, isObsolete, term, termFound] = ids[childID]
                 child_key = termKey
@@ -412,8 +410,7 @@ class DAGLoad:
                     self.roots.append (child_key)
             elif not ids.has_key (parentID):
                 parent_key = None
-                errors.append ('Unknown parent ID %s' % \
-                    parentID)
+                errors.append ('Unknown parent ID %s' % parentID)
             else:
                 [termKey, isObsolete, term, termFound] = ids[parentID]
                 parent_key = termKey
@@ -425,8 +422,7 @@ class DAGLoad:
             if not node_label:
                 node_label_key = vocloadlib.NOT_SPECIFIED
             elif not labels.has_key (node_label):
-                errors.append ('Unknown node label "%s"' % \
-                    node_label)
+                errors.append ('Unknown node label "%s"' % node_label)
             else:
                 node_label_key = labels[node_label]
 
@@ -436,8 +432,7 @@ class DAGLoad:
             if not edge_label:
                 edge_label_key = vocloadlib.NOT_SPECIFIED
             elif not labels.has_key (edge_label):
-                errors.append ('Unknown edge label "%s"' % \
-                    edge_label)
+                errors.append ('Unknown edge label "%s"' % edge_label)
             else:
                 edge_label_key = labels[edge_label]
 
@@ -478,14 +473,11 @@ class DAGLoad:
 
             if not self.objToNode.has_key (child_key):
                 self.max_node_key = self.max_node_key + 1
-                self.objToNode [child_key] = \
-                        self.max_node_key
+                self.objToNode [child_key] = self.max_node_key
 
-            if parent_key and \
-                not self.objToNode.has_key (parent_key):
+            if parent_key and not self.objToNode.has_key (parent_key):
                 self.max_node_key = self.max_node_key + 1
-                self.objToNode [parent_key] = \
-                        self.max_node_key
+                self.objToNode [parent_key] = self.max_node_key
 
             # if we haven't already added a node record for this
             # child, then we need to add one now
@@ -509,8 +501,7 @@ class DAGLoad:
         # and update the database accordingly.
 
         self.updateClosure()
-        self.log.writeline (vocloadlib.timestamp (
-            'Full DAG Load Stop:'))
+        self.log.writeline (vocloadlib.timestamp ('Full DAG Load Stop:'))
         return
 
     def getNodeKey (self,
@@ -555,44 +546,37 @@ class DAGLoad:
 
         # first, delete the existing closure for this DAG:
 
-        vocloadlib.nl_sqlog ('''delete from DAG_Closure
-                                where _DAG_key=%d''' % self.dag_key,
-                                self.log)
+        vocloadlib.nl_sqlog ('delete from DAG_Closure where _DAG_key=%d' % self.dag_key, self.log)
 
-        # convert all object keys to their respective node keys, and
         # build the dag as a list of lists where:
-        #   dag[0] = list of parent-less node keys
-        #   dag[n] = list of child nodes of node n, for n>0
+        #   dag[0] = list of parent-less term keys
+        #   dag[n] = list of child terms of term n, for n>0
 
-        dag = [ map (self.getNodeKey, self.roots) ]
-
+        dag = [self.roots]
         dag = dag + [ [] ] * self.max_node_key
 
         for (object_key, children) in self.childrenOf.items():
             if object_key:
-                dag[self.getNodeKey(object_key)] = \
-                    map (self.getNodeKey, children)
+                dag[object_key] = children
 
         # now actually compute the closure...
 
-        self.log.writeline (vocloadlib.timestamp (
-            'Start Closure Computation: '))
+        self.log.writeline (vocloadlib.timestamp ('Start Closure Computation: '))
         closure = getClosure (dag)
-        self.log.writeline (vocloadlib.timestamp (
-            'Stop Closure Computation: '))
+        self.log.writeline (vocloadlib.timestamp ('Stop Closure Computation: '))
 
-        # and add each ancestor-descendant edge to the database:
+        # and add each ancestor-descendant edge to the database.
+	# we store both the _Node_key and the _Term_key for the Ancestor and Descendent in the DAG_Closure table
+	# so, we need to translate each _Term_key to its appropriate _Node_key
 
         for (node, children) in closure.items():
             if node > 0:
                for child in children:
                    if DEBUG:
-                      self.log.writeline (INSERT_CLOSURE % ( \
-                           self.dag_key, node, child) )
+                      self.log.writeline (INSERT_CLOSURE % ( self.dag_key, self.getNodeKey(node), self.getNodeKey(child), node, child) )
                    # write the BCP file 
                    self.loadClosureBCP=1
-                   self.dagClosureBCPFile.write (BCP_INSERT_CLOSURE % ( \
-                                                 self.dag_key, node, child) )
+                   self.dagClosureBCPFile.write (BCP_INSERT_CLOSURE % (self.dag_key, self.getNodeKey(node), self.getNodeKey(child), node, child) )
 
         self.log.writeline (vocloadlib.timestamp ('Closure stop:'))
         return
@@ -702,8 +686,7 @@ def getClosure (
             # closure of the whole DAG)
 
     closure = {}    # the closure of the DAG, as computed so far
-            #   closure[i] = list of keys of descendants of
-            #       the node with key i
+            #   closure[i] = list of keys of descendants of the node with key i
 
     getNodeClosure (dag, start, closure)
     return closure
@@ -757,7 +740,7 @@ if __name__ == '__main__':
 
     mode = 'full'
     log = Log.Log ()
-    [ server, database, username, password ] = args[:4]
+    [ server, database, username, passwordfilename ] = args[:4]
     [ dag_key, input_file ] = args[4:]
     dag_key = string.atoi (dag_key)
 
@@ -776,7 +759,8 @@ if __name__ == '__main__':
     if noload:
         log.writeline ('Operating in NO-LOAD mode')
 
+    password = string.strip(open(passwordfilename, 'r').readline())
     vocloadlib.setupSql (server, database, username, password)
-    load = DAGLoad (input_file, mode, dag_key, log)
+    load = DAGLoad (input_file, mode, dag_key, log, passwordfilename)
     load.go()
     vocloadlib.unsetupSql ()
