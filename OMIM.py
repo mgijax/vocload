@@ -54,8 +54,8 @@ synonymType = 'exact'
 omimNew = []		# OMIM ids that are in the new input file
 omimMGI = {}		# OMIM records (id/term) that are currently in MGI
 secondaryIds = {}
-mimToMGI = {}	# OMIM Term/MGI Term mimToMGI
-mimToTerm = {}		# MIM ID/Term mimToMGI
+mimTermToMGI = {}	# OMIM Term/MGI Term mimToMGI
+mimWordToMGI = {}
 
 wordsToLower = ['And', 'Or', 'But', 'With', 'Without', 'Of', 'Of,', 'The', 'At', 'In', 'To', 'To,', 'On', 'For']
 
@@ -149,7 +149,7 @@ def cacheTranslations():
     # cache Term Translations
     #
 
-    global mimToMGI
+    global mimTermToMGI, mimWordToMGI
 
     transFile = open(transFileName, 'r')
     for line in transFile.readlines():
@@ -158,7 +158,6 @@ def cacheTranslations():
 	mimTerm = tokens[1]
 	mgiTerm = tokens[2]
 	mimToMGI[mimTerm] = mgiTerm
-	mimToTerm[mim] = mimTerm
     transFile.close()
 
 def convertTerm(term):
@@ -254,20 +253,6 @@ def writeOMIM(term, mim, synonyms):
 	synFile.write(mim + DELIM + synonymType + DELIM + convertTerm(newSyn) + CRT)
 
     omimNew.append(mim)
-
-    #
-    # report any MIM terms in the translation file that no longer
-    # match the original MIM term in the new OMIM file.
-    #
-
-    if mimToTerm.has_key(mim):
-	if term != mimToTerm[mim]:
-	    print '**************'
-	    print 'OMIM ID: ' + mim
-	    print 'OMIM Term: ' + term
-	    print 'OMIM Term in MGI translation file: ' + mimToTerm[mim]
-	    print '**************'
-
 
 def processOMIM():
 

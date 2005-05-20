@@ -65,6 +65,7 @@ import vocloadlib
 import html
 
 DEBUG = 0
+mgiType = os.environ['MGITYPE']
 
 USAGE = '''Usage: %s [-f|-i][-l <file>] <server> <db> <user> <pwd> <key> <input>
     -f | -i : full load or incremental load? (default is full)
@@ -101,10 +102,10 @@ INSERT_EDGE = '''insert DAG_Edge (_Edge_key, _DAG_key, _Parent_key,
 
 BCP_INSERT_EDGE = '''%d|%d|%d|%d|%d|%d||\n'''
 
-INSERT_CLOSURE = '''insert DAG_Closure (_DAG_key, _Ancestor_key, _Descendent_key, _AncestorObject_key, _DescendentObject_key)
-    values (%d, %d, %d, %d, %d)'''
+INSERT_CLOSURE = '''insert DAG_Closure (_DAG_key, _MGIType_key, _Ancestor_key, _Descendent_key, _AncestorObject_key, _DescendentObject_key)
+    values (%d, %s, %d, %d, %d, %d)'''
 
-BCP_INSERT_CLOSURE = '''%d|%d|%d|%d|%d||\n'''
+BCP_INSERT_CLOSURE = '''%d|%s|%d|%d|%d|%d||\n'''
 
 ###--- Classes ---###
 
@@ -573,10 +574,10 @@ class DAGLoad:
             if node > 0:
                for child in children:
                    if DEBUG:
-                      self.log.writeline (INSERT_CLOSURE % ( self.dag_key, self.getNodeKey(node), self.getNodeKey(child), node, child) )
+                      self.log.writeline (INSERT_CLOSURE % ( self.dag_key, mgiType, self.getNodeKey(node), self.getNodeKey(child), node, child) )
                    # write the BCP file 
                    self.loadClosureBCP=1
-                   self.dagClosureBCPFile.write (BCP_INSERT_CLOSURE % (self.dag_key, self.getNodeKey(node), self.getNodeKey(child), node, child) )
+                   self.dagClosureBCPFile.write (BCP_INSERT_CLOSURE % (self.dag_key, mgiType, self.getNodeKey(node), self.getNodeKey(child), node, child) )
 
         self.log.writeline (vocloadlib.timestamp ('Closure stop:'))
         return
