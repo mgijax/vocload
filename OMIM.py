@@ -46,6 +46,7 @@ import db
 
 DELIM = '\t'
 CRT = '\n'
+TERMTYPE = 'T'
 
 activeStatus = 'current'
 obsoleteStatus = 'obsolete'
@@ -54,47 +55,8 @@ synonymType = 'exact'
 omimNew = []		# OMIM ids that are in the new input file
 omimMGI = {}		# OMIM records (id/term) that are currently in MGI
 secondaryIds = {}
-mimTermToMGI = {}	# OMIM Term/MGI Term mimToMGI
-mimWordToMGI = {}
-
-wordsToLower = ['And', 'Or', 'But', 'With', 'Without', 'Of', 'Of,', 'The', 'At', 'In', 'To', 'To,', 'On', 'For']
-
-wordsToUpper = ['Ii', 'Ii;', 'Ii,', 'Iii', 'Iii;', 'Iii,', 
-		'Iv', 'Iv;', 'Iv,', 'Iva', 'Ivb', 
-		'Ix', 'Ix;', 'Ix,', 'Ixvii,',
-		'Vi', 'Vii' , 'Vii;', 'Vii,', 'Viii', 'Viii,', 
-		'x', 'Xi,', 'Xiii,',
-		'I/Iix', 'Ii/Iii,', 'Iiia', 'Iiia;', 'Iiib', 'Iiic', 'Iiid', 
-		'Ia', 'Ia;', 'Ib', 'Ib;', 'Ic', 'Ic;', 'Id', 'Id;', 'Ie', 'Ie;', 'If', 'If;', 
-		'Ig', 'Ig;', 'Ih', 'Ih;', 'Ij', 'Ij;', 'Ik', 'Ik;', 'Il', 'Il;', 
-		'Iia', 'Iia,', 'Iib', 'Iic', 'Iic,', 'Iid', 'Iid,', 'Iie', 'Ixc', 
-		'Iia;', 'Iib;', 'Iic;', 'Iii;', 
-		'Xx', 'Xy', 
-		'Pa', 'Rh-Null', 'Uv', 
-		'Rna', 'Rna,', 'Dna', 'Dna,', 
-		'1a;', '1b;', '1c;', '1d;', '1e;', '1f', '1f;', '1g;', '1h;', '1i;', '1j;', '1k;', '1l;', '1m;', '1n;', 
-		'2a', '2a;', '2a1;', '2a2', '2a2;', '2b', '2b;', '2b1', '2b1;', '2b2', '2b2;', 
-		'2d;', '2e', '2e;', '2f', '2f;', '2g;', '2h', '2h;', '2i', '2i;', '2j', '2j;', '2k', '2l', 
-		'3a;', '4a;', '4b1', '4b2', '4c', '4d;', '(2a)', '11b;', '5a,', '5b,']
-
-wordsToSubstitute = {
-	';;' : '',
-	'Uv-' : 'UV-',
-	'-Coa' : '-CoA',
-	'Coq-' : 'CoQ-',
-	'Syndrome Vib' : 'Syndrome VIb',
-	'Group--Abh' : 'Group--ABH',
-	'Group--Abo' : 'Group--ABO',
-	'Group--Lke' : 'Group--LKE',
-	'Group--Mn' : 'Group--MN',
-	'Group--Ok' : 'Group--OK',
-	'Group--Ss' : 'Group--SS',
-	'Group--Ul' : 'Group--UL',
-	'Group--Yt' : 'Group--YT',
-	'Oncogene Trk' : 'Oncogene TRK',
-	'Atp-Binding' : 'ATP-Binding',
-	'-Like' : '-like'
-	}
+mimTermToMGI = {}	# TERMTYPE + OMIM ID + OMIM Term/MGI Term
+mimWordToMGI = {}	# bad word/good word
 
 def cacheExistingIds():
 
@@ -151,30 +113,39 @@ def cacheTranslations():
 
     global mimTermToMGI, mimWordToMGI
 
-    transFile = open(transFileName, 'r')
-    for line in transFile.readlines():
+    transTermFile = open(transTermFileName, 'r')
+    for line in transTermFile.readlines():
 	tokens = string.split(line[:-1], '\t')
-	mim = tokens[0]
-	mimTerm = tokens[1]
-	mgiTerm = tokens[2]
-	mimToMGI[mimTerm] = mgiTerm
-    transFile.close()
+	termType = tokens[0]
+	mim = tokens[1]
+	mimTerm = tokens[2]
+	mgiTerm = tokens[3]
+	mimTermToMGI[termType + mim + mimTerm] = mgiTerm
+    transTermFile.close()
 
-def convertTerm(term):
+    transWordFile = open(transWordFileName, 'r')
+    for line in transWordFile.readlines():
+	tokens = string.split(line[:-1], '\t')
+	mimWord = tokens[0]
+	mgiWord = tokens[1]
+	mimWordToMGI[mimWord] = mgiWord
+    transWordFile.close()
+
+def convertTerm(mim, term):
 
     #
-    # mimToMGI
+    # mimTermToMGI translations
     #
 
-    if mimToMGI.has_key(term):
-	newTerm = mimToMGI[term]
+    if mimTermToMGI.has_key(TERMTYPE + mim + term):
+	newTerm = mimTermToMGI[TERMTYPE + mim + term]
 	return newTerm
 
     # capitialize all words
     newTerm = string.capwords(term)
 
     #
-    # capitalize any word after certain punctuation
+    # capitalize any word after certain punctuation ("--", "-", "/")
     #
 
     newnewTerm = ''
@@ -190,14 +161,9 @@ def convertTerm(term):
 	elif newTerm[i] == '-' and newTerm[i+1] == '-':
 	    newnewTerm = newnewTerm + newTerm[i]
 
-	# -@
-
-	elif newTerm[i] == '-' and newTerm[i+1] == '@':
-	    newnewTerm = newnewTerm + newTerm[i]
-
 	# capitalize the word after any of these punctuation...
 
-	elif newTerm[i] in ['-', '/', '@']:
+	elif newTerm[i] in ['-', '/']:
 	    newnewTerm = newnewTerm + newTerm[i]
 	    capNextTerm = 1
 
@@ -206,13 +172,15 @@ def convertTerm(term):
 	    
     newTerm = newnewTerm
 
+    #
+    # substitute words in the mimWordToMGI dictionary
+    #
+
     tokens = string.split(newTerm, ' ')
     newTokens = []
     for t in tokens:
-        if t in wordsToLower:
-            newTokens.append(string.lower(t))
-        elif t in wordsToUpper:
-	    newTokens.append(string.upper(t))
+        if mimWordToMGI.has_key(t):
+            newTokens.append(mimWordToMGI[t])
 	else:
 	    newTokens.append(t)
     newTerm = string.join(newTokens, ' ')
@@ -227,12 +195,6 @@ def convertTerm(term):
     newTerm = string.join(newTokens, '; ')
 
     #
-    # words to substitute
-    #
-    for w in wordsToSubstitute.keys():
-	newTerm = regsub.gsub(w, wordsToSubstitute[w], newTerm)
-
-    #
     # get rid of the @ character
     #
     newTerm = regsub.gsub('@', '', newTerm)
@@ -243,14 +205,14 @@ def writeOMIM(term, mim, synonyms):
 
     global omimNew
 
-    outFile.write(convertTerm(term) + DELIM + mim + DELIM + activeStatus + DELIM + DELIM + DELIM + DELIM + DELIM)
+    outFile.write(convertTerm(mim, term) + DELIM + mim + DELIM + activeStatus + DELIM + DELIM + DELIM + DELIM + DELIM)
     if secondaryIds.has_key(mim):
 	outFile.write(string.join(secondaryIds[mim], '|'))
     outFile.write(CRT)
 
     for s in synonyms:
 	newSyn = regsub.gsub(';;', '', s)
-	synFile.write(mim + DELIM + synonymType + DELIM + convertTerm(newSyn) + CRT)
+	synFile.write(mim + DELIM + synonymType + DELIM + convertTerm(mim, newSyn) + CRT)
 
     omimNew.append(mim)
 
@@ -308,10 +270,6 @@ def processOMIM():
 	    if string.find(line, ';') < 0:
 	        continueTerm = 1
 
-	    if mim == '100100':
-		print line
-		print continueTerm
-
         elif string.find(line, '*FIELD* TX') == 0 or string.find(line, '*FIELD* MN') == 0:
 	    continueTerm = 0
 	    continueSynonym = 0
@@ -354,7 +312,8 @@ def processOMIM():
 inFileName = os.environ['OMIM_FILE']
 outFileName = os.environ['DATA_FILE']
 synFileName = os.environ['SYNONYM_FILE']
-transFileName = os.environ['TRANS_FILE']
+transTermFileName = os.environ['TRANSTERM_FILE']
+transWordFileName = os.environ['TRANSWORD_FILE']
 
 outFile = open(outFileName, 'w')
 synFile = open(synFileName, 'w')
