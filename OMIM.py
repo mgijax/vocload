@@ -211,8 +211,9 @@ def writeOMIM(term, mim, synonyms):
     outFile.write(CRT)
 
     for s in synonyms:
-	newSyn = regsub.gsub(';;', '', string.strip(s))
-	synFile.write(mim + DELIM + synonymType + DELIM + convertTerm(mim, newSyn) + CRT)
+	s = string.strip(s)
+	if len(s) > 0:
+	    synFile.write(mim + DELIM + synonymType + DELIM + convertTerm(mim, s) + CRT)
 
     omimNew.append(mim)
 
@@ -267,12 +268,14 @@ def processOMIM():
 
 	    term = term + string.join(tokens[1:], ' ')
 
-	    # keep reading until the next field indicator or a ;; or a INCLUDE is found, signifying the synonyms
+	    # keep reading until the next field indicator or ; or ;; or an INCLUDE is found, 
+	    # signifying the synonyms section
 
             line = inFile.readline()
 	    line = line[:-1]
 
-	    while string.find(line, ';;') < 0 \
+	    while string.find(term, ';') < 0 \
+	    		and string.find(line, ';;') < 0 \
 			and string.find(line, '*FIELD* TX') < 0 \
 			and string.find(line, '*FIELD* MN') < 0 \
 			and string.find(line, 'INCLUDED') < 0:
@@ -282,6 +285,7 @@ def processOMIM():
 	        line = line[:-1]
 
 	    # read all synonyms into one string, then split on ;;
+
 	    while string.find(line, '*FIELD* TX') < 0 and string.find(line, '*FIELD* MN') < 0:
 	        if string.find(line, 'INCLUDED') < 0:
 		    synonym = synonym + line + ' '
