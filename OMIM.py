@@ -211,7 +211,7 @@ def writeOMIM(term, mim, synonyms):
     outFile.write(CRT)
 
     for s in synonyms:
-	newSyn = regsub.gsub(';;', '', s)
+	newSyn = regsub.gsub(';;', '', string.strip(s))
 	synFile.write(mim + DELIM + synonymType + DELIM + convertTerm(mim, newSyn) + CRT)
 
     omimNew.append(mim)
@@ -224,11 +224,11 @@ def processOMIM():
 
     mim = ''
     term = ''
+    synonym = ''
     synonyms = []
-    continueTerm = 0
-    continueSynonym = 1
 
     inFile = open(inFileName, 'r')
+
     line = inFile.readline()
     while line:
 
@@ -245,17 +245,17 @@ def processOMIM():
             line = inFile.readline()
 	    mim = string.strip(line)
 	    term = ''
+	    synonym = ''
 	    synonyms = []
-	    continueTerm = 0
-	    continueSynonym = 1
 
         # the term itself
 
         elif string.find(line, '*FIELD* TI') == 0:
 
+	    # the next line has the data
+
             line = inFile.readline()
-            line = line[:-1]
-	    tokens = string.split(line, ' ')
+	    tokens = string.split(line[:-1], ' ')
 
 	    # we're only interested in disease terms
 	    # exclude all other entries
@@ -267,31 +267,31 @@ def processOMIM():
 
 	    term = term + string.join(tokens[1:], ' ')
 
-	    if string.find(line, ';') < 0:
-	        continueTerm = 1
+	    # keep reading until the next field indicator or a ;; or a INCLUDE is found, signifying the synonyms
 
-        elif string.find(line, '*FIELD* TX') == 0 or string.find(line, '*FIELD* MN') == 0:
-	    continueTerm = 0
-	    continueSynonym = 0
+            line = inFile.readline()
+	    line = line[:-1]
 
-        elif continueTerm:
+	    while string.find(line, ';;') < 0 \
+			and string.find(line, '*FIELD* TX') < 0 \
+			and string.find(line, '*FIELD* MN') < 0 \
+			and string.find(line, 'INCLUDED') < 0:
 
-	    # next line may be a continuation of the term or synonym.
-
-	    if string.find(line, ';') >= 0 or \
-	       string.find(line, '*') == 0:
-	        continueTerm = 0
-	        if continueSynonym and string.find(line, 'INCLUDED') < 0:
-	            synonyms.append(line)
-
-	    else:
 	        term = term + ' ' + line
+                line = inFile.readline()
+	        line = line[:-1]
 
-        elif continueSynonym:
-	    if string.find(line, 'INCLUDED') < 0:
-	        synonyms.append(line)
+	    # read all synonyms into one string, then split on ;;
+	    while string.find(line, '*FIELD* TX') < 0 and string.find(line, '*FIELD* MN') < 0:
+	        if string.find(line, 'INCLUDED') < 0:
+		    synonym = synonym + line + ' '
+                line = inFile.readline()
+	        line = line[:-1]
+	    if len(synonym) > 0:
+                synonyms = string.split(synonym, ';;')
 
         line = inFile.readline()
+
     inFile.close()
 
     if len(term) > 0:
