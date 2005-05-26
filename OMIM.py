@@ -288,28 +288,7 @@ def processOMIM():
 
 	    #
 	    # read all potential synonyms into one string, then split on ;;
-	    # exclude any strings that contain "INCLUDE"
-	    #
-	    # Alias and Include terms are differentiated by a ;;
-	    # however OMIM does not print a ;; to differentiate between
-	    # the last Alias term and the first Include term
-	    # so the last Alias term will not be picked up
-	    # (Alias and Include terms can span multiple lines)
-	    #
-
-	    #
-	    # here's an example:
-	    #
-	    # 100070 ABDOMINAL AORTIC ANEURYSM
-	    # ;;AAA;;
-	    # AORTIC ANEURYSM, ABDOMINAL;;
-	    # ANEURYSM, ABDOMINAL AORTIC
-	    # ARTERIOMEGALY, INCLUDED;;
-	    # ANEURYSMS, PERIPHERAL, INCLUDED
-	    #
-	    # ANEURYSM, ABDOMINAL AORTIC is an Alias but we can't pick it up
-	    # because we don't know if it's an Alias or if it's part of the next
-	    # line, which is an Include.
+	    # exclude any strings that contain "INCLUDE".
 	    #
 
 	    while string.find(line, '*FIELD* TX') < 0 and string.find(line, '*FIELD* MN') < 0:
