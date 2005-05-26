@@ -226,6 +226,7 @@ def processOMIM():
     mim = ''
     term = ''
     synonym = ''
+    potentialsynonyms = []
     synonyms = []
 
     inFile = open(inFileName, 'r')
@@ -247,6 +248,7 @@ def processOMIM():
 	    mim = string.strip(line)
 	    term = ''
 	    synonym = ''
+	    potentialsynonyms = []
 	    synonyms = []
 
         # the term itself
@@ -287,12 +289,15 @@ def processOMIM():
 	    # read all synonyms into one string, then split on ;;
 
 	    while string.find(line, '*FIELD* TX') < 0 and string.find(line, '*FIELD* MN') < 0:
-	        if string.find(line, 'INCLUDED') < 0:
-		    synonym = synonym + line + ' '
+		synonym = synonym + line + ' '
                 line = inFile.readline()
 	        line = line[:-1]
+
 	    if len(synonym) > 0:
-                synonyms = string.split(synonym, ';;')
+                potentialsynonyms = string.split(synonym, ';;')
+		for s in potentialsynonyms:
+	            if string.find(s, 'INCLUDED') < 0:
+			synonyms.append(s)
 
         line = inFile.readline()
 
@@ -322,9 +327,9 @@ transWordFileName = os.environ['TRANSWORD_FILE']
 outFile = open(outFileName, 'w')
 synFile = open(synFileName, 'w')
 
-cacheExistingIds()
-cacheSecondaryIds()
-cacheTranslations()
+#cacheExistingIds()
+#cacheSecondaryIds()
+#cacheTranslations()
 processOMIM()
 
 outFile.close()
