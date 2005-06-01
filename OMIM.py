@@ -13,6 +13,8 @@
 # Input:
 #
 #	omim.txt
+#       OMIM.translation
+#	OMIM.special
 #
 # Output:
 #
@@ -41,27 +43,32 @@ import os
 import string
 import regsub
 import db
+import reportlib
 
-#globals
+# globals
 
 DELIM = '\t'
 CRT = '\n'
 TERMTYPE = 'T'
+PLACEHOLDERTERM = 'OMIM'
 
 activeStatus = 'current'
 obsoleteStatus = 'obsolete'
 synonymType = 'exact'
 
-omimNew = []		# OMIM ids that are in the new input file
+omimNew = {}		# OMIM Id:Term that are in the new input file
 omimMGI = {}		# OMIM records (id/term) that are currently in MGI
-secondaryIds = {}
-mimTermToMGI = {}	# TERMTYPE + OMIM ID + OMIM Term/MGI Term
-mimWordToMGI = {}	# bad word/good word
+secondaryIds = {}	# OMIM Ids and their secondary Ids (id:list of secondary ids)
+mimTermToMGI = {}	# TERMTYPE + OMIM ID + OMIM Term:MGI Term
+mimWordToMGI = {}	# bad word:good word
 
 def cacheExistingIds():
-
     #
-    # cache existing MIM ids so we can detect obsoleted vs. current terms
+    # Purpose: cache existing MIM ids so we can detect obsoleted vs. current terms
+    # Returns:
+    # Assumes:
+    # Effects: populates global omimMGI dictionary
+    # Throws:
     #
 
     global omimMGI
@@ -75,12 +82,14 @@ def cacheExistingIds():
         omimMGI[r['accID']] = r['term']
 
 def cacheSecondaryIds():
-
     #
-    # cache all secondary ids (those that have been "MOVED TO")
+    # Purpose: cache all secondary ids (those that have been "MOVED TO")
+    # Returns:
+    # Assumes:
+    # Effects: populates global secondaryIds, omimNew dictionaries
+    # Throws:
     #
 
-    global omimNew
     global secondaryIds
 
     inFile = open(inFileName, 'r')
@@ -99,16 +108,19 @@ def cacheSecondaryIds():
 	        if not secondaryIds.has_key(key):
 	            secondaryIds[key] = []
 	        secondaryIds[key].append(sid)
-	        omimNew.append(sid)
+		omimNew[sid] = PLACEHOLDERTERM
 
         line = inFile.readline()
 
     inFile.close()
 
 def cacheTranslations():
-
     #
-    # cache Term Translations
+    # Purpose: cache Term Translations
+    # Returns:
+    # Assumes:
+    # Effects: populates global mimTermToMGI and mimWordToMGI dictionaries
+    # Throws:
     #
 
     global mimTermToMGI, mimWordToMGI
@@ -132,13 +144,23 @@ def cacheTranslations():
     transWordFile.close()
 
 def convertTerm(mim, term):
+    #
+    # Purpose: convert OMIM term to MGI-case
+    # Parameter: mim, the OMIM id (string)
+    # Parameter: term, the OMIM term (string)
+    # Returns: the converted term (string)
+    # Assumes:
+    # Effects: 
+    # Throws:
+    #
 
     #
     # mimTermToMGI translations
     #
 
-    if mimTermToMGI.has_key(TERMTYPE + mim + term):
-	newTerm = mimTermToMGI[TERMTYPE + mim + term]
+    translationKey = TERMTYPE + mim + term
+    if mimTermToMGI.has_key(translationKey):
+	newTerm = mimTermToMGI[translationKey]
 	return newTerm
 
     # capitialize all words
@@ -202,6 +224,17 @@ def convertTerm(mim, term):
     return newTerm
 
 def writeOMIM(term, mim, synonyms):
+    #
+    # Purpose: writes OMIM term to MGI-format file
+    # Parameter: term, the OMIM Term (string)
+    # Parameter: mim, the OMIM ID (string)
+    # Parameter: synonyms, the list of synonyms for the OMIM Term (list)
+    # Returns:
+    # Assumes:
+    # Effects: populates global omimNew dictionary
+    # Throws:
+    #
+
 
     global omimNew
 
@@ -215,9 +248,18 @@ def writeOMIM(term, mim, synonyms):
 	if len(s) > 0:
 	    synFile.write(mim + DELIM + synonymType + DELIM + convertTerm(mim, s) + CRT)
 
-    omimNew.append(mim)
+    # cache the new OMIM ID/Term
+
+    omimNew[mim] = term
 
 def processOMIM():
+    #
+    # Purpose: process the OMIM input file
+    # Returns:
+    # Assumes:
+    # Effects: 
+    # Throws:
+    #
 
     #
     # process each OMIM that we want to load as a vocabulary term
@@ -314,8 +356,64 @@ def processOMIM():
     #
 
     for m in omimMGI.keys():
-        if m not in omimNew:
+        if not omimNew.has_key(m):
             outFile.write(omimMGI[m] + DELIM + m + DELIM + obsoleteStatus + DELIM + DELIM + DELIM + DELIM + DELIM + CRT)
+
+def processQC1():
+    #
+    # Purpose: 
+    # Returns:
+    # Assumes:
+    # Effects:
+    # Throws:
+    #
+
+    qc1Title = 'OMIM Terms in the OMIM.translation file that do not exist in the new OMIM file'
+    qc1FileName = os.environ['QC1_FILE']
+    qc1File = reportlib.init(qc1FileName, title = qc1Title, outputdir = os.environ['RUNTIME_DIR'])
+
+    transTermFile = open(transTermFileName, 'r')
+    for line in transTermFile.readlines():
+	tokens = string.split(line[:-1], '\t')
+	termType = tokens[0]
+	mim = tokens[1]
+	mimTerm = tokens[2]
+
+	if termType != TERMTYPE:
+	    continue
+
+	if omimNew.has_key(mim):
+	    if omimNew[mim] != mimTerm:
+		qc1File.write(mim + DELIM + mimTerm + DELIM + omimMGI[mim] + CRT)
+
+    transTermFile.close()
+    reportlib.trailer(qc1File)
+    reportlib.finish_nonps(qc1File)
+
+def processQC2():
+    #
+    # Purpose: 
+    # Returns:
+    # Assumes:
+    # Effects:
+    # Throws:
+    #
+
+    qc2Title = 'OMIM IDs in the OMIM.translation file that do not exist in the new OMIM file'
+    qc2FileName = os.environ['QC2_FILE']
+    qc2File = reportlib.init(qc2FileName, title = qc2Title, outputdir = os.environ['RUNTIME_DIR'])
+
+    transTermFile = open(transTermFileName, 'r')
+    for line in transTermFile.readlines():
+	tokens = string.split(line[:-1], '\t')
+	mim = tokens[1]
+
+	if not omimNew.has_key(mim):
+	    qc2File.write(mim + DELIM + mimTerm + DELIM + omimMGI[mim] + CRT)
+
+    transTermFile.close()
+    reportlib.trailer(qc2File)
+    reportlib.finish_nonps(qc2File)
 
 #
 # Main
@@ -334,6 +432,8 @@ cacheExistingIds()
 cacheSecondaryIds()
 cacheTranslations()
 processOMIM()
+processQC1()
+processQC2()
 
 outFile.close()
 synFile.close()
