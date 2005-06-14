@@ -407,9 +407,10 @@ def processQC2():
     for line in transTermFile.readlines():
 	tokens = string.split(line[:-1], '\t')
 	mim = tokens[1]
+	mimTerm = tokens[2]
 
 	if not omimNew.has_key(mim):
-	    qc2File.write(mim + DELIM + mimTerm + DELIM + omimMGI[mim] + CRT)
+	    qc2File.write(mim + DELIM + mimTerm + CRT)
 
     transTermFile.close()
     reportlib.trailer(qc2File)
