@@ -128,6 +128,7 @@ db.sql('select n._Node_key ' + \
                   't._Term_key = n._Object_key and ' + \
                   'n._DAG_key = ' + str(dagKey), None)
 db.sql('create index idx1 on #Nodes(_Node_key)', None)
+
 #
 #  Update the label key for each of the identified nodes using the label key
 #  for a header label.
