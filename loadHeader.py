@@ -91,24 +91,21 @@ vocabKey = results[0]['_Vocab_key']
 #
 #  Get the DAG key for the current vocabulary.
 #
-cmds = []
-cmds.append('select d._DAG_key ' + \
+db.sql('select d._DAG_key ' + \
             'from VOC_VocabDAG v, DAG_DAG d ' + \
             'where v._Vocab_key = ' + str(vocabKey) + ' and ' + \
                   'v._DAG_key = d._DAG_key and ' + \
-                  'd.name = "' + vocabName + '"')
+                  'd.name = "' + vocabName + '"', None)
+dagKey = results[0]['_DAG_key']
 
 #
 #  Get the label key for a "Header" label.
 #
-cmds.append('select _Label_key ' + \
+db.sql('select _Label_key ' + \
             'from DAG_Label ' + \
-            'where label = "Header"')
+            'where label = "Header"', None)
 
-results = db.sql(cmds, 'auto')
-
-dagKey = results[0][0]['_DAG_key']
-labelKey = results[1][0]['_Label_key']
+labelKey = results[0]['_Label_key']
 
 print 'Vocab key: %d' % vocabKey
 print 'DAG key: %d' % dagKey
@@ -118,8 +115,7 @@ print 'Label key: %d' % labelKey
 #  Find all the DAG nodes for the accession IDs in the VOC_Header table
 #  and save them in a temp table.
 #
-cmds = []
-cmds.append('select n._Node_key ' + \
+db.sql('select n._Node_key ' + \
             'into #Nodes ' + \
             'from ' + dbName_RADAR + '..VOC_Header h, ' + \
                  'ACC_Accession a, ' + \
@@ -130,22 +126,28 @@ cmds.append('select n._Node_key ' + \
                   'a._Object_key = t._Term_key and ' + \
                   't._Vocab_key = ' + str(vocabKey) + ' and ' + \
                   't._Term_key = n._Object_key and ' + \
-                  'n._DAG_key = ' + str(dagKey))
-
-cmds.append('select count(*) "count" from #Nodes')
-
+                  'n._DAG_key = ' + str(dagKey), None)
 #
 #  Update the label key for each of the identified nodes using the label key
 #  for a header label.
 #
-cmds.append('update DAG_Node ' + \
+db.sql('update DAG_Node ' + \
             'set _Label_key = ' + str(labelKey) + ' ' + \
             'from DAG_Node n, #Nodes t ' + \
-            'where n._Node_key = t._Node_key')
+            'where n._Node_key = t._Node_key', None)
 
-results = db.sql(cmds, 'auto')
+db.sql('update DAG_Closure ' + \
+            'set _AncestorLabel_key = ' + str(labelKey) + ' ' + \
+            'from DAG_Closure n, #Nodes t ' + \
+            'where n._Ancestor_key = t._Node_key', None)
 
-print 'Number of header nodes identified: %d' % results[1][0]['count']
+db.sql('update DAG_Closure ' + \
+            'set _DescendentLabel_key = ' + str(labelKey) + ' ' + \
+            'from DAG_Closure n, #Nodes t ' + \
+            'where n._Descendent_key = t._Node_key', None)
+
+results = db.sql('select count(*) "count" from #Nodes', 'auto')
+print 'Number of header nodes identified: %d' % results[0]['count']
 
 db.useOneConnection(0)
 sys.exit(0)

@@ -102,10 +102,10 @@ INSERT_EDGE = '''insert DAG_Edge (_Edge_key, _DAG_key, _Parent_key,
 
 BCP_INSERT_EDGE = '''%d|%d|%d|%d|%d|%d||\n'''
 
-INSERT_CLOSURE = '''insert DAG_Closure (_DAG_key, _MGIType_key, _Ancestor_key, _Descendent_key, _AncestorObject_key, _DescendentObject_key)
+INSERT_CLOSURE = '''insert DAG_Closure (_DAG_key, _MGIType_key, _Ancestor_key, _Descendent_key, _AncestorObject_key, _DescendentObject_key, _AncestorLabel_key, _DescendentLabel_key)
     values (%d, %s, %d, %d, %d, %d)'''
 
-BCP_INSERT_CLOSURE = '''%d|%s|%d|%d|%d|%d||\n'''
+BCP_INSERT_CLOSURE = '''%d|%s|%d|%d|%d|%d|%d|%d||\n'''
 
 ###--- Classes ---###
 
@@ -219,6 +219,7 @@ class DAGLoad:
         self.mgitype_key = vocloadlib.VOCABULARY_TERM_TYPE
 
         self.objToNode = {} # object key -> node key
+	self.nodeLabel = {} # node key -> label key
         self.childrenOf = {}    # parent key -> [ children's keys ]
         self.max_node_key = None    # max assigned _Node_key
         self.max_edge_key = None    # max assigned _Edge_key
@@ -234,19 +235,28 @@ class DAGLoad:
         # Effects: nothing
         # Throws: raises 'error' if any exceptions occur
 
-        try:
-           self.openDiscrepancyFile()
-           if self.mode == 'full':
-               self.goFull()
-           else:
-               self.goIncremental()
-           self.closeDiscrepancyFile()
-           self.closeBCPFiles()
-           self.loadBCPFiles()
-        except:
-           # raise 'error' with whatever the descriptive message
-           # was originally
-           raise error, sys.exc_value
+        self.openDiscrepancyFile()
+        if self.mode == 'full':
+            self.goFull()
+        else:
+            self.goIncremental()
+        self.closeDiscrepancyFile()
+        self.closeBCPFiles()
+        self.loadBCPFiles()
+
+#        try:
+#           self.openDiscrepancyFile()
+#           if self.mode == 'full':
+#               self.goFull()
+#           else:
+#               self.goIncremental()
+#           self.closeDiscrepancyFile()
+#           self.closeBCPFiles()
+#           self.loadBCPFiles()
+#        except:
+#           # raise 'error' with whatever the descriptive message
+#           # was originally
+#           raise error, sys.exc_value
 
         self.log.writeline ('=' * 40)
 
@@ -485,9 +495,9 @@ class DAGLoad:
 
             child_node_key = self.objToNode [child_key]
             if not nodesAdded.has_key (child_node_key):
-                self.addNode (child_node_key, child_key,
-                    node_label_key)
+                self.addNode (child_node_key, child_key, node_label_key)
                 nodesAdded[child_node_key] = 1
+		self.nodeLabel [child_node_key] = node_label_key
 
             # finally, if this child has a parent then we need to
             # add the edge between them
@@ -574,10 +584,10 @@ class DAGLoad:
             if node > 0:
                for child in children:
                    if DEBUG:
-                      self.log.writeline (INSERT_CLOSURE % ( self.dag_key, mgiType, self.getNodeKey(node), self.getNodeKey(child), node, child) )
+                      self.log.writeline (INSERT_CLOSURE % ( self.dag_key, mgiType, self.getNodeKey(node), self.getNodeKey(child), node, child, self.nodeLabel[self.getNodeKey(node)], self.nodeLabel[self.getNodeKey(child)]) )
                    # write the BCP file 
                    self.loadClosureBCP=1
-                   self.dagClosureBCPFile.write (BCP_INSERT_CLOSURE % (self.dag_key, mgiType, self.getNodeKey(node), self.getNodeKey(child), node, child) )
+                   self.dagClosureBCPFile.write (BCP_INSERT_CLOSURE % (self.dag_key, mgiType, self.getNodeKey(node), self.getNodeKey(child), node, child, self.nodeLabel[self.getNodeKey(node)], self.nodeLabel[self.getNodeKey(child)]) )
 
         self.log.writeline (vocloadlib.timestamp ('Closure stop:'))
         return
