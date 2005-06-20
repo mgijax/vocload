@@ -91,19 +91,19 @@ vocabKey = results[0]['_Vocab_key']
 #
 #  Get the DAG key for the current vocabulary.
 #
-db.sql('select d._DAG_key ' + \
+results = db.sql('select d._DAG_key ' + \
             'from VOC_VocabDAG v, DAG_DAG d ' + \
             'where v._Vocab_key = ' + str(vocabKey) + ' and ' + \
                   'v._DAG_key = d._DAG_key and ' + \
-                  'd.name = "' + vocabName + '"', None)
+                  'd.name = "' + vocabName + '"', 'auto')
 dagKey = results[0]['_DAG_key']
 
 #
 #  Get the label key for a "Header" label.
 #
-db.sql('select _Label_key ' + \
+results = db.sql('select _Label_key ' + \
             'from DAG_Label ' + \
-            'where label = "Header"', None)
+            'where label = "Header"', 'auto')
 
 labelKey = results[0]['_Label_key']
 
@@ -127,6 +127,7 @@ db.sql('select n._Node_key ' + \
                   't._Vocab_key = ' + str(vocabKey) + ' and ' + \
                   't._Term_key = n._Object_key and ' + \
                   'n._DAG_key = ' + str(dagKey), None)
+db.sql('create index idx1 on #Nodes(_Node_key)', None)
 #
 #  Update the label key for each of the identified nodes using the label key
 #  for a header label.

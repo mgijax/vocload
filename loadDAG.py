@@ -235,28 +235,19 @@ class DAGLoad:
         # Effects: nothing
         # Throws: raises 'error' if any exceptions occur
 
-        self.openDiscrepancyFile()
-        if self.mode == 'full':
-            self.goFull()
-        else:
-            self.goIncremental()
-        self.closeDiscrepancyFile()
-        self.closeBCPFiles()
-        self.loadBCPFiles()
-
-#        try:
-#           self.openDiscrepancyFile()
-#           if self.mode == 'full':
-#               self.goFull()
-#           else:
-#               self.goIncremental()
-#           self.closeDiscrepancyFile()
-#           self.closeBCPFiles()
-#           self.loadBCPFiles()
-#        except:
-#           # raise 'error' with whatever the descriptive message
-#           # was originally
-#           raise error, sys.exc_value
+        try:
+           self.openDiscrepancyFile()
+           if self.mode == 'full':
+               self.goFull()
+           else:
+               self.goIncremental()
+           self.closeDiscrepancyFile()
+           self.closeBCPFiles()
+           self.loadBCPFiles()
+        except:
+           # raise 'error' with whatever the descriptive message
+           # was originally
+           raise error, sys.exc_value
 
         self.log.writeline ('=' * 40)
 
