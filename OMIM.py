@@ -167,7 +167,7 @@ def convertTerm(mim, term):
     newTerm = string.capwords(term)
 
     #
-    # capitalize any word after certain punctuation ("--", "-", "/")
+    # capitalize any word after certain punctuation ("--", "-", "/", "'")
     #
 
     newnewTerm = ''
@@ -185,7 +185,7 @@ def convertTerm(mim, term):
 
 	# capitalize the word after any of these punctuation...
 
-	elif newTerm[i] in ['-', '/']:
+	elif newTerm[i] in ["-", "/", "'", "@"]:
 	    newnewTerm = newnewTerm + newTerm[i]
 	    capNextTerm = 1
 
