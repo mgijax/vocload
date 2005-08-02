@@ -135,7 +135,11 @@ DELETE_NOTE = '''delete from MGI_Note where _Object_key = %d and _NoteType_key =
 DELETE_ALL_SYNONYMS ='''delete from MGI_Synonym where _Object_key = %d and _MGIType_key = %d'''
 
 UPDATE_TERM = '''update VOC_Term 
-	set term = "%s", isObsolete = %d, modification_date = getdate(), _ModifiedBy_key = 1001
+	set term = "%s", modification_date = getdate(), _ModifiedBy_key = 1001
+	where _Term_key = %d '''
+
+UPDATE_STATUS = '''update VOC_Term 
+	set isObsolete = %d, modification_date = getdate(), _ModifiedBy_key = 1001
 	where _Term_key = %d '''
 
 MERGE_TERMS = '''exec VOC_mergeTerms %d, %d'''
@@ -1077,17 +1081,23 @@ class TermLoad:
        # Finally, check term and status###########################################
        ###########################################################################
        fileIsObsoleteField = self.getIsObsolete ( record['status'] )
+
+       # If field is obsoleted, don't bother updating the term...
+       # In the case of OMIM, this would wipe out the "real" term.
+
        if ( record['term'] != dbRecord[0]['term'] ) or \
           ( fileIsObsoleteField != dbRecord[0]['isObsolete'] ):
-          # If either (or both) of the fields change, it's simpler and probably more
-          # efficient to just update both fields in 1 statement
-          vocloadlib.nl_sqlog ( UPDATE_TERM % ( vocloadlib.escapeDoubleQuotes(record['term']), fileIsObsoleteField, termKey ), self.log )
+          vocloadlib.nl_sqlog ( UPDATE_STATUS % ( fileIsObsoleteField, termKey ), self.log )
           recordChanged = 1
 
           # Now write report record if the term is obsoleted 
           # and the term has annotations associated with it
           if ( fileIsObsoleteField != dbRecord[0]['isObsolete'] ):
              obsoleteTermDiscrepancy = 1
+
+       elif ( record['term'] != dbRecord[0]['term'] ):
+          vocloadlib.nl_sqlog ( UPDATE_TERM % ( vocloadlib.escapeDoubleQuotes(record['term']), termKey ), self.log )
+          recordChanged = 1
 
        ###########################################################################
        # Now write report discrepancy record(s) if necessary######################
