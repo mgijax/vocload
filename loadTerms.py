@@ -48,6 +48,10 @@
 #
 # History
 #
+# lec	08/02/2005
+#	- added UPDATE_STATUS to separate the updating of the status from the term.
+#	- if updating the status to obsolete, then don't update the term
+#
 # lec	04/02/2003
 #	- TR 4564; added support for comments
 #	- changed GO_ROOT_ID to DAG_ROOT_ID and define an environment variable to store this value
