@@ -308,6 +308,10 @@ def processOMIM():
 	    if tokens[0][0] in ['*', '^']:
 	        continue
 
+	    # if the term has been removed, we don't want it
+            if string.find(line, ' REMOVED FROM DATABASE') > 0:
+		continue
+
 	    # the first token is a repeat of the MIM id, so ignore it
 
 	    term = term + string.join(tokens[1:], ' ')
