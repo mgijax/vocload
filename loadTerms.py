@@ -117,11 +117,11 @@ BCP_INSERT_TEXT = '''%d|%d|%s||\n'''
 
 INSERT_NOTE = '''insert MGI_Note (_Note_key, _Object_key, _MGIType_key, _NoteType_key)
     values (%d, %d, %s, %s)'''
-BCP_INSERT_NOTE = '''%d|%d|%s|%s||||||\n'''
+BCP_INSERT_NOTE = '''%d|%d|%s|%s||||\n'''
 
 INSERT_NOTECHUNK = '''insert MGI_NoteChunk (_Note_key, sequenceNum, note)
     values (%d, %d, "%s")'''
-BCP_INSERT_NOTECHUNK = '''%d|%d|%s||||||\n'''
+BCP_INSERT_NOTECHUNK = '''%d|%d|%s||||\n'''
 
 INSERT_SYNONYM ='''insert MGI_Synonym (_Synonym_key, _Object_key, _MGIType_key, _SynonymType_key, _Refs_key, synonym)
     values (%d, %d, %d, %d, %d, "%s")'''
