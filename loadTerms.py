@@ -1089,8 +1089,7 @@ class TermLoad:
        # If field is obsoleted, don't bother updating the term...
        # In the case of OMIM, this would wipe out the "real" term.
 
-       if ( record['term'] != dbRecord[0]['term'] ) or \
-          ( fileIsObsoleteField != dbRecord[0]['isObsolete'] ):
+       if ( fileIsObsoleteField != dbRecord[0]['isObsolete'] ):
           vocloadlib.nl_sqlog ( UPDATE_STATUS % ( fileIsObsoleteField, termKey ), self.log )
           recordChanged = 1
 
