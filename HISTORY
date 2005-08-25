@@ -1,3 +1,11 @@
+TAG: vocload-3-3-0-6
+DATE: 08/25/2005
+STAFF: lec
+RELEASE: A
+CHANGES:
+1) TR 3853/OMIM
+2) fix loadTerms.py
+
 TAG: vocload-3-3-0-5
 DATE: 08/24/2005
 STAFF: lec
