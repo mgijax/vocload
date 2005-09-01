@@ -15,6 +15,7 @@
 #	omim.txt
 #       OMIM.translation
 #	OMIM.special
+#	OMIM.exclude
 #
 # Output:
 #
@@ -59,6 +60,7 @@ synonymType = 'exact'
 omimNew = {}		# OMIM Id:Term that are in the new input file
 omimMGI = {}		# OMIM records (id/term) that are currently in MGI
 secondaryIds = {}	# OMIM Ids and their secondary Ids (id:list of secondary ids)
+excludedIds = []	# OMIM Ids that are to be excluded (skipped)
 mimTermToMGI = {}	# TERMTYPE + OMIM ID + OMIM Term:MGI Term
 mimWordToMGI = {}	# bad word:good word
 
@@ -142,6 +144,27 @@ def cacheTranslations():
 	mgiWord = tokens[1]
 	mimWordToMGI[mimWord] = mgiWord
     transWordFile.close()
+
+def cacheExcluded():
+    #
+    # Purpose: cache all excluded ids
+    # Returns:
+    # Assumes:
+    # Effects: populates global excludedIds
+    # Throws:
+    #
+
+    global excludedIds
+
+    excludedFile = open(excludedFileName, 'r')
+    line = excludedFile.readline()
+    while line:
+        line = line[:-1]
+	tokens = string.split(line, '\t')
+	id = tokens[0]
+	excludedIds.append(id)
+        line = excludedFile.readline()
+    excludedFile.close()
 
 def convertTerm(mim, term):
     #
@@ -308,6 +331,11 @@ def processOMIM():
 	    if tokens[0][0] in ['*', '^']:
 	        continue
 
+	    # if the term is in our excluded file, we don't want it
+
+	    if mim in excludedIds:
+		continue
+
 	    # if the term has been removed, we don't want it
             if string.find(line, ' REMOVED FROM DATABASE') > 0:
 		continue
@@ -429,6 +457,7 @@ outFileName = os.environ['DATA_FILE']
 synFileName = os.environ['SYNONYM_FILE']
 transTermFileName = os.environ['TRANSTERM_FILE']
 transWordFileName = os.environ['TRANSWORD_FILE']
+excludedFileName = os.environ['EXCLUDE_FILE']
 
 outFile = open(outFileName, 'w')
 synFile = open(synFileName, 'w')
@@ -436,6 +465,7 @@ synFile = open(synFileName, 'w')
 cacheExistingIds()
 cacheSecondaryIds()
 cacheTranslations()
+cacheExcluded()
 processOMIM()
 processQC1()
 processQC2()
