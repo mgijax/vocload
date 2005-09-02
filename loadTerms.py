@@ -127,10 +127,10 @@ INSERT_SYNONYM ='''insert MGI_Synonym (_Synonym_key, _Object_key, _MGIType_key, 
     values (%d, %d, %d, %d, %d, "%s")'''
 BCP_INSERT_SYNONYM ='''%d|%d|%d|%d|%d|%s||||\n'''
 
-INSERT_ACCESSION = '''insert ACC_Accession (_Accession_key, accID, prefixPart, numericPart,
-    _LogicalDB_key, _Object_key, _MGIType_key, private, preferred)
+INSERT_ACCESSION = '''insert ACC_Accession (_Accession_key, accID, prefixPart, numericPart, _LogicalDB_key, _Object_key, _MGIType_key, private, preferred)
     values (%d, "%s", "%s", %s, %d, %d, %d, %d, %d)'''
-BCP_INSERT_ACCESSION = '''%d|%s|%s|%s|%d|%d|%d|%d|%d||||\n'''
+BCP_INSERT_ACCESSION_NULL_NUMPART = '''%d|%s|%s||%d|%d|%d|%d|%d||||\n'''
+BCP_INSERT_ACCESSION_NUMPART = '''%d|%s|%s|%s|%d|%d|%d|%d|%d||||\n'''
 
 DELETE_TEXT = '''delete from VOC_Text where _Term_key = %d'''
 
@@ -365,6 +365,7 @@ class TermLoad:
 
         # open the discrepancy file
         self.accDiscrepFileName = os.environ['DISCREP_FILE']
+	print "Discrepancy filename: %s" % self.accDiscrepFileName
         self.accDiscrepFile     = open( self.accDiscrepFileName     , 'w')
 
         # now write HTML header information
@@ -711,19 +712,31 @@ class TermLoad:
 
         self.max_accession_key = self.max_accession_key + 1
         prefixPart, numericPart = accessionlib.split_accnum (accID)
-
+	#if numericPart == None:
+	    #numericPart = 'NULL'
         if self.isBCPLoad:
-           self.loadAccessionBCP = 1
-           self.accAccessionBCPFile.write (BCP_INSERT_ACCESSION % \
-                                          (self.max_accession_key, 
-                                          accID,
-                                          prefixPart,
-                                          numericPart,
-                                          self.logicalDBkey,
-                                          associatedTermKey,
-                                          self.mgitype_key,
-                                          self.isPrivate,
-                                          preferred) )
+	   self.loadAccessionBCP = 1
+	   if numericPart == None:
+	      self.accAccessionBCPFile.write (BCP_INSERT_ACCESSION_NULL_NUMPART  % \
+						(self.max_accession_key,
+                                              accID,
+                                              prefixPart,
+                                              self.logicalDBkey,
+                                              associatedTermKey,
+                                              self.mgitype_key,
+                                              self.isPrivate,
+                                              preferred) ) 
+	   else:
+	       self.accAccessionBCPFile.write (BCP_INSERT_ACCESSION_NUMPART  % \
+					      (self.max_accession_key, 
+					      accID,
+					      prefixPart,
+					      numericPart,
+					      self.logicalDBkey,
+					      associatedTermKey,
+					      self.mgitype_key,
+					      self.isPrivate,
+					      preferred) )
         else: # asserts self.isIncrementalLoad() or full load with on-line sql:
            vocloadlib.nl_sqlog (INSERT_ACCESSION % \
                    (self.max_accession_key, 
