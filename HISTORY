@@ -1,6 +1,11 @@
+DATE: 09/02/2005
+STAFF: sc
+RELEASE: A
+CHANGES: loadTerms.py - fixed to allow null numericPart in ACC_Accession.bcp
+
 TAG: vocload-snp-BP
 DATE: 09/02/2005
-STAFF: lec
+STAFF: sc
 RELEASE: A
 CHANGES: branch point tag
 
