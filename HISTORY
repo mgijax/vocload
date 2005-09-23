@@ -1,6 +1,13 @@
+TAG: vocload-snp-1
+DATE: 09/23/2005
+STAFF: sc
+RELEASE: A
+CHANGES:
+1) loadTerms.py - fixed bug that didn't allow null prefixPart
+
 TAG: vocload-snp-BP
 DATE: 09/02/2005
-STAFF: lec
+STAFF: sc
 RELEASE: A
 CHANGES: branch point tag
 
