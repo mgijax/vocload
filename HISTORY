@@ -1,7 +1,20 @@
+TAG: vocload-3-4-0-0
+DATE: 10/13/2005
+STAFF: sc
+RELEASE: 3.4 alpha
+CHANGES: merge of snp ranch to trunk
+
 DATE: 09/02/2005
 STAFF: sc
 RELEASE: A
 CHANGES: loadTerms.py - fixed to allow null numericPart in ACC_Accession.bcp
+
+TAG: vocload-snp-1
+DATE: 09/23/2005
+STAFF: sc
+RELEASE: A
+CHANGES:
+1) loadTerms.py - fixed bug that didn't allow null prefixPart
 
 TAG: vocload-snp-BP
 DATE: 09/02/2005
