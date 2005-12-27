@@ -1,3 +1,9 @@
+TAG: vocload-3-4-1-1
+DATE: 12/27/2005
+STAFF: lec
+CHANGES:
+1) GO.config, GO.rcd for new gene ontology data downloads directory
+
 TAG: vocload-tr7062-BP
 DATE: 12/15/2005
 STAFF: lec

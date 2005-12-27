@@ -17,7 +17,7 @@
 #
 
 RUNTIME_DIR = /data/loads/mgi/vocload/runTimeGO
-DATA_DIR = /data/downloads/genome-ftp.stanford.edu/pub/go/ontology
+DATA_DIR = /data/downloads/ftp.geneontology.org/pub/go/ontology
 
 [
         NAME = Molecular Function
@@ -39,6 +39,9 @@ DATA_DIR = /data/downloads/genome-ftp.stanford.edu/pub/go/ontology
 ]
 
 # $Log$
+# Revision 1.6  2005/04/13 17:35:41  lec
+# vocload-3-2-0-1
+#
 # Revision 1.5.4.1  2005/03/17 15:47:19  dbm
 # Migrate runTime and archive directories to /data/loads
 #
