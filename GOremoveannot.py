@@ -212,13 +212,14 @@ def process():
     db.sql('create clustered index idx_key on #obsolete(_Object_key)', None)
 
     results = db.sql('select m.symbol, m.name, ma.accID, goid = o.accID, o.term ' + \
-        'from #obsolete o, VOC_Annot a, VOC_Evidence e, MRK_Marker m, MRK_Acc_View ma ' + \
+        'from #obsolete o, VOC_Annot a, VOC_Evidence e, MRK_Marker m, ACC_Accession ma ' + \
         'where a._AnnotType_key = 1000 ' + \
         'and a._Term_key = o._Object_key ' + \
         'and a._Annot_key = e._Annot_key ' + \
         'and e._Refs_key in (59154,61933,73199,73197) ' + \
         'and a._Object_key = m._Marker_key ' + \
 	'and a._Object_key = ma._Object_key ' + \
+	'and ma._MGIType_key = 2 ' + \
 	'and ma._LogicalDB_key = 1 ' + \
 	'and ma.prefixPart = "MGI:" ' + \
 	'and ma.preferred = 1', 'auto')
@@ -250,6 +251,9 @@ process()
 exit(0)
 
 # $Log$
+# Revision 1.8  2005/05/11 13:38:40  lec
+# added J:72245
+#
 # Revision 1.7  2005/02/08 16:00:26  lec
 # removed open of other
 #
