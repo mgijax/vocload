@@ -64,7 +64,8 @@
 
 import sys
 import os
-import GOVocab
+import GOVocabText
+#import GOVocabOBO
 import rcdlib
 
 ParseError = 'Error parsing input file:  '
@@ -75,13 +76,18 @@ rcdFile = os.environ['RCD_FILE']
 try:
     errLog = open(logFile, 'w')
     config = rcdlib.RcdFile(rcdFile, rcdlib.Rcd, 'NAME')
+    fileFormat = os.environ['ONTOLOGY_FILE_FORMAT']
 
     for (key, dag) in config.items():
 	fileName = dag['ONTOLOGY_FILE']
         fp = open(fileName, 'r')
 
         try:
-            GO = GOVocab.GOVocab()
+	    if fileFormat == "Text":
+              GO = GOVocabText.GOVocabText()
+#	    else:
+#	      GO = GOVocabOBO.GOVocabOBO()
+
 	    GO.initializeRegExps ("GO")
             dag = GO.parseGOfile(fp)
             fp.close()
@@ -103,6 +109,9 @@ errLog.close()
 sys.exit(0)
 
 # $Log$
+# Revision 1.4  2003/04/18 14:45:35  lec
+# MGI 2.96
+#
 # Revision 1.3  2003/04/02 18:54:48  lec
 # TR 4564
 #

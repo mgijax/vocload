@@ -42,7 +42,7 @@
 import sys
 import os
 import string
-import regsub
+import re
 import db
 import reportlib
 
@@ -242,7 +242,7 @@ def convertTerm(mim, term):
     #
     # get rid of the @ character
     #
-    newTerm = regsub.gsub('@', '', newTerm)
+    newTerm = re.sub('@', '', newTerm)
 
     return newTerm
 

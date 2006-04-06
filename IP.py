@@ -39,7 +39,6 @@
 import sys
 import os
 import string
-import regsub
 
 #globals
 

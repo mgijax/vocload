@@ -18,7 +18,7 @@
 import sys      # standard Python modules
 import time
 import types
-import regsub
+import re
 import os
 
 import db       # MGI-written Python modules
@@ -691,7 +691,7 @@ def readTabFile (
     while line:
         lineNbr = lineNbr + 1
         # note that we use line[:-1] to trim the trailing newline
-        fields = regsub.split (line[:-1], '\t')
+        fields = re.split(line[:-1], '\t')
 
         if len(fields) != num_fields:
             raise error, bad_line % (filename, lineNbr, line)
@@ -771,7 +771,7 @@ def escapeDoubleQuotes (
     #   sybase using double-quotes, so if the string contains any
     #   double-quotes, we need to duplicate them.
 
-    return regsub.gsub ('"', '""', s)
+    return reg.sub('"', '""', s)
 
 def setNull (
     s      
