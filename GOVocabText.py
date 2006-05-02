@@ -53,7 +53,7 @@
 
 import os
 import string
-import regsub
+import re
 import regex
 import DAG
 import Vocab
@@ -275,7 +275,7 @@ class GOVocabText(Vocab.Vocab):
             # ontology files (Stanford currently puts these slashes 
             # in the file to escape characters commas and other 
             # special characters
-            line = regsub.gsub ( "\\\\", "",line )
+            line = re.sub ( "\\\\", "",line )
 	    print line
             xxx = self.parseGOline(line)
             if not xxx:
