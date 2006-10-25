@@ -1,8 +1,5 @@
 #!/usr/local/bin/python
 #
-#  $Header$
-#  $Name$
-#
 #  loadHeader.py
 ###########################################################################
 #
@@ -62,11 +59,11 @@ import string
 import os
 
 
-dbServer = os.environ['DBSERVER']
-dbName_MGD = os.environ['DATABASE']
-dbName_RADAR = os.environ['RADAR_DATABASE']
-dbUser = os.environ['DBUSER']
-passwordFileName = os.environ['DBPASSWORD_FILE']
+dbServer = os.environ['MGD_DBSERVER']
+dbName_MGD = os.environ['MGD_DBNAME']
+dbName_RADAR = os.environ['RADAR_DBNAME']
+dbUser = os.environ['MGD_DBUSER']
+passwordFileName = os.environ['MGD_DBPASSWORDFILE']
 fp = open(passwordFileName, 'r')
 dbPassword = string.strip(fp.readline())
 

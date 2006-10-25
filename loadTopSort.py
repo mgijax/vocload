@@ -1,8 +1,5 @@
 #!/usr/local/bin/python
 #
-#  $Header$
-#  $Name$
-#
 #  loadTopSort.py
 ###########################################################################
 #
@@ -120,11 +117,11 @@ def initialize():
 
     #  Get the database configuration parameters and set up a connection.
     #
-    dbServer = os.environ['DBSERVER']
-    dbName_MGD = os.environ['DATABASE']
-    dbName_RADAR = os.environ['RADAR_DATABASE']
-    dbUser = os.environ['DBUSER']
-    passwordFile = os.environ['DBPASSWORD_FILE']
+    dbServer = os.environ['MGD_DBSERVER']
+    dbName_MGD = os.environ['MGD_DBNAME']
+    dbName_RADAR = os.environ['RADAR_DBNAME']
+    dbUser = os.environ['MGD_DBUSER']
+    passwordFile = os.environ['MGD_DBPASSWORDFILE']
     fp = open(passwordFile, 'r')
     dbPassword = string.strip(fp.readline())
     fp.close()

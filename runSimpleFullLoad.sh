@@ -31,11 +31,3 @@ executePrograms ${LOAD_PROGRAM}
 executeExtra $1
 archive
 finishUp
-
-# $Log$
-# Revision 1.2  2003/03/26 16:00:13  lec
-# continuing to factor out common tasks/variables
-#
-# Revision 1.1  2003/03/26 15:27:46  lec
-# new
-#

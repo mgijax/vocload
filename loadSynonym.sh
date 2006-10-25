@@ -1,8 +1,5 @@
 #!/bin/sh
 #
-#  $Header$
-#  $Name$
-#
 #  loadSynonym.sh
 ###########################################################################
 #
@@ -88,9 +85,9 @@ echo "Start synonym file processing: ${SYNONYM_FILE}" >> ${FULL_LOG_FILE}
 #  current records.
 #
 echo "Truncate VOC_Synonym table" >> ${FULL_LOG_FILE}
-cat - <<EOSQL | isql -S${DBSERVER} -U${DBUSER} -P`cat ${DBPASSWORD_FILE}` >> ${FULL_LOG_FILE}
+cat - <<EOSQL | isql -S${RADAR_DBSERVER} -U${RADAR_DBUSER} -P`cat ${RADAR_DBPASSWORDFILE}` >> ${FULL_LOG_FILE}
 
-use ${RADAR_DATABASE}
+use ${RADAR_DBNAME}
 go
 
 truncate table VOC_Synonym
@@ -106,7 +103,7 @@ EOSQL
 #  Load the VOC_Synonym table from the synonym file using bcp.
 #
 echo "Load the synonym file into the VOC_Synonym table" >> ${FULL_LOG_FILE}
-cat ${DBPASSWORD_FILE} | bcp ${RADAR_DATABASE}..VOC_Synonym in ${SYNONYM_FILE} -c -t\\t -S${DBSERVER} -U${DBUSER} >> ${BCP_LOG_FILE}
+cat ${RADAR_DBPASSWORDFILE} | bcp ${RADAR_DBNAME}..VOC_Synonym in ${SYNONYM_FILE} -c -t\\t -S${RADAR_DBSERVER} -U${RADAR_DBUSER} >> ${BCP_LOG_FILE}
 
 #
 #  Call the Python script.

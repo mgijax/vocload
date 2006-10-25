@@ -22,15 +22,8 @@ RUNTIME_DIR = /data/loads/mgi/vocload/runTimeMA
 
 [
         NAME = Adult Mouse Anatomy
+        NAME_SPACE = adult_mouse_anatomy.gxd
         ABBREV = MA
         ONTOLOGY_FILE = ${RUNTIME_DIR}/adult_mouse_anatomy.gxd
         LOAD_FILE = ${RUNTIME_DIR}/dag.ma
 ]
-
-# $Log$
-# Revision 1.2.4.1  2005/03/17 15:47:20  dbm
-# Migrate runTime and archive directories to /data/loads
-#
-# Revision 1.2  2003/03/25 18:07:56  lec
-# new Configuration files
-#

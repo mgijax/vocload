@@ -18,7 +18,8 @@
 import sys      # standard Python modules
 import time
 import types
-import regsub
+import re
+import string
 import os
 
 import db       # MGI-written Python modules
@@ -499,11 +500,12 @@ def getTerms (
             and vt._Term_key = vx._Term_key
         order by vx._Term_key, vx.sequenceNum''' % vocab,
 
-        '''select vs.*              -- synonyms for term
-        from MGI_Synonym vs, VOC_Term vt
+        '''select vs.*, vst.synonymType   -- synonyms/synonymTypes for term
+        from MGI_Synonym vs, MGI_SynonymType vst, VOC_Term vt
         where vt._Vocab_key = %d
             and vt._Term_key = vs._Object_key
             and vs._MGIType_key = %d
+            and vs._SynonymType_key = vst._SynonymType_key
         order by vs.synonym''' % (vocab, VOCABULARY_TERM_TYPE),
 
 	'''select n._Object_key, nc.note, nc.sequenceNum
@@ -543,11 +545,14 @@ def getTerms (
     # strings (each of which is one synonym)
 
     synonyms = {}
+    synonymTypes = {}
     for row in voc_synonym:
         term_key = row['_Object_key']
         if not synonyms.has_key (term_key):
             synonyms[term_key] = []
+            synonymTypes[term_key] = []
         synonyms[term_key].append (row['synonym'])
+        synonymTypes[term_key].append (string.upper(row['synonymType']))
         # synonyms[term_key].append ([row['_Synonym_key'], row['synonym']])
 
     # Each dictionary in 'voc_term' represents one term and contains all
@@ -569,8 +574,10 @@ def getTerms (
 
         if synonyms.has_key (term_key):
             row['synonyms'] = synonyms[term_key]
+            row['synonymTypes'] = synonymTypes[term_key]
         else:
             row['synonyms'] = []
+            row['synonymTypes'] = []
 
     # convert the list of dictionaries 'voc_term' into a RecordSet object
     # keyed by the _Term_key, and return it
@@ -691,7 +698,7 @@ def readTabFile (
     while line:
         lineNbr = lineNbr + 1
         # note that we use line[:-1] to trim the trailing newline
-        fields = regsub.split (line[:-1], '\t')
+        fields = re.split ('\t', line[:-1])
 
         if len(fields) != num_fields:
             raise error, bad_line % (filename, lineNbr, line)
@@ -771,7 +778,7 @@ def escapeDoubleQuotes (
     #   sybase using double-quotes, so if the string contains any
     #   double-quotes, we need to duplicate them.
 
-    return regsub.gsub ('"', '""', s)
+    return re.sub ('"', '""', s)
 
 def setNull (
     s      

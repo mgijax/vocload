@@ -27,5 +27,3 @@ setUp $1 load full
 executePrograms ${LOAD_PROGRAM}
 archive
 finishUp
-
-# $Log$

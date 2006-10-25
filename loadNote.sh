@@ -1,8 +1,5 @@
 #!/bin/sh
 #
-#  $Header$
-#  $Name$
-#
 #  loadNote.sh
 ###########################################################################
 #
@@ -91,9 +88,9 @@ echo "Start note file processing: ${NOTE_FILE}" >> ${FULL_LOG_FILE}
 #  current records.
 #
 echo "Truncate VOC_Note table" >> ${FULL_LOG_FILE}
-cat - <<EOSQL | isql -S${DBSERVER} -U${DBUSER} -P`cat ${DBPASSWORD_FILE}` >> ${FULL_LOG_FILE}
+cat - <<EOSQL | isql -S${RADAR_DBSERVER} -U${RADAR_DBUSER} -P`cat ${RADAR_DBPASSWORDFILE}` >> ${FULL_LOG_FILE}
 
-use ${RADAR_DATABASE}
+use ${RADAR_DBNAME}
 go
 
 truncate table VOC_Note
@@ -109,7 +106,7 @@ EOSQL
 #  Load the VOC_Note table from the note file using bcp.
 #
 echo "Load the note file into the VOC_Note table" >> ${FULL_LOG_FILE}
-cat ${DBPASSWORD_FILE} | bcp ${RADAR_DATABASE}..VOC_Note in ${NOTE_FILE} -c -t\\t -S${DBSERVER} -U${DBUSER} >> ${BCP_LOG_FILE}
+cat ${RADAR_DBPASSWORDFILE} | bcp ${RADAR_DBNAME}..VOC_Note in ${NOTE_FILE} -c -t\\t -S${RADAR_DBSERVER} -U${RADAR_DBUSER} >> ${BCP_LOG_FILE}
 
 #
 #  Call the Python script.

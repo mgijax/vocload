@@ -27,11 +27,3 @@ setUp $1 noload incremental
 executePrograms ${LOAD_PROGRAM}
 archive
 finishUp
-
-# $Log$
-# Revision 1.2  2003/04/02 13:28:50  lec
-# TR 4564
-#
-# Revision 1.1  2003/03/26 19:55:43  lec
-# added more run scripts
-#
