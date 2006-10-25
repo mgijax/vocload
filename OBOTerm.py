@@ -1,0 +1,131 @@
+import sys
+import os
+import string
+
+# CLASS: Term
+# IS: An object that holds specific attributes from a Term stanza of an
+#     OBO format file.
+# HAS: Term attributes
+# DOES: Nothing
+#
+class Term:
+
+    # Purpose: Constructor
+    # Returns: Nothing
+    # Assumes: Nothing
+    # Effects: Initializes the attributes
+    # Throws: Nothing
+    #
+    def __init__ (self):
+        self.clear()
+
+
+    # Purpose: Clears the attributes
+    # Returns: Nothing
+    # Assumes: Nothing
+    # Effects: Clears the attributes
+    # Throws: Nothing
+    #
+    def clear (self):
+        self.termID = ''
+        self.name = ''
+        self.namespace = ''
+        self.comment = ''
+        self.definition = ''
+        self.obsolete = 0
+        self.altID = []
+        self.relationship = []
+        self.relationshipType = []
+        self.synonym = []
+        self.synonymType = []
+
+
+    # The following methods are used to set/get the attributes of the
+    # term object.
+    #
+
+    def setTermID (self, termID):
+        self.termID = termID
+
+    def getTermID (self):
+        return self.termID
+
+    def setName (self, name):
+        self.name = name
+
+    def getName (self):
+        return self.name
+
+    def setNamespace (self, namespace):
+        self.namespace = namespace
+
+    def getNamespace (self):
+        return self.namespace
+
+    def setComment (self, comment):
+        self.comment = comment
+
+    def getComment (self):
+        return self.comment
+
+    def setDefinition (self, definition):
+        self.definition = definition
+
+    def getDefinition (self):
+        return self.definition
+
+    def setObsolete (self, obsolete):
+        self.obsolete = obsolete
+
+    def getObsolete (self):
+        return self.obsolete
+
+    def addAltID (self, altID):
+        self.altID.append(altID)
+
+    def getAltID (self):
+        return self.altID
+
+    def addRelationship (self, relationship):
+        self.relationship.append(relationship)
+
+    def getRelationship (self):
+        return self.relationship
+
+    def addRelationshipType (self, relationshipType):
+        self.relationshipType.append(relationshipType)
+
+    def getRelationshipType (self):
+        return self.relationshipType
+
+    def addSynonym (self, synonym):
+        self.synonym.append(synonym)
+
+    def getSynonym (self):
+        return self.synonym
+
+    def addSynonymType (self, synonymType):
+        self.synonymType.append(synonymType)
+
+    def getSynonymType (self):
+        return self.synonymType
+
+
+    # Purpose: Return all the attributes as one string (for debugging).
+    # Returns: String of all objects.
+    # Assumes: Nothing
+    # Effects: Nothing
+    # Throws: Nothing
+    #
+    def debug (self):
+        return '|termID=' + self.termID + \
+               '|name=' + self.name + \
+               '|namespace=' + self.namespace + \
+               '|comment=' + self.comment + \
+               '|definition=' + self.definition + \
+               '|obsolete=' + str(self.obsolete) + \
+               '|altID=' + string.join(self.altID,',') + \
+               '|relationship=' + string.join(self.relationship,',') + \
+               '|relationshipType=' + string.join(self.relationshipType,',') + \
+               '|synonym=' + string.join(self.synonym,',') + \
+               '|synonymType=' + string.join(self.synonymType,',') + '|'
