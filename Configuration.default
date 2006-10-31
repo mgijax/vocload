@@ -21,33 +21,23 @@
 #	- new Configuration file
 #
 
+#
+#  If the MGICONFIG environment variable does not have a local override,
+#  use the default "live" settings.
+#
+if [ "${MGICONFIG}" = "" ]
+then
+    MGICONFIG=/usr/local/mgi/live/mgiconfig
+    export MGICONFIG
+fi
+
+. ${MGICONFIG}/master.config.sh
+
 umask 002
-
-SYBASE=/opt/sybase/12.5
-PYTHONPATH=/usr/local/mgi/live/lib/python
-PATH=.:$PATH:/usr/bin:$SYBASE/ASE-12_5/bin:$SYBASE/OCS-12_5/bin:/usr/java/bin
-LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$SYBASE/OCS-12_5/lib
-
-DBSERVER=PROD_MGI	# database server
-DSQUERY=${DBSERVER}
-DATABASE=mgd		# database name
-RADAR_DATABASE=radar
-DBUSER=mgd_dbo		# database user with r/w privileges
-DBPASSWORD_FILE=/usr/local/mgi/live/dbutils/mgidbutilities/.mgd_dbo_password
 
 SUCCESS=0
 FAILURE=1
 
-export SYBASE
-export PYTHONPATH
-export PATH
-export LD_LIBRARY_PATH
-export DBSERVER
-export DSQUERY
-export DATABASE
-export RADAR_DATABASE
-export DBUSER
-export DBPASSWORD_FILE
 export SUCCESS
 export FAILURE
 
@@ -60,6 +50,7 @@ export USER_KEY
 ARCHIVE_FILE_NAME="${ARCHIVE_DIR}/vocload.`date +%Y%m%d:%H:%M`.jar"
 FULL_LOG_FILE="${RUNTIME_DIR}/fullLog.txt"
 LOAD_LOG_FILE="${RUNTIME_DIR}/log.txt"
+VALIDATION_LOG_FILE="${RUNTIME_DIR}/validationLog.txt"
 VERIFY_LOG_FILE="${RUNTIME_DIR}/verify.txt"
 MAIL_FILE_NAME="${RUNTIME_DIR}/mail.txt"
 
@@ -92,6 +83,7 @@ FULL_MODE_DATA_LOADER="bcp"
 export ARCHIVE_FILE_NAME
 export FULL_LOG_FILE
 export LOAD_LOG_FILE
+export VALIDATION_LOG_FILE
 export VERIFY_LOG_FILE
 export MAIL_FILE_NAME
 export BCP_LOG_FILE
@@ -109,41 +101,3 @@ export VOC_DAG_SORT_BCP_FILE
 export DISCREP_FILE
 export DAG_DISCREP_FILE
 export FULL_MODE_DATA_LOADER
-
-# $Log$
-# Revision 1.11  2005/04/13 17:35:41  lec
-# vocload-3-2-0-1
-#
-# Revision 1.10.2.2  2005/03/23 16:21:49  dbm
-# Added topological sort
-#
-# Revision 1.10.2.1  2005/03/17 14:57:32  dbm
-# Added RADAR_DATABASE and USER_KEY
-#
-# Revision 1.10  2005/02/08 18:37:05  lec
-# live
-#
-# Revision 1.9  2003/04/17 15:20:29  lec
-# fixed PATH
-#
-# Revision 1.8  2003/04/02 16:35:20  lec
-# TR 4564
-#
-# Revision 1.7  2003/03/27 13:27:06  lec
-# added VERIFY_LOG_FILE
-#
-# Revision 1.6  2003/03/26 15:51:10  lec
-# moved call to Configuration and other comman vars to VOClib.config and Configuration
-#
-# Revision 1.5  2003/03/25 17:39:38  lec
-# new Configuration files
-#
-# Revision 1.4  2003/03/25 14:44:14  lec
-# new Configuration files
-#
-# Revision 1.3  2003/03/25 13:49:26  lec
-# new Configuration files
-#
-# Revision 1.2  2003/03/25 13:30:20  lec
-# new
-#

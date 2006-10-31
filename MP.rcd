@@ -22,15 +22,8 @@ RUNTIME_DIR = /data/loads/mgi/vocload/runTimeMP
 
 [
         NAME = Mammalian Phenotype
+        NAME_SPACE = MPheno.ontology
         ABBREV = MP
         ONTOLOGY_FILE = ${RUNTIME_DIR}/MPheno.ontology
         LOAD_FILE = ${RUNTIME_DIR}/dag.mp
 ]
-
-# $Log$
-# Revision 1.1.4.1  2005/03/17 14:55:33  dbm
-# Moved RUNTIME_DIR
-#
-# Revision 1.1  2003/03/25 15:48:17  lec
-# new configuration files
-#

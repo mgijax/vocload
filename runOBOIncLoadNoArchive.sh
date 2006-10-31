@@ -1,23 +1,23 @@
 #!/bin/sh
 
 #
-# Program: runDAGIncLoad.sh
+# Program: runOBOIncLoadNoArchive.sh
 #
 # Purpose:
 #
-# 	Script for Executing a DAG Incremental Load
+# 	Script for Executing an OBO Incremental Load w/ no Archiving
 # 
 # Usage:
 #
-#	runDAGIncLoad.sh [configuration file]
+#	runOBOIncLoadNoArchive.sh [configuration file]
 #
 # History:
 #
-#	lec	03/26/2003
+#	dbm	10/25/2006
 #	- new
 #
 
-LOAD_PROGRAM="GOload.py"
+LOAD_PROGRAM="loadOBO.py"
 export LOAD_PROGRAM
 
 cd `dirname $0`
@@ -26,5 +26,4 @@ cd `dirname $0`
 setUp $1 load incremental
 executePrograms ${LOAD_PROGRAM}
 executeExtra $1
-archive
 finishUp

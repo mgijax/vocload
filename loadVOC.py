@@ -102,10 +102,10 @@ class VOCLoad:
             raise error, unknown_mode % mode
 
         try:
-            self.server = os.environ['DBSERVER']
-            self.database = os.environ['DATABASE']
-            self.username = os.environ['DBUSER']
-            self.passwordFileName = os.environ['DBPASSWORD_FILE']
+            self.server = os.environ['MGD_DBSERVER']
+            self.database = os.environ['MGD_DBNAME']
+            self.username = os.environ['MGD_DBUSER']
+            self.passwordFileName = os.environ['MGD_DBPASSWORDFILE']
             self.passwordFile = open ( self.passwordFileName, 'r' )
             self.password = string.strip ( self.passwordFile.readline() )
 
@@ -292,20 +292,3 @@ if __name__ == '__main__':
 #   config = rcdlib.RcdFile ('voc.rcd', rcdlib.Rcd, 'NAME')
 #   vocload = VOCLoad (config, 'full', Log.Log())
 #   vocload.go()
-
-# $Log$
-# Revision 1.15.2.1  2005/03/17 15:04:32  dbm
-# Added header, note and synonym support; Migrate synonyms to MGI_Synonym
-#
-# Revision 1.15  2004/06/03 17:27:45  lec
-# comment out truncateTransactionLog
-#
-# Revision 1.14  2003/04/23 15:35:53  lec
-# JSAM fix
-#
-# Revision 1.13  2003/04/02 18:54:49  lec
-# TR 4564
-#
-# Revision 1.12  2003/03/26 15:42:20  lec
-# don't delete VOC_Vocab
-#

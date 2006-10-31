@@ -1,8 +1,5 @@
 #!/usr/local/bin/python
 
-# $Header$
-# $Name$
-
 #
 # Program: GOremoveannot.py
 #
@@ -109,7 +106,6 @@ def exit(
         pass
 
     try:
-        reportlib.trailer(reportFile)
         reportlib.finish_nonps(reportFile)
     except:
 	pass
@@ -249,44 +245,3 @@ def process():
 init()
 process()
 exit(0)
-
-# $Log$
-# Revision 1.8  2005/05/11 13:38:40  lec
-# added J:72245
-#
-# Revision 1.7  2005/02/08 16:00:26  lec
-# removed open of other
-#
-# Revision 1.6  2004/01/28 16:19:51  lec
-# JSAM branch merge
-#
-# Revision 1.5  2003/12/01 15:05:46  lec
-# fix
-#
-# Revision 1.4.2.1  2003/12/01 15:05:46  lec
-# fix
-#
-# Revision 1.4  2003/04/18 14:46:07  lec
-# MGI 2.96
-#
-# Revision 1.3  2003/03/25 16:08:49  lec
-# new configuration files
-#
-# Revision 1.2  2003/03/25 15:02:46  lec
-# new configuration files/names
-#
-# Revision 1.1  2003/03/25 14:58:36  lec
-# renamed from goremoveannot.py
-#
-# Revision 1.1  2003/03/25 14:56:21  lec
-# renamed from goremoveannot.py
-#
-# Revision 1.3  2003/03/18 13:43:26  lec
-# TR 4623
-#
-# Revision 1.2  2003/03/17 19:37:15  lec
-# TR 4623
-#
-# Revision 1.1  2003/03/17 19:03:15  lec
-# TR 4623
-#

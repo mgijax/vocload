@@ -21,48 +21,22 @@ DATA_DIR = /data/downloads/ftp.geneontology.org/pub/go/ontology
 
 [
         NAME = Molecular Function
+        NAME_SPACE = molecular_function
         ABBREV = F
         ONTOLOGY_FILE = ${DATA_DIR}/function.ontology
         LOAD_FILE = ${RUNTIME_DIR}/dag.f
 ]
 [
         NAME = Biological Process
+        NAME_SPACE = biological_process
         ABBREV = P
         ONTOLOGY_FILE = ${DATA_DIR}/process.ontology
         LOAD_FILE = ${RUNTIME_DIR}/dag.p
 ]
 [
         NAME = Cellular Component
+        NAME_SPACE = cellular_component
         ABBREV = C
         ONTOLOGY_FILE = ${DATA_DIR}/component.ontology
         LOAD_FILE = ${RUNTIME_DIR}/dag.c
 ]
-
-# $Log$
-# Revision 1.6  2005/04/13 17:35:41  lec
-# vocload-3-2-0-1
-#
-# Revision 1.5.4.1  2005/03/17 15:47:19  dbm
-# Migrate runTime and archive directories to /data/loads
-#
-# Revision 1.5  2003/04/18 12:34:15  lec
-# use new /data/downloads
-#
-# Revision 1.4  2003/03/27 13:14:49  lec
-# change ONTOLOGY_FILE names
-#
-# Revision 1.3  2003/03/25 15:48:17  lec
-# new configuration files
-#
-# Revision 1.2  2003/03/25 15:02:46  lec
-# new configuration files/names
-#
-# Revision 1.1  2003/03/25 14:55:00  lec
-# new
-#
-# Revision 1.8  2003/03/25 14:23:58  lec
-# new Configuration files
-#
-# Revision 1.7  2003/03/25 13:53:39  lec
-# new Configuration files
-#

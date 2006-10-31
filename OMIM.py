@@ -42,7 +42,7 @@
 import sys
 import os
 import string
-import regsub
+import re
 import db
 import reportlib
 
@@ -242,7 +242,7 @@ def convertTerm(mim, term):
     #
     # get rid of the @ character
     #
-    newTerm = regsub.gsub('@', '', newTerm)
+    newTerm = re.sub('@', '', newTerm)
 
     return newTerm
 
@@ -419,7 +419,6 @@ def processQC1():
 		qc1File.write(mim + DELIM + mimTerm + DELIM + omimMGI[mim] + CRT)
 
     transTermFile.close()
-    reportlib.trailer(qc1File)
     reportlib.finish_nonps(qc1File)
 
 def processQC2():
@@ -445,7 +444,6 @@ def processQC2():
 	    qc2File.write(mim + DELIM + mimTerm + CRT)
 
     transTermFile.close()
-    reportlib.trailer(qc2File)
     reportlib.finish_nonps(qc2File)
 
 #

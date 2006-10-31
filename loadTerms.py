@@ -161,8 +161,8 @@ PRIMARY_SECONDARY_COLLISION_MSG = "Duplicate Primary/Secondary Accession ID Used
 TERM_MISSING_FROM_INPUT_FILE = "Term Exists in Database but NOT in the Input File.  This is a non-fatal error."
 OTHER_ID_DELIMITER = '|'
 SYNONYM_DELIMITER = '|'
+SYNONYM_TYPE_DELIMITER = '|'
 MGI_LOGICALDB_KEY = '1'		# compared to self.LOGICALDB_KEY which is returned as a string
-EXACT_SYNONYM = 'exact'
 
 ###--- Classes ---###
 
@@ -271,16 +271,34 @@ class TermLoad:
                            # each term (because MGI IDs
                            # may be added by a trigger)
 
+        # **** FOR BACKWARD COMPATIBILITY ****
+        # Determine if the load should expect to find a synonym type column
+        # in the Termfile.  If this environment variable is not set, it is
+        # assumed that the load is be used to process an 8-column file
+        # without the synonym type column.  If the environment variable is
+        # set to 1, it is assumed that the load needs to process a
+        # 9-column file that includes a synonym type column.
+        #
+        try:
+            self.useSynonymType = os.environ['USE_SYNONYM_TYPE']
+        except:
+            self.useSynonymType = 0
+
         # remember the filename and read the data file
 
         self.filename = filename
-        self.datafile = vocloadlib.readTabFile (filename,
-            [ 'term', 'accID', 'status', 'abbreviation',
-            'definition', 'comment', 'synonyms', 'otherIDs' ])
+
+        if self.useSynonymType:
+            self.datafile = vocloadlib.readTabFile (filename,
+                [ 'term', 'accID', 'status', 'abbreviation',
+                'definition', 'comment', 'synonyms', 'synonymTypes',
+                'otherIDs' ])
+        else:
+            self.datafile = vocloadlib.readTabFile (filename,
+                [ 'term', 'accID', 'status', 'abbreviation',
+                'definition', 'comment', 'synonyms', 'otherIDs' ])
 
         self.mgitype_key = vocloadlib.VOCABULARY_TERM_TYPE
-
-        self.synonymtype_key = vocloadlib.getSynonymTypeKey(EXACT_SYNONYM)
 
         self.refs_key = refs_key
 
@@ -569,7 +587,16 @@ class TermLoad:
 
         # add records as needed to MGI_Synonym:
         synonyms = string.split (record['synonyms'], SYNONYM_DELIMITER )
-        self.generateSynonymSQL( synonyms, self.max_term_key )
+
+        # If the input record has synonym types, use them.  Otherwise, use
+        # a list of "EXACT" synonym types for each synonym.
+        if self.useSynonymType:
+            synonymTypes = string.split (record['synonymTypes'], SYNONYM_TYPE_DELIMITER )
+        else:
+            synonymTypes = []
+            for i in range(len(synonyms)):
+                synonymTypes.append("EXACT")
+        self.generateSynonymSQL( synonyms, synonymTypes, self.max_term_key )
 
         # We can add non-MGI accession numbers to the ACC_Accession
         # table.  For MGI accession numbers, we do not add them.
@@ -1080,18 +1107,51 @@ class TermLoad:
        fileSynonyms = string.split (record['synonyms'], SYNONYM_DELIMITER )
        if fileSynonyms == ['']:
            fileSynonyms = []
+
+       if self.useSynonymType:
+           fileSynonymTypes = string.split (record['synonymTypes'], SYNONYM_TYPE_DELIMITER )
+           if fileSynonymTypes == ['']:
+               fileSynonymTypes = []
+       else:
+           fileSynonymTypes = []
+           for i in range(len(fileSynonyms)):
+               fileSynonymTypes.append("EXACT")
+
        dbSynonyms = dbRecord[0]['synonyms']
+       dbSynonymTypes = dbRecord[0]['synonymTypes']
 
-       # make sure synonyms are in the same order
-       dbSynonyms.sort()
-       fileSynonyms.sort()
+       # make sure synonyms and synonym types are in the same order
+       for i in range(0,len(dbSynonyms)):
+           for j in range(i+1,len(dbSynonyms)):
+               if dbSynonyms[i] > dbSynonyms[j]:
+                   tmpSynonym = dbSynonyms[i]
+                   dbSynonyms[i] = dbSynonyms[j]
+                   dbSynonyms[j] = tmpSynonym
+                   tmpSynonymType = dbSynonymTypes[i]
+                   dbSynonymTypes[i] = dbSynonymTypes[j]
+                   dbSynonymTypes[j] = tmpSynonymType
 
-       if ( fileSynonyms != dbSynonyms ):
+       for i in range(0,len(fileSynonyms)):
+           for j in range(i+1,len(fileSynonyms)):
+               if fileSynonyms[i] > fileSynonyms[j]:
+                   tmpSynonym = fileSynonyms[i]
+                   fileSynonyms[i] = fileSynonyms[j]
+                   fileSynonyms[j] = tmpSynonym
+                   tmpSynonymType = fileSynonymTypes[i]
+                   fileSynonymTypes[i] = fileSynonymTypes[j]
+                   fileSynonymTypes[j] = tmpSynonymType
+
+       if self.useSynonymType and (fileSynonymTypes != dbSynonymTypes):
+           changeSynonymTypes = 1
+       else:
+           changeSynonymTypes = 0
+
+       if ( fileSynonyms != dbSynonyms or changeSynonymTypes):
           # if there are any differences between the file and
           # the database, simply delete all existing synonyms
           # and reinsert them
           vocloadlib.nl_sqlog ( DELETE_ALL_SYNONYMS % (termKey, self.mgitype_key), self.log )
-          self.generateSynonymSQL ( fileSynonyms, termKey )
+          self.generateSynonymSQL ( fileSynonyms, fileSynonymTypes, termKey )
           recordChanged = 1
 
        ###########################################################################
@@ -1153,33 +1213,34 @@ class TermLoad:
 
        return recordChanged
     
-    def generateSynonymSQL (self, fileSynonyms, termKey ):
+    def generateSynonymSQL (self, fileSynonyms, fileSynonymTypes, termKey ):
        # Purpose: add records as needed to MGI_Synonym table
        # Returns: nothing
        # Assumes: open database connection or bcp file
        # Effects: inserts via online sql or bcp into the
        #          MGI_Synonym table
        # Throws:  propagates any exceptions raised 
-       for synonym in fileSynonyms:
-          if synonym:
+       for i in range(len(fileSynonyms)):
+          if fileSynonyms[i]:
              self.max_synonym_key = self.max_synonym_key +1
+             synonymTypeKey = vocloadlib.getSynonymTypeKey(fileSynonymTypes[i])
              if self.isBCPLoad:
                 self.loadSynonymBCP = 1
                 self.termSynonymBCPFile.write (BCP_INSERT_SYNONYM % \
                        (self.max_synonym_key,
                         termKey,
                         self.mgitype_key,
-                        self.synonymtype_key,
+                        synonymTypeKey,
                         self.refs_key,
-                        vocloadlib.escapeDoubleQuotes(synonym)) )
+                        vocloadlib.escapeDoubleQuotes(fileSynonyms[i])) )
              else: # asserts self.isIncrementalLoad() or full load with on-line sql:
                 vocloadlib.nl_sqlog (INSERT_SYNONYM % \
                        (self.max_synonym_key,
                         termKey,
                         self.mgitype_key,
-                        self.synonymtype_key,
+                        synonymTypeKey,
                         self.refs_key,
-                        vocloadlib.escapeDoubleQuotes(synonym)),self.log)
+                        vocloadlib.escapeDoubleQuotes(fileSynonyms[i])),self.log)
 
     def getIsObsolete ( self, recordStatus ):
        # Purpose: Returns an isObsolete bit based on the record status

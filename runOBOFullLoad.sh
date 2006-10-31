@@ -1,29 +1,29 @@
 #!/bin/sh
 
 #
-# Program: runDAGIncLoad.sh
+# Program: runOBOFullLoad.sh
 #
 # Purpose:
 #
-# 	Script for Executing a DAG Incremental Load
+# 	Script for Executing an OBO Full Load
 # 
 # Usage:
 #
-#	runDAGIncLoad.sh [configuration file]
+#	runOBOFullLoad.sh [configuration file]
 #
 # History:
 #
-#	lec	03/26/2003
+#	dbm	10/25/2006
 #	- new
 #
 
-LOAD_PROGRAM="GOload.py"
+LOAD_PROGRAM="loadOBO.py"
 export LOAD_PROGRAM
 
 cd `dirname $0`
 . VOClib.config
 
-setUp $1 load incremental
+setUp $1 load full
 executePrograms ${LOAD_PROGRAM}
 executeExtra $1
 archive

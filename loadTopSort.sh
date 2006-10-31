@@ -1,8 +1,5 @@
 #!/bin/sh
 #
-#  $Header$
-#  $Name$
-#
 #  loadTopSort.sh
 ###########################################################################
 #
@@ -87,9 +84,9 @@ echo "Start topological sort ordering" >> ${FULL_LOG_FILE}
 #  current records.
 #
 echo "Truncate VOC_DAGSort table" >> ${FULL_LOG_FILE}
-cat - <<EOSQL | isql -S${DBSERVER} -U${DBUSER} -P`cat ${DBPASSWORD_FILE}` >> ${FULL_LOG_FILE}
+cat - <<EOSQL | isql -S${RADAR_DBSERVER} -U${RADAR_DBUSER} -P`cat ${RADAR_DBPASSWORDFILE}` >> ${FULL_LOG_FILE}
 
-use ${RADAR_DATABASE}
+use ${RADAR_DBNAME}
 go
 
 truncate table VOC_DAGSort
@@ -112,23 +109,23 @@ echo "End loadTopSort.py" >> ${FULL_LOG_FILE}
 #  Load the VOC_DAGSort table from the DAG sort bcp file.
 #
 echo "Load VOC_DAGSort table with sort order" >> ${FULL_LOG_FILE}
-cat ${DBPASSWORD_FILE} | bcp ${RADAR_DATABASE}..VOC_DAGSort in ${VOC_DAG_SORT_BCP_FILE} -c -t\\t -S${DBSERVER} -U${DBUSER} >> ${BCP_LOG_FILE}
+cat ${RADAR_DBPASSWORDFILE} | bcp ${RADAR_DBNAME}..VOC_DAGSort in ${VOC_DAG_SORT_BCP_FILE} -c -t\\t -S${RADAR_DBSERVER} -U${RADAR_DBUSER} >> ${BCP_LOG_FILE}
 
 #
 #  Update the VOC_Term table using the VOC_DAGSort table to establish
 #  the topological sort order for each term in the vocabulary.
 #
 echo "Update VOC_Term table to apply sort order" >> ${FULL_LOG_FILE}
-cat - <<EOSQL | isql -S${DBSERVER} -U${DBUSER} -P`cat ${DBPASSWORD_FILE}` >> ${FULL_LOG_FILE}
+cat - <<EOSQL | isql -S${MGD_DBSERVER} -U${MGD_DBUSER} -P`cat ${MGD_DBPASSWORDFILE}` >> ${FULL_LOG_FILE}
 
-use ${DATABASE}
+use ${MGD_DBNAME}
 go
 
 update VOC_Term
 set sequenceNum = s.sequenceNum
 from VOC_Term t,
      VOC_Vocab v,
-     ${RADAR_DATABASE}..VOC_DAGSort s
+     ${RADAR_DBNAME}..VOC_DAGSort s
 where t._Term_key = s._Term_key and
       t._Vocab_key = v._Vocab_key and
       v.name = "${VOCAB_NAME}"

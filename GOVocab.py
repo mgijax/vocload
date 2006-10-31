@@ -46,7 +46,7 @@
 #
 #
 
-import os, string, regsub, regex
+import os, string, re, regex
 import DAG, Vocab, GONode
 
 # Globals
@@ -348,7 +348,7 @@ class GOVocab(Vocab.Vocab):
             # ontology files (Stanford currently puts these slashes 
             # in the file to escape characters commas and other 
             # special characters
-            line = regsub.gsub ( "\\\\", "",line )
+            line = re.sub ( "\\\\", "",line )
 	    print line
             xxx = self.parseGOline(line)
             if not xxx:
