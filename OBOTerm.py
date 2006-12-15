@@ -1,6 +1,5 @@
 import sys
 import os
-import string
 
 # CLASS: Term
 # IS: An object that holds specific attributes from a Term stanza of an
@@ -124,8 +123,8 @@ class Term:
                '|comment=' + self.comment + \
                '|definition=' + self.definition + \
                '|obsolete=' + str(self.obsolete) + \
-               '|altID=' + string.join(self.altID,',') + \
-               '|relationship=' + string.join(self.relationship,',') + \
-               '|relationshipType=' + string.join(self.relationshipType,',') + \
-               '|synonym=' + string.join(self.synonym,',') + \
-               '|synonymType=' + string.join(self.synonymType,',') + '|'
+               '|altID=' + ','.join(self.altID) + \
+               '|relationship=' + ','.join(self.relationship) + \
+               '|relationshipType=' + ','.join(self.relationshipType) + \
+               '|synonym=' + ','.join(self.synonym) + \
+               '|synonymType=' + ','.join(self.synonymType) + '|'

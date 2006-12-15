@@ -1,6 +1,5 @@
 import sys
 import os
-import string
 import re
 
 import OBOHeader
@@ -95,17 +94,17 @@ class Parser:
             # Save the term ID.
             #
             if tag == 'id':
-                self.term.setTermID (re.split (' ', self.line, 1)[1])
+                self.term.setTermID (re.split (' ', self.line, 1)[1].strip())
 
             # Save the term name.
             #
             if tag == 'name':
-                self.term.setName (re.split (' ', self.line, 1)[1])
+                self.term.setName (re.split (' ', self.line, 1)[1].strip())
 
             # Save the namespace.
             #
             if tag == 'namespace':
-                self.term.setNamespace (re.split (' ', self.line, 1)[1])
+                self.term.setNamespace (re.split (' ', self.line, 1)[1].strip())
 
             # Save the comment.
             #
@@ -129,7 +128,7 @@ class Parser:
             # Save an alternate ID.
             #
             if tag == 'alt_id':
-                self.term.addAltID (re.split (' ', self.line, 1)[1])
+                self.term.addAltID (re.split (' ', self.line, 1)[1].strip())
 
             # Save an "is-a" relationship.
             #
@@ -147,7 +146,7 @@ class Parser:
             #
             if tag == 'synonym':
                 self.term.addSynonym (re.split ('"', self.line)[1])
-                self.term.addSynonymType (re.split (' ', string.lstrip (re.split ('"', self.line)[2]))[0])
+                self.term.addSynonymType (re.split (' ', re.split ('"', self.line)[2].lstrip())[0])
 
             # Read the next line from the OBO file.
             #
