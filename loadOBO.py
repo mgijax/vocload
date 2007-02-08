@@ -309,16 +309,23 @@ def parseOBOFile():
         isValid = 1
 
         # Validate the namespace.  The namespace is used to determine which
-        # DAG file to write to for cases where there are multiple DAG for
-        # a vocabulary (e.g. GO vocabulary).  If the term does not define
-        # a namespace, use the default namespace that came from the header.
+        # DAG file to write to.  For the GO vocabulary, there are multiple
+        # DAGs, so the namespace is required for each term.  For other
+        # vocabularies (e.g. MP and MA), the namespace is not defined for
+        # each term, so the default namespace from the header is used.
         #
         if namespace != '':
             if namespace not in validNamespace:
                 fpValid.write('(' + termID + ') Invalid namespace: ' + namespace + '\n')
                 isValid = 0
         else:
-            namespace = defaultNamespace
+            if vocabName == 'GO':
+                log.writeline('Missing namespace for term: ' + termID)
+                closeFiles()
+                return 1
+            else:
+                namespace = defaultNamespace
+                
 
         # Validate the relationship type(s).  Strip out any characters that
         # are non-alphanumeric so they can be compared to the values from
