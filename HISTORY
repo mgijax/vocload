@@ -1,3 +1,9 @@
+TAG: vocload-tr7683-5
+DATE: 2/8/2007
+STAFF: dbm
+CHANGES:
+1) Terminate the load when the namespace is missing (GO Only).
+
 TAG: vocload-tr7683-4
 DATE: 1/24/2007
 STAFF: dbm
