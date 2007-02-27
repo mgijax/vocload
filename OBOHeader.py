@@ -1,6 +1,5 @@
 import sys
 import os
-import string
 
 # CLASS: Header
 # IS: An object that holds specific attributes from the header of an

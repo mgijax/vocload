@@ -1,3 +1,34 @@
+TAG: vocload-3-5-2-0
+DATE: 2/27/2007
+STAFF: dbm
+CHANGES:
+1) Merge tr7683 branch to the trunk
+
+TAG: vocload-tr7683-5
+DATE: 2/8/2007
+STAFF: dbm
+CHANGES:
+1) Terminate the load when the namespace is missing (GO Only).
+
+TAG: vocload-tr7683-4
+DATE: 1/24/2007
+STAFF: dbm
+CHANGES:
+1) Obsolete term attributes added
+
+TAG: vocload-tr7683-3
+TAG: vocload-tr7683-2
+DATE: 12/15/2006
+STAFF: dbm
+CHANGES:
+1) TR8033 (part of TR7683)
+
+TAG: vocload-tr7683-1
+DATE: 11/06/2006
+STAFF: lec
+CHANGES:
+1) TR7683
+
 TAG: vocload-tr7683-BP
 DATE: 11/06/2006
 STAFF: lec

@@ -68,7 +68,6 @@
 
 import sys 
 import os
-import string
 import re
 import getopt
 
@@ -227,21 +226,41 @@ def closeFiles():
 # Throws: Nothing
 #
 def parseOBOFile():
-    openFiles()
 
-    # Get the expect version for the OBO input file.
-    #
+    vocabName = os.environ['VOCAB_NAME']
     expectedVersion = os.environ['OBO_FILE_VERSION']
+    dagRootID = os.environ['DAG_ROOT_ID']
+
+    # Open the input and output files.
+    #
+    openFiles()
 
     # If there is a root ID for the vocabulary, write it to each DAG file.
     # Even though the root term may be defined in the OBO input file, it
     # will not have any relationships defined, so it would not get added
     # to the DAG file when the term is process below.
     #
-    dagRootID = os.environ['DAG_ROOT_ID']
     if dagRootID:
         for i in validNamespace:
             fpDAG[i].write(dagRootID + '\t' + '\t' + '\t' + '\n')
+
+    # If the GO vocabulary is being loaded, add the parent obsolete term to
+    # the Termfile and associate it to the root ID in the obsolete DAG file.
+    #
+    if vocabName == 'GO':
+        obsoleteTerm = os.environ['OBSOLETE_TERM']
+        obsoleteID = os.environ['OBSOLETE_ID']
+        obsoleteDefinition = os.environ['OBSOLETE_DEFINITION']
+        obsoleteComment = os.environ['OBSOLETE_COMMENT']
+        obsoleteNamespace = os.environ['OBSOLETE_NAMESPACE']
+
+        fpTerm.write(obsoleteTerm + '\t' + obsoleteID + '\t' + \
+                     'obsolete' + '\t' + TERM_ABBR + '\t' + \
+                     obsoleteDefinition + '\t' + obsoleteComment + '\t' + \
+                     '\t' + '\t' + '\n')
+
+        fpDAG[obsoleteNamespace].write(obsoleteID + '\t' + '\t' + 'is-a' + \
+                                       '\t' + dagRootID + '\n')
 
     log.writeline('Parse OBO file')
 
@@ -290,16 +309,23 @@ def parseOBOFile():
         isValid = 1
 
         # Validate the namespace.  The namespace is used to determine which
-        # DAG file to write to for cases where there are multiple DAG for
-        # a vocabulary (e.g. GO vocabulary).  If the term does not define
-        # a namespace, use the default namespace that came from the header.
+        # DAG file to write to.  For the GO vocabulary, there are multiple
+        # DAGs, so the namespace is required for each term.  For other
+        # vocabularies (e.g. MP and MA), the namespace is not defined for
+        # each term, so the default namespace from the header is used.
         #
         if namespace != '':
             if namespace not in validNamespace:
                 fpValid.write('(' + termID + ') Invalid namespace: ' + namespace + '\n')
                 isValid = 0
         else:
-            namespace = defaultNamespace
+            if vocabName == 'GO':
+                log.writeline('Missing namespace for term: ' + termID)
+                closeFiles()
+                return 1
+            else:
+                namespace = defaultNamespace
+                
 
         # Validate the relationship type(s).  Strip out any characters that
         # are non-alphanumeric so they can be compared to the values from
@@ -315,7 +341,7 @@ def parseOBOFile():
         # Validate the synonym type(s).
         #
         for s in synonymType:
-            if string.lower(s) not in validSynonymType:
+            if s.lower() not in validSynonymType:
                 fpValid.write('(' + termID + ') Invalid synonym type: ' + s + '\n')
                 isValid = 0
 
@@ -344,9 +370,9 @@ def parseOBOFile():
                          TERM_ABBR + '\t' + \
                          definition + '\t' + \
                          comment + '\t' + \
-                         string.join(synonym,'|') + '\t' + \
-                         string.join(synonymType,'|') + '\t' + \
-                         string.join(altID,'|') + '\n')
+                         '|'.join(synonym) + '\t' + \
+                         '|'.join(synonymType) + '\t' + \
+                         '|'.join(altID) + '\n')
 
             # If the term name is the same as the namespace AND there is a
             # root ID, write a record to the DAG file that relates this
@@ -363,6 +389,14 @@ def parseOBOFile():
                                         DAG_CHILD_LABEL + '\t' + \
                                         validRelationshipType[re.sub('[^a-zA-Z0-9]','',relationshipType[i])] + '\t' + \
                                         relationship[i] + '\n')
+
+            # If it is an obsolete GO term and not the root ID, write it to
+            # the obsolete DAG file.
+            #
+            if vocabName == 'GO' and status == 'obsolete' and termID != dagRootID:
+                fpDAG[obsoleteNamespace].write(termID + '\t' + '\t' + \
+                                               'is-a' + '\t' + \
+                                               obsoleteID + '\n')
 
         # Get the next term from the parser.
         #
