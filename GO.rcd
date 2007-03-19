@@ -41,7 +41,7 @@ DATA_DIR = /data/downloads/ftp.geneontology.org/pub/go/ontology
         LOAD_FILE = ${RUNTIME_DIR}/dag.c
 ]
 [
-        NAME = Obsolete Terms
+        NAME = Obsolete
         NAME_SPACE = obsolete_terms
         ABBREV = O
         LOAD_FILE = ${RUNTIME_DIR}/dag.o
