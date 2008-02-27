@@ -1,3 +1,10 @@
+TAG: vocload-3-5-2-2
+DATE: 02/27/2008
+STAFF: lec
+CHANGES:
+1) TR8828, OMIM.transaction update/fix
+   also added OMIM.exclude, OMIM.synonym to cvs
+
 TAG: vocload-3-5-2-1
 DATE: 3/19/2007
 STAFF: dbm
