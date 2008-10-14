@@ -1,0 +1,29 @@
+#
+# Progam:  MouseCyc.rcd
+#
+# Purpose:
+#
+#	Configuration file for MouseCyc Vocabulary load
+#	which defines the MouseCyc DAGs
+#
+# Usage:
+#
+#	Used by Python Configuration module
+#
+# History:
+#
+#	10/14/2008	lec
+#	- new
+#
+
+RUNTIME_DIR = /data/loads/mgi/vocload/runTimeMouseCyc
+
+# DAGs which are part of the vocabulary (for complex vocabularies)
+
+[
+        NAME = MouseCyc
+        NAME_SPACE = mousecyc
+        ABBREV = MouseCyc
+        ONTOLOGY_FILE = ${RUNTIME_DIR}/mousecyc_pathways
+        LOAD_FILE = ${RUNTIME_DIR}/dag.mousecyc
+]
