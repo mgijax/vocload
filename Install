@@ -7,6 +7,21 @@ cd `dirname $0`
 echo "Compiling python programs..."
 python -c 'import compileall; compileall.compile_dir(".")'
 
+#
+# Create the runtime files if they don't exist
+#
+cd /data/loads/mgi/vocload
+if [ ! -d archiveMouseCyc ]
+then
+    mkdir -p archiveMouseCyc
+fi
+if [ ! -d runTimeMouseCyc ]
+then
+    mkdir -p runTimeMouseCyc
+fi
+
+cd `dirname $0`
+
 # Set mode
 echo "Setting modes..."
 chmod 775 *
