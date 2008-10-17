@@ -10,17 +10,14 @@ python -c 'import compileall; compileall.compile_dir(".")'
 #
 # Create the runtime files if they don't exist
 #
-cd /data/loads/mgi/vocload
-if [ ! -d archiveMouseCyc ]
+if [ ! -d /data/loads/mgi/vocload/archiveMouseCyc ]
 then
-    mkdir -p archiveMouseCyc
+    mkdir -p /data/loads/mgi/vocload/archiveMouseCyc
 fi
-if [ ! -d runTimeMouseCyc ]
+if [ ! -d /data/loads/mgi/vocload/runTimeMouseCyc ]
 then
-    mkdir -p runTimeMouseCyc
+    mkdir -p /data/loads/mgi/vocload/runTimeMouseCyc
 fi
-
-cd `dirname $0`
 
 # Set mode
 echo "Setting modes..."
