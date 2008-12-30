@@ -1,3 +1,9 @@
+TAG: vocload-4-1-3-4
+DATE: 12/30/2008
+STAFF: lec
+CHANGES:
+1) TR9434/new OMIM load QC report; OMIMtermcheck.py, OMIM.config, OMIMindex.html
+
 TAG: vocload-4-1-3-3
 DATE: 10/17/2008
 STAFF: dbm
