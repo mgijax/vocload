@@ -7,7 +7,7 @@
 #
 # Purpose:
 #
-#	To generate a report of OMIM.txt term vs. MGI OMIM term
+#	To generate report 1 of OMIM.txt term vs. MGI OMIM term
 #	where the:
 #		OMIM.tab id = MGI OMIM id
 #		OMIM.tab term != MGI OMIM term
@@ -18,12 +18,28 @@
 #		OMIM.tab term = "Ciliary Dyskinesia, Primary, 1"
 #		MGI OMIM term = "Kartagener Syndrome"
 #
-#	Report output:
+#	Report output 1:
 #
 #		MGI OMIM ID
 #		MGI OMIM term
 #		OMIM.tab term
 #		MGI ID of the Genotype annotations
+#
+#	TR9461
+#	To generate report 2 of merged OMIM terms
+#	where the:
+#		OMIM.tab id = MGI OMIM id
+#		OMIM.tab secondary exists
+#		OMIM.tab term
+#		MGI OMIM term
+#		MGI OMIM id contains genotype annotations
+#
+#	Report output 2:
+#
+#		MGI OMIM ID
+#		OMIM.tab secondary ID (column 7)
+#		MGI OMIM secondary ID
+#		MGI OMIM id contains genotype annotations
 #
 # Inputs:
 #
@@ -37,6 +53,9 @@
 #
 # History
 #
+# 08/06/2009	lec
+#	- TR9461; add report of secondary OMIM terms
+#
 
 import sys 
 import os
@@ -49,94 +68,171 @@ SPACE = reportlib.SPACE
 TAB = reportlib.TAB
 PAGE = reportlib.PAGE
 
+def report1():
+
+    fp.write('''A report of new OMIM.tab term vs. MGI OMIM term where the:
+           OMIM.tab id = MGI OMIM id
+           OMIM.tab term != MGI OMIM term
+           MGI OMIM id contains genotype annotations
+           ''')
+
+    fp.write(CRT)
+    fp.write(string.ljust('MGI OMIM ID', 15) + TAB)
+    fp.write(string.ljust('MGI OMIM term', 65) + TAB)
+    fp.write(string.ljust('OMIM.tab term', 65) + TAB)
+    fp.write('MGI ID of the Genotype annotations' + CRT*2)
+
+    for t in mgiTerms:
+        if omimTerms.has_key(t):
+	    mTerm = mgiTerms[t]
+	    oTerm = omimTerms[t]
+
+	    # only print if the terms are not equal
+	    # and the term has a genotype annotation
+
+	    if mTerm != oTerm and genotypes.has_key(t):
+	        fp.write(string.ljust(t, 15) + TAB)
+	        fp.write(string.ljust(mgiTerms[t], 65) + TAB)
+	        fp.write(string.ljust(omimTerms[t], 65) + TAB)
+	        fp.write(string.join(genotypes[t], ',') + CRT)
+
+    fp.write(CRT*2)
+
+def report2():
+
+    fp.write('''A report of secondary OMIM.tab ids vs. MGI OMIM secondary ids where the:
+           OMIM.tab id = MGI OMIM id
+	   OMIM.tab secondary id != MGI OMIM secondary id
+           MGI OMIM id contains genotype annotations
+           ''')
+
+    fp.write(CRT)
+    fp.write(string.ljust('MGI OMIM ID', 15) + TAB)
+    fp.write(string.ljust('MGI OMIM secondary ID', 25) + TAB)
+    fp.write(string.ljust('OMIM secondary ID', 25) + TAB)
+    fp.write('MGI ID of the Genotype annotations' + CRT*2)
+
+    # for each omim secondary that exists in mgi as a primary...
+    for t in mgiSecondarys:
+
+	secondaryExists = 0
+
+        if omimSecondarys.has_key(t):
+
+	    mSecondary = mgiSecondarys[t]
+
+	    for oSecondary in omimSecondarys[t]:
+	        if mSecondary == oSecondary:
+		    secondaryExists = 1
+
+	    # only print if the secondaries are not equal
+	    # and the term has a genotype annotation
+
+	    if secondaryExists == 0 and genotypes.has_key(t):
+	        fp.write(string.ljust(t, 15) + TAB)
+	        fp.write(string.ljust(mgiSecondarys[t], 25) + TAB)
+	        fp.write(string.ljust(string.join(omimSecondarys[t],'|'), 25) + TAB)
+	        fp.write(string.join(genotypes[t], ',') + CRT)
+
+    fp.write(CRT*2)
+
+def init():
+
+    global omimTerms, omimSecondarys, mgiTerms, mgiSecondarys, genotypes
+
+    # grab the new OMIM terms
+    for line in inFile.readlines():
+        tokens = string.split(line[:-1], '\t')
+        term = tokens[0]
+        id = tokens[1]
+	secondary = tokens[7]
+        omimTerms[id] = term
+
+	if len(secondary) > 0:
+	    tokens = string.split(secondary, '|')
+	    omimSecondarys[id] = []
+	    for t in tokens:
+		omimSecondarys[id].append(t)
+
+    inFile.close()
+
+    # grab the existing OMIM terms in MGI
+    results = db.sql('''select a.accID, t.term
+        from VOC_Term t, ACC_Accession a, VOC_Annot aa
+        where t._Vocab_key = 44
+        and t._Term_key = a._Object_key 
+        and a._MGIType_key = 13 
+        and a.preferred = 1
+        and t._Term_key = aa._Term_key
+        and aa._AnnotType_key = 1005
+        order by t.term
+        ''', 'auto')
+
+    for r in results:
+        term = r['term']
+        id = r['accID']
+        mgiTerms[id] = term
+
+    # grab the existing OMIM secondary terms in MGI
+    results = db.sql('''select distinct a.accID, secondary = s.accID
+        from VOC_Term t, ACC_Accession a, ACC_Accession s, VOC_Annot aa
+        where t._Vocab_key = 44
+        and t._Term_key = a._Object_key 
+        and a._MGIType_key = 13 
+        and a.preferred = 1
+        and t._Term_key = aa._Term_key
+        and aa._AnnotType_key = 1005
+        and t._Term_key = s._Object_key 
+        and s._MGIType_key = 13 
+        and s.preferred = 0
+        order by t.term
+        ''', 'auto')
+
+    for r in results:
+        id = r['accID']
+	secondary = r['secondary']
+        mgiSecondarys[id] = secondary
+
+    # grab genotypes that exist for MGI OMIM terms
+    results = db.sql('''select a.accID, genotypeID = g.accID
+        from VOC_Term t, VOC_Annot aa, ACC_Accession a, ACC_Accession g
+        where t._Vocab_key = 44
+        and t._Term_key = a._Object_key
+        and a._MGIType_key = 13 
+        and a.preferred = 1
+        and t._Term_key = aa._Term_key 
+        and aa._AnnotType_key = 1005
+        and aa._Object_key = g._Object_key 
+        and g._MGIType_key = 12 
+        order by t.term
+        ''', 'auto')
+
+    for r in results:
+        genotypeID = r['genotypeID']
+        id = r['accID']
+        if not genotypes.has_key(id):
+            genotypes[id] = []
+        genotypes[id].append(genotypeID)
+
 #
 # Main
 #
 
-fp = reportlib.init(sys.argv[0], printHeading = 0, outputdir = os.environ['RUNTIME_DIR'])
-
-fp.write('''A report of new OMIM.tab term vs. MGI OMIM term where the:
-       OMIM.tab id = MGI OMIM id
-       OMIM.tab term != MGI OMIM term
-       MGI OMIM id contains genotype annotations
-       ''')
-
-fp.write(CRT)
-fp.write(string.ljust('MGI OMIM ID', 15) + TAB)
-fp.write(string.ljust('MGI OMIM term', 45) + TAB)
-fp.write(string.ljust('OMIM.tab term', 45) + TAB)
-fp.write('MGI ID of the Genotype annotations' + CRT*2)
+fp = reportlib.init(sys.argv[0], printHeading = 0, outputdir = os.environ['RUNTIME_DIR'],
+	fileExt = '.' + os.environ['DATE'] + '.rpt')
+os.system('ln -s ${RUNTIME_DIR}/OMIMtermcheck.${DATE}.rpt ${RUNTIME_DIR}/OMIMtermcheck.current.rpt')
 
 # this is the data file generated by OMIM.py/see OMIM.config
 inFile = open(os.environ['DATA_FILE'], 'r')
 
 omimTerms = {}
+omimSecondarys = {}
 mgiTerms = {}
+mgiSecondarys = {}
 genotypes = {}
 
-# grab the new OMIM terms
-for line in inFile.readlines():
-    tokens = string.split(line[:-1], '\t')
-    term = tokens[0]
-    id = tokens[1]
-    omimTerms[id] = term
-inFile.close()
-
-# grab the existing OMIM terms in MGI
-results = db.sql('''select a.accID, t.term
-    from VOC_Term t, ACC_Accession a, VOC_Annot aa
-    where t._Vocab_key = 44
-    and t._Term_key = a._Object_key 
-    and a._MGIType_key = 13 
-    and a.preferred = 1
-    and t._Term_key = aa._Term_key
-    and aa._AnnotType_key = 1005
-    order by t.term
-    ''', 'auto')
-
-for r in results:
-    term = r['term']
-    id = r['accID']
-    mgiTerms[id] = term
-
-# grab genotypes that exist for MGI OMIM terms
-results = db.sql('''select a.accID, genotypeID = g.accID
-    from VOC_Term t, VOC_Annot aa, ACC_Accession a, ACC_Accession g
-    where t._Vocab_key = 44
-    and t._Term_key = a._Object_key
-    and a._MGIType_key = 13 
-    and a.preferred = 1
-    and t._Term_key = aa._Term_key 
-    and aa._AnnotType_key = 1005
-    and aa._Object_key = g._Object_key 
-    and g._MGIType_key = 12 
-    order by t.term
-    ''', 'auto')
-
-for r in results:
-    genotypeID = r['genotypeID']
-    id = r['accID']
-    if not genotypes.has_key(id):
-        genotypes[id] = []
-    genotypes[id].append(genotypeID)
-
-#
-# do comparison
-#
-
-for t in mgiTerms:
-    if omimTerms.has_key(t):
-	mTerm = mgiTerms[t]
-	oTerm = omimTerms[t]
-
-	# only print if the terms are not equal
-	# and the term has a genotype annotation
-
-	if mTerm != oTerm and genotypes.has_key(t):
-	    fp.write(string.ljust(t, 15) + TAB)
-	    fp.write(string.ljust(mgiTerms[t], 45) + TAB)
-	    fp.write(string.ljust(omimTerms[t], 45) + TAB)
-	    fp.write(string.join(genotypes[t], ',') + CRT)
-
+init()
+report1()
+report2()
 reportlib.finish_nonps(fp)	# non-postscript file
 

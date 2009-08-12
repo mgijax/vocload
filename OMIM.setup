@@ -13,6 +13,10 @@
 #
 # History:
 #
+#
+#	lec	08/12/2009
+#	- TR 9461 (see below)
+#
 #	lec	04/12/2005
 #	- TR 3853, OMIM
 #
@@ -33,4 +37,12 @@ cp ${DOWNLOAD_FILE_DIR}/${COMPRESSED_OMIM_FILE} ${RUNTIME_DIR}
 #
 cd ${RUNTIME_DIR}
 gunzip ${COMPRESSED_OMIM_FILE}
+
+#
+# copies qc files to archive and re-sets for the next report
+# see TR9461 (OMIMtermcheck report)
+#
+mkdir -p ${ARCHIVEREPORTS_DIR}
+mv -f ${RUNTIME_DIR}/OMIMtermcheck.*.rpt ${ARCHIVEREPORTS_DIR}
+rm -rf ${RUNTIME_DIR}/OMIMtermcheck.*.current.rpt
 
