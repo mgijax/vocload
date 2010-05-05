@@ -1,0 +1,29 @@
+#
+# Progam:  MTO.rcd
+#
+# Purpose:
+#
+#	Configuration file for Marker Type Ontology Vocabulary load
+#	which defines the MTO DAG
+#
+# Usage:
+#
+#	Used by Python Configuration module
+#
+# History:
+#
+#	04/16/2010	sc
+#	- new
+#
+
+RUNTIME_DIR = /data/loads/mgi/vocload/runTimeMTO
+
+# DAGs which are part of the vocabulary (for complex vocabularies)
+
+[
+        NAME = Marker Type Ontology
+        NAME_SPACE = sequence
+        ABBREV = MTO
+        ONTOLOGY_FILE = ${RUNTIME_DIR}/MTO.ontology
+        LOAD_FILE = ${RUNTIME_DIR}/dag.mto
+]

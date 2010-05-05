@@ -241,7 +241,6 @@ class TermLoad:
         # determine if you will be creating a bcp file
         # or performing on-line updates
         self.isBCPLoad = self.setFullModeDataLoader()
-
         # validity checks...
         # 1. we cannot do incremental loads on simple vocabularies
         # 2. we cannot do full loads on vocabularies which are cross-
@@ -283,7 +282,6 @@ class TermLoad:
             self.useSynonymType = os.environ['USE_SYNONYM_TYPE']
         except:
             self.useSynonymType = 0
-
         # remember the filename and read the data file
 
         self.filename = filename
@@ -856,6 +854,7 @@ class TermLoad:
                else:
                   # Existing record found in VOC tables.  Now check
                   # if record changed
+		  
                   recordChanged = self.processRecordChanges ( record, dbRecord, termKey )
                   self.processSecondaryTerms ( record, primaryTermIDs, secondaryTermIDs, termKey )
             else: #New term
@@ -940,7 +939,8 @@ class TermLoad:
 
 	duplicate = 0
 
-        # only check if using actual accession ids (mgi ids will be blank in # the Termfile)
+        # only check if using actual accession ids (mgi ids will be blank in 
+        # the Termfile)
 
 	if self.LOGICALDB_KEY != MGI_LOGICALDB_KEY and self.LOGICALDB_KEY != '-1':
 

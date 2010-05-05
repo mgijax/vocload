@@ -1,3 +1,22 @@
+TAG: vocload-tr6839-1
+DATE: 04/29/2010
+STAFF: sc
+CHANGES:
+1) add: SO.config, SO.rcd, MTO.config MTO.rcd
+2) OBOParser.py - parse subset and add to term object
+3) OBOTerm.py - add subset variable and methods
+4) loadDAG.py - added some debug including passing log
+   to getClosure method.
+   NOTE: need to remove some
+   commented out debug prior to merging to trunk
+5) loadOBO.py - Added Sequence Ontology special handling (as for GO)
+   for obsoletes etc, added subset processing, change DAG_CHILD_LABEL
+   constant to dag_child_label variable; for SO only this value may
+   come from obo file (i.e. not always 'Not Specified')
+   NOTE: need to remove some
+   commented out debug prior to merging to trunk
+6) loadTerms.py -  comments only
+
 TAG: vocload-tr6839-BP
 DATE: 04/29/2010
 STAFF: sc

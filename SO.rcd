@@ -1,0 +1,36 @@
+#
+# Progam:  SO.rcd
+#
+# Purpose:
+#
+#	Configuration file for Sequence Ontology Vocabulary load
+#	which defines the SO DAG
+#
+# Usage:
+#
+#	Used by Python Configuration module
+#
+# History:
+#
+#	04/16/2010	sc
+#	- new
+#
+
+RUNTIME_DIR = /data/loads/mgi/vocload/runTimeSO
+
+# DAGs which are part of the vocabulary (for complex vocabularies)
+
+[
+        NAME = Sequence Ontology
+        NAME_SPACE = sequence
+        ABBREV = SO
+        ONTOLOGY_FILE = ${RUNTIME_DIR}/SO.ontology
+        LOAD_FILE = ${RUNTIME_DIR}/dag.so
+]
+[
+        NAME = SO Obsolete
+        NAME_SPACE = obsolete_terms
+        ABBREV = SOO
+        LOAD_FILE = ${RUNTIME_DIR}/dag.soo
+]
+
