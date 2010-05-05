@@ -553,29 +553,33 @@ class DAGLoad:
         # build the dag as a list of lists where:
         #   dag[0] = list of parent-less term keys
         #   dag[n] = list of child terms of term n, for n>0
-
         dag = [self.roots]
+	#self.log.writeline ('dag = [self.roots] %s' % dag)
         dag = dag + [ [] ] * self.max_node_key
-
+	#self.log.writeline('DAG before:')
+	#self.log.writeline(dag)
+	#self.log.writeline(self.childrenOf.items() )
+	#self.log.writeline('ITERATE THRU childrenof.items()')
         for (object_key, children) in self.childrenOf.items():
+	    #self.log.writeline('objectKey: %s, children %s' % (object_key, children))
             if object_key:
                 dag[object_key] = children
-
+	#self.log.writeline('DAG after:')
+        #self.log.writeline(dag)
         # now actually compute the closure...
 
         self.log.writeline (vocloadlib.timestamp ('Start Closure Computation: '))
-        closure = getClosure (dag)
+        closure = getClosure (dag, self.log)
         self.log.writeline (vocloadlib.timestamp ('Stop Closure Computation: '))
 
         # and add each ancestor-descendant edge to the database.
 	# we store both the _Node_key and the _Term_key for the Ancestor and Descendent in the DAG_Closure table
 	# so, we need to translate each _Term_key to its appropriate _Node_key
-
         for (node, children) in closure.items():
+	    if DEBUG:
+		self.log.writeline('Node: %s Children %s' % (node, children))
             if node > 0:
                for child in children:
-                   if DEBUG:
-                      self.log.writeline (INSERT_CLOSURE % ( self.dag_key, mgiType, self.getNodeKey(node), self.getNodeKey(child), node, child, self.nodeLabel[self.getNodeKey(node)], self.nodeLabel[self.getNodeKey(child)]) )
                    # write the BCP file 
                    self.loadClosureBCP=1
                    self.dagClosureBCPFile.write (BCP_INSERT_CLOSURE % (self.dag_key, mgiType, self.getNodeKey(node), self.getNodeKey(child), node, child, self.nodeLabel[self.getNodeKey(node)], self.nodeLabel[self.getNodeKey(child)]) )
@@ -655,9 +659,10 @@ class DAGLoad:
 ###--- Private Functions ---###
 
 def getClosure (
-    dag # the DAG, as a list of lists.
+    dag, # the DAG, as a list of lists.
         #   list[0] = list of keys of parent-less nodes
         #   list[i] = list of keys of children of node i, for i>0
+    log
     ):
     # Purpose: get the closure for the given 'dag'
     # Returns: dictionary where d[key i] = list of keys of all descendants
@@ -691,6 +696,8 @@ def getClosure (
             #   closure[i] = list of keys of descendants of the node with key i
 
     getNodeClosure (dag, start, closure)
+    #for a in closure.keys():
+    #	log.writeline('ancestor: %s descendants: %s' % (a, closure[a]))
     return closure
 
 def getNodeClosure (
