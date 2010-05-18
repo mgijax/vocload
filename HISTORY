@@ -1,3 +1,10 @@
+TAG: vocload-tr6839-2
+DATE: 05/17/2010
+STAFF: sc
+CHANGES: Removed SO.config SO.rcd
+    Some commenting changes in other config files
+    to make things clearer.
+
 TAG: vocload-tr6839-1
 DATE: 04/29/2010
 STAFF: sc
