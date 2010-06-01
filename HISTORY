@@ -1,3 +1,9 @@
+TAG: vocload-tr6839-3
+DATE: 06/01/2010
+STAFF: sc
+CHANGES: Removed MTO.config MTO.rcd
+ replaced with MCV.config MCV.rcd 
+
 TAG: vocload-tr6839-2
 DATE: 05/17/2010
 STAFF: sc
