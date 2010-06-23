@@ -1022,7 +1022,11 @@ class TermLoad:
 #                    if not isObsolete:
                     oldKey = termKey
                     newKey = associatedTermKey
-                    vocloadlib.nl_sqlog ( ( MERGE_TERMS % (oldKey, newKey) ), self.log )
+		    # If the keys are the same this is not a merge, e.g. in the mcv there is
+		    # a SO id and an MCV id associated with the same term with different
+		    # logicalDBs and both preferred ids
+		    if oldKey != newKey:
+			vocloadlib.nl_sqlog ( ( MERGE_TERMS % (oldKey, newKey) ), self.log )
                 else:
                     # check to see if secondary id already exists in database;
                     # if not, add it to accession table

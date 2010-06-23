@@ -1,3 +1,8 @@
+TAG: vocload-tr6839-4
+DATE: 06/23/2010
+STAFF: sc
+CHANGES: Only merge terms when oldKey != newKey
+
 TAG: vocload-tr6839-3
 DATE: 06/01/2010
 STAFF: sc
