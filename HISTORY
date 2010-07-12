@@ -1,3 +1,8 @@
+TAG: vocload-tr6839-5
+DATE: 07/12/2010
+STAFF: sc
+CHANGES: Bug in loadOBO.py creating Node label
+
 TAG: vocload-tr6839-4
 DATE: 06/23/2010
 STAFF: sc

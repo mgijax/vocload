@@ -149,7 +149,7 @@ class Parser:
                 self.term.addSynonym (re.split ('"', self.line)[1])
                 self.term.addSynonymType (re.split (' ', re.split ('"', self.line)[2].lstrip())[0])
 	    # Save the subset value
-	    # For MTO this is the show/hide value of the term
+	    # For MCV this is the show/hide value of the term
 	    #
 	    if tag == 'subset':
 		self.term.addSubset(re.split (' ', self.line)[1])

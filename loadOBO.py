@@ -245,8 +245,11 @@ def parseOBOFile():
     # to the DAG file when the term is process below.
     #
     if dagRootID:
-        for i in validNamespace:
-            fpDAG[i].write(dagRootID + '\t' + '\t' + '\t' + '\n')
+	if vocabName == 'Marker Category':
+	     fpDAG[validNamespace[0]].write(dagRootID + '\t' + 'show' + '\t' + '\t' + '\n') 
+	else:
+	    for i in validNamespace:
+		fpDAG[i].write(dagRootID + '\t' + '\t' + '\t' + '\n')
 
     # If the GO vocabulary is being loaded, add the parent obsolete term to
     # the Termfile and associate it to the root ID in the obsolete DAG file.
@@ -310,11 +313,6 @@ def parseOBOFile():
         synonym = term.getSynonym()
         synonymType = term.getSynonymType()
 	subset = term.getSubset()
-	#log.writeline('subset: %s' % subset)
-	#log.writeline('SO ID: %s relationshipTypes: %s relationships: %s' \
-	#    % (termID, relationshipType, relationship))
-	#log.writeline('SO ID: %s synonymType: %s synonym: %s' \
-        #    % (termID, synonymType, synonym))
         isValid = 1
 
         # Validate the namespace.  The namespace is used to determine which
@@ -354,19 +352,20 @@ def parseOBOFile():
                 fpValid.write('(' + termID + ') Invalid synonym type: ' + s + '\n')
                 isValid = 0
 
-        # If this is the MTO, validate the subset aka Node Label; description of the Node
-	if  vocabName == 'Marker Type Ontology' and len(subset) > 0:
+        # If this is the MCV, validate the subset aka Node Label; description of the Node
+	dag_child_label = ''
+	if  vocabName == 'Marker Category' and len(subset) > 0:
 	    if len(subset) > 1:
-		fpValid.write('(%s) More than one MTO Node Label: \n' % (termID, subset))
+		fpValid.write('(%s) More than one MCV Node Label: \n' % (termID, subset))
                 isValid = 0
 	    else:
-		s = subset[0]
-	 	s = re.sub('[^a-zA-Z0-9]','',s)
-		if not validRelationshipType.has_key(s):
-		    fpValid.write('(%s) Invalid MTO Node Label: %s\n' % (termID, s))
+		l = subset[0]
+	 	l = re.sub('[^a-zA-Z0-9]','',l)
+		if not validRelationshipType.has_key(l):
+		    fpValid.write('(%s) Invalid MCV Node Label: %s\n' % (termID, l))
 		    isValid = 0
 	    if isValid == 1:
-		dag_child_label = validRelationshipType[s] 
+		dag_child_label = validRelationshipType[l] 
 
         # If there are no validation errors, the term can be processed
         # further.
