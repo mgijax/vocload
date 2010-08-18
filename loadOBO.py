@@ -81,8 +81,6 @@ import loadVOC
 USAGE = 'Usage:  %s [-n] [-f|-i] [-l <log file>] <RcdFile>' % sys.argv[0]
 
 TERM_ABBR = ''
-DAG_CHILD_LABEL = ''
-
 
 # Purpose: Write a status to the log, close the log and exit.
 # Returns: Nothing
@@ -135,10 +133,14 @@ def initialize():
     # Create a list of valid relationship types.  Strip out any characters
     # that are non-alphanumeric to allow for a more accurate comparison to
     # values from the input file.
-    #
+    # These are DAG_Label terms and can represent either a DAG_Edge label i.e.
+    # relationship or a DAG_Node label i.e. description
     validRelationshipType = {}
+    #print 'CODE loadOBO.py loading labels into lookup'
     for r in results[0]:
+	#print 'CODE loadOBO.py label: %s' % r['label']
         label = re.sub('[^a-zA-Z0-9]', '', r['label'])
+	#print 'CODE loadOBO.py regsub label: %s' % label
         validRelationshipType[label] = r['label']
 
     # Create a list of valid synonym types.
@@ -188,7 +190,7 @@ def openFiles():
     log.writeline('OBO File = ' + oboFile)
     log.writeline('Termfile = ' + termFile)
 
-    # Open a DAG file for each namesapce.
+    # Open a DAG file for each namespace.
     #
     fpDAG = {}
     for (key, record) in config.items():
@@ -230,6 +232,8 @@ def parseOBOFile():
     vocabName = os.environ['VOCAB_NAME']
     expectedVersion = os.environ['OBO_FILE_VERSION']
     dagRootID = os.environ['DAG_ROOT_ID']
+    # default node label
+    dag_child_label = ''
 
     # Open the input and output files.
     #
@@ -241,13 +245,16 @@ def parseOBOFile():
     # to the DAG file when the term is process below.
     #
     if dagRootID:
-        for i in validNamespace:
-            fpDAG[i].write(dagRootID + '\t' + '\t' + '\t' + '\n')
+	if vocabName == 'Marker Category':
+	     fpDAG[validNamespace[0]].write(dagRootID + '\t' + 'show' + '\t' + '\t' + '\n') 
+	else:
+	    for i in validNamespace:
+		fpDAG[i].write(dagRootID + '\t' + '\t' + '\t' + '\n')
 
     # If the GO vocabulary is being loaded, add the parent obsolete term to
     # the Termfile and associate it to the root ID in the obsolete DAG file.
     #
-    if vocabName == 'GO':
+    if vocabName == 'GO' or vocabName == 'Sequence Ontology':
         obsoleteTerm = os.environ['OBSOLETE_TERM']
         obsoleteID = os.environ['OBSOLETE_ID']
         obsoleteDefinition = os.environ['OBSOLETE_DEFINITION']
@@ -267,7 +274,7 @@ def parseOBOFile():
     # Create an OBO parser that will return attributes from the OBO
     # input file.
     #
-    parser = OBOParser.Parser(fpOBO)
+    parser = OBOParser.Parser(fpOBO, log)
 
     # Get the header from the parser and save its attributes.
     #
@@ -305,7 +312,7 @@ def parseOBOFile():
         relationshipType = term.getRelationshipType()
         synonym = term.getSynonym()
         synonymType = term.getSynonymType()
-
+	subset = term.getSubset()
         isValid = 1
 
         # Validate the namespace.  The namespace is used to determine which
@@ -344,6 +351,21 @@ def parseOBOFile():
             if s.lower() not in validSynonymType:
                 fpValid.write('(' + termID + ') Invalid synonym type: ' + s + '\n')
                 isValid = 0
+
+        # If this is the MCV, validate the subset aka Node Label; description of the Node
+	dag_child_label = ''
+	if  vocabName == 'Marker Category' and len(subset) > 0:
+	    if len(subset) > 1:
+		fpValid.write('(%s) More than one MCV Node Label: \n' % (termID, subset))
+                isValid = 0
+	    else:
+		l = subset[0]
+	 	l = re.sub('[^a-zA-Z0-9]','',l)
+		if not validRelationshipType.has_key(l):
+		    fpValid.write('(%s) Invalid MCV Node Label: %s\n' % (termID, l))
+		    isValid = 0
+	    if isValid == 1:
+		dag_child_label = validRelationshipType[l] 
 
         # If there are no validation errors, the term can be processed
         # further.
@@ -386,14 +408,15 @@ def parseOBOFile():
             #
             for i in range(len(relationship)):
                 fpDAG[namespace].write(termID + '\t' + \
-                                        DAG_CHILD_LABEL + '\t' + \
-                                        validRelationshipType[re.sub('[^a-zA-Z0-9]','',relationshipType[i])] + '\t' + \
-                                        relationship[i] + '\n')
+		    dag_child_label + '\t' + \
+		    validRelationshipType[re.sub('[^a-zA-Z0-9]','',relationshipType[i])] + '\t' + \
+		    relationship[i] + '\n')
 
-            # If it is an obsolete GO term and not the root ID, write it to
-            # the obsolete DAG file.
+            # If it is an obsolete GO or Sequence Ontology term 
+	    # and not the root ID, write it to the obsolete DAG file.
             #
-            if vocabName == 'GO' and status == 'obsolete' and termID != dagRootID:
+            if (vocabName == 'GO' or vocabName == 'Sequence Ontology') and \
+		    status == 'obsolete' and termID != dagRootID:
                 fpDAG[obsoleteNamespace].write(termID + '\t' + '\t' + \
                                                'is-a' + '\t' + \
                                                obsoleteID + '\n')

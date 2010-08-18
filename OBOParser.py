@@ -20,8 +20,9 @@ class Parser:
     # Effects: Initializes header and term objects.
     # Throws: Nothing
     #
-    def __init__(self, fpOBO):
+    def __init__(self, fpOBO, log):
         self.fpOBO = fpOBO
+        self.log = log	# for debugging only
 
         # Create the head an term objects.
         #
@@ -147,6 +148,11 @@ class Parser:
             if tag == 'synonym':
                 self.term.addSynonym (re.split ('"', self.line)[1])
                 self.term.addSynonymType (re.split (' ', re.split ('"', self.line)[2].lstrip())[0])
+	    # Save the subset value
+	    # For MCV this is the show/hide value of the term
+	    #
+	    if tag == 'subset':
+		self.term.addSubset(re.split (' ', self.line)[1])
 
             # Read the next line from the OBO file.
             #

@@ -1,3 +1,57 @@
+TAG: vocload-4-4-0-1
+DATE: 08/18/2010
+STAFF: sc
+CHANGES: merge tr6839 branch to trunk
+
+TAG: vocload-tr6839-6
+DATE: 08/12/2010
+STAFF: sc
+CHANGES: 
+1) MCV.config - changed path to obo file and added
+   howard and richard as maintainers
+
+TAG: vocload-tr6839-5
+DATE: 07/12/2010
+STAFF: sc
+CHANGES: Bug in loadOBO.py creating Node label
+
+TAG: vocload-tr6839-4
+DATE: 06/23/2010
+STAFF: sc
+CHANGES: Only merge terms when oldKey != newKey
+
+TAG: vocload-tr6839-3
+DATE: 06/01/2010
+STAFF: sc
+CHANGES: Removed MTO.config MTO.rcd
+ replaced with MCV.config MCV.rcd 
+
+TAG: vocload-tr6839-2
+DATE: 05/17/2010
+STAFF: sc
+CHANGES: Removed SO.config SO.rcd
+    Some commenting changes in other config files
+    to make things clearer.
+
+TAG: vocload-tr6839-1
+DATE: 04/29/2010
+STAFF: sc
+CHANGES:
+1) add: SO.config, SO.rcd, MTO.config MTO.rcd
+2) OBOParser.py - parse subset and add to term object
+3) OBOTerm.py - add subset variable and methods
+4) loadDAG.py - added some debug including passing log
+   to getClosure method.
+   NOTE: need to remove some
+   commented out debug prior to merging to trunk
+5) loadOBO.py - Added Sequence Ontology special handling (as for GO)
+   for obsoletes etc, added subset processing, change DAG_CHILD_LABEL
+   constant to dag_child_label variable; for SO only this value may
+   come from obo file (i.e. not always 'Not Specified')
+   NOTE: need to remove some
+   commented out debug prior to merging to trunk
+6) loadTerms.py -  comments only
+
 TAG: vocload-tr6839-BP
 DATE: 04/29/2010
 STAFF: sc

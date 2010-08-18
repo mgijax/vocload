@@ -37,6 +37,7 @@ class Term:
         self.relationshipType = []
         self.synonym = []
         self.synonymType = []
+	self.subset = []
 
 
     # The following methods are used to set/get the attributes of the
@@ -108,7 +109,12 @@ class Term:
 
     def getSynonymType (self):
         return self.synonymType
+    
+    def addSubset (self, subset):
+	self.subset.append(subset)
 
+    def getSubset (self):
+	return self.subset
 
     # Purpose: Return all the attributes as one string (for debugging).
     # Returns: String of all objects.
@@ -127,4 +133,5 @@ class Term:
                '|relationship=' + ','.join(self.relationship) + \
                '|relationshipType=' + ','.join(self.relationshipType) + \
                '|synonym=' + ','.join(self.synonym) + \
-               '|synonymType=' + ','.join(self.synonymType) + '|'
+               '|synonymType=' + ','.join(self.synonymType) + \
+	       '|subset=' + ','.join(self.subset) + '|'

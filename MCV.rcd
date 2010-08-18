@@ -1,0 +1,29 @@
+#
+# Progam:  MCV.rcd
+#
+# Purpose:
+#
+#	Configuration file for Marker Type Ontology Vocabulary load
+#	which defines the MCV DAG
+#
+# Usage:
+#
+#	Used by Python Configuration module
+#
+# History:
+#
+#	04/16/2010	sc
+#	- new
+#
+
+RUNTIME_DIR = /data/loads/mgi/vocload/runTimeMCV
+
+# DAGs which are part of the vocabulary (for complex vocabularies)
+
+[
+        NAME = Marker Category
+        NAME_SPACE = sequence
+        ABBREV = MCV
+        ONTOLOGY_FILE = ${RUNTIME_DIR}/MCV.ontology
+        LOAD_FILE = ${RUNTIME_DIR}/dag.mcv
+]
