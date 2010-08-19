@@ -1,7 +1,9 @@
+TAG: vocload-4-4-0-2
 TAG: vocload-4-4-0-1
 DATE: 08/18/2010
 STAFF: sc
 CHANGES: merge tr6839 branch to trunk
+1) MAINTAINER changed from hjd to hdene
 
 TAG: vocload-tr6839-6
 DATE: 08/12/2010
