@@ -113,6 +113,13 @@ def cacheSecondaryIds():
     # Throws:
     #
 
+    #
+    # Note that there is one instance of:
+    # ^171850 MOVED TO 171680 AND 610681
+    # This code is not handling this case and have manually obsoleted 171850.
+    # as part of TR10551 migration (wts_projects/10500/10551/tr10551.csh)
+    #
+
     global secondaryIds
 
     inFile = open(inFileName, 'r')
