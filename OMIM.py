@@ -34,6 +34,26 @@
 #
 # History:
 #
+# lec	04/27/2011
+#	- TR 10551; delete records from omimNew that need to be obsoleted
+#	  this occurs when the original term is a non-*, non-^ term (added to the database)
+#	  but the "MOVED TO" term is a * or ^ term.
+#	  in this case, we need to remove the original term
+#	  from omimNew so that it falls into the "obsolete" area.
+#
+#	  the same thing can happen if the "MOVED TO" is in the OMIM.exclude bucket.
+#
+#         for example:
+#		176680 MOVED TO 142880
+#		142880 contains "*"
+#		176680 is removed from omimNew so it will
+#		fall into the "obsolete" area of OMIM.tab.
+#
+#		606642 MOVED TO 606641
+#		606641 is in the OMIM.exclude bucket
+#		606642 is removed from omimNew so it will
+#		fall into the "obsolete" area of OMIM.tab.
+#		
 # lec	04/13/2005
 #	- TR 3853, OMIM
 #
