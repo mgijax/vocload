@@ -345,6 +345,16 @@ def processOMIM():
 	    # if the term is in our excluded file, we don't want it
 
 	    if mim in excludedIds:
+
+		# if this entry is excluded but exists as a secondary id...
+	        if secondaryIds.has_key(mim):
+		    for id in secondaryIds[mim]:
+			# if this entry exists in omimNew...
+	                if omimNew.has_key(id):
+			    # remove object from omimNew 
+			    # so it will be added as an obsolete term (see below)
+			    del omimNew[id]
+
 		continue
 
 	    # if the term has been removed, we don't want it
