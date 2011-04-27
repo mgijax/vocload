@@ -214,8 +214,6 @@ class DAGLoad:
         self.datafile = vocloadlib.readTabFile (filename,
             [ 'childID', 'node_label', 'edge_label', 'parentID' ])
 
-	#self.log.writeline(self.datafile)
-
         # remember the MGI Type (for DAG_DAG)
 
         self.mgitype_key = vocloadlib.VOCABULARY_TERM_TYPE
@@ -470,12 +468,6 @@ class DAGLoad:
                     self.childrenOf[parent_key] = []
                 self.childrenOf[parent_key].append (child_key)
 
-	    self.log.writeline (childID)
-	    self.log.writeline (child_key)
-	    self.log.writeline (parentID)
-	    self.log.writeline (parent_key)
-	    #self.log.writeline (self.childrenOf[parent_key])
-
             # We now need to convert the _Object_keys for the
             # child and parent to be their corresponding node
             # keys.  If either (or both) have no node key, then
@@ -484,30 +476,19 @@ class DAGLoad:
             if not self.objToNode.has_key (child_key):
                 self.max_node_key = self.max_node_key + 1
                 self.objToNode [child_key] = self.max_node_key
-	        self.log.writeline ('object to node CHILD:  ')
-		self.log.writeline (self.objToNode[child_key])
 
             if parent_key and not self.objToNode.has_key (parent_key):
                 self.max_node_key = self.max_node_key + 1
                 self.objToNode [parent_key] = self.max_node_key
-	        self.log.writeline ('object to node PARENT:  ')
-		self.log.writeline (self.objToNode[parent_key])
 
             # if we haven't already added a node record for this
             # child, then we need to add one now
 
             child_node_key = self.objToNode [child_key]
-
-	    self.log.writeline ('child node key')
-	    self.log.writeline (child_node_key)
-
             if not nodesAdded.has_key (child_node_key):
                 self.addNode (child_node_key, child_key, node_label_key)
                 nodesAdded[child_node_key] = 1
 		self.nodeLabel [child_node_key] = node_label_key
-	        self.log.writeline ('add node')
-	        self.log.writeline (child_node_key)
-	        self.log.writeline (child_key)
 
             # finally, if this child has a parent then we need to
             # add the edge between them
@@ -572,29 +553,33 @@ class DAGLoad:
         # build the dag as a list of lists where:
         #   dag[0] = list of parent-less term keys
         #   dag[n] = list of child terms of term n, for n>0
-
         dag = [self.roots]
+	#self.log.writeline ('dag = [self.roots] %s' % dag)
         dag = dag + [ [] ] * self.max_node_key
-
+	#self.log.writeline('DAG before:')
+	#self.log.writeline(dag)
+	#self.log.writeline(self.childrenOf.items() )
+	#self.log.writeline('ITERATE THRU childrenof.items()')
         for (object_key, children) in self.childrenOf.items():
+	    #self.log.writeline('objectKey: %s, children %s' % (object_key, children))
             if object_key:
                 dag[object_key] = children
-
+	#self.log.writeline('DAG after:')
+        #self.log.writeline(dag)
         # now actually compute the closure...
 
         self.log.writeline (vocloadlib.timestamp ('Start Closure Computation: '))
-        closure = getClosure (dag)
+        closure = getClosure (dag, self.log)
         self.log.writeline (vocloadlib.timestamp ('Stop Closure Computation: '))
 
         # and add each ancestor-descendant edge to the database.
 	# we store both the _Node_key and the _Term_key for the Ancestor and Descendent in the DAG_Closure table
 	# so, we need to translate each _Term_key to its appropriate _Node_key
-
         for (node, children) in closure.items():
+	    if DEBUG:
+		self.log.writeline('Node: %s Children %s' % (node, children))
             if node > 0:
                for child in children:
-                   if DEBUG:
-                      self.log.writeline (INSERT_CLOSURE % ( self.dag_key, mgiType, self.getNodeKey(node), self.getNodeKey(child), node, child, self.nodeLabel[self.getNodeKey(node)], self.nodeLabel[self.getNodeKey(child)]) )
                    # write the BCP file 
                    self.loadClosureBCP=1
                    self.dagClosureBCPFile.write (BCP_INSERT_CLOSURE % (self.dag_key, mgiType, self.getNodeKey(node), self.getNodeKey(child), node, child, self.nodeLabel[self.getNodeKey(node)], self.nodeLabel[self.getNodeKey(child)]) )
@@ -674,9 +659,10 @@ class DAGLoad:
 ###--- Private Functions ---###
 
 def getClosure (
-    dag # the DAG, as a list of lists.
+    dag, # the DAG, as a list of lists.
         #   list[0] = list of keys of parent-less nodes
         #   list[i] = list of keys of children of node i, for i>0
+    log
     ):
     # Purpose: get the closure for the given 'dag'
     # Returns: dictionary where d[key i] = list of keys of all descendants
@@ -710,6 +696,8 @@ def getClosure (
             #   closure[i] = list of keys of descendants of the node with key i
 
     getNodeClosure (dag, start, closure)
+    #for a in closure.keys():
+    #	log.writeline('ancestor: %s descendants: %s' % (a, closure[a]))
     return closure
 
 def getNodeClosure (

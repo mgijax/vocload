@@ -737,13 +737,11 @@ class TermLoad:
 
         self.max_accession_key = self.max_accession_key + 1
         prefixPart, numericPart = accessionlib.split_accnum (accID)
-
-	if numericPart == None:
-	    numericPart = 'NULL'
-
+	#if numericPart == None:
+	    #numericPart = 'NULL'
         if self.isBCPLoad:
 	   self.loadAccessionBCP = 1
-	   if numericPart == 'NULL':
+	   if numericPart == None:
 	      self.accAccessionBCPFile.write (BCP_INSERT_ACCESSION_NULL_NUMPART  % \
 						(self.max_accession_key,
                                               accID,
