@@ -42,7 +42,6 @@
 import sys
 import os
 import string
-import re
 import db
 import reportlib
 
@@ -75,11 +74,13 @@ def cacheExistingIds():
 
     global omimMGI
 
-    results = db.sql('select a.accID, t.term ' + \
-	'from ACC_Accession a, VOC_Term t ' + \
-	'where a._LogicalDB_key = %s ' % (os.environ['LOGICALDB_KEY']) + \
-	'and a._MGIType_key = 13 ' + \
-	'and a._Object_key = t._Term_key', 'auto')
+    results = db.sql('''
+	select a.accID, t.term
+	from ACC_Accession a, VOC_Term t
+	where a._LogicalDB_key = %s
+	and a._MGIType_key = 13
+	and a._Object_key = t._Term_key
+	''' % (os.environ['LOGICALDB_KEY']), 'auto')
     for r in results:
         omimMGI[r['accID']] = r['term']
 
@@ -242,7 +243,7 @@ def convertTerm(mim, term):
     #
     # get rid of the @ character
     #
-    newTerm = re.sub('@', '', newTerm)
+    newTerm = string.replace(newTerm, '@', '')
 
     return newTerm
 
@@ -329,6 +330,16 @@ def processOMIM():
 	    # exclude all other entries
 
 	    if tokens[0][0] in ['*', '^']:
+
+		# if this entry is excluded but exists as a secondary id...
+	        if secondaryIds.has_key(mim):
+		    for id in secondaryIds[mim]:
+			# if this entry exists in omimNew...
+	                if omimNew.has_key(id):
+			    # remove object from omimNew 
+			    # so it will be added as an obsolete term (see below)
+			    del omimNew[id]
+
 	        continue
 
 	    # if the term is in our excluded file, we don't want it
@@ -384,7 +395,8 @@ def processOMIM():
         writeOMIM(term, mim, synonyms)
 
     #
-    # Now create records for obsoleted terms...those in omimMGI but not in omimNew
+    # Now create records for obsoleted terms...
+    #   those in omimMGI but not in omimNew
     #
 
     for m in omimMGI.keys():
@@ -470,4 +482,3 @@ processQC2()
 
 outFile.close()
 synFile.close()
-
