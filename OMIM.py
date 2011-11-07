@@ -34,6 +34,14 @@
 #
 # History:
 #
+# lec	10/12/2011
+#	- TR 10878/TRANSTERM_FILE = OMIM.translation
+#	field 0: translation type = 'T' (term)
+#	the translations from mim 100070 down were set to 'S' (synonym)
+#	so the translations were not being set correctly
+#
+#	all have been updated to 'T' (term)
+#
 # lec	04/27/2011
 #	- TR 10551; delete records from omimNew that need to be obsoleted
 #	  this occurs when the original term is a non-*, non-^ term (added to the database)
@@ -69,6 +77,7 @@ import reportlib
 
 DELIM = '\t'
 CRT = '\n'
+# 'T' = term, 'S' = synonym
 TERMTYPE = 'T'
 PLACEHOLDERTERM = 'OMIM'
 
@@ -440,61 +449,6 @@ def processOMIM():
         if not omimNew.has_key(m):
             outFile.write(omimMGI[m] + DELIM + m + DELIM + obsoleteStatus + DELIM + DELIM + DELIM + DELIM + DELIM + CRT)
 
-def processQC1():
-    #
-    # Purpose: 
-    # Returns:
-    # Assumes:
-    # Effects:
-    # Throws:
-    #
-
-    qc1Title = 'OMIM Terms in the OMIM.translation file that do not exist in the new OMIM file'
-    qc1FileName = os.environ['QC1_FILE']
-    qc1File = reportlib.init(qc1FileName, title = qc1Title, outputdir = os.environ['RUNTIME_DIR'])
-
-    transTermFile = open(transTermFileName, 'r')
-    for line in transTermFile.readlines():
-	tokens = string.split(line[:-1], '\t')
-	termType = tokens[0]
-	mim = tokens[1]
-	mimTerm = tokens[2]
-
-	if termType != TERMTYPE:
-	    continue
-
-	if omimNew.has_key(mim):
-	    if omimNew[mim] != mimTerm:
-		qc1File.write(mim + DELIM + mimTerm + DELIM + omimMGI[mim] + CRT)
-
-    transTermFile.close()
-    reportlib.finish_nonps(qc1File)
-
-def processQC2():
-    #
-    # Purpose: 
-    # Returns:
-    # Assumes:
-    # Effects:
-    # Throws:
-    #
-
-    qc2Title = 'OMIM IDs in the OMIM.translation file that do not exist in the new OMIM file'
-    qc2FileName = os.environ['QC2_FILE']
-    qc2File = reportlib.init(qc2FileName, title = qc2Title, outputdir = os.environ['RUNTIME_DIR'])
-
-    transTermFile = open(transTermFileName, 'r')
-    for line in transTermFile.readlines():
-	tokens = string.split(line[:-1], '\t')
-	mim = tokens[1]
-	mimTerm = tokens[2]
-
-	if not omimNew.has_key(mim):
-	    qc2File.write(mim + DELIM + mimTerm + CRT)
-
-    transTermFile.close()
-    reportlib.finish_nonps(qc2File)
-
 #
 # Main
 #
@@ -514,8 +468,6 @@ cacheSecondaryIds()
 cacheTranslations()
 cacheExcluded()
 processOMIM()
-processQC1()
-processQC2()
 
 outFile.close()
 synFile.close()
