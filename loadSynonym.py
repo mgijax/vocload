@@ -140,6 +140,7 @@ db.sql('select tempKey = identity(10), t._Term_key, st._SynonymType_key, s.synon
             'where s.accID = a.accID and ' + \
                   'a._MGIType_key = ' + str(mgiType) + ' and ' + \
                   'a._Object_key = t._Term_key and ' + \
+		  'a.preferred = 1 and ' + \
                   't._Vocab_key = ' + str(vocabKey) + ' and ' + \
                   's.synonymType = st.synonymType ' + ' and ' + \
 		  'st._MGIType_key = ' + str(mgiType), None)

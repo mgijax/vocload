@@ -10,7 +10,7 @@
 #
 #  Usage:
 #
-#      loadSynonym.sh  ConfigFile
+#      loadOBO-DC.sh  ConfigFile
 #
 #      where
 #

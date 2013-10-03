@@ -40,7 +40,7 @@ import db
 omimList = set([])
 
 # save list of terms only
-omimDiffList = set([])
+omimAllList = set([])
 
 def createSynonymFile():
 	#
@@ -51,24 +51,18 @@ def createSynonymFile():
 
 	outFile = open(os.environ['DCLUSTERSYN_FILE'], 'w')
 
-	# the omim ids are they are stored in the DC-OBO file
-	# returns both "id: OMIM:" and "alt_id: OMIM"
-	omimSearch = 'id: OMIM:'
-
-	# the cluster name for the omim id found before it in the DC-OBO file
-	CLUSTERNAME = 'is_a: DC:'
-
 	omimID = ''
 	synonym = ''
 
 	for line in inFile.readlines():
 	
 		# looking for OMIM id
-		if line.find(omimSearch) >= 0:
+		if line.find('id: OMIM:') >= 0:
 			omimID = line[:-1].split(':')[2].strip()
-	
+			omimAllList.add(omimID)
+
 		# look for cluster-name associated with the most recent OMIM id
-		if line.find(CLUSTERNAME) >= 0:
+		if line.find('is_a: DC:') >= 0:
 
 			synonym = line[:-1].split('!')[1].strip()
 	
@@ -81,8 +75,8 @@ def createSynonymFile():
 				continue
 
 			outFile.write(omimID + '\tdisease cluster\t' + synonym + '\n')
+
 			omimList.add((omimID, synonym))
-			omimDiffList.add(omimID)
 
 	outFile.close()
 	return 0
@@ -93,7 +87,7 @@ def createDiffFile():
 	# a one-time-only report?
 	#
 
-	global omimDiffList
+	global omimAllList
 
 	outFile = open(os.environ['DCLUSTERALL_FILE'], 'w')
 
@@ -107,7 +101,7 @@ def createDiffFile():
 		''', 'auto')
 
 	for r in results:
-		if r['accID'] not in omimDiffList:
+		if r['accID'] not in omimAllList:
 			outFile.write(r['accID'] + '\t' + r['term'] + '\n')
 
 	outFile.close()
