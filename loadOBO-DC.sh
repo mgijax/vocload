@@ -24,7 +24,8 @@
 #  Inputs:
 #
 #      - OBO-DC-Synonym file - contains accession IDs for each term, along with
-#                       a synonym type and synonym to be added for the term
+#                       a synonym type and synonym to be added for the term;
+#			in OBO format
 #
 #  Outputs:
 #
@@ -42,8 +43,9 @@
 #      This script will perform following steps to add the synonyms for the
 #      given terms:
 #
-#      1) Truncate the VOC_Synonym table in the RADAR database.
-#      2) Use bcp to load the synonym file into the VOC_Synonym table.
+#      1) Translate the OBO-DC input file into Synonym-format
+#      2) Truncate the VOC_Synonym table in the RADAR database.
+#      3) Use bcp to load the Synonym-formateted file into the VOC_Synonym table.
 #      3) Call the loadSynonym.py script to add the synonyms for the terms.
 #
 #  Notes:  None
@@ -56,6 +58,7 @@
 #  ----------  ---  -------------------------------------------------------
 #
 #  10/02/2013  lec  TR11423/human disease portal (HDP)
+#		     copied this from loadSynonym.csh and modified accordingly
 #
 ###########################################################################
 
