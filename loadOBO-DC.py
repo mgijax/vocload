@@ -95,14 +95,19 @@ def createDiffFile():
 		select a.accID, t.term
 		from VOC_Term t, ACC_Accession a 
 		where t._Vocab_key = 44
+		and t.isObsolete = 0
 		and t._Term_key = a._Object_key
 		and a._MGIType_key = 13
 		and a.preferred = 1
 		''', 'auto')
 
 	for r in results:
+		# write file in OBO-format
 		if r['accID'] not in omimAllList:
-			outFile.write(r['accID'] + '\t' + r['term'] + '\n')
+			outFile.write('[Term]\n')
+			outFile.write('id: OMIM:' + r['accID'] + '\n')
+			outFile.write('name: ' + r['term'] + '\n')
+			outFile.write('is_a: DC:0000138 ! Disease Cluster\n\n')
 
 	outFile.close()
 	return 0
