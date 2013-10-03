@@ -39,6 +39,9 @@ import db
 # save list to check for duplicates
 omimList = set([])
 
+# save list of terms only
+omimDiffList = set([])
+
 def createSynonymFile():
 	#
 	# translate the DC-OBO file into a loadSynonym-input file
@@ -69,14 +72,17 @@ def createSynonymFile():
 
 			synonym = line[:-1].split('!')[1].strip()
 	
+			# skip
+			if synonym == 'Disease Cluster':
+				continue
+
 			# skip duplicates
 			if (omimID, synonym) in omimList:
 				continue
 
-			if synonym != 'Disease Cluster':
-				outFile.write(omimID + '\tdisease cluster\t' + synonym + '\n')
-
+			outFile.write(omimID + '\tdisease cluster\t' + synonym + '\n')
 			omimList.add((omimID, synonym))
+			omimDiffList.add(omimID)
 
 	outFile.close()
 	return 0
@@ -87,7 +93,7 @@ def createDiffFile():
 	# a one-time-only report?
 	#
 
-	global omimList
+	global omimDiffList
 
 	outFile = open(os.environ['DCLUSTERALL_FILE'], 'w')
 
@@ -99,8 +105,9 @@ def createDiffFile():
 		and a._MGIType_key = 13
 		and a.preferred = 1
 		''', 'auto')
+
 	for r in results:
-		if r['accID'] not in omimList:
+		if r['accID'] not in omimDiffList:
 			outFile.write(r['accID'] + '\t' + r['term'] + '\n')
 
 	outFile.close()
