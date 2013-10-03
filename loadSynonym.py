@@ -53,6 +53,8 @@
 #  Date        SE   Change Description
 #  ----------  ---  -------------------------------------------------------
 #
+#  10/03/2013  LEC  added "preferred" to accession id query
+#
 #  04/29/2005  LEC  Changes for OMIM vocabulary
 #	- need to check _MGIType_key of Synonym Type (for both deletions and inserts)
 #	  because a Synonym Type name is only unique for a given _MGIType_key.
