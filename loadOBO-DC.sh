@@ -1,23 +1,21 @@
 #!/bin/sh
 #
-#  loadSynonym.sh
+#  loadOBO-DC.sh
 ###########################################################################
 #
 #  Purpose:
 #
-#      Load the synonym file into the VOC_Synonym table and call the Python
-#      script that uses this data to add synonym for the given terms.
+#      Load the OBO-Diseaes-Cluster "Synonyms" file into the VOC_Synonym table 
+#      and call the Python script that uses this data to add synonym for the given terms.
 #
 #  Usage:
 #
-#      loadSynonym.sh  ConfigFile  SynonymFile
+#      loadSynonym.sh  ConfigFile
 #
 #      where
 #
 #          ConfigFile is the name of the configuration file for the
-#                     specific vocabulary load (e.g. MP.config).
-#          SynonymFile is the full path name of the synonym file to load
-#                      (e.g. /data/loads/mgi/vocload/runTimeMP/MP.synonym).
+#                     specific vocabulary load (e.g. OMIM.config).
 #
 #  Env Vars:
 #
@@ -25,7 +23,7 @@
 #
 #  Inputs:
 #
-#      - Synonym file - contains accession IDs for each term, along with
+#      - OBO-DC-Synonym file - contains accession IDs for each term, along with
 #                       a synonym type and synonym to be added for the term
 #
 #  Outputs:
@@ -78,10 +76,11 @@ cd `dirname $0`
 #
 # convert the OBO-DC file to a Synonym-input file
 #
-./loadOBO-DC.py
+./loadOBO-DC.py >> ${FULL_LOG_FILE}
 
 #
 # re-set the SYNONYM_FILE to the disease-cluster synonym file name
+# so we can use the loadSynonym.py script
 #
 SYNONYM_FILE=${DCLUSTERSYN_FILE}
 
@@ -105,7 +104,6 @@ ${MGI_DBUTILS}/bin/bcpin.csh ${RADAR_DBSERVER} ${RADAR_DBNAME} VOC_Synonym ${RUN
 #  Call the Python script.
 #
 
-exit 0
 echo "Start loadSynonym.py" >> ${FULL_LOG_FILE}
 loadSynonym.py >> ${FULL_LOG_FILE}
 echo "End loadSynonym.py" >> ${FULL_LOG_FILE}

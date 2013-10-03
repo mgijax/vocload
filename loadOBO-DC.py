@@ -34,11 +34,17 @@
 
 import sys 
 import os
+import db
+
+# save list to check for duplicates
+omimList = set([])
 
 def createSynonymFile():
 	#
 	# translate the DC-OBO file into a loadSynonym-input file
 	#
+
+	global omimList
 
 	outFile = open(os.environ['DCLUSTERSYN_FILE'], 'w')
 
@@ -48,6 +54,9 @@ def createSynonymFile():
 
 	# the cluster name for the omim id found before it in the DC-OBO file
 	CLUSTERNAME = 'is_a: DC:'
+
+	omimID = ''
+	synonym = ''
 
 	for line in inFile.readlines():
 	
@@ -60,13 +69,41 @@ def createSynonymFile():
 
 			synonym = line[:-1].split('!')[1].strip()
 	
+			# skip duplicates
+			if (omimID, synonym) in omimList:
+				continue
+
 			if synonym != 'Disease Cluster':
-				outFile.write(omimID + \
-				'\tdisease cluster\t' + \
-				line[:-1].split('!')[1].strip() + '\n')
+				outFile.write(omimID + '\tdisease cluster\t' + synonym + '\n')
+
+			omimList.add((omimID, synonym))
 
 	outFile.close()
+	return 0
 
+def createDiffFile():
+	#
+	# check if the omim ID is in MGD but not in the cluster file
+	# a one-time-only report?
+	#
+
+	global omimList
+
+	outFile = open(os.environ['DCLUSTERALL_FILE'], 'w')
+
+	results = db.sql('''
+		select a.accID, t.term
+		from VOC_Term t, ACC_Accession a 
+		where t._Vocab_key = 44
+		and t._Term_key = a._Object_key
+		and a._MGIType_key = 13
+		and a.preferred = 1
+		''', 'auto')
+	for r in results:
+		if r['accID'] not in omimList:
+			outFile.write(r['accID'] + '\t' + r['term'] + '\n')
+
+	outFile.close()
 	return 0
 
 #
@@ -76,6 +113,9 @@ def createSynonymFile():
 inFile = open(os.environ['DCLUSTER_FILE'], 'r')
 
 if createSynonymFile() > 0:
+	sys.exit(1)
+
+if createDiffFile() > 0:
 	sys.exit(1)
 
 inFile.close()
