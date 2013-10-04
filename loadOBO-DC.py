@@ -106,6 +106,7 @@ def createDiffFile():
 	for r in results:
 		mgiList.setdefault(r['accID'], []).append(r['term'])
 
+	# OMIM.clusters.diff1 - OMIM ids in MGI but not in OBO-Disease-Cluster file
 	for accID in mgiList:
 		if accID not in omimAllList:
 			# write file in OBO-format
@@ -114,6 +115,7 @@ def createDiffFile():
 			outFile1.write('name: ' + mgiList[accID][0] + '\n')
 			outFile1.write('is_a: DC:0000138 ! Disease Cluster\n\n')
 
+	# OMIM.clusters.diff2 - OMIM ids in OBO-Disease-Cluster file but not in MGI 
 	for accID in omimAllList:
 		if accID not in mgiList:
 			outFile2.write(accID + '\n')
