@@ -35,6 +35,7 @@
 import sys 
 import os
 import db
+import reportdb
 
 # save list to check for duplicates
 omimList = set([])
@@ -90,8 +91,8 @@ def createDiffFile():
 
 	mgiList = {}
 
-	outFile1 = open(os.environ['DCLUSTERDIFF1_FILE'], 'w')
-	outFile2 = open(os.environ['DCLUSTERDIFF2_FILE'], 'w')
+	fp1 = reportlib.init(os.environ['DCLUSTERDIFF1_FILE'], printHeading = 0, outputdir = os.environ['RUNTIME_DIR'],
+	fp2 = reportlib.init(os.environ['DCLUSTERDIFF2_FILE'], printHeading = 0, outputdir = os.environ['RUNTIME_DIR'],
 
 	results = db.sql('''
 		select a.accID, t.term
@@ -110,18 +111,18 @@ def createDiffFile():
 	for accID in mgiList:
 		if accID not in omimAllList:
 			# write file in OBO-format
-			outFile1.write('[Term]\n')
-			outFile1.write('id: OMIM:' + accID + '\n')
-			outFile1.write('name: ' + mgiList[accID][0] + '\n')
-			outFile1.write('is_a: DC:0000138 ! Disease Cluster\n\n')
+			fp1.write('[Term]\n')
+			fp1.write('id: OMIM:' + accID + '\n')
+			fp1.write('name: ' + mgiList[accID][0] + '\n')
+			fp1.write('is_a: DC:0000138 ! Disease Cluster\n\n')
 
 	# OMIM.clusters.diff2 - OMIM ids in OBO-Disease-Cluster file but not in MGI 
 	for accID in omimAllList:
 		if accID not in mgiList:
-			outFile2.write(accID + '\n')
+			fp2.write(accID + '\n')
 
-	outFile1.close()
-	outFile2.close()
+	reportlib.finish_nonps(fp1)
+	reportlib.finish_nonps(fp2)
 
 	return 0
 
