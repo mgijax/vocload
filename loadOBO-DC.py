@@ -114,8 +114,9 @@ def createDiffFile():
 			outFile1.write('name: ' + mgiList[accID][0] + '\n')
 			outFile1.write('is_a: DC:0000138 ! Disease Cluster\n\n')
 
-	#for r in omimAllList:
-		#if r not in mgiList:
+	for accID in omimAllList:
+		if accID not in mgiList:
+			outFile2.write(accID + '\n')
 
 	outFile1.close()
 	outFile2.close()
@@ -125,6 +126,7 @@ def createDiffFile():
 #
 # main
 #
+
 
 inFile = open(os.environ['DCLUSTER_FILE'], 'r')
 
