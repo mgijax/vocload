@@ -35,7 +35,6 @@
 import sys 
 import os
 import db
-import reportlib
 
 # save list to check for duplicates
 omimList = set([])
@@ -91,8 +90,8 @@ def createDiffFile():
 
 	mgiList = {}
 
-	fp1 = reportlib.init(os.environ['DCLUSTERDIFF1_FILE'], printHeading = 0, outputdir = os.environ['RUNTIME_DIR'])
-	fp2 = reportlib.init(os.environ['DCLUSTERDIFF2_FILE'], printHeading = 0, outputdir = os.environ['RUNTIME_DIR'])
+	fp1 = open(os.environ['DCLUSTERDIFF1_FILE'], 'w')
+	fp2 = open(os.environ['DCLUSTERDIFF2_FILE'], 'w')
 
 	results = db.sql('''
 		select a.accID, t.term
@@ -121,8 +120,8 @@ def createDiffFile():
 		if accID not in mgiList:
 			fp2.write(accID + '\n')
 
-	reportlib.finish_nonps(fp1)
-	reportlib.finish_nonps(fp2)
+	fp1.close()
+	fp2.close()
 
 	return 0
 
