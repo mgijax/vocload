@@ -1,11 +1,10 @@
-TAG: vocload-5-1-5-1
+TAG: vocload-5-1-5-2
 DATE: 10/24/2013
 STAFF: lec
 CHANGES: branch point tag for TR11423/HDP (human disease portal)
 1) TR11423/add loadOBO-DC*, OMIM.config, VOClib.config
    branch was merged to trunk
 
-add the disease-cluster (OBO-DC-file) to the OMIM configuration
 TAG: vocload-tr11423-1
 DATE: 10/02/2013
 STAFF: lec
