@@ -7,7 +7,6 @@ cd `dirname $0`
 echo "Compiling python programs..."
 python -c 'import compileall; compileall.compile_dir(".")'
 
-echo ${DATALOADSOUTPUT}
 #
 # Create the runtime files if they don't exist
 #
