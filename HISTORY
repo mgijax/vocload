@@ -1,3 +1,20 @@
+TAG: vocload-5-1-6-2
+DATE: 12/18/2013
+STAFF: sc
+CHANGES: Merge tr11468 changes to trunk
+
+TAG:  vocload-tr11468-2
+DATE: 11/20/2013
+STAFF: sc
+CHANGES:
+1) added all output dirs to Install script
+
+TAG: vocload-tr11468-1
+DATE: 11/18/2013
+STAFF: sc
+CHANGES: removed: vocloadlib.py, loadDAG.py, html.py, dbTable.py, Log.py
+    these have been factored out into lib_py_vocload
+
 TAG: vocload-tr11468-BP
 DATE: 11/18/2013
 STAFF: sc

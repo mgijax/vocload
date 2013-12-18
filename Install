@@ -10,13 +10,36 @@ python -c 'import compileall; compileall.compile_dir(".")'
 #
 # Create the runtime files if they don't exist
 #
-if [ ! -d /data/loads/mgi/vocload/archiveMouseCyc ]
+if [ ! -d ${DATALOADSOUTPUT}/mgi/vocload/archiveMouseCyc ]
 then
-    mkdir -p /data/loads/mgi/vocload/archiveMouseCyc
+    mkdir -p ${DATALOADSOUTPUT}/mgi/vocload/archiveMouseCyc
 fi
-if [ ! -d /data/loads/mgi/vocload/runTimeMouseCyc ]
+if [ ! -d ${DATALOADSOUTPUT}/mgi/vocload/runTimeMouseCyc ]
 then
-    mkdir -p /data/loads/mgi/vocload/runTimeMouseCyc
+    mkdir -p ${DATALOADSOUTPUT}/mgi/vocload/runTimeMouseCyc
+fi
+
+if [ ! -d ${DATALOADSOUTPUT}/mgi/vocload/OMIM ]
+then
+    mkdir -p ${DATALOADSOUTPUT}/mgi/vocload/OMIM
+fi
+
+if [ ! -d ${DATALOADSOUTPUT}/mgi/vocload/archiveMP ]
+then
+    mkdir -p ${DATALOADSOUTPUT}/mgi/vocload/archiveMP
+fi
+if [ ! -d ${DATALOADSOUTPUT}/mgi/vocload/runTimeMP ]
+then
+    mkdir -p ${DATALOADSOUTPUT}/mgi/vocload/runTimeMP
+fi
+
+if [ ! -d ${DATALOADSOUTPUT}/mgi/vocload/archiveGO ]
+then
+    mkdir -p ${DATALOADSOUTPUT}/mgi/vocload/archiveGO
+fi
+if [ ! -d ${DATALOADSOUTPUT}/mgi/vocload/runTimeGO ]
+then
+    mkdir -p ${DATALOADSOUTPUT}/mgi/vocload/runTimeGO
 fi
 
 # Set mode
