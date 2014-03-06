@@ -16,7 +16,7 @@
 #	- new
 #
 
-RUNTIME_DIR = /data/loads/mgi/scrum-bob/vocload/runTimeRV
+RUNTIME_DIR = /data/loads/scrum-bob/mgi/vocload/runTimeRV
 
 # DAGs which are part of the vocabulary (for complex vocabularies)
 
