@@ -42,6 +42,15 @@ then
     mkdir -p ${DATALOADSOUTPUT}/mgi/vocload/runTimeGO
 fi
 
+if [ ! -d ${DATALOADSOUTPUT}/mgi/vocload/archiveRV ]
+then
+    mkdir -p ${DATALOADSOUTPUT}/mgi/vocload/archiveRV
+fi
+if [ ! -d ${DATALOADSOUTPUT}/mgi/vocload/runTimeRV ]
+then
+    mkdir -p ${DATALOADSOUTPUT}/mgi/vocload/runTimeRV
+fi
+
 # Set mode
 echo "Setting modes..."
 chmod 775 *

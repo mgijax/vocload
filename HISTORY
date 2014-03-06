@@ -1,3 +1,11 @@
+TAG: vocload-tr11560-1
+DATE: 03/06/2014
+STAFF: sc
+CHANGES:
+1) Install - added RV directories
+2) loadOBO.py - add Feature Relationship vocab handling
+3) RV.config, RV.rcd - added
+
 TAG: vocload-tr11560-BP
 DATE: 03/03/2014
 STAFF: sc

@@ -1,0 +1,54 @@
+#
+# Progam:  RV.rcd
+#
+# Purpose:
+#
+#	Configuration file for Feature Relationship Vocabulary load
+#	which defines the Feature Relationship DAGs
+#
+# Usage:
+#
+#	Used by Python Configuration module
+#
+# History:
+#
+#	03/03/2014	sc
+#	- new
+#
+
+RUNTIME_DIR = /data/loads/mgi/scrum-bob/vocload/runTimeRV
+
+# DAGs which are part of the vocabulary (for complex vocabularies)
+
+[
+        NAME = cluster_member
+        NAME_SPACE = cluster_member
+        ABBREV = cluster_member
+        ONTOLOGY_FILE = ${RUNTIME_DIR}/CM.ontology
+        LOAD_FILE = ${RUNTIME_DIR}/dag.cm
+]
+
+[
+        NAME = mutation_overlaps
+        NAME_SPACE = mutation_overlaps
+        ABBREV = mutation_overlaps
+        ONTOLOGY_FILE = ${RUNTIME_DIR}/MO.ontology
+        LOAD_FILE = ${RUNTIME_DIR}/dag.mo
+]
+
+[
+        NAME = expresses
+        NAME_SPACE = expresses
+        ABBREV = expresses
+        ONTOLOGY_FILE = ${RUNTIME_DIR}/E.ontology
+        LOAD_FILE = ${RUNTIME_DIR}/dag.e
+]
+
+[
+        NAME = regulates
+        NAME_SPACE = regulates
+        ABBREV = regulates
+        ONTOLOGY_FILE = ${RUNTIME_DIR}/R.ontology
+        LOAD_FILE = ${RUNTIME_DIR}/dag.r
+]
+
