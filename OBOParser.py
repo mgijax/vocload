@@ -23,6 +23,7 @@ class Parser:
     def __init__(self, fpOBO, log):
         self.fpOBO = fpOBO
         self.log = log	# for debugging only
+	self.vocabName = os.environ['VOCAB_NAME']
 
         # Create the head an term objects.
         #
@@ -146,8 +147,18 @@ class Parser:
             # Save a synonym and its synonym type.
             #
             if tag == 'synonym':
-                self.term.addSynonym (re.split ('"', self.line)[1])
-                self.term.addSynonymType (re.split (' ', re.split ('"', self.line)[2].lstrip())[0])
+		self.term.addSynonym (re.split ('"', self.line)[1])
+		synType = re.split (' ', re.split ('"', self.line)[2].lstrip())[0]
+		if self.vocabName == 'Feature Relationship' and synType == 'RELATED':
+		    # example from obo file:
+                    # synonym: "contains" RELATED REVERSE
+                    # synonym: "is in " RELATED FORWARD
+
+                    # RELATED FORWARD/RELATED REVERSE
+                    synType = synType + ' ' + re.split (' ', re.split ('"', self.line)[2].lstrip())[1]
+
+                self.term.addSynonymType (synType)
+
 	    # Save the subset value
 	    # For MCV this is the show/hide value of the term
 	    #

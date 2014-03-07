@@ -1,3 +1,9 @@
+TAG: vocload-tr11560-2
+DATE: 03/07/2014
+STAFF: sc
+CHANGES:
+1) OBOParser.py - handling of mult-word synonym type for Feature
+   relationship load
 TAG: vocload-tr11560-1
 DATE: 03/06/2014
 STAFF: sc
