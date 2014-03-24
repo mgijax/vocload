@@ -21,17 +21,17 @@ RUNTIME_DIR = /data/loads/scrum-bob/mgi/vocload/runTimeRV
 # DAGs which are part of the vocabulary (for complex vocabularies)
 
 [
-        NAME = cluster_member
-        NAME_SPACE = cluster_member
-        ABBREV = cluster_member
+        NAME = cluster_has_member
+        NAME_SPACE = cluster_has_member
+        ABBREV = cluster_has_member
         ONTOLOGY_FILE = ${RUNTIME_DIR}/CM.ontology
         LOAD_FILE = ${RUNTIME_DIR}/dag.cm
 ]
 
 [
-        NAME = mutation_overlaps
-        NAME_SPACE = mutation_overlaps
-        ABBREV = mutation_overlaps
+        NAME = mutation_involves
+        NAME_SPACE = mutation_involves
+        ABBREV = mutation_involves
         ONTOLOGY_FILE = ${RUNTIME_DIR}/MO.ontology
         LOAD_FILE = ${RUNTIME_DIR}/dag.mo
 ]
