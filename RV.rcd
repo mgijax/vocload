@@ -23,32 +23,28 @@ RUNTIME_DIR = /data/loads/scrum-bob/mgi/vocload/runTimeRV
 [
         NAME = cluster_has_member
         NAME_SPACE = cluster_has_member
-        ABBREV = cluster_has_member
-        ONTOLOGY_FILE = ${RUNTIME_DIR}/CM.ontology
-        LOAD_FILE = ${RUNTIME_DIR}/dag.cm
+        ONTOLOGY_FILE = ${RUNTIME_DIR}/C.ontology
+        LOAD_FILE = ${RUNTIME_DIR}/dag.c
 ]
 
 [
         NAME = mutation_involves
         NAME_SPACE = mutation_involves
-        ABBREV = mutation_involves
-        ONTOLOGY_FILE = ${RUNTIME_DIR}/MO.ontology
-        LOAD_FILE = ${RUNTIME_DIR}/dag.mo
+        ONTOLOGY_FILE = ${RUNTIME_DIR}/M.ontology
+        LOAD_FILE = ${RUNTIME_DIR}/dag.m
 ]
 
 [
-        NAME = expresses
-        NAME_SPACE = expresses
-        ABBREV = expresses
+        NAME = expresses_component
+        NAME_SPACE = expresses_component
         ONTOLOGY_FILE = ${RUNTIME_DIR}/E.ontology
         LOAD_FILE = ${RUNTIME_DIR}/dag.e
 ]
 
 [
-        NAME = regulates
-        NAME_SPACE = regulates
-        ABBREV = regulates
-        ONTOLOGY_FILE = ${RUNTIME_DIR}/R.ontology
-        LOAD_FILE = ${RUNTIME_DIR}/dag.r
+        NAME = interacts_with
+        NAME_SPACE = interacts_with
+        ONTOLOGY_FILE = ${RUNTIME_DIR}/I.ontology
+        LOAD_FILE = ${RUNTIME_DIR}/dag.i
 ]
 
