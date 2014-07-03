@@ -245,7 +245,10 @@ def parseOBOFile():
     # to the DAG file when the term is process below.
     #
     if dagRootID:
-	if vocabName == 'Marker Category':
+	# ignore the 'real' root for Feature Relationship vocab
+	if vocabName == 'Feature Relationship':
+	    pass
+	elif vocabName == 'Marker Category':
 	     fpDAG[validNamespace[0]].write(dagRootID + '\t' + 'show' + '\t' + '\t' + '\n') 
 	else:
 	    for i in validNamespace:
@@ -314,7 +317,11 @@ def parseOBOFile():
         synonymType = term.getSynonymType()
 	subset = term.getSubset()
         isValid = 1
-
+	if termID == dagRootID and vocabName == 'Feature Relationship':
+	    # skip this term
+	    term = parser.nextTerm()
+	    continue
+	    #isValid = 0
         # Validate the namespace.  The namespace is used to determine which
         # DAG file to write to.  For the GO vocabulary, there are multiple
         # DAGs, so the namespace is required for each term.  For other
@@ -326,7 +333,7 @@ def parseOBOFile():
                 fpValid.write('(' + termID + ') Invalid namespace: ' + namespace + '\n')
                 isValid = 0
         else:
-            if vocabName == 'GO':
+            if vocabName == 'GO' or vocabName == 'Feature Relationship':
                 log.writeline('Missing namespace for term: ' + termID)
                 closeFiles()
                 return 1
@@ -401,7 +408,13 @@ def parseOBOFile():
             # term to the root ID.
             #
             if name == namespace and dagRootID:
-                fpDAG[namespace].write(termID + '\t' + '\t' + 'is-a' + '\t' + \
+		if vocabName == 'Feature Relationship':
+		    fpDAG[namespace].write(termID + '\t' + '\t' + \
+			'\t' +'\n')
+		    term = parser.nextTerm()
+		    continue
+		else:
+		    fpDAG[namespace].write(termID + '\t' + '\t' + 'is-a' + '\t' + \
                                        dagRootID + '\n')
 
             # Write to the DAG file.
