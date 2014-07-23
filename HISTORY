@@ -1,3 +1,9 @@
+TAG: vocload-5-1-9-3
+DATE: 07/23/2014
+STAFF: dbm
+CHANGES:
+1) RV.config: restore MAINTAINER to default
+
 TAG: vocload-5-1-9-2
 DATE: 07/23/2014
 STAFF: dbm
