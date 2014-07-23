@@ -1,3 +1,9 @@
+TAG: vocload-5-1-9-2
+DATE: 07/23/2014
+STAFF: dbm
+CHANGES:
+1) RV.config, RV.rcd: remove scrum-bob references in paths
+
 TAG: vocload-5-1-9-1
 DATE: 07/03/2014
 STAFF: sc	
