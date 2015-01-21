@@ -84,59 +84,11 @@ echo "**************************************************" >> ${FULL_LOG_FILE}
 echo "Start header file processing: ${HEADER_FILE}" >> ${FULL_LOG_FILE}
 
 #
-#  Truncate the VOC_Header table in the RADAR database to remove any
-#  current records.
-#
-echo "Truncate VOC_Header table" >> ${FULL_LOG_FILE}
-cat - <<EOSQL | isql -S${RADAR_DBSERVER} -U${RADAR_DBUSER} -P`cat ${RADAR_DBPASSWORDFILE}` >> ${FULL_LOG_FILE}
-
-use ${RADAR_DBNAME}
-go
-
-truncate table VOC_Header
-go
-
-checkpoint
-go
-
-quit
-EOSQL
-
-#
-#  Load the VOC_Header table from the header file using bcp.
-#
-echo "Load the header file into the VOC_Header table" >> ${FULL_LOG_FILE}
-cat ${RADAR_DBPASSWORDFILE} | bcp ${RADAR_DBNAME}..VOC_Header in ${HEADER_FILE} -c -t\\t -S${RADAR_DBSERVER} -U${RADAR_DBUSER} >> ${BCP_LOG_FILE}
-
-#
 #  Call the Python script.
 #
 echo "Start loadHeader.py" >> ${FULL_LOG_FILE}
-loadHeader.py >> ${FULL_LOG_FILE}
+loadHeader.py ${HEADER_FILE} ${HEADER_ANNOT_TYPE_KEY} >> ${FULL_LOG_FILE}
 echo "End loadHeader.py" >> ${FULL_LOG_FILE}
-
-#
-#  Execute the VOC_processAnnotHeaderAll stored procedure.
-#
-if [ "${HEADER_ANNOT_TYPE_KEY}" != "" ]
-then
-    echo "Execute VOC_processAnnotHeaderAll procedure: (AnnotType key: ${HEADER_ANNOT_TYPE_KEY})" >> ${FULL_LOG_FILE}
-
-cat - <<EOSQL | isql -S${MGD_DBSERVER} -U${MGD_DBUSER} -P`cat ${MGD_DBPASSWORDFILE}` >> ${FULL_LOG_FILE}
-
-use ${MGD_DBNAME}
-go
-
-exec VOC_processAnnotHeaderAll ${HEADER_ANNOT_TYPE_KEY}
-go
-
-checkpoint
-go
-
-quit
-EOSQL
-
-fi
 
 echo "End header file processing" >> ${FULL_LOG_FILE}
 echo "**************************************************" >> ${FULL_LOG_FILE}
