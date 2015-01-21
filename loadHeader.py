@@ -54,67 +54,96 @@
 ###########################################################################
 
 import sys 
-import db
 import string
 import os
+import vocloadlib
+import mgi_utils
 
 
-dbServer = os.environ['MGD_DBSERVER']
-dbName_MGD = os.environ['MGD_DBNAME']
-dbName_RADAR = os.environ['RADAR_DBNAME']
-dbUser = os.environ['MGD_DBUSER']
-passwordFileName = os.environ['MGD_DBPASSWORDFILE']
+# init database connection
+server = os.environ['DBSERVER']
+database = os.environ['DBNAME']
+username = os.environ['DBUSER']
+passwordFileName = os.environ['DBPASSWORDFILE']
 fp = open(passwordFileName, 'r')
-dbPassword = string.strip(fp.readline())
+password = string.strip(fp.readline())
+fp.close()
+vocloadlib.setupSql (server, database, username, password)
 
-db.set_sqlServer(dbServer)
-db.set_sqlDatabase(dbName_MGD)
-db.set_sqlUser(dbUser)
-db.set_sqlPassword(dbPassword)
-db.useOneConnection(1)
+
+# get vocabName, mgiTypeKey, jNumber and userKey from environment
+vocabName = os.environ['VOCAB_NAME']
+mgiType = os.environ['MGITYPE']
+userKey = os.environ['USER_KEY']
+bcpFile = os.environ['TERM_HEADER_BCP_FILE']
+bcpErrorFile = os.environ['BCP_ERROR_FILE']
+bcpLogFile = os.environ['BCP_LOG_FILE']
+cdate = mgi_utils.date("%m/%d/%Y")
+
 
 vocabName = os.environ['VOCAB_NAME']
 mgiType = os.environ['MGITYPE']
 
-#
-#  Get the vocabulary key for the current vocabulary.
-#
-results = db.sql('select _Vocab_key ' + \
-                 'from VOC_Vocab ' + \
-                 'where name = "' + vocabName + '"', \
-                 'auto')
-vocabKey = results[0]['_Vocab_key']
+# load header file into memory
+# in format  ID
+headerFile = sys.argv[1]
+headerAnnotTypeKey = None
+if len(sys.argv) < 2:
+	headerAnnotTypeKey = sys.argv[2]
+
+print "loading header file %s" % headerFile
+headerRecords = set([])
+fp = open(headerFile, 'r')
+for line in fp.readlines():
+        line = line.strip()
+        if line:
+                headerRecords.add(line)
+fp.close()
+
+headerIDs = list(headerRecords)
+
+
+vocabKey = vocloadlib.getVocabKey(vocabName)
 
 #
 #  Get the DAG key for the current vocabulary.
 #
-results = db.sql('select d._DAG_key ' + \
-            'from VOC_VocabDAG v, DAG_DAG d ' + \
-            'where v._Vocab_key = ' + str(vocabKey) + ' and ' + \
-                  'v._DAG_key = d._DAG_key and ' + \
-                  'd.name = "' + vocabName + '"', 'auto')
-dagKey = results[0]['_DAG_key']
+results = vocloadlib.sql('''
+        select _dag_key from voc_vocabdag vd 
+        where vd._vocab_key=%s
+    ''' % vocabKey)
+        
+dagKey = results[0]['_dag_key']
 
 #
 #  Get the label key for a "Header" label.
 #
-results = db.sql('select _Label_key ' + \
+results = vocloadlib.sql('select _label_key ' + \
             'from DAG_Label ' + \
-            'where label = "Header"', 'auto')
+            'where label = \'Header\'')
 
-labelKey = results[0]['_Label_key']
+labelKey = results[0]['_label_key']
 
 print 'Vocab key: %d' % vocabKey
 print 'DAG key: %d' % dagKey
 print 'Label key: %d' % labelKey
 
+tempTable = "tmp_voc_header"
+vocloadlib.sql('''
+select distinct a.accid into #%s 
+from acc_accession a 
+where a._mgitype_key=13
+	and accid in ('%s')
+''' % (tempTable, '\',\''.join(headerIDs) ))
+
+
 #
 #  Find all the DAG nodes for the accession IDs in the VOC_Header table
 #  and save them in a temp table.
 #
-db.sql('select n._Node_key ' + \
+vocloadlib.sql('select n._Node_key ' + \
             'into #Nodes ' + \
-            'from ' + dbName_RADAR + '..VOC_Header h, ' + \
+            'from #%s h, ' % (tempTable) + \
                  'ACC_Accession a, ' + \
                  'VOC_Term t, ' + \
                  'DAG_Node n ' + \
@@ -123,30 +152,38 @@ db.sql('select n._Node_key ' + \
                   'a._Object_key = t._Term_key and ' + \
                   't._Vocab_key = ' + str(vocabKey) + ' and ' + \
                   't._Term_key = n._Object_key and ' + \
-                  'n._DAG_key = ' + str(dagKey), None)
-db.sql('create index idx1 on #Nodes(_Node_key)', None)
+                  'n._DAG_key = ' + str(dagKey))
+vocloadlib.sql('create index idx1 on #Nodes(_Node_key)')
 
 #
 #  Update the label key for each of the identified nodes using the label key
 #  for a header label.
 #
-db.sql('update DAG_Node ' + \
+vocloadlib.sql('update DAG_Node ' + \
             'set _Label_key = ' + str(labelKey) + ' ' + \
-            'from DAG_Node n, #Nodes t ' + \
-            'where n._Node_key = t._Node_key', None)
+            'from #Nodes t ' + \
+            'where DAG_Node._Node_key = t._Node_key')
 
-db.sql('update DAG_Closure ' + \
+vocloadlib.sql('update DAG_Closure ' + \
             'set _AncestorLabel_key = ' + str(labelKey) + ' ' + \
-            'from DAG_Closure n, #Nodes t ' + \
-            'where n._Ancestor_key = t._Node_key', None)
+            'from #Nodes t ' + \
+            'where DAG_Closure._Ancestor_key = t._Node_key')
 
-db.sql('update DAG_Closure ' + \
+vocloadlib.sql('update DAG_Closure ' + \
             'set _DescendentLabel_key = ' + str(labelKey) + ' ' + \
-            'from DAG_Closure n, #Nodes t ' + \
-            'where n._Descendent_key = t._Node_key', None)
+            'from  #Nodes t ' + \
+            'where DAG_Closure._Descendent_key = t._Node_key')
 
-results = db.sql('select count(*) "count" from #Nodes', 'auto')
-print 'Number of header nodes identified: %d' % results[0]['count']
+results = vocloadlib.sql('select count(*) as cnt from #Nodes')
+print 'Number of header nodes identified: %d' % results[0]['cnt']
 
-db.useOneConnection(0)
+
+
+if headerAnnotTypeKey:
+	procName = 'VOC_processAnnotHeaderAll'
+	if 'DB_TYPE' in os.environ and os.environ['DB_TYPE'] == 'postgres':
+	    vocloadlib.sql('''select %s(%s);''' % (procName, headerAnnotTypeKey))
+	else:
+	    vocloadlib.sql('''exec %s %s''' % (procName, headerAnnotTypeKey))
+
 sys.exit(0)

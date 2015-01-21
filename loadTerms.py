@@ -89,6 +89,12 @@ import vocloadlib
 import accessionlib
 import Set
 import html
+import mgi_utils
+
+# constant for today's date, to be used in BCP files
+CDATE = mgi_utils.date("%m/%d/%Y")
+# constant for _createdby_key, to be used in BCP files
+CREATEDBY_KEY = 1001
 
 ###--- Exceptions ---###
 
@@ -107,30 +113,38 @@ has_refs = 'cannot do a full load on vocab %s which has cross references'
 # templates placed here for readability of the code and
 # formatted for readability of the log file
 
-INSERT_TERM = '''insert VOC_Term (_Term_key, _Vocab_key, term, abbreviation, sequenceNum, isObsolete)
+INSERT_TERM = '''insert into VOC_Term (_Term_key, _Vocab_key, term, abbreviation, sequenceNum, isObsolete)
     values (%d, %d, "%s", "%s", %s, %d)'''
-BCP_INSERT_TERM = '''%d|%d|%s|%s|%s|%d||||\n'''
+BCP_INSERT_TERM = '''%%d|%%d|%%s|%%s|%%s|%%d|%d|%d|%s|%s\n''' % \
+	(CREATEDBY_KEY, CREATEDBY_KEY, CDATE, CDATE)
 
-INSERT_TEXT = '''insert VOC_Text (_Term_key, sequenceNum, note)
+INSERT_TEXT = '''insert into VOC_Text (_Term_key, sequenceNum, note)
     values (%d, %d, "%s")'''
-BCP_INSERT_TEXT = '''%d|%d|%s||\n'''
+BCP_INSERT_TEXT = '''%%d|%%d|%%s|%s|%s\n''' % \
+	(CDATE, CDATE)
 
-INSERT_NOTE = '''insert MGI_Note (_Note_key, _Object_key, _MGIType_key, _NoteType_key)
+INSERT_NOTE = '''insert into MGI_Note (_Note_key, _Object_key, _MGIType_key, _NoteType_key)
     values (%d, %d, %s, %s)'''
-BCP_INSERT_NOTE = '''%d|%d|%s|%s||||\n'''
+BCP_INSERT_NOTE = '''%%d|%%d|%%s|%%s|%d|%d|%s|%s\n''' % \
+	(CREATEDBY_KEY, CREATEDBY_KEY, CDATE, CDATE)
 
-INSERT_NOTECHUNK = '''insert MGI_NoteChunk (_Note_key, sequenceNum, note)
+INSERT_NOTECHUNK = '''insert into MGI_NoteChunk (_Note_key, sequenceNum, note)
     values (%d, %d, "%s")'''
-BCP_INSERT_NOTECHUNK = '''%d|%d|%s||||\n'''
+BCP_INSERT_NOTECHUNK = '''%%d|%%d|%%s|%d|%d|%s|%s\n''' % \
+	(CREATEDBY_KEY, CREATEDBY_KEY, CDATE, CDATE)
 
-INSERT_SYNONYM ='''insert MGI_Synonym (_Synonym_key, _Object_key, _MGIType_key, _SynonymType_key, _Refs_key, synonym)
+INSERT_SYNONYM ='''insert into MGI_Synonym (_Synonym_key, _Object_key, _MGIType_key, _SynonymType_key, _Refs_key, synonym)
     values (%d, %d, %d, %d, %d, "%s")'''
-BCP_INSERT_SYNONYM ='''%d|%d|%d|%d|%d|%s||||\n'''
+BCP_INSERT_SYNONYM ='''%%d|%%d|%%d|%%d|%%d|%%s|%d|%d|%s|%s\n''' % \
+	(CREATEDBY_KEY, CREATEDBY_KEY, CDATE, CDATE)
 
-INSERT_ACCESSION = '''insert ACC_Accession (_Accession_key, accID, prefixPart, numericPart, _LogicalDB_key, _Object_key, _MGIType_key, private, preferred)
+INSERT_ACCESSION = '''insert into ACC_Accession (_Accession_key, accID, prefixPart, numericPart, _LogicalDB_key, _Object_key, _MGIType_key, private, preferred)
     values (%d, "%s", "%s", %s, %d, %d, %d, %d, %d)'''
-BCP_INSERT_ACCESSION_NULL_NUMPART = '''%d|%s|%s||%d|%d|%d|%d|%d||||\n'''
-BCP_INSERT_ACCESSION_NUMPART = '''%d|%s|%s|%s|%d|%d|%d|%d|%d||||\n'''
+BCP_INSERT_ACCESSION_NULL_NUMPART = '''%%d|%%s|%%s||%%d|%%d|%%d|%%d|%%d|%d|%d|%s|%s\n''' % \
+	(CREATEDBY_KEY, CREATEDBY_KEY, CDATE, CDATE)
+
+BCP_INSERT_ACCESSION_NUMPART = '''%%d|%%s|%%s|%%s|%%d|%%d|%%d|%%d|%%d|%d|%d|%s|%s\n''' % \
+	(CREATEDBY_KEY, CREATEDBY_KEY, CDATE, CDATE)
 
 DELETE_TEXT = '''delete from VOC_Text where _Term_key = %d'''
 
@@ -569,10 +583,8 @@ class TermLoad:
            vocloadlib.nl_sqlog (INSERT_TERM % \
                            (self.max_term_key,
                            self.vocab_key,
-                           vocloadlib.escapeDoubleQuotes (
-                           record['term']),
-                           vocloadlib.escapeDoubleQuotes (
-                           record['abbreviation']),
+                           record['term'].replace('\'','\'\''),
+                           record['abbreviation'].replace('\'','\'\''),
                            termSeqNum,
                            self.getIsObsolete( record['status'] ) ),
                            self.log)
@@ -660,6 +672,7 @@ class TermLoad:
        defSeqNum = 0   # sequence number for definition chunks
        for chunk in vocloadlib.splitBySize( definitionRecord, 255 ):
            defSeqNum = defSeqNum + 1
+           chunk = chunk.replace('\\','\\\\')
            if self.isBCPLoad:
               self.loadTextBCP = 1
               self.termTextBCPFile.write (BCP_INSERT_TEXT % \
@@ -671,7 +684,7 @@ class TermLoad:
               vocloadlib.nl_sqlog (INSERT_TEXT % \
                       (termKey,
                       defSeqNum,
-                      vocloadlib.escapeDoubleQuotes(chunk)),
+                      chunk.replace('\'','\'\'')),
                       self.log)
 
     def generateCommentSQL ( self, commentRecord, termKey ):
@@ -718,7 +731,7 @@ class TermLoad:
               vocloadlib.nl_sqlog (INSERT_NOTECHUNK % \
                       (self.max_note_key,
                       cmtSeqNum,
-                      vocloadlib.escapeDoubleQuotes(chunk)),
+                      chunk.replace('\'','\'\'')),
                       self.log)
 
     def addAccID (self,
@@ -1176,7 +1189,7 @@ class TermLoad:
              obsoleteTermDiscrepancy = 1
 
        elif ( record['term'] != dbRecord[0]['term'] ):
-          vocloadlib.nl_sqlog ( UPDATE_TERM % ( vocloadlib.escapeDoubleQuotes(record['term']), termKey ), self.log )
+          vocloadlib.nl_sqlog ( UPDATE_TERM % ( record['term'].replace('\'','\'\''), termKey ), self.log )
           recordChanged = 1
 
        ###########################################################################
@@ -1236,7 +1249,7 @@ class TermLoad:
                         self.mgitype_key,
                         synonymTypeKey,
                         self.refs_key,
-                        vocloadlib.escapeDoubleQuotes(fileSynonyms[i])) )
+                        fileSynonyms[i].replace('\'','\'\'')) )
              else: # asserts self.isIncrementalLoad() or full load with on-line sql:
                 vocloadlib.nl_sqlog (INSERT_SYNONYM % \
                        (self.max_synonym_key,
@@ -1244,7 +1257,7 @@ class TermLoad:
                         self.mgitype_key,
                         synonymTypeKey,
                         self.refs_key,
-                        vocloadlib.escapeDoubleQuotes(fileSynonyms[i])),self.log)
+                        fileSynonyms[i].replace('\'','\'\'')),self.log)
 
     def getIsObsolete ( self, recordStatus ):
        # Purpose: Returns an isObsolete bit based on the record status

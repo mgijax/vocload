@@ -58,12 +58,30 @@
 ###########################################################################
 
 import sys 
-import db
 import string
 import os
 
 import DAG
+import vocloadlib
 
+
+# init database connection
+server = os.environ['DBSERVER']
+database = os.environ['DBNAME']
+username = os.environ['DBUSER']
+passwordFileName = os.environ['DBPASSWORDFILE']
+fp = open(passwordFileName, 'r')
+password = string.strip(fp.readline())
+fp.close()
+vocloadlib.setupSql (server, database, username, password)
+dagSortBCPFile = os.environ['VOC_DAG_SORT_BCP_FILE']
+bcpErrorFile = os.environ['BCP_ERROR_FILE']
+bcpLogFile = os.environ['BCP_LOG_FILE']
+
+#  Get other configuration setting for the load.
+#
+vocabName = os.environ['VOCAB_NAME']
+mgiType = os.environ['MGITYPE']
 
 #
 #  CLASSES
@@ -115,61 +133,31 @@ def initialize():
     sequenceNum = 0
     visitedNodes = {}
 
-    #  Get the database configuration parameters and set up a connection.
-    #
-    dbServer = os.environ['MGD_DBSERVER']
-    dbName_MGD = os.environ['MGD_DBNAME']
-    dbName_RADAR = os.environ['RADAR_DBNAME']
-    dbUser = os.environ['MGD_DBUSER']
-    passwordFile = os.environ['MGD_DBPASSWORDFILE']
-    fp = open(passwordFile, 'r')
-    dbPassword = string.strip(fp.readline())
-    fp.close()
-
-    db.set_sqlServer(dbServer)
-    db.set_sqlDatabase(dbName_MGD)
-    db.set_sqlUser(dbUser)
-    db.set_sqlPassword(dbPassword)
-    db.useOneConnection(1)
-
-    #  Get other configuration setting for the load.
-    #
-    vocabName = os.environ['VOCAB_NAME']
-    mgiType = os.environ['MGITYPE']
 
     #  Open the bcp file.
     #
-    dagSortBCPFile = os.environ['VOC_DAG_SORT_BCP_FILE']
     fpBCP = open(dagSortBCPFile,'w')
 
-    #  Get the vocabulary key for the current vocabulary.
-    #
-    results = db.sql('select _Vocab_key ' + \
-                     'from VOC_Vocab ' + \
-                     'where name = "' + vocabName + '"', 'auto')
-    vocabKey = results[0]['_Vocab_key']
+    vocabKey = vocloadlib.getVocabKey(vocabName)
 
-    #  Get the DAG key for the current vocabulary.
-    #
-    results = db.sql('select d._DAG_key ' + \
-                     'from VOC_VocabDAG v, DAG_DAG d ' + \
-                     'where v._Vocab_key = ' + str(vocabKey) + ' and ' + \
-                           'v._DAG_key = d._DAG_key and ' + \
-                           'd.name = "' + vocabName + '"', 'auto')
-    dagKey = results[0]['_DAG_key']
+    results = vocloadlib.sql('''
+        select _dag_key from voc_vocabdag vd 
+	where vd._vocab_key=%s
+    ''' % vocabKey)
+
+    dagKey = results[0]['_dag_key']
 
     print 'Vocab key: %d' % vocabKey
     print 'DAG key: %d' % dagKey
 
     #  Get the root key for the DAG.
     #
-    results = db.sql('select n._Node_key ' + \
+    results = vocloadlib.sql('select n._Node_key ' + \
                      'from DAG_Node n ' + \
                      'where n._DAG_key = ' + str(dagKey) + ' and ' + \
                            'not exists (select 1 ' + \
                                        'from DAG_Edge e ' + \
-                                       'where n._Node_key = e._Child_key)',  \
-                     'auto')
+                                       'where n._Node_key = e._Child_key)')
     rootKey = results[0]['_Node_key']
 
     print 'Root key: %d' % rootKey
@@ -198,25 +186,25 @@ def buildDAG ():
                       'n._DAG_key = ' + str(dagKey))
     cmds.append('select * from #TermNode')
 
-    results = db.sql(cmds, 'auto')
+    results = vocloadlib.sql(cmds)
 
     print 'Nodes: %d' % len(results[1])
 
     #  Get all the parent/child node pairs that share an edge.
     #
     cmds = []
-    cmds.append('select t1._Node_key "parentNodeKey", ' + \
-                       't1._Term_key "parentTermKey", ' + \
-                       't1.term "parentTerm", ' + \
-                       't2._Node_key "childNodeKey", ' + \
-                       't2._Term_key "childTermKey", ' + \
-                       't2.term "childTerm" ' + \
+    cmds.append('select t1._Node_key as parentNodeKey, ' + \
+                       't1._Term_key as parentTermKey, ' + \
+                       't1.term as parentTerm, ' + \
+                       't2._Node_key as childNodeKey, ' + \
+                       't2._Term_key as childTermKey, ' + \
+                       't2.term as childTerm ' + \
                 'from #TermNode t1, #TermNode t2, DAG_Edge e ' + \
                 'where e._Parent_key = t1._Node_key and ' + \
                       'e._Child_key = t2._Node_key and ' + \
                       'e._DAG_key = ' + str(dagKey))
 
-    results = db.sql(cmds, 'auto')
+    results = vocloadlib.sql(cmds)
 
     print 'Edges: %d' % len(results[0])
 
@@ -264,7 +252,7 @@ def sortNode (node):
     nodeKey = node.getId()
     if not visitedNodes.has_key(nodeKey):
         sequenceNum = sequenceNum + 1
-        fpBCP.write('%d\t%d\n' % (node.getTermKey(),sequenceNum))
+        fpBCP.write('%d|%d\n' % (node.getTermKey(),sequenceNum))
         visitedNodes[nodeKey] = sequenceNum
     else:
         return
@@ -303,15 +291,41 @@ def finalize():
     #
     global fpBCP
 
+
     #  Close the bcp file.
     #
     fpBCP.close()
 
-    #  Terminate the database connection.
-    #
-    db.useOneConnection(0)
-
     return
+
+def loadBCPFile(bcpFileName):
+    """
+    Loads the BCP file into 
+    a database table and uses that to update voc_term
+    """
+
+    # create a table to insert the bcp file
+    tempTable = 'tmp_voc_dagsort'
+    vocloadlib.sql('''create table %s (_term_key int, sequencenum int)''' % tempTable)
+
+    try:
+	# import term sort data
+	vocloadlib.loadBCPFile( bcpFileName, bcpLogFile, bcpErrorFile, tempTable, passwordFileName)
+
+	vocloadlib.sql('''create index %s_idx_term_key on %s (_term_key)''' % (tempTable, tempTable))
+
+	# now update voc_term using this imported data
+	vocloadlib.sql('''update VOC_Term
+	    set sequenceNum = seq.sequenceNum
+	    from VOC_Vocab v,
+		 %s seq
+	    where VOC_Term._Term_key = seq._Term_key and
+		  VOC_Term._Vocab_key = v._Vocab_key and
+		  v.name = '%s'
+	''' % (tempTable, vocabName))
+    finally:
+        # ensure table is removed when we are finished
+        vocloadlib.sql('''drop table %s''' % tempTable)
 
 
 #
@@ -331,5 +345,8 @@ print 'Apply topological sort order to the DAG'
 sortNode(node)
 
 finalize()
+
+print 'import term sequencenum into voc_term'
+loadBCPFile(dagSortBCPFile)
 
 sys.exit(0)
