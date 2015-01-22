@@ -36,18 +36,6 @@
 #
 #  Assumes:  Nothing
 #
-#  Implementation:
-#
-#      This script will perform following steps to identify the header
-#      nodes for a vocabulary:
-#
-#      1) Truncate the VOC_DAGSort table in the RADAR database.
-#      2) Call the loadTopSort.py script to generate the topological sort
-#         order for the vocabulary and create a bcp file identifying the
-#         sort order for each term.
-#      3) Use bcp to load the VOC_DAGSort table.
-#      4) Update the VOC_Term.sequenceNum attribute using the term key
-#         and sequence number in the VOC_DAGSort table.
 #
 #  Notes:  None
 #

@@ -40,17 +40,6 @@
 #
 #  Assumes:  Nothing
 #
-#  Implementation:
-#
-#      This script will perform following steps to identify the header
-#      nodes for a vocabulary:
-#
-#      1) Truncate the VOC_Header table in the RADAR database.
-#      2) Use bcp to load the header file into the VOC_Header table.
-#      3) Call the loadHeader.py script to identify the header nodes.
-#      4) Call the VOC_processAnnotHeaderAll stored procedure to
-#         re-evaluate the headers for all of the existing MP/Genotype
-#         annotations.
 #
 #  Notes:  None
 #

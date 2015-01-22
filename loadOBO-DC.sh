@@ -38,15 +38,6 @@
 #
 #  Assumes:  Nothing
 #
-#  Implementation:
-#
-#      This script will perform following steps to add the synonyms for the
-#      given terms:
-#
-#      1) Translate the OBO-DC input file into Synonym-format
-#      2) Truncate the VOC_Synonym table in the RADAR database.
-#      3) Use bcp to load the Synonym-formateted file into the VOC_Synonym table.
-#      3) Call the loadSynonym.py script to add the synonyms for the terms.
 #
 #  Notes:  None
 #

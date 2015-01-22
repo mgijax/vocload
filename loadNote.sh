@@ -43,15 +43,6 @@
 #      This script assumes that a note is not greater than 255 bytes, so it
 #      can be loaded into the note column of the VOC_Note table.
 #
-#  Implementation:
-#
-#      This script will perform following steps to add the notes for the
-#      given terms:
-#
-#      1) Truncate the VOC_Note table in the RADAR database.
-#      2) Use bcp to load the note file into the VOC_Note table.
-#      3) Call the loadNote.py script to add the notes for the terms.
-#
 #  Notes:  None
 #
 ###########################################################################

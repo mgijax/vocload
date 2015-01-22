@@ -40,14 +40,6 @@
 #
 #  Assumes:  Nothing
 #
-#  Implementation:
-#
-#      This script will perform following steps to add the synonyms for the
-#      given terms:
-#
-#      1) Truncate the VOC_Synonym table in the RADAR database.
-#      2) Use bcp to load the synonym file into the VOC_Synonym table.
-#      3) Call the loadSynonym.py script to add the synonyms for the terms.
 #
 #  Notes:  None
 #

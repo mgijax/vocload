@@ -5,9 +5,7 @@
 #
 #  Purpose:
 #
-#      This script will use the accession IDs in the VOC_Header table in
-#      the RADAR database to identify the DAG nodes for the vocabulary
-#      terms and set the label key for each node to make it a header node.
+#	Loads a header file into database
 #
 #  Usage:
 #
@@ -30,15 +28,6 @@
 #
 #  Assumes:  Nothing
 #
-#  Implementation:
-#
-#      This script will perform following steps to establish the header
-#      nodes for a vocabulary:
-#
-#      1) Use the accession IDs in the VOC_Header table in the RADAR
-#         database to identify the DAG nodes for the current vocabulary.
-#      2) Update the DAG_Node._Label_key attribute of each of these nodes
-#         with the label key for a "Header" node (from DAG_Label).
 #
 #  Notes:  None
 #
