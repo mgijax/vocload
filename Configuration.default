@@ -104,11 +104,6 @@ export DISCREP_FILE
 export DAG_DISCREP_FILE
 export FULL_MODE_DATA_LOADER
 
-
-#DB_TYPE=postgres
-DB_TYPE=sybase
-export DB_TYPE
-
 if [ ${DB_TYPE} = "postgres" ]
   then
     DBSERVER=${PG_DBSERVER}
