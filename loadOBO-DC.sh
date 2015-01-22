@@ -91,24 +91,11 @@ echo "**************************************************" >> ${FULL_LOG_FILE}
 echo "Start synonym file processing: ${SYNONYM_FILE}" >> ${FULL_LOG_FILE}
 
 #
-#  Truncate the VOC_Synonym table in the RADAR database to remove any
-#  current records.
-#
-echo "Truncate VOC_Synonym table" >> ${FULL_LOG_FILE}
-${RADAR_DBSCHEMADIR}/table/VOC_Synonym_truncate.object >> ${FULL_LOG_FILE}
-
-#
-#  Load the VOC_Synonym table from the synonym file using bcp.
-#
-echo "Load the synonym file into the VOC_Synonym table" >> ${FULL_LOG_FILE}
-${MGI_DBUTILS}/bin/bcpin.csh ${RADAR_DBSERVER} ${RADAR_DBNAME} VOC_Synonym ${RUNTIME_DIR} ${DCLUSTER_FILENAME} "\t" "\n" >> ${FULL_LOG_FILE}
-
-#
 #  Call the Python script.
 #
 
 echo "Start loadSynonym.py" >> ${FULL_LOG_FILE}
-loadSynonym.py >> ${FULL_LOG_FILE}
+loadSynonym.py ${DCLUSTER_FILENAME} >> ${FULL_LOG_FILE}
 echo "End loadSynonym.py" >> ${FULL_LOG_FILE}
 
 echo "End synonym file processing" >> ${FULL_LOG_FILE}
