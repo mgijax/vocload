@@ -48,23 +48,23 @@ error = 'VOCLoad.error'     # exception raised with values:
 unknown_mode = 'unknown load mode: %s'
 bad_simple = 'mismatching isSimple value for vocab key %d'
 unknown_jnum = 'cannot find _Refs_key for jnum %s'
-unknown_vocab = 'cannot find _Vocab_key for vocab "%s"'
+unknown_vocab = 'cannot find _Vocab_key for vocab \'%s\''
 
 ###--- SQL INSERT Statements ---###
 
 # We define these template here to aid reability of the code.  They
 # are formatted to increase readability of the log file.
 
-INSERT_VOCAB = '''insert VOC_Vocab (_Vocab_key, _Refs_key, isSimple, isPrivate,
+INSERT_VOCAB = '''insert into VOC_Vocab (_Vocab_key, _Refs_key, isSimple, isPrivate,
         _LogicalDB_key, name)
-    values (%d, %d, %d, %d, %d, "%s")'''
+    values (%d, %d, %d, %d, %d, \'%s\')'''
 
-INSERT_DAG = '''insert DAG_DAG (_DAG_key, _Refs_key, _MGIType_key,
+INSERT_DAG = '''insert into DAG_DAG (_DAG_key, _Refs_key, _MGIType_key,
         abbreviation, name)
     values (%d, %d, %d,
-        "%s", "%s")'''
+        \'%s\', \'%s\')'''
 
-INSERT_VOCABDAG = 'insert VOC_VocabDAG (_Vocab_key, _DAG_key) values (%d, %d)'
+INSERT_VOCABDAG = 'insert into VOC_VocabDAG (_Vocab_key, _DAG_key) values (%d, %d)'
 
 ###--- Classes ---###
 
@@ -101,21 +101,17 @@ class VOCLoad:
         else:
             raise error, unknown_mode % mode
 
-        try:
-            self.server = os.environ['MGD_DBSERVER']
-            self.database = os.environ['MGD_DBNAME']
-            self.username = os.environ['MGD_DBUSER']
-            self.passwordFileName = os.environ['MGD_DBPASSWORDFILE']
-            self.passwordFile = open ( self.passwordFileName, 'r' )
-            self.password = string.strip ( self.passwordFile.readline() )
+	self.server = os.environ['DBSERVER']
+	self.database = os.environ['DBNAME']
+	self.username = os.environ['DBUSER']
+	self.passwordFileName = os.environ['DBPASSWORDFILE']
+	self.passwordFile = open ( self.passwordFileName, 'r' )
+	self.password = string.strip ( self.passwordFile.readline() )
 
-            vocloadlib.setupSql (self.server, self.database,
-                self.username, self.password)
-            # confirm the sql setup worked by doing simple query
-            vocloadlib.sql ('select count(1) from VOC_Vocab')
-        except:
-            raise error, 'failed SQL initialization: %s' % \
-                sys.exc_value
+	vocloadlib.setupSql (self.server, self.database,
+	    self.username, self.password)
+	# confirm the sql setup worked by doing simple query
+	vocloadlib.sql ('select count(1) from VOC_Vocab')
 
         self.vocab_name = os.environ['VOCAB_NAME']
         self.isSimple = string.atoi(os.environ['IS_SIMPLE'])
@@ -201,16 +197,16 @@ class VOCLoad:
         else:
             #insert into VOC_Vocab table only if a record does not already exist
 
-            result = vocloadlib.sql ('''select max(_Vocab_key) from VOC_Vocab''')
-            self.vocab_key = max (0, result[0]['']) + 1
+            result = vocloadlib.sql ('''select max(_Vocab_key) as maxkey from VOC_Vocab''')
+            self.vocab_key = max (0, result[0]['maxkey']) + 1
 
             vocloadlib.nl_sqlog (INSERT_VOCAB % (self.vocab_key,
                     self.refs_key, self.isSimple, self.isPrivate,
                     self.logicalDBkey, self.vocab_name),
                     self.log)
 
-        result = vocloadlib.sql ('select max(_DAG_key) from DAG_DAG')
-        dag_key = max (0, result[0]['']) + 1
+        result = vocloadlib.sql ('select max(_DAG_key) as maxkey from DAG_DAG')
+        dag_key = max (0, result[0]['maxkey']) + 1
 
         for (key, dag) in self.config.items():
             #insert into DAG_DAG table
@@ -219,7 +215,7 @@ class VOCLoad:
                 dag['ABBREV'], dag['NAME']),
                 self.log)
 
-            #insert into VOC_Vocab table
+            #insert into VOC_VocabDag table
             vocloadlib.nl_sqlog (INSERT_VOCABDAG % (
                 self.vocab_key, dag_key),
                 self.log)

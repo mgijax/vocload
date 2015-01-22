@@ -83,36 +83,12 @@ cd `dirname $0`
 echo "**************************************************" >> ${FULL_LOG_FILE}
 echo "Start note file processing: ${NOTE_FILE}" >> ${FULL_LOG_FILE}
 
-#
-#  Truncate the VOC_Note table in the RADAR database to remove any
-#  current records.
-#
-echo "Truncate VOC_Note table" >> ${FULL_LOG_FILE}
-cat - <<EOSQL | isql -S${RADAR_DBSERVER} -U${RADAR_DBUSER} -P`cat ${RADAR_DBPASSWORDFILE}` >> ${FULL_LOG_FILE}
-
-use ${RADAR_DBNAME}
-go
-
-truncate table VOC_Note
-go
-
-checkpoint
-go
-
-quit
-EOSQL
-
-#
-#  Load the VOC_Note table from the note file using bcp.
-#
-echo "Load the note file into the VOC_Note table" >> ${FULL_LOG_FILE}
-cat ${RADAR_DBPASSWORDFILE} | bcp ${RADAR_DBNAME}..VOC_Note in ${NOTE_FILE} -c -t\\t -S${RADAR_DBSERVER} -U${RADAR_DBUSER} >> ${BCP_LOG_FILE}
 
 #
 #  Call the Python script.
 #
 echo "Start loadNote.py" >> ${FULL_LOG_FILE}
-loadNote.py >> ${FULL_LOG_FILE}
+loadNote.py ${NOTE_FILE} >> ${FULL_LOG_FILE}
 echo "End loadNote.py" >> ${FULL_LOG_FILE}
 
 echo "End note file processing" >> ${FULL_LOG_FILE}

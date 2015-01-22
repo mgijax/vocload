@@ -71,12 +71,21 @@ import os
 import re
 import getopt
 
-import db
 import rcdlib
 import Log
 import OBOParser
 import vocloadlib
 import loadVOC
+
+try:
+    if os.environ['DB_TYPE']=='postgres':
+        import pg_db
+        db = pg_db
+        db.setAutoTranslateBE(True)
+    else:
+        import db
+except:
+    import db
 
 USAGE = 'Usage:  %s [-n] [-f|-i] [-l <log file>] <RcdFile>' % sys.argv[0]
 

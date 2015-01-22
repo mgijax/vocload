@@ -64,42 +64,57 @@
 ###########################################################################
 
 import sys 
-import db
 import string
 import os
+import vocloadlib
+import mgi_utils
 
 
-dbServer = os.environ['MGD_DBSERVER']
-dbName_MGD = os.environ['MGD_DBNAME']
-dbName_RADAR = os.environ['RADAR_DBNAME']
-dbUser = os.environ['MGD_DBUSER']
-passwordFileName = os.environ['MGD_DBPASSWORDFILE']
+# init database connection
+server = os.environ['DBSERVER']
+database = os.environ['DBNAME']
+username = os.environ['DBUSER']
+passwordFileName = os.environ['DBPASSWORDFILE']
 fp = open(passwordFileName, 'r')
-dbPassword = string.strip(fp.readline())
+password = string.strip(fp.readline())
+fp.close()
+vocloadlib.setupSql (server, database, username, password)
 
-db.set_sqlServer(dbServer)
-db.set_sqlDatabase(dbName_MGD)
-db.set_sqlUser(dbUser)
-db.set_sqlPassword(dbPassword)
-db.useOneConnection(1)
 
+# get vocabName, mgiTypeKey, jNumber and userKey from environment
 vocabName = os.environ['VOCAB_NAME']
 mgiType = os.environ['MGITYPE']
 userKey = os.environ['USER_KEY']
+noteBcpFile = os.environ['TERM_NOTE_BCP_FILE']
+noteChunkBcpFile = os.environ['TERM_NOTECHUNK_BCP_FILE']
+bcpErrorFile = os.environ['BCP_ERROR_FILE']
+bcpLogFile = os.environ['BCP_LOG_FILE']
+cdate = mgi_utils.date("%m/%d/%Y")
 
 chunkSequence = 1
+
+# load synonym file into memory
+# in format  ID\ttype\tsynonym
+noteFile = sys.argv[1]
+
+print "loading note file %s" % noteFile
+noteRecords = []
+fp = open(noteFile, 'r')
+for line in fp.readlines():
+        line = line.strip()
+        if line:
+                noteRecords.append(line.split('\t'))
+fp.close()
 
 #
 #  Get the vocabulary key for the current vocabulary.
 #
-results = db.sql('select _Vocab_key from VOC_Vocab where name = "' + vocabName + '"', 'auto')
-vocabKey = results[0]['_Vocab_key']
+vocabKey = vocloadlib.getVocabKey(vocabName)
 
 #
 #  Get the maximum note key currently in use.
 #
-results = db.sql('select max(_Note_key) "_Note_key" from MGI_Note', 'auto')
-maxKey = results[0]['_Note_key']
+maxKey = vocloadlib.getMax ('_Note_key', 'MGI_Note')
 
 print 'Vocab key: %d' % vocabKey
 
@@ -109,66 +124,101 @@ print 'Vocab key: %d' % vocabKey
 #  note belongs to the current vocabulary that is being loaded.
 #  A trigger will delete the corresponding MGI_NoteChunk records.
 #
-noteTypes = []
-results = db.sql('select distinct nt._NoteType_key ' + \
-	'from ' + dbName_RADAR + '..VOC_Note v, MGI_NoteType nt ' + \
-	'where v.noteType = nt.noteType ' + \
-	'and nt._MGIType_key = ' + str(mgiType), 'auto')
-for r in results:
-    noteTypes.append(str(r['_NoteType_key']))
-noteTypesIn = string.join(noteTypes, ",")
+noteTypes = set([])
+for record in noteRecords:
+        noteTypes.add(record[1])
 
-db.sql('delete MGI_Note ' + \
-            'from MGI_Note n, MGI_NoteType nt, VOC_Term t ' + \
-            'where n._Object_key = t._Term_key and ' + \
+noteTypeKeys = []
+for noteType in noteTypes:
+        typeKey = vocloadlib.getNoteTypeKey(noteType)
+        noteTypeKeys.append(typeKey)
+
+noteTypesIn = ','.join([str(key) for key in noteTypeKeys])
+
+
+vocloadlib.sql('delete from MGI_Note ' + \
+            'from MGI_NoteType nt, VOC_Term t ' + \
+            'where MGI_Note._Object_key = t._Term_key and ' + \
                   't._Vocab_key = ' + str(vocabKey) + ' and ' + \
-                  'n._NoteType_key in (' + noteTypesIn + ')', None)
+                  'MGI_Note._NoteType_key in (' + noteTypesIn + ')')
 
 #
-#  Create a temp table that has an idenity column that can be used to
-#  generate the sequential note keys for each note that is added. The
-#  table also contains the term key, note type key and note that are
-#  needed for adding notes.
+# map term ID to _term_key
 #
-db.sql('select tempKey = identity(10), t._Term_key, ' + \
-                   'nt._NoteType_key, n.note ' + \
-            'into #Notes ' + \
-            'from ' + dbName_RADAR + '..VOC_Note n, ' + \
-                 'ACC_Accession a, ' + \
-                 'VOC_Term t, ' + \
-                 'MGI_NoteType nt ' + \
-            'where n.accID = a.accID and ' + \
-                  'a._MGIType_key = ' + str(mgiType) + ' and ' + \
-                  'a._Object_key = t._Term_key and ' + \
-                  't._Vocab_key = ' + str(vocabKey) + ' and ' + \
-                  'n.noteType = nt.noteType and ' + \
-		  'nt._MGIType_key = ' + str(mgiType), None)
+termIds = set([])
+for record in noteRecords:
+        termIds.add(record[0])
+
+termIds = list(termIds)
+termKeyMap = vocloadlib.getTermKeyMap(termIds, vocabName)
+
+
+#
+# transform note record into BCP rows
+#
+count = maxKey + 1
+noteBcpRecords = []
+noteChunkBcpRecords = []
+for record in noteRecords:
+
+        termid = record[0]
+        type = record[1]
+        note = record[2]
+
+        # skip any error rows
+        if termid not in termKeyMap:
+                continue
+
+
+        typeKey = vocloadlib.getNoteTypeKey(type)
+
+        noteBcpRecords.append([
+                count,
+                termKeyMap[termid],
+                mgiType,
+                typeKey,
+                userKey,
+                userKey,
+                cdate,
+                cdate
+        ])
+
+	# NOTE (kstone): previous version of this load
+	# 	always assumed only one note chunk.
+	#	You can split the chunks here if needed in the future.
+        noteChunkBcpRecords.append([
+                count,
+		1,
+		note,
+                userKey,
+                userKey,
+                cdate,
+                cdate
+        ])
+	
+
+        count += 1
 
 #
 #  Count how many notes are to be added.
 #
-results = db.sql('select count(*) "count" from #Notes', 'auto')
-print 'Number of notes to add: %d' % results[0]['count']
+print 'Number of notes to add: %d' % len(noteBcpRecords)
 
 #
-#  Add the records to the MGI_Note table.
+#  Add the records to the MGI_Note + MGI_NoteChunk tables.
 #
-db.sql('insert into MGI_Note ' + \
-            'select tempKey+' + str(maxKey) + ', _Term_key, ' + \
-                    str(mgiType) + ', _NoteType_key, ' + \
-                    str(userKey) + ', ' + str(userKey) + ', ' + \
-                   'getdate(), getdate() '
-            'from #Notes', None)
+fp = open(noteBcpFile, 'w')
+for r in noteBcpRecords:
+        fp.write('%s\n' % '|'.join([str(c) for c in r]))
+fp.close()
 
-#
-#  Add the records to the MGI_NoteChunk table.
-#
-db.sql('insert into MGI_NoteChunk ' + \
-            'select tempKey+' + str(maxKey) + ', ' + \
-                    str(chunkSequence) + ', note, ' + \
-                    str(userKey) + ', ' + str(userKey) + ', ' + \
-                   'getdate(), getdate() '
-            'from #Notes', None)
+fp = open(noteChunkBcpFile, 'w')
+for r in noteChunkBcpRecords:
+        fp.write('%s\n' % '|'.join([str(c) for c in r]))
+fp.close()
 
-db.useOneConnection(0)
+vocloadlib.loadBCPFile( noteBcpFile, bcpLogFile, bcpErrorFile, 'mgi_note', passwordFileName)
+vocloadlib.loadBCPFile( noteChunkBcpFile, bcpLogFile, bcpErrorFile, 'mgi_notechunk', passwordFileName)
+
+
 sys.exit(0)
