@@ -1,7 +1,10 @@
+TAG: vocload-5-2-1-2
 TAG: vocload-5-2-1-1
-DATE: 01/22/2015
-STAFF: kstone
+DATE: 01/22/2015, 01/23/2015
+STAFF: kstone, lec
 CHANGES:
+1) TR11750/add PG slipping
+2) OMIM.config/fix DCLUSTER_FILENAME bug
 
 TAG: vocload-5-1-9-3
 DATE: 07/23/2014
