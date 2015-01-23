@@ -86,7 +86,7 @@ echo "Start synonym file processing: ${SYNONYM_FILE}" >> ${FULL_LOG_FILE}
 #
 
 echo "Start loadSynonym.py" >> ${FULL_LOG_FILE}
-loadSynonym.py ${DCLUSTER_FILENAME} >> ${FULL_LOG_FILE}
+loadSynonym.py ${DCLUSTERSYN_FILE} >> ${FULL_LOG_FILE}
 echo "End loadSynonym.py" >> ${FULL_LOG_FILE}
 
 echo "End synonym file processing" >> ${FULL_LOG_FILE}
