@@ -5,8 +5,7 @@
 #
 #  Purpose:
 #
-#      This script will use the accession IDs in the VOC_Note table in
-#      the RADAR database to identify the terms to add the notes to.
+#	Loads a note file for voc terms
 #
 #  Usage:
 #
@@ -32,20 +31,6 @@
 #      This script assumes that a note is not greater than 255 bytes, so it
 #      can fit in one record in MGI_NoteChunk.
 #
-#  Implementation:
-#
-#      This script will perform following steps to add the notes for the
-#      given terms:
-#
-#      1) Delete any note from the MGI_Note table if the note type exists
-#         in the VOC_Note table in the RADAR database and the term for
-#         the note belongs to the current vocabulary that is being loaded.
-#         A trigger will delete the corresponding MGI_NoteChunk records.
-#      2) Load a temp table with the values needed for inserting records
-#         into the MGI_Note and MGI_NoteChunk tables, including an identity
-#         column for generating the sequential primary key.
-#      3) Create a record in the MGI_Note and MGI_NoteChunk table for each
-#         note in the temp table.
 #
 #  Notes:  None
 #
@@ -118,12 +103,7 @@ maxKey = vocloadlib.getMax ('_Note_key', 'MGI_Note')
 
 print 'Vocab key: %d' % vocabKey
 
-#
-#  Delete any note from the MGI_Note table if the note type exists
-#  in the VOC_Note table in the RADAR database and the term for the
-#  note belongs to the current vocabulary that is being loaded.
-#  A trigger will delete the corresponding MGI_NoteChunk records.
-#
+# delete existing note records
 noteTypes = set([])
 for record in noteRecords:
         noteTypes.add(record[1])

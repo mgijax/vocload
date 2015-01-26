@@ -55,9 +55,22 @@ import sys
 import os
 import string
 import getopt
-import db
 import mgi_utils
 import reportlib
+
+try:
+    if os.environ['DB_TYPE']=='postgres':
+        import pg_db
+        db = pg_db
+        db.setAutoTranslateBE(True)
+    else:
+        import db
+	# Log all SQL
+	db.set_sqlLogFunction(db.sqlLogAll)
+except:
+    import db
+    # Log all SQL
+    db.set_sqlLogFunction(db.sqlLogAll)
 
 #globals
 
@@ -177,12 +190,9 @@ def init():
 	reportFile = reportlib.init(reportFileName, 'Deleted:  Marker Annotations To Obsolete Terms', outputdir = os.environ['RUNTIME_DIR'])
     except:
         exit(1, 'Could not open file %s\n' % reportFileName)
-		
-    # Log all SQL
-    db.set_sqlLogFunction(db.sqlLogAll)
 
     # Set Log File Descriptor
-    db.set_sqlLogFD(diagFile)
+    #db.set_sqlLogFD(diagFile)
 
     diagFile.write('Start Date/Time: %s\n' % (mgi_utils.date()))
     diagFile.write('Server: %s\n' % (server))
@@ -227,15 +237,15 @@ def process():
 	    r['goid'] + TAB + \
 	    r['term'] + CRT)
 
-    db.sql('delete VOC_Evidence ' + \
-        'from #obsolete o, VOC_Annot a, VOC_Evidence e ' + \
+    db.sql('delete from VOC_Evidence ' + \
+        'from #obsolete o, VOC_Annot a ' + \
         'where a._AnnotType_key = 1000 ' + \
         'and a._Term_key = o._Object_key ' + \
-        'and a._Annot_key = e._Annot_key ' + \
-        'and e._Refs_key in (59154,61933,73199,73197)', None)
+        'and a._Annot_key = VOC_Evidence._Annot_key ' + \
+        'and VOC_Evidence._Refs_key in (59154,61933,73199,73197)', None)
 
-    db.sql('delete VOC_Annot from VOC_Annot a ' + \
-	'where a._AnnotType_key = 1000 and not exists (select 1 from VOC_Evidence e where a._Annot_key = e._Annot_key)', None)
+    db.sql('delete from VOC_Annot ' + \
+	'where VOC_Annot._AnnotType_key = 1000 and not exists (select 1 from VOC_Evidence e where VOC_Annot._Annot_key = e._Annot_key)', None)
 
 
 #

@@ -5,8 +5,7 @@
 #
 #  Purpose:
 #
-#      This script will use the accession IDs in the VOC_Synonym table in
-#      the RADAR database to identify the terms to add the synonyms to.
+#	Load a synonym file for voc terms
 #
 #  Usage:
 #
@@ -29,20 +28,6 @@
 #
 #  Assumes:  Nothing
 #
-#  Implementation:
-#
-#      This script will perform following steps to add the synonyms for the
-#      given terms:
-#
-#      1) Delete any synonym from the MGI_Synonym table if the synonym type
-#         exists in the VOC_Synonym table in the RADAR database and the term
-#         for the synonym belongs to the current vocabulary that is being
-#         loaded.
-#      2) Load a temp table with the values needed for inserting records
-#         into the MGI_Synonym table, including an identity column for
-#         generating the sequential primary key.
-#      3) Create a record in the MGI_Synonym table for each synonym in the
-#         temp table.
 #
 #  Notes:  None
 #
@@ -124,11 +109,8 @@ refsKey = results[0]['_object_key']
 maxKey = vocloadlib.getMax ('_Synonym_key', 'MGI_Synonym')
 
 
-#
-#  Delete any synonym from the MGI_Synonym table if the synonym type
-#  exists in the VOC_Synonym table in the RADAR database and the term
-#  for the synonym belongs to the current vocabulary that is being loaded.
-#
+
+# delete existing synonym records
 
 synTypes = set([])
 for record in synonymRecords:

@@ -34,7 +34,19 @@
 
 import sys 
 import os
-import db
+import vocloadlib
+
+
+# init database connection
+server = os.environ['DBSERVER']
+database = os.environ['DBNAME']
+username = os.environ['DBUSER']
+passwordFileName = os.environ['DBPASSWORDFILE']
+fp = open(passwordFileName, 'r')
+password = string.strip(fp.readline())
+fp.close
+vocloadlib.setupSql (server, database, username, password)
+
 
 # save list to check for duplicates
 omimList = set([])
@@ -93,7 +105,7 @@ def createDiffFile():
 	fp1 = open(os.environ['DCLUSTERDIFF1_FILE'], 'w')
 	fp2 = open(os.environ['DCLUSTERDIFF2_FILE'], 'w')
 
-	results = db.sql('''
+	results = vocloadlib.sql('''
 		select a.accID, t.term
 		from VOC_Term t, ACC_Accession a 
 		where t._Vocab_key = 44
@@ -101,7 +113,7 @@ def createDiffFile():
 		and t._Term_key = a._Object_key
 		and a._MGIType_key = 13
 		and a.preferred = 1
-		''', 'auto')
+		''')
 
 	for r in results:
 		mgiList.setdefault(r['accID'], []).append(r['term'])

@@ -70,8 +70,20 @@
 import sys
 import os
 import string
-import db
 import reportlib
+
+import vocloadlib
+
+
+# init database connection
+server = os.environ['DBSERVER']
+database = os.environ['DBNAME']
+username = os.environ['DBUSER']
+passwordFileName = os.environ['DBPASSWORDFILE']
+fp = open(passwordFileName, 'r')
+password = string.strip(fp.readline())
+fp.close
+vocloadlib.setupSql (server, database, username, password)
 
 # globals
 
@@ -103,13 +115,13 @@ def cacheExistingIds():
 
     global omimMGI
 
-    results = db.sql('''
+    results = vocloadlib.sql('''
 	select a.accID, t.term
 	from ACC_Accession a, VOC_Term t
 	where a._LogicalDB_key = %s
 	and a._MGIType_key = 13
 	and a._Object_key = t._Term_key
-	''' % (os.environ['LOGICALDB_KEY']), 'auto')
+	''' % (os.environ['LOGICALDB_KEY']))
     for r in results:
         omimMGI[r['accID']] = r['term']
 

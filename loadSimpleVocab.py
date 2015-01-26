@@ -2,8 +2,17 @@
 
 import sys
 import os
-import db
 import string
+
+try:
+    if os.environ['DB_TYPE']=='postgres':
+        import pg_db
+        db = pg_db
+        db.setAutoTranslateBE(True)
+    else:
+        import db
+except:
+    import db
 
 USAGE = '''Usage: %s <file> <vocab> <J#> <ldb> <user> <pwd> <server> <db>
 	<file>   : name of input file
