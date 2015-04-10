@@ -174,7 +174,7 @@ def init():
         and a.preferred = 1
         and t._Term_key = aa._Term_key
         and aa._AnnotType_key = 1005
-        order by t.term
+        order by t.term, a.accID
         ''', 'auto')
 
     for r in results:
@@ -183,7 +183,7 @@ def init():
         mgiTerms[id] = term
 
     # grab the existing OMIM secondary terms in MGI
-    results = db.sql('''select distinct a.accID, secondary = s.accID
+    results = db.sql('''select distinct a.accID, s.accID as secondary
         from VOC_Term t, ACC_Accession a, ACC_Accession s, VOC_Annot aa
         where t._Vocab_key = 44
         and t._Term_key = a._Object_key 
@@ -194,7 +194,7 @@ def init():
         and t._Term_key = s._Object_key 
         and s._MGIType_key = 13 
         and s.preferred = 0
-        order by t.term
+        order by s.accID, a.accID
         ''', 'auto')
 
     for r in results:
@@ -203,7 +203,7 @@ def init():
         mgiSecondarys[id] = secondary
 
     # grab genotypes that exist for MGI OMIM terms
-    results = db.sql('''select a.accID, genotypeID = g.accID
+    results = db.sql('''select a.accID, g.accID as genotypeID
         from VOC_Term t, VOC_Annot aa, ACC_Accession a, ACC_Accession g
         where t._Vocab_key = 44
         and t._Term_key = a._Object_key
@@ -213,7 +213,7 @@ def init():
         and aa._AnnotType_key = 1005
         and aa._Object_key = g._Object_key 
         and g._MGIType_key = 12 
-        order by t.term
+        order by g.accID, a.accID
         ''', 'auto')
 
     for r in results:
