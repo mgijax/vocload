@@ -55,9 +55,18 @@ import sys
 import os
 import string
 import getopt
-import db
 import mgi_utils
 import reportlib
+
+try:
+    if os.environ['DB_TYPE']=='postgres':
+        import pg_db
+        db = pg_db
+        db.setAutoTranslateBE(True)
+    else:
+        import db
+except:
+    import db
 
 #globals
 
@@ -182,7 +191,7 @@ def init():
     db.set_sqlLogFunction(db.sqlLogAll)
 
     # Set Log File Descriptor
-    db.set_sqlLogFD(diagFile)
+    #db.set_sqlLogFD(diagFile)
 
     diagFile.write('Start Date/Time: %s\n' % (mgi_utils.date()))
     diagFile.write('Server: %s\n' % (server))
@@ -207,7 +216,7 @@ def process():
 
     db.sql('create clustered index idx_key on #obsolete(_Object_key)', None)
 
-    results = db.sql('select m.symbol, m.name, ma.accID, goid = o.accID, o.term ' + \
+    results = db.sql('select m.symbol, m.name, ma.accID, o.accID as goid, o.term ' + \
         'from #obsolete o, VOC_Annot a, VOC_Evidence e, MRK_Marker m, ACC_Accession ma ' + \
         'where a._AnnotType_key = 1000 ' + \
         'and a._Term_key = o._Object_key ' + \
@@ -217,7 +226,7 @@ def process():
 	'and a._Object_key = ma._Object_key ' + \
 	'and ma._MGIType_key = 2 ' + \
 	'and ma._LogicalDB_key = 1 ' + \
-	'and ma.prefixPart = "MGI:" ' + \
+	'and ma.prefixPart = \'MGI:\' ' + \
 	'and ma.preferred = 1', 'auto')
 
     for r in results:
@@ -227,15 +236,15 @@ def process():
 	    r['goid'] + TAB + \
 	    r['term'] + CRT)
 
-    db.sql('delete VOC_Evidence ' + \
-        'from #obsolete o, VOC_Annot a, VOC_Evidence e ' + \
+    db.sql('delete from VOC_Evidence ' + \
+        'from #obsolete o, VOC_Annot a ' + \
         'where a._AnnotType_key = 1000 ' + \
         'and a._Term_key = o._Object_key ' + \
-        'and a._Annot_key = e._Annot_key ' + \
-        'and e._Refs_key in (59154,61933,73199,73197)', None)
+        'and a._Annot_key = VOC_Evidence._Annot_key ' + \
+        'and VOC_Evidence._Refs_key in (59154,61933,73199,73197)', None)
 
-    db.sql('delete VOC_Annot from VOC_Annot a ' + \
-	'where a._AnnotType_key = 1000 and not exists (select 1 from VOC_Evidence e where a._Annot_key = e._Annot_key)', None)
+    db.sql('delete from VOC_Annot a ' + \
+	'where _AnnotType_key = 1000 and not exists (select 1 from VOC_Evidence e where a._Annot_key = e._Annot_key)', None)
 
 
 #
