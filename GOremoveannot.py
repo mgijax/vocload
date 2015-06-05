@@ -243,8 +243,15 @@ def process():
         'and a._Annot_key = VOC_Evidence._Annot_key ' + \
         'and VOC_Evidence._Refs_key in (59154,61933,73199,73197)', None)
 
-    db.sql('delete from VOC_Annot a ' + \
-	'where _AnnotType_key = 1000 and not exists (select 1 from VOC_Evidence e where a._Annot_key = e._Annot_key)', None)
+    if os.environ['DB_TYPE']=='postgres':
+	db.sql('delete from VOC_Annot a ' + \
+	    'where _AnnotType_key = 1000 and not exists (select 1 from VOC_Evidence e where a._Annot_key = e._Annot_key)', None)
+    else:
+	db.sql('delete from VOC_Annot from VOC_Annot a ' + \
+	    'where _AnnotType_key = 1000 and not exists (select 1 from VOC_Evidence e where a._Annot_key = e._Annot_key)', None)
+
+
+    db.commit()
 
 
 #
