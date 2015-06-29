@@ -119,7 +119,7 @@ print 'Label key: %d' % labelKey
 
 tempTable = "tmp_voc_header"
 vocloadlib.sql('''
-select distinct a.accid into #%s 
+select distinct a.accid into temp %s 
 from acc_accession a 
 where a._mgitype_key=13
 	and accid in ('%s')
@@ -131,8 +131,8 @@ where a._mgitype_key=13
 #  and save them in a temp table.
 #
 vocloadlib.sql('select n._Node_key ' + \
-            'into #Nodes ' + \
-            'from #%s h, ' % (tempTable) + \
+            'into temp Nodes ' + \
+            'from %s h, ' % (tempTable) + \
                  'ACC_Accession a, ' + \
                  'VOC_Term t, ' + \
                  'DAG_Node n ' + \
@@ -142,7 +142,7 @@ vocloadlib.sql('select n._Node_key ' + \
                   't._Vocab_key = ' + str(vocabKey) + ' and ' + \
                   't._Term_key = n._Object_key and ' + \
                   'n._DAG_key = ' + str(dagKey))
-vocloadlib.sql('create index idx1 on #Nodes(_Node_key)')
+vocloadlib.sql('create index idx1 on Nodes(_Node_key)')
 
 #
 #  Update the label key for each of the identified nodes using the label key
@@ -150,29 +150,26 @@ vocloadlib.sql('create index idx1 on #Nodes(_Node_key)')
 #
 vocloadlib.sql('update DAG_Node ' + \
             'set _Label_key = ' + str(labelKey) + ' ' + \
-            'from #Nodes t ' + \
+            'from Nodes t ' + \
             'where DAG_Node._Node_key = t._Node_key')
 
 vocloadlib.sql('update DAG_Closure ' + \
             'set _AncestorLabel_key = ' + str(labelKey) + ' ' + \
-            'from #Nodes t ' + \
+            'from Nodes t ' + \
             'where DAG_Closure._Ancestor_key = t._Node_key')
 
 vocloadlib.sql('update DAG_Closure ' + \
             'set _DescendentLabel_key = ' + str(labelKey) + ' ' + \
-            'from  #Nodes t ' + \
+            'from  Nodes t ' + \
             'where DAG_Closure._Descendent_key = t._Node_key')
 
-results = vocloadlib.sql('select count(*) as cnt from #Nodes')
+results = vocloadlib.sql('select count(*) as cnt from Nodes')
 print 'Number of header nodes identified: %d' % results[0]['cnt']
 
 
 
 if headerAnnotTypeKey:
 	procName = 'VOC_processAnnotHeaderAll'
-	if 'DB_TYPE' in os.environ and os.environ['DB_TYPE'] == 'postgres':
-	    vocloadlib.sql('''select %s(%s);''' % (procName, headerAnnotTypeKey))
-	else:
-	    vocloadlib.sql('''exec %s %s''' % (procName, headerAnnotTypeKey))
+	vocloadlib.sql('''select %s(%s);''' % (procName, headerAnnotTypeKey))
 
 sys.exit(0)
