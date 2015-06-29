@@ -124,7 +124,7 @@ for synType in synTypes:
 synTypesIn = ','.join([str(key) for key in synTypeKeys])
 
 vocloadlib.sql('delete from MGI_Synonym ' + \
-            'from MGI_SynonymType st, VOC_Term t ' + \
+            'using MGI_SynonymType st, VOC_Term t ' + \
             'where MGI_Synonym._Object_key = t._Term_key and ' + \
                   't._Vocab_key = ' + str(vocabKey) + ' and ' + \
                   'MGI_Synonym._SynonymType_key in (' + synTypesIn + ')')

@@ -98,7 +98,7 @@ def processArgs ():
 
 	results = db.sql ('''SELECT _Vocab_key, _Refs_key, _LogicalDB_key
 		FROM VOC_Vocab 
-		WHERE name = "%s"''' % vocab, 'auto')
+		WHERE name = '%s' ''' % vocab, 'auto')
 	if not results:
 		vocabKey = None
 		dbRefsKey = None
@@ -114,7 +114,7 @@ def processArgs ():
 		FROM ACC_Accession
 		WHERE _MGIType_key = 1		-- reference
 			AND _LogicalDB_key = 1	-- MGI
-			AND accID = "%s"''' % jnum, 'auto')
+			AND accID = '%s' ''' % jnum, 'auto')
 	if not results:
 		bailout ('Unknown reference ID: %s' % jnum)
 	refsKey = results[0]['_Object_key']
@@ -201,7 +201,7 @@ def createVocabulary (
 
 	cmd2 = '''INSERT VOC_Vocab (_Vocab_key, _Refs_key, _LogicalDB_key,
 			isSimple, isPrivate, name)
-		VALUES (%d, %d, %d, %d, %d, "%s")''' % (vocabKey, refsKey,
+		VALUES (%d, %d, %d, %d, %d, '%s')''' % (vocabKey, refsKey,
 			ldbKey, 1, 0, vocabName)
 	try:
 		results = db.sql (cmd2, 'auto')
@@ -319,7 +319,7 @@ def addTerms (
 
 	template = '''INSERT VOC_Term (_Term_key, _Vocab_key, term,
 			abbreviation, sequenceNum, isObsolete)
-		VALUES (%d, ''' + str(vocabKey) + ', "%s", "%s", %d, 0)'
+		VALUES (%d, ''' + str(vocabKey) + ', \'%s\', \'%s\', %d, 0)'
 
 	# do the additions
 

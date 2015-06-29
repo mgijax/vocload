@@ -114,12 +114,12 @@ has_refs = 'cannot do a full load on vocab %s which has cross references'
 # formatted for readability of the log file
 
 INSERT_TERM = '''insert into VOC_Term (_Term_key, _Vocab_key, term, abbreviation, sequenceNum, isObsolete)
-    values (%d, %d, "%s", "%s", %s, %d)'''
+    values (%d, %d, '%s', '%s', %s, %d)'''
 BCP_INSERT_TERM = '''%%d|%%d|%%s|%%s|%%s|%%d|%d|%d|%s|%s\n''' % \
 	(CREATEDBY_KEY, CREATEDBY_KEY, CDATE, CDATE)
 
 INSERT_TEXT = '''insert into VOC_Text (_Term_key, sequenceNum, note)
-    values (%d, %d, "%s")'''
+    values (%d, %d, '%s')'''
 BCP_INSERT_TEXT = '''%%d|%%d|%%s|%s|%s\n''' % \
 	(CDATE, CDATE)
 
@@ -129,17 +129,17 @@ BCP_INSERT_NOTE = '''%%d|%%d|%%s|%%s|%d|%d|%s|%s\n''' % \
 	(CREATEDBY_KEY, CREATEDBY_KEY, CDATE, CDATE)
 
 INSERT_NOTECHUNK = '''insert into MGI_NoteChunk (_Note_key, sequenceNum, note)
-    values (%d, %d, "%s")'''
+    values (%d, %d, '%s')'''
 BCP_INSERT_NOTECHUNK = '''%%d|%%d|%%s|%d|%d|%s|%s\n''' % \
 	(CREATEDBY_KEY, CREATEDBY_KEY, CDATE, CDATE)
 
 INSERT_SYNONYM ='''insert into MGI_Synonym (_Synonym_key, _Object_key, _MGIType_key, _SynonymType_key, _Refs_key, synonym)
-    values (%d, %d, %d, %d, %d, "%s")'''
+    values (%d, %d, %d, %d, %d, '%s')'''
 BCP_INSERT_SYNONYM ='''%%d|%%d|%%d|%%d|%%d|%%s|%d|%d|%s|%s\n''' % \
 	(CREATEDBY_KEY, CREATEDBY_KEY, CDATE, CDATE)
 
 INSERT_ACCESSION = '''insert into ACC_Accession (_Accession_key, accID, prefixPart, numericPart, _LogicalDB_key, _Object_key, _MGIType_key, private, preferred)
-    values (%d, "%s", "%s", %s, %d, %d, %d, %d, %d)'''
+    values (%d, '%s', '%s', %s, %d, %d, %d, %d, %d)'''
 BCP_INSERT_ACCESSION_NULL_NUMPART = '''%%d|%%s|%%s||%%d|%%d|%%d|%%d|%%d|%d|%d|%s|%s\n''' % \
 	(CREATEDBY_KEY, CREATEDBY_KEY, CDATE, CDATE)
 
@@ -153,7 +153,7 @@ DELETE_NOTE = '''delete from MGI_Note where _Object_key = %d and _NoteType_key =
 DELETE_ALL_SYNONYMS ='''delete from MGI_Synonym where _Object_key = %d and _MGIType_key = %d'''
 
 UPDATE_TERM = '''update VOC_Term 
-	set term = "%s", modification_date = getdate(), _ModifiedBy_key = 1001
+	set term = '%s', modification_date = getdate(), _ModifiedBy_key = 1001
 	where _Term_key = %d '''
 
 UPDATE_STATUS = '''update VOC_Term 

@@ -117,7 +117,7 @@ noteTypesIn = ','.join([str(key) for key in noteTypeKeys])
 
 
 vocloadlib.sql('delete from MGI_Note ' + \
-            'from MGI_NoteType nt, VOC_Term t ' + \
+            'using MGI_NoteType nt, VOC_Term t ' + \
             'where MGI_Note._Object_key = t._Term_key and ' + \
                   't._Vocab_key = ' + str(vocabKey) + ' and ' + \
                   'MGI_Note._NoteType_key in (' + noteTypesIn + ')')

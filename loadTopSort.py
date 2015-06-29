@@ -180,11 +180,11 @@ def buildDAG ():
     #
     cmds = []
     cmds.append('select t._Term_key, t.term, n._Node_key ' + \
-                'into #TermNode ' + \
+                'into temp TermNode ' + \
                 'from VOC_Term t, DAG_Node n ' + \
                 'where t._Term_key = n._Object_key and ' + \
                       'n._DAG_key = ' + str(dagKey))
-    cmds.append('select * from #TermNode')
+    cmds.append('select * from TermNode')
 
     results = vocloadlib.sql(cmds)
 
@@ -199,7 +199,7 @@ def buildDAG ():
                        't2._Node_key as childNodeKey, ' + \
                        't2._Term_key as childTermKey, ' + \
                        't2.term as childTerm ' + \
-                'from #TermNode t1, #TermNode t2, DAG_Edge e ' + \
+                'from TermNode t1, TermNode t2, DAG_Edge e ' + \
                 'where e._Parent_key = t1._Node_key and ' + \
                       'e._Child_key = t2._Node_key and ' + \
                       'e._DAG_key = ' + str(dagKey))

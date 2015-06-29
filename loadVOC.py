@@ -124,7 +124,7 @@ class VOCLoad:
         results = vocloadlib.sql (
             '''select _Vocab_key, isSimple
                 from VOC_Vocab
-                where name = "%s"''' % self.vocab_name
+                where name = '%s' ''' % self.vocab_name
                 )
         if len(results) > 0:
             self.vocab_key = results[0]['_Vocab_key']
@@ -137,7 +137,7 @@ class VOCLoad:
 
         result = vocloadlib.sql ('''select _Refs_key
                     from BIB_View
-                    where jnumID = "%s"''' % self.jnum)
+                    where jnumID = '%s' ''' % self.jnum)
         if len(result) == 0:
             raise error, unknown_jnum % self.jnum
         self.refs_key = result[0]['_Refs_key']
