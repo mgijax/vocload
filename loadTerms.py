@@ -153,11 +153,11 @@ DELETE_NOTE = '''delete from MGI_Note where _Object_key = %d and _NoteType_key =
 DELETE_ALL_SYNONYMS ='''delete from MGI_Synonym where _Object_key = %d and _MGIType_key = %d'''
 
 UPDATE_TERM = '''update VOC_Term 
-	set term = '%s', modification_date = getdate(), _ModifiedBy_key = 1001
+	set term = '%s', modification_date = current_date, _ModifiedBy_key = 1001
 	where _Term_key = %d '''
 
 UPDATE_STATUS = '''update VOC_Term 
-	set isObsolete = %d, modification_date = getdate(), _ModifiedBy_key = 1001
+	set isObsolete = %d, modification_date = current_date, _ModifiedBy_key = 1001
 	where _Term_key = %d '''
 
 MERGE_TERMS = '''exec VOC_mergeTerms %d, %d'''
