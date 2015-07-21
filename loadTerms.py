@@ -160,7 +160,7 @@ UPDATE_STATUS = '''update VOC_Term
 	set isObsolete = %d, modification_date = current_date, _ModifiedBy_key = 1001
 	where _Term_key = %d '''
 
-MERGE_TERMS = '''exec VOC_mergeTerms %d, %d'''
+MERGE_TERMS = '''select * from VOC_mergeTerms (%d, %d);'''
 ########################################################################
 ########################################################################
 
