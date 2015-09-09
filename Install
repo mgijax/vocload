@@ -24,6 +24,15 @@ then
     mkdir -p ${DATALOADSOUTPUT}/mgi/vocload/OMIM
 fi
 
+if [ ! -d ${DATALOADSOUTPUT}/mgi/vocload/archiveMA ]
+then
+    mkdir -p ${DATALOADSOUTPUT}/mgi/vocload/archiveMA
+fi
+if [ ! -d ${DATALOADSOUTPUT}/mgi/vocload/runTimeMA ]
+then
+    mkdir -p ${DATALOADSOUTPUT}/mgi/vocload/runTimeMA
+fi
+
 if [ ! -d ${DATALOADSOUTPUT}/mgi/vocload/archiveMP ]
 then
     mkdir -p ${DATALOADSOUTPUT}/mgi/vocload/archiveMP
@@ -49,6 +58,15 @@ fi
 if [ ! -d ${DATALOADSOUTPUT}/mgi/vocload/runTimeRV ]
 then
     mkdir -p ${DATALOADSOUTPUT}/mgi/vocload/runTimeRV
+fi
+
+if [ ! -d ${DATALOADSOUTPUT}/mgi/vocload/archiveCL ]
+then
+    mkdir -p ${DATALOADSOUTPUT}/mgi/vocload/archiveCL
+fi
+if [ ! -d ${DATALOADSOUTPUT}/mgi/vocload/runTimeCL ]
+then
+    mkdir -p ${DATALOADSOUTPUT}/mgi/vocload/runTimeCL
 fi
 
 # Set mode

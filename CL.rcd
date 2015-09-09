@@ -1,0 +1,27 @@
+#
+# Progam:  CL.rcd
+#
+# Purpose:
+#
+#	Configuration file for CL Vocabulary load
+#	which defines the CL DAGs
+#
+# Usage:
+#
+#	Used by Python Configuration module
+#
+# History:
+#
+#	09/02/2015	lec
+#	- TR11752/new
+#
+
+RUNTIME_DIR = /data/loads/mgi/vocload/runTimeCL
+DATA_DIR = /data/downloads/purl.obolibrary.org/obo/cl/cl-basic.obo
+
+[
+        NAME = Cell Ontology
+        NAME_SPACE = cell
+        ONTOLOGY_FILE = ${DATA_DIR}/cl.obo
+        LOAD_FILE = ${RUNTIME_DIR}/dag.cell
+]
