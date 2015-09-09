@@ -317,26 +317,27 @@ def parseOBOFile():
         synonymType = term.getSynonymType()
 	subset = term.getSubset()
         isValid = 1
+
 	if termID == dagRootID and vocabName == 'Feature Relationship':
 	    # skip this term
 	    term = parser.nextTerm()
 	    continue
 	    #isValid = 0
+
         # Validate the namespace.  The namespace is used to determine which
         # DAG file to write to.  For the GO vocabulary, there are multiple
         # DAGs, so the namespace is required for each term.  For other
         # vocabularies (e.g. MP and MA), the namespace is not defined for
         # each term, so the default namespace from the header is used.
         #
-        if namespace != '':
+        if vocabName == 'Cell Ontology':
+	    namespace = 'cell'
+        elif namespace != '':
             if namespace not in validNamespace:
                 fpValid.write('(' + termID + ') Invalid namespace: ' + namespace + '\n')
                 isValid = 0
         else:
-            if vocabName == 'Cell Ontology':
-                log.writeline('Missing namespace for term: ' + termID)
-                namespace = defaultNamespace
-            elif vocabName == 'GO' or vocabName == 'Feature Relationship':
+            if vocabName == 'GO' or vocabName == 'Feature Relationship':
                 log.writeline('Missing namespace for term: ' + termID)
                 closeFiles()
                 return 1
