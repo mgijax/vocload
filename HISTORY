@@ -1,8 +1,8 @@
 TAG: vocload-6-0-0-?
-DATE: 09/02/2015
+DATE: 09/09/2015
 STAFF: lec
 CHANGES:
-1) TR11752/cell ontology (CL)
+1) TR12070/cell ontology (CL)
 CL.config, CL.rcd, CLindex.html
 loadOBO.py : vocabName = 'Cell Ontology'
 

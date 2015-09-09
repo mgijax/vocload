@@ -179,10 +179,8 @@ class VOCLoad:
                         where _Vocab_key = %d''' % \
                         self.vocab_key)
             for dag in dags:
-#                vocloadlib.truncateTransactionLog (self.database, self.log)
                 vocloadlib.nl_sqlog ( 'delete from DAG_DAG where _DAG_key = %d' % dag['_DAG_key'], self.log )
 
-#            vocloadlib.truncateTransactionLog (self.database, self.log)
             vocloadlib.deleteVocabTerms (self.vocab_key, self.log)
 
 	    # don't delete the master VOC_Vocab record; a simple vocab may be used 
@@ -205,37 +203,32 @@ class VOCLoad:
                     self.logicalDBkey, self.vocab_name),
                     self.log)
 
-        result = vocloadlib.sql ('select max(_DAG_key) as maxkey from DAG_DAG')
-        dag_key = max (0, result[0]['maxkey']) + 1
+        # load the terms
 
-        for (key, dag) in self.config.items():
-            #insert into DAG_DAG table
-            vocloadlib.nl_sqlog (INSERT_DAG % (dag_key,
-                self.refs_key, self.mgitype_key,
-                dag['ABBREV'], dag['NAME']),
-                self.log)
-
-            #insert into VOC_VocabDag table
-            vocloadlib.nl_sqlog (INSERT_VOCABDAG % (
-                self.vocab_key, dag_key),
-                self.log)
-
-            dag['KEY'] = dag_key
-            dag_key = dag_key + 1
-
-#        vocloadlib.truncateTransactionLog (self.database, self.log)
-        
-        # Now load the terms
-        termload = loadTerms.TermLoad (self.termfile, self.mode,
-            self.vocab_key, self.refs_key, self.log, self.passwordFileName )
+        termload = loadTerms.TermLoad (self.termfile, self.mode, self.vocab_key, self.refs_key, self.log, self.passwordFileName )
         termload.go()
 
-        # Now load the DAGs if it is a complex vocabulary
+        # load the DAGs if it is a complex vocabulary
+
+        if not self.isSimple:
+            result = vocloadlib.sql ('select max(_DAG_key) as maxkey from DAG_DAG')
+            dag_key = max (0, result[0]['maxkey']) + 1
+
+            for (key, dag) in self.config.items():
+
+                #insert into DAG_DAG table
+                vocloadlib.nl_sqlog (INSERT_DAG % (dag_key, self.refs_key, self.mgitype_key, 
+			dag['ABBREV'], dag['NAME']), self.log)
+
+                #insert into VOC_VocabDag table
+                vocloadlib.nl_sqlog (INSERT_VOCABDAG % (self.vocab_key, dag_key), self.log)
+
+                dag['KEY'] = dag_key
+                dag_key = dag_key + 1
+
         if not self.isSimple:
             for (key, dag) in self.config.items():
-#                vocloadlib.truncateTransactionLog (self.database, self.log)
-                dagload = loadDAG.DAGLoad (dag['LOAD_FILE'],
-                    self.mode, dag['NAME'], self.log, self.passwordFileName )
+                dagload = loadDAG.DAGLoad (dag['LOAD_FILE'], self.mode, dag['NAME'], self.log, self.passwordFileName )
                 dagload.go()
 
         self.log.writeline (vocloadlib.timestamp (
@@ -266,7 +259,6 @@ class VOCLoad:
         # load DAGs
         if not self.isSimple:
             for (key, dag) in self.config.items():
-#                vocloadlib.truncateTransactionLog (self.database, self.log)
                 dagload = loadDAG.DAGLoad (dag['LOAD_FILE'],
                     self.mode, dag['NAME'], self.log, self.passwordFileName )
                 dagload.go()

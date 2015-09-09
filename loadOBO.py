@@ -333,24 +333,27 @@ def parseOBOFile():
                 fpValid.write('(' + termID + ') Invalid namespace: ' + namespace + '\n')
                 isValid = 0
         else:
-            if vocabName == 'GO' or vocabName == 'Feature Relationship':
+            if vocabName == 'Cell Ontology':
+                log.writeline('Missing namespace for term: ' + termID)
+                namespace = defaultNamespace
+            elif vocabName == 'GO' or vocabName == 'Feature Relationship':
                 log.writeline('Missing namespace for term: ' + termID)
                 closeFiles()
                 return 1
             else:
                 namespace = defaultNamespace
-                
 
         # Validate the relationship type(s).  Strip out any characters that
         # are non-alphanumeric so they can be compared to the values from
         # the database.  This will allow a match on relationship types such
         # "is_a" vs "is-a".
         #
-        for r in relationshipType:
-            label = re.sub('[^a-zA-Z0-9]','',r)
-            if not validRelationshipType.has_key(label):
-                fpValid.write('(' + termID + ') Invalid relationship type: ' + r + '\n')
-                isValid = 0
+        if vocabName != 'Cell Ontology':
+        	for r in relationshipType:
+            		label = re.sub('[^a-zA-Z0-9]','',r)
+            		if not validRelationshipType.has_key(label):
+                		fpValid.write('(' + termID + ') Invalid relationship type: ' + r + '\n')
+                		isValid = 0
 
         # Validate the synonym type(s).
         #
@@ -407,32 +410,28 @@ def parseOBOFile():
             # root ID, write a record to the DAG file that relates this
             # term to the root ID.
             #
-            if name == namespace and dagRootID:
-		if vocabName == 'Feature Relationship':
-		    fpDAG[namespace].write(termID + '\t' + '\t' + \
-			'\t' +'\n')
-		    term = parser.nextTerm()
-		    continue
-		else:
-		    fpDAG[namespace].write(termID + '\t' + '\t' + 'is-a' + '\t' + \
-                                       dagRootID + '\n')
+            if vocabName != 'Cell Ontology':
+            	if name == namespace and dagRootID:
+			if vocabName == 'Feature Relationship':
+		    		fpDAG[namespace].write(termID + '\t' + '\t' + '\t' +'\n')
+		    		term = parser.nextTerm()
+		    		continue
+			else:
+		    		fpDAG[namespace].write(termID + '\t' + '\t' + 'is-a' + '\t' + dagRootID + '\n')
 
-            # Write to the DAG file.
-            #
-            for i in range(len(relationship)):
-                fpDAG[namespace].write(termID + '\t' + \
-		    dag_child_label + '\t' + \
-		    validRelationshipType[re.sub('[^a-zA-Z0-9]','',relationshipType[i])] + '\t' + \
-		    relationship[i] + '\n')
+            	# Write to the DAG file.
+            	for i in range(len(relationship)):
+                	fpDAG[namespace].write(termID + '\t' + \
+		    	dag_child_label + '\t' + \
+		    	validRelationshipType[re.sub('[^a-zA-Z0-9]','',relationshipType[i])] + '\t' + \
+		    	relationship[i] + '\n')
 
-            # If it is an obsolete GO or Sequence Ontology term 
-	    # and not the root ID, write it to the obsolete DAG file.
-            #
-            if (vocabName == 'GO' or vocabName == 'Sequence Ontology') and \
-		    status == 'obsolete' and termID != dagRootID:
-                fpDAG[obsoleteNamespace].write(termID + '\t' + '\t' + \
-                                               'is-a' + '\t' + \
-                                               obsoleteID + '\n')
+            	# If it is an obsolete GO or Sequence Ontology term 
+	    	# and not the root ID, write it to the obsolete DAG file.
+            	#
+            	if (vocabName == 'GO' or vocabName == 'Sequence Ontology') and \
+		    	status == 'obsolete' and termID != dagRootID:
+                	fpDAG[obsoleteNamespace].write(termID + '\t' + '\t' + 'is-a' + '\t' + obsoleteID + '\n')
 
         # Get the next term from the parser.
         #
