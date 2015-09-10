@@ -16,7 +16,7 @@
 #	- TR11752/new
 #
 
-RUNTIME_DIR = /data/loads/mgi/vocload/runTimeCL
+RUNTIME_DIR = /data/loads/scrum-dog/mgi/vocload/runTimeCL
 DATA_DIR = /data/downloads/purl.obolibrary.org/obo/cl/cl-basic.obo
 
 [
