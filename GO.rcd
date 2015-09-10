@@ -16,7 +16,7 @@
 #	- moved simple vocab variables to GO.config
 #
 
-RUNTIME_DIR = /data/loads/scrum-dog/mgi/vocload/runTimeGO
+RUNTIME_DIR = /data/loads/mgi/vocload/runTimeGO
 DATA_DIR = /data/downloads/ftp.geneontology.org/pub/go/ontology
 
 [

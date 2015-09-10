@@ -16,7 +16,7 @@
 #	- moved simple vocab variables to MP.config
 #
 
-RUNTIME_DIR = /data/loads/scrum-dog/mgi/vocload/runTimeMP
+RUNTIME_DIR = /data/loads/mgi/vocload/runTimeMP
 
 # DAGs which are part of the vocabulary (for complex vocabularies)
 
