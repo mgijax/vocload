@@ -1,3 +1,14 @@
+TAG: vocload-6-0-1-?
+DATE:
+STAFF: lec
+CHANGES:
+1) TR12070/12116/biotype
+see mgidbmigration/TR12070/sto80.csh
+biotype.py
+biotype_ensembl.config
+biotype_ncbi.config
+biotype_vega.config
+
 TAG: vocload-6-0-0-3
 TAG: vocload-6-0-0-2
 DATE: 09/10/2015
