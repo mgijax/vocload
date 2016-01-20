@@ -119,8 +119,8 @@ BCP_INSERT_TERM = '''%%d|%%d|%%s|%%s|%%s|%%d|%d|%d|%s|%s\n''' % \
 	(CREATEDBY_KEY, CREATEDBY_KEY, CDATE, CDATE)
 
 INSERT_TEXT = '''insert into VOC_Text (_Term_key, sequenceNum, note)
-    values (%d, %d, '%s')'''
-BCP_INSERT_TEXT = '''%%d|%%d|%%s|%s|%s\n''' % \
+    values (%d, 1, '%s')'''
+BCP_INSERT_TEXT = '''%%d|1|%%s|%s|%s\n''' % \
 	(CDATE, CDATE)
 
 INSERT_NOTE = '''insert into MGI_Note (_Note_key, _Object_key, _MGIType_key, _NoteType_key)
@@ -129,8 +129,8 @@ BCP_INSERT_NOTE = '''%%d|%%d|%%s|%%s|%d|%d|%s|%s\n''' % \
 	(CREATEDBY_KEY, CREATEDBY_KEY, CDATE, CDATE)
 
 INSERT_NOTECHUNK = '''insert into MGI_NoteChunk (_Note_key, sequenceNum, note)
-    values (%d, %d, '%s')'''
-BCP_INSERT_NOTECHUNK = '''%%d|%%d|%%s|%d|%d|%s|%s\n''' % \
+    values (%d, 1, '%s')'''
+BCP_INSERT_NOTECHUNK = '''%%d|1|%%s|%d|%d|%s|%s\n''' % \
 	(CREATEDBY_KEY, CREATEDBY_KEY, CDATE, CDATE)
 
 INSERT_SYNONYM ='''insert into MGI_Synonym (_Synonym_key, _Object_key, _MGIType_key, _SynonymType_key, _Refs_key, synonym)
@@ -659,7 +659,7 @@ class TermLoad:
 
 
     def generateDefinitionSQL ( self, definitionRecord, termKey ):
-       # Purpose: generates SQL/BCP chunks for VOC_Text table (must be max size 255)
+       # Purpose: generates SQL/BCP VOC_Text table
        # Returns: nothing
        # Assumes: nothing
        # Effects: adds records to VOC_Text in the database
@@ -669,26 +669,19 @@ class TermLoad:
        if len(definitionRecord) == 0:
 	   return
 
-       defSeqNum = 0   # sequence number for definition chunks
-       for chunk in vocloadlib.splitBySize( definitionRecord, 255 ):
-           defSeqNum = defSeqNum + 1
-           chunk = chunk.replace('\\','\\\\')
-           if self.isBCPLoad:
-              self.loadTextBCP = 1
-              self.termTextBCPFile.write (BCP_INSERT_TEXT % \
-                                          (termKey,
-                                           defSeqNum,
-                                           chunk))
+       if self.isBCPLoad:
 
-           else: # asserts self.isIncrementalLoad() or full load with on-line sql:
-              vocloadlib.nl_sqlog (INSERT_TEXT % \
-                      (termKey,
-                      defSeqNum,
-                      chunk.replace('\'','\'\'')),
-                      self.log)
+          self.loadTextBCP = 1
+          self.termTextBCPFile.write (BCP_INSERT_TEXT % \
+	  	(termKey, definitionRecord.replace('\\','\\\\')))
+
+       else: # asserts self.isIncrementalLoad() or full load with on-line sql:
+
+           vocloadlib.nl_sqlog (INSERT_TEXT % \
+	   	(termKey, definitionRecord.replace('\'','\'\'')), self.log)
 
     def generateCommentSQL ( self, commentRecord, termKey ):
-       # Purpose: generates SQL/BCP for MGI_Note and MGI_NoteChunk tables (must be max size 255)
+       # Purpose: generates SQL/BCP for MGI_Note and MGI_NoteChunk tables
        # Returns: nothing
        # Assumes: nothing
        # Effects: adds records to MGI_Note, MGI_NoteChunk in the database
@@ -711,27 +704,18 @@ class TermLoad:
 		       os.environ['VOCAB_COMMENT_KEY']), 
 		       self.log)
 
-       cmtSeqNum = 0   # sequence number for comment chunks
+       if self.isBCPLoad:
 
-       for chunk in vocloadlib.splitBySize( commentRecord, 255 ):
-
-           cmtSeqNum = cmtSeqNum + 1
-
-           if self.isBCPLoad:
-
-              self.loadNoteChunkBCP = 1
-
-              self.termNoteChunkBCPFile.write (BCP_INSERT_NOTECHUNK % \
+           self.loadNoteChunkBCP = 1
+           self.termNoteChunkBCPFile.write (BCP_INSERT_NOTECHUNK % 
                                           (self.max_note_key,
-                                           cmtSeqNum,
-                                           chunk))
+                                           commentRecord))
 
-           else: # asserts self.isIncrementalLoad() or full load with on-line sql:
+       else: # asserts self.isIncrementalLoad() or full load with on-line sql:
 
-              vocloadlib.nl_sqlog (INSERT_NOTECHUNK % \
+           vocloadlib.nl_sqlog (INSERT_NOTECHUNK % \
                       (self.max_note_key,
-                      cmtSeqNum,
-                      chunk.replace('\'','\'\'')),
+                      commentRecord.replace('\'','\'\'')),
                       self.log)
 
     def addAccID (self,
@@ -1085,6 +1069,7 @@ class TermLoad:
 
        if ( string.strip ( record['definition'] ) != string.strip ( dbDefinition ) ):
           # can't do simple update because of 255 size limit; therefore, do a delete and insert
+	  # no longer true...this should be rewritten to use UPDATE
           vocloadlib.nl_sqlog ( DELETE_TEXT % termKey, self.log )
           self.generateDefinitionSQL( record['definition'], termKey )
           recordChanged = 1
@@ -1109,6 +1094,7 @@ class TermLoad:
 
        if ( string.strip ( record['comment'] ) != string.strip ( dbComment ) ):
           # can't do simple update because of 255 size limit; therefore, do a delete and insert
+	  # no longer true...this should be rewritten to use UPDATE
           vocloadlib.nl_sqlog ( DELETE_NOTE % (termKey, os.environ['VOCAB_COMMENT_KEY']), self.log )
           self.generateCommentSQL( record['comment'], termKey )
           recordChanged = 1

@@ -53,6 +53,9 @@
 #
 # History
 #
+# 12/23/2015	lec
+#	- TR11956/added report2/moved report2 to report3
+#
 # 08/06/2009	lec
 #	- TR9461; add report of secondary OMIM terms
 #
@@ -99,6 +102,34 @@ def report1():
     fp.write(CRT*2)
 
 def report2():
+
+    fp.write('''A report of new OMIM.tab term vs. MGI OMIM term where the:
+           OMIM.tab id = MGI OMIM id
+           OMIM.tab term != MGI OMIM term
+           MGI OMIM id does not contain genotype annotations
+           ''')
+
+    fp.write(CRT)
+    fp.write(string.ljust('MGI OMIM ID', 15) + TAB)
+    fp.write(string.ljust('MGI OMIM term', 65) + TAB)
+    fp.write(string.ljust('OMIM.tab term', 65) + CRT*2)
+
+    for t in mgiTerms:
+        if omimTerms.has_key(t):
+	    mTerm = mgiTerms[t]
+	    oTerm = omimTerms[t]
+
+	    # only print if the terms are not equal
+	    # and the term does not have a genotype annotation
+
+	    if mTerm != oTerm and not genotypes.has_key(t):
+	        fp.write(string.ljust(t, 15) + TAB)
+	        fp.write(string.ljust(mgiTerms[t], 65) + TAB)
+	        fp.write(string.ljust(omimTerms[t], 65) + CRT)
+
+    fp.write(CRT*2)
+
+def report3():
 
     fp.write('''A report of secondary OMIM.tab ids vs. MGI OMIM secondary ids where the:
            OMIM.tab id = MGI OMIM id
@@ -234,5 +265,6 @@ genotypes = {}
 init()
 report1()
 report2()
+report3()
 reportlib.finish_nonps(fp)	# non-postscript file
 

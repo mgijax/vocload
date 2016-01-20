@@ -38,13 +38,6 @@
 #      0:  Successful completion
 #      1:  Fatal error occurred
 #
-#  Assumes:
-#
-#      This script assumes that a note is not greater than 255 bytes, so it
-#      can be loaded into the note column of the VOC_Note table.
-#
-#  Notes:  None
-#
 ###########################################################################
 #
 #  Modification History:
