@@ -235,6 +235,7 @@ def init():
         and aa._AnnotType_key = 1005
         and aa._Object_key = g._Object_key 
         and g._MGIType_key = 12 
+	and g.prefixPart = 'MGI:'
         order by g.accID, a.accID
         ''', 'auto')
 
