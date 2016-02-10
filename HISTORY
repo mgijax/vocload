@@ -1,3 +1,32 @@
+TAG: vocload-tr12223-?
+DATE: 
+STAFF: lec 
+CHANGES:
+1) TR12223/gxd anatomy II/emap
+
+TAG: vocload-6-0-2-4
+DATE: 2/8/2016
+STAFF: sc
+CHANGES:
+1) OMIMtermcheck.py - added g.prefixPart = 'MGI:' so genotype RRIDs not included.
+
+TAG: vocload-6-0-2-3
+DATE: 2/2/2016
+STAFF: dbm 
+CHANGES: TR12163
+1) Configuration.default: Change location of input file
+
+TAG: vocload-6-0-2-2
+DATE: 01/20/2014
+STAFF: lec 
+CHANGES:
+1) TR11947/loadOBO-DC.py
+2) TR11956/OMIMtermcheck.py
+3) TR12021/OMIM/animalmodel report
+4) loadNote.py/loadTerms.py:
+change calls to MGI_NoteChunk to only create one row per note
+as we no longer need to create chunks of 255 
+
 TAG: vocload-tr12223-BP
 DATE: 1/7/2016
 STAFF: kstone

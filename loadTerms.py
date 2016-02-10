@@ -12,11 +12,8 @@
 #
 #   Usage: see USAGE definition below
 #
-#   Uses:
-#
-#   Envvars:
-#
 #   Inputs:
+#
 #       1. tab-delimited input file in with the following columns:
 #           Term (required)
 #           Accession ID (optional)
@@ -26,8 +23,10 @@
 #           Comment (optional)
 #           Synonyms (optional)
 #           Secondary Accession IDs (optional)
+#
 #       2. mode (full or incremental)
 #           'incremental' is not valid for simple vocabularies
+#
 #       3. primary key of Vocabulary being loaded
 #           (why not the name?)
 #   Outputs:
@@ -119,8 +118,8 @@ BCP_INSERT_TERM = '''%%d|%%d|%%s|%%s|%%s|%%d|%d|%d|%s|%s\n''' % \
 	(CREATEDBY_KEY, CREATEDBY_KEY, CDATE, CDATE)
 
 INSERT_TEXT = '''insert into VOC_Text (_Term_key, sequenceNum, note)
-    values (%d, %d, '%s')'''
-BCP_INSERT_TEXT = '''%%d|%%d|%%s|%s|%s\n''' % \
+    values (%d, 1, '%s')'''
+BCP_INSERT_TEXT = '''%%d|1|%%s|%s|%s\n''' % \
 	(CDATE, CDATE)
 
 INSERT_NOTE = '''insert into MGI_Note (_Note_key, _Object_key, _MGIType_key, _NoteType_key)
@@ -129,8 +128,8 @@ BCP_INSERT_NOTE = '''%%d|%%d|%%s|%%s|%d|%d|%s|%s\n''' % \
 	(CREATEDBY_KEY, CREATEDBY_KEY, CDATE, CDATE)
 
 INSERT_NOTECHUNK = '''insert into MGI_NoteChunk (_Note_key, sequenceNum, note)
-    values (%d, %d, '%s')'''
-BCP_INSERT_NOTECHUNK = '''%%d|%%d|%%s|%d|%d|%s|%s\n''' % \
+    values (%d, 1, '%s')'''
+BCP_INSERT_NOTECHUNK = '''%%d|1|%%s|%d|%d|%s|%s\n''' % \
 	(CREATEDBY_KEY, CREATEDBY_KEY, CDATE, CDATE)
 
 INSERT_SYNONYM ='''insert into MGI_Synonym (_Synonym_key, _Object_key, _MGIType_key, _SynonymType_key, _Refs_key, synonym)
@@ -140,6 +139,7 @@ BCP_INSERT_SYNONYM ='''%%d|%%d|%%d|%%d|%%d|%%s|%d|%d|%s|%s\n''' % \
 
 INSERT_ACCESSION = '''insert into ACC_Accession (_Accession_key, accID, prefixPart, numericPart, _LogicalDB_key, _Object_key, _MGIType_key, private, preferred)
     values (%d, '%s', '%s', %s, %d, %d, %d, %d, %d)'''
+
 BCP_INSERT_ACCESSION_NULL_NUMPART = '''%%d|%%s|%%s||%%d|%%d|%%d|%%d|%%d|%d|%d|%s|%s\n''' % \
 	(CREATEDBY_KEY, CREATEDBY_KEY, CDATE, CDATE)
 
@@ -153,14 +153,15 @@ DELETE_NOTE = '''delete from MGI_Note where _Object_key = %d and _NoteType_key =
 DELETE_ALL_SYNONYMS ='''delete from MGI_Synonym where _Object_key = %d and _MGIType_key = %d'''
 
 UPDATE_TERM = '''update VOC_Term 
-	set term = '%s', modification_date = current_date, _ModifiedBy_key = 1001
+	set term = '%s', modification_date = now(), _ModifiedBy_key = 1001
 	where _Term_key = %d '''
 
 UPDATE_STATUS = '''update VOC_Term 
-	set isObsolete = %d, modification_date = current_date, _ModifiedBy_key = 1001
+	set isObsolete = %d, modification_date = now(), _ModifiedBy_key = 1001
 	where _Term_key = %d '''
 
 MERGE_TERMS = '''select * from VOC_mergeTerms (%d, %d);'''
+
 ########################################################################
 ########################################################################
 
@@ -190,7 +191,7 @@ class TermLoad:
     # DOES: reads from an input data file of term info to load it into
     #   the MGI database
 
-    def __init__ (self,
+    def __init__(self,
         filename,    # string; path to input file of term info
         mode,        # string; do a 'full' or 'incremental' load?
         vocab,       # integer vocab key or string vocab name;
@@ -235,8 +236,7 @@ class TermLoad:
         # write heading to log
 
         self.log.writeline ('=' * 40)
-        self.log.writeline ('Loading %s Vocabulary Terms...' % \
-            self.vocab_name)
+        self.log.writeline ('Loading %s Vocabulary Terms...' % self.vocab_name)
         self.log.writeline (vocloadlib.timestamp ('Init Start:'))
 
         # find whether this vocab is private and/or simple,
@@ -280,9 +280,8 @@ class TermLoad:
            # for BCP
            self.max_accession_key = vocloadlib.getMax ('_Accession_key', 'ACC_Accession')
         else:
-           self.max_accession_key = None   # to be filled in later for
-                           # each term (because MGI IDs
-                           # may be added by a trigger)
+	   # to be filled in later for each term (because MGI IDs may be added by a trigger)
+           self.max_accession_key = None   
 
         # **** FOR BACKWARD COMPATIBILITY ****
         # Determine if the load should expect to find a synonym type column
@@ -296,19 +295,19 @@ class TermLoad:
             self.useSynonymType = os.environ['USE_SYNONYM_TYPE']
         except:
             self.useSynonymType = 0
+
         # remember the filename and read the data file
 
         self.filename = filename
 
         if self.useSynonymType:
             self.datafile = vocloadlib.readTabFile (filename,
-                [ 'term', 'accID', 'status', 'abbreviation',
-                'definition', 'comment', 'synonyms', 'synonymTypes',
-                'otherIDs' ])
+                ['term', 'accID', 'status', 'abbreviation',
+                'definition', 'comment', 'synonyms', 'synonymTypes', 'otherIDs'])
         else:
             self.datafile = vocloadlib.readTabFile (filename,
-                [ 'term', 'accID', 'status', 'abbreviation',
-                'definition', 'comment', 'synonyms', 'otherIDs' ])
+                ['term', 'accID', 'status', 'abbreviation',
+                'definition', 'comment', 'synonyms', 'otherIDs'])
 
         self.mgitype_key = vocloadlib.VOCABULARY_TERM_TYPE
 
@@ -316,10 +315,11 @@ class TermLoad:
 
         self.id2key = {}    # maps term IDs to term keys
 
-        self.log.writeline (vocloadlib.timestamp ('Init Stop:'))
+        self.log.writeline(vocloadlib.timestamp('Init Stop:'))
+
         return
 
-    def go (self):
+    def go(self):
         # Purpose: run the load
         # Returns: nothing
         # Assumes: see self.goFull() and self.goIncremental()
@@ -336,24 +336,27 @@ class TermLoad:
         # (or, in the case of bcp, bcp files will be loaded);
         # only major discrepancies cause this variable to 
         # be reset
+
         self.commitTransaction = 1 
+
         if self.isIncrementalLoad():
            # Incremental loads perform on-line updates
-           self.goIncremental ()
+           self.goIncremental()
         else:
            # Full loads employ BCP *OR* On-line SQL
            self.goFull()
+
         self.log.writeline ('=' * 40)       # end of the load
         self.closeDiscrepancyFiles()
+
         if not self.commitTransaction:
             msg = "Loading Terms FAILED! Please check %s for errant terms which caused failure" % self.accDiscrepFileName
-            self.log.writeline ( msg )
+            self.log.writeline(msg)
             raise msg
-        # always update accession statistics after the load has run
-#        vocloadlib.updateStatistics ( "ACC_Accession", self.log )
+
         return
 
-    def openBCPFiles ( self ):
+    def openBCPFiles(self):
         # Purpose: opens BCP files
         # Returns: nothing
         # Assumes: user executing program has write access in output directory;
@@ -378,12 +381,14 @@ class TermLoad:
         self.termSynonymBCPFileName   = os.environ['TERM_SYNONYM_BCP_FILE']
         self.accAccessionBCPFileName  = os.environ['ACCESSION_BCP_FILE']
 
-        self.termTermBCPFile      = open( self.termTermBCPFileName, 'w')
-        self.termTextBCPFile      = open( self.termTextBCPFileName, 'w')
-        self.termNoteBCPFile      = open( self.termNoteBCPFileName, 'w')
-        self.termNoteChunkBCPFile = open( self.termNoteChunkBCPFileName, 'w')
-        self.termSynonymBCPFile   = open( self.termSynonymBCPFileName, 'w')
-        self.accAccessionBCPFile  = open( self.accAccessionBCPFileName, 'w')
+        self.termTermBCPFile      = open(self.termTermBCPFileName, 'w')
+        self.termTextBCPFile      = open(self.termTextBCPFileName, 'w')
+        self.termNoteBCPFile      = open(self.termNoteBCPFileName, 'w')
+        self.termNoteChunkBCPFile = open(self.termNoteChunkBCPFileName, 'w')
+        self.termSynonymBCPFile   = open(self.termSynonymBCPFileName, 'w')
+        self.accAccessionBCPFile  = open(self.accAccessionBCPFileName, 'w')
+
+	return
 
     def openDiscrepancyFiles ( self ):
         # Purpose: opens discrepancy file, and begins writing the HTML
@@ -396,16 +401,18 @@ class TermLoad:
         # open the discrepancy file
         self.accDiscrepFileName = os.environ['DISCREP_FILE']
 	print "Discrepancy filename: %s" % self.accDiscrepFileName
-        self.accDiscrepFile     = open( self.accDiscrepFileName     , 'w')
+        self.accDiscrepFile = open(self.accDiscrepFileName, 'w')
 
         # now write HTML header information
-        self.accDiscrepFile.write ( html.getStartHTMLDocumentHTML ( "Curator Report" ) )
-        self.accDiscrepFile.write ( html.getStartTableHTML () )
-        self.accDiscrepFile.write ( html.getStartTableRowHTML () )
-        self.accDiscrepFile.write ( html.getTableHeaderLabelHTML ( "Accession ID" ) )
-        self.accDiscrepFile.write ( html.getTableHeaderLabelHTML ( "Term" ) )
-        self.accDiscrepFile.write ( html.getTableHeaderLabelHTML ( "Discrepancy" ) )
-        self.accDiscrepFile.write ( html.getEndTableRowHTML () )
+        self.accDiscrepFile.write(html.getStartHTMLDocumentHTML("Curator Report"))
+        self.accDiscrepFile.write(html.getStartTableHTML())
+        self.accDiscrepFile.write(html.getStartTableRowHTML())
+        self.accDiscrepFile.write(html.getTableHeaderLabelHTML("Accession ID"))
+        self.accDiscrepFile.write(html.getTableHeaderLabelHTML("Term"))
+        self.accDiscrepFile.write(html.getTableHeaderLabelHTML("Discrepancy"))
+        self.accDiscrepFile.write(html.getEndTableRowHTML())
+
+	return
 
     def closeDiscrepancyFiles ( self ):
         # Purpose: writes HTML tags to close the table and document tags
@@ -416,12 +423,13 @@ class TermLoad:
         # Throws:  propagates all exceptions closing files
 
         # write html tags to end the table and html document
-        self.accDiscrepFile.write ( html.getEndTableHTML () )
-        self.accDiscrepFile.write ( html.getEndHTMLDocumentHTML ( ) )
+        self.accDiscrepFile.write(html.getEndTableHTML())
+        self.accDiscrepFile.write(html.getEndHTMLDocumentHTML())
 
         # now, close the file
-        self.accDiscrepFile.close ()
+        self.accDiscrepFile.close()
 
+	return
 
     def closeBCPFiles ( self ):
         # Purpose: closes BCP files
@@ -437,7 +445,9 @@ class TermLoad:
         self.termSynonymBCPFile.close() 
         self.accAccessionBCPFile.close() 
 
-    def loadBCPFiles (self):
+	return
+
+    def loadBCPFiles(self):
         # Purpose: if the load flags are set, calls vocloadlib
         #          which in turn loads the BCP files
         # Returns: nothing
@@ -450,25 +460,26 @@ class TermLoad:
 
         if not vocloadlib.NO_LOAD:
            if self.loadTermBCP:
-              vocloadlib.loadBCPFile ( self.termTermBCPFileName, bcpLogFile, bcpErrorFile, 'VOC_Term', self.passwordFile )
+              vocloadlib.loadBCPFile(self.termTermBCPFileName, bcpLogFile, bcpErrorFile, 'VOC_Term', self.passwordFile)
                                                                    
            if self.loadTextBCP:
-              vocloadlib.loadBCPFile ( self.termTextBCPFileName, bcpLogFile, bcpErrorFile, 'VOC_Text', self.passwordFile )
+              vocloadlib.loadBCPFile(self.termTextBCPFileName, bcpLogFile, bcpErrorFile, 'VOC_Text', self.passwordFile)
                                                                    
            if self.loadNoteBCP:
-              vocloadlib.loadBCPFile ( self.termNoteBCPFileName, bcpLogFile, bcpErrorFile, 'MGI_Note', self.passwordFile )
+              vocloadlib.loadBCPFile(self.termNoteBCPFileName, bcpLogFile, bcpErrorFile, 'MGI_Note', self.passwordFile)
                                                                    
            if self.loadNoteChunkBCP:
-              vocloadlib.loadBCPFile ( self.termNoteChunkBCPFileName, bcpLogFile, bcpErrorFile, 'MGI_NoteChunk', self.passwordFile )
+              vocloadlib.loadBCPFile(self.termNoteChunkBCPFileName, bcpLogFile, bcpErrorFile, 'MGI_NoteChunk', self.passwordFile)
                                                                    
            if self.loadSynonymBCP:                                 
-              vocloadlib.loadBCPFile ( self.termSynonymBCPFileName, bcpLogFile, bcpErrorFile, 'MGI_Synonym', self.passwordFile )
+              vocloadlib.loadBCPFile(self.termSynonymBCPFileName, bcpLogFile, bcpErrorFile, 'MGI_Synonym', self.passwordFile)
                                                                    
            if self.loadAccessionBCP:                               
-              vocloadlib.loadBCPFile ( self.accAccessionBCPFileName, bcpLogFile, bcpErrorFile, 'ACC_Accession', self.passwordFile )
+              vocloadlib.loadBCPFile(self.accAccessionBCPFileName, bcpLogFile, bcpErrorFile, 'ACC_Accession', self.passwordFile)
 
-    
-    def goFull (self):
+       return
+
+    def goFull(self):
         # Purpose: does a full load for this vocabulary in the
         #   database (delete existing records and completely
         #   reload)
@@ -479,8 +490,7 @@ class TermLoad:
         #   them
         # Throws: propagates all exceptions
 
-        self.log.writeline (vocloadlib.timestamp (
-            'Full Term Load Start:'))
+        self.log.writeline(vocloadlib.timestamp('Full Term Load Start:'))
 
         # open the bcp files if using bcp
         if self.isBCPLoad:
@@ -509,22 +519,22 @@ class TermLoad:
          
         # open up a transaction if not loading via bcp
         if not self.isBCPLoad:
-           vocloadlib.beginTransaction ( self.log )
+           vocloadlib.beginTransaction(self.log)
 
         for record in self.datafile:
             if record['accID'] != DAG_ROOT_ID:
                # Check for duplication on the primary term
-               duplicate = self.checkForDuplication ( record['accID'], record['term'], "Primary", self.getIsObsolete ( record['status'] ) )
+               duplicate = self.checkForDuplication(record['accID'], record['term'], \
+	       		"Primary", self.getIsObsolete(record['status']))
                if duplicate:
                    self.commitTransaction = 0
             if self.isSimple:
                termSeqNum = termSeqNum + 1
-            self.addTerm (record, termSeqNum)
-            self.addSecondaryTerms ( record, self.max_term_key )
+            self.addTerm(record, termSeqNum)
+            self.addSecondaryTerms(record, self.max_term_key)
 
         # if we're running as no-load, we need to pass the ID to key
         # mapping to vocloadlib in case the DAG load needs it
-
         if vocloadlib.isNoLoad():
             vocloadlib.setTermIDs (self.id2key)
 
@@ -536,21 +546,19 @@ class TermLoad:
               self.closeBCPFiles()
               self.loadBCPFiles()
            else:
-              vocloadlib.commitTransaction ( self.log )
+              vocloadlib.commitTransaction(self.log)
         else:
            if not self.isBCPLoad:
               vocloadlib.rollbackTransaction ( self.log )
 
-        self.log.writeline (vocloadlib.timestamp (
-            'Full Term Load Stop:'))
+        self.log.writeline(vocloadlib.timestamp('Full Term Load Stop:'))
 
         return
 
-    def addTerm (self,
+    def addTerm(self,
         record,     # dictionary of fieldname -> value pairs
         termSeqNum  # integer sequence number for a simple vocab's
-                #   term, or the string 'null' for complex
-                #   vocabularies
+                    # term, or the string 'null' for complex vocabularies
         ):
         # Purpose: add info for the term in 'record' to the database
         #   with the given sequence number
@@ -564,7 +572,7 @@ class TermLoad:
         #   comment, synonyms, accID, otherIDs
 
         self.max_term_key = self.max_term_key + 1
-        #self.log.writeline ('------ Term: %s ------' % record['term'])
+        self.log.writeline('------ Term: %s ------' % record['term'])
 
         # add record to VOC_Term:
         if self.isBCPLoad:
@@ -575,8 +583,8 @@ class TermLoad:
                                        self.vocab_key,
                                        record['term'],
                                        record['abbreviation'],
-                                       vocloadlib.setNull ( termSeqNum ),
-                                       self.getIsObsolete( record['status'] ) ) )
+                                       vocloadlib.setNull(termSeqNum),
+                                       self.getIsObsolete(record['status'])))
 
         else: # asserts self.isIncrementalLoad() or full load with on-line sql:
 
@@ -586,27 +594,28 @@ class TermLoad:
                            record['term'].replace('\'','\'\''),
                            record['abbreviation'].replace('\'','\'\''),
                            termSeqNum,
-                           self.getIsObsolete( record['status'] ) ),
+                           self.getIsObsolete(record['status'])),
                            self.log)
 
         # add records as needed to VOC_Text:
-        self.generateDefinitionSQL ( record['definition'], self.max_term_key )
+        self.generateDefinitionSQL(record['definition'], self.max_term_key)
 
         # add records as needed to MGI_Note:
-        self.generateCommentSQL ( record['comment'], self.max_term_key )
+        self.generateCommentSQL(record['comment'], self.max_term_key)
 
         # add records as needed to MGI_Synonym:
-        synonyms = string.split (record['synonyms'], SYNONYM_DELIMITER )
+        synonyms = string.split(record['synonyms'], SYNONYM_DELIMITER)
 
         # If the input record has synonym types, use them.  Otherwise, use
         # a list of "EXACT" synonym types for each synonym.
         if self.useSynonymType:
-            synonymTypes = string.split (record['synonymTypes'], SYNONYM_TYPE_DELIMITER )
+            synonymTypes = string.split(record['synonymTypes'], SYNONYM_TYPE_DELIMITER)
         else:
             synonymTypes = []
             for i in range(len(synonyms)):
                 synonymTypes.append("EXACT")
-        self.generateSynonymSQL( synonyms, synonymTypes, self.max_term_key )
+
+        self.generateSynonymSQL(synonyms, synonymTypes, self.max_term_key)
 
         # We can add non-MGI accession numbers to the ACC_Accession
         # table.  For MGI accession numbers, we do not add them.
@@ -620,7 +629,7 @@ class TermLoad:
         # addition to VOC_Term may have caused a trigger to add a new
         # MGI number for the term.
         if not self.isBCPLoad:
-           self.max_accession_key = vocloadlib.getMax ('_Accession_key', 'ACC_Accession')
+           self.max_accession_key = vocloadlib.getMax('_Accession_key', 'ACC_Accession')
 
         # add the primary ID, if there is one.  If the logical DB is
         # non-MGI, then it is the preferred ID.
@@ -631,8 +640,7 @@ class TermLoad:
 
         return
 
-
-    def addSecondaryTerms (self,
+    def addSecondaryTerms(self,
         record,     # dictionary of input file fieldname -> value pairs
         associatedTermKey # primary term key associated with the secondary ID
         ):
@@ -647,19 +655,20 @@ class TermLoad:
         #   synonyms, accID, otherIDs
 
         otherIDs = string.strip (record['otherIDs'])
+
         # add the secondary IDs, if there are any:
         if otherIDs:
             for id in string.split (otherIDs, OTHER_ID_DELIMITER):
                 # now check for duplication on secondary terms
-                duplicate = self.checkForDuplication ( id, record['term'], "Secondary", 0 )
+                duplicate = self.checkForDuplication(id, record['term'], "Secondary", 0)
                 if duplicate:
                     self.commitTransaction = 0
-                self.addAccID (string.strip ( id ), associatedTermKey )
+                self.addAccID(string.strip(id), associatedTermKey)
 
+    	return
 
-
-    def generateDefinitionSQL ( self, definitionRecord, termKey ):
-       # Purpose: generates SQL/BCP chunks for VOC_Text table (must be max size 255)
+    def generateDefinitionSQL(self, definitionRecord, termKey):
+       # Purpose: generates SQL/BCP VOC_Text table
        # Returns: nothing
        # Assumes: nothing
        # Effects: adds records to VOC_Text in the database
@@ -669,26 +678,17 @@ class TermLoad:
        if len(definitionRecord) == 0:
 	   return
 
-       defSeqNum = 0   # sequence number for definition chunks
-       for chunk in vocloadlib.splitBySize( definitionRecord, 255 ):
-           defSeqNum = defSeqNum + 1
-           chunk = chunk.replace('\\','\\\\')
-           if self.isBCPLoad:
-              self.loadTextBCP = 1
-              self.termTextBCPFile.write (BCP_INSERT_TEXT % \
-                                          (termKey,
-                                           defSeqNum,
-                                           chunk))
+       if self.isBCPLoad:
+          self.loadTextBCP = 1
+          self.termTextBCPFile.write(BCP_INSERT_TEXT % (termKey, definitionRecord.replace('\'','\'\'')))
 
-           else: # asserts self.isIncrementalLoad() or full load with on-line sql:
-              vocloadlib.nl_sqlog (INSERT_TEXT % \
-                      (termKey,
-                      defSeqNum,
-                      chunk.replace('\'','\'\'')),
-                      self.log)
+       else: # asserts self.isIncrementalLoad() or full load with on-line sql:
+           vocloadlib.nl_sqlog(INSERT_TEXT % (termKey, definitionRecord.replace('\'','\'\'')), self.log)
 
-    def generateCommentSQL ( self, commentRecord, termKey ):
-       # Purpose: generates SQL/BCP for MGI_Note and MGI_NoteChunk tables (must be max size 255)
+       return
+
+    def generateCommentSQL(self, commentRecord, termKey):
+       # Purpose: generates SQL/BCP for MGI_Note and MGI_NoteChunk tables
        # Returns: nothing
        # Assumes: nothing
        # Effects: adds records to MGI_Note, MGI_NoteChunk in the database
@@ -711,34 +711,21 @@ class TermLoad:
 		       os.environ['VOCAB_COMMENT_KEY']), 
 		       self.log)
 
-       cmtSeqNum = 0   # sequence number for comment chunks
+       if self.isBCPLoad:
+           self.loadNoteChunkBCP = 1
+           self.termNoteChunkBCPFile.write (BCP_INSERT_NOTECHUNK % \
+	   	(self.max_note_key, commentRecord.replace('\'','\'\'')))
 
-       for chunk in vocloadlib.splitBySize( commentRecord, 255 ):
+       else: # asserts self.isIncrementalLoad() or full load with on-line sql:
+           vocloadlib.nl_sqlog (INSERT_NOTECHUNK % \
+	   	(self.max_note_key, commentRecord.replace('\'','\'\'')), self.log)
 
-           cmtSeqNum = cmtSeqNum + 1
+       return
 
-           if self.isBCPLoad:
-
-              self.loadNoteChunkBCP = 1
-
-              self.termNoteChunkBCPFile.write (BCP_INSERT_NOTECHUNK % \
-                                          (self.max_note_key,
-                                           cmtSeqNum,
-                                           chunk))
-
-           else: # asserts self.isIncrementalLoad() or full load with on-line sql:
-
-              vocloadlib.nl_sqlog (INSERT_NOTECHUNK % \
-                      (self.max_note_key,
-                      cmtSeqNum,
-                      chunk.replace('\'','\'\'')),
-                      self.log)
-
-    def addAccID (self,
+    def addAccID(self,
         accID,      # string; accession ID to add
-        associatedTermKey, #Term Key associated with the record being added
-        preferred = 0   # boolean (0/1); is this the object's
-                #   preferred ID?
+        associatedTermKey, # Term Key associated with the record being added
+        preferred = 0      # boolean (0/1); is this the object's preferred ID?
         ):
         # Purpose: adds 'accID' as an accession ID for the currently
         #   loading term.
@@ -750,32 +737,23 @@ class TermLoad:
 
         self.max_accession_key = self.max_accession_key + 1
         prefixPart, numericPart = accessionlib.split_accnum (accID)
-	#if numericPart == None:
-	    #numericPart = 'NULL'
+
         if self.isBCPLoad:
+
 	   self.loadAccessionBCP = 1
-	   if numericPart == None:
-	      self.accAccessionBCPFile.write (BCP_INSERT_ACCESSION_NULL_NUMPART  % \
-						(self.max_accession_key,
-                                              accID,
-                                              prefixPart,
-                                              self.logicalDBkey,
-                                              associatedTermKey,
-                                              self.mgitype_key,
-                                              self.isPrivate,
-                                              preferred) ) 
-	   else:
-	       self.accAccessionBCPFile.write (BCP_INSERT_ACCESSION_NUMPART  % \
-					      (self.max_accession_key, 
-					      accID,
-					      prefixPart,
-					      numericPart,
-					      self.logicalDBkey,
-					      associatedTermKey,
-					      self.mgitype_key,
-					      self.isPrivate,
-					      preferred) )
+
+	   self.accAccessionBCPFile.write(BCP_INSERT_ACCESSION_NULL_NUMPART % \
+					  (self.max_accession_key,
+                                          accID,
+                                          prefixPart,
+                                          self.logicalDBkey,
+                                          associatedTermKey,
+                                          self.mgitype_key,
+                                          self.isPrivate,
+                                          preferred)) 
+
         else: # asserts self.isIncrementalLoad() or full load with on-line sql:
+
            vocloadlib.nl_sqlog (INSERT_ACCESSION % \
                    (self.max_accession_key, 
                    accID,
@@ -790,7 +768,7 @@ class TermLoad:
 
         return
 
-    def goIncremental (self):
+    def goIncremental(self):
         # Purpose: placeholder method for when we do get around to
         #   implementing incremental loads
         # Returns: ?
@@ -809,8 +787,7 @@ class TermLoad:
         #          changed since the last load
         # Throws: propagates all exceptions
 
-        self.log.writeline (vocloadlib.timestamp (
-            'Incremental Term Load Start:'))
+        self.log.writeline(vocloadlib.timestamp ('Incremental Term Load Start:'))
 
         # look up the maximum keys for remaining items in VOC_Term and MGI_Synonym.
         self.max_term_key = vocloadlib.getMax ('_Term_key', 'VOC_Term')
@@ -845,13 +822,12 @@ class TermLoad:
             # may not refer to more than one term
             self.crossReferenceFileToDB ( record['accID'], primaryTermIDs, secondaryTermIDs )
             if record['accID'] != DAG_ROOT_ID:
-                duplicate = self.checkForDuplication ( record['accID'], record['term'], "Primary", self.getIsObsolete ( record['status'] ) )
+                duplicate = self.checkForDuplication(record['accID'], record['term'], "Primary", self.getIsObsolete(record['status']))
                 if duplicate:
                     # this is considered a serious error, so data will not
                     # be loaded; however, processing will continue so that
                     # we may identify ALL problems with the input file
                     self.commitTransaction = 0
-
 
             # Check to see if term exists in the database
             # if term doesn't exist, add it and process
@@ -870,20 +846,24 @@ class TermLoad:
 		  
                   recordChanged = self.processRecordChanges ( record, dbRecord, termKey )
                   self.processSecondaryTerms ( record, primaryTermIDs, secondaryTermIDs, termKey )
+
             else: #New term
                # in this case, perform full load
                if self.isSimple:
                   termSeqNum = termSeqNum + 1
                self.addTerm (record, termSeqNum)
                self.processSecondaryTerms ( record, primaryTermIDs, secondaryTermIDs, self.max_term_key )
+
         if self.commitTransaction:
-           vocloadlib.commitTransaction ( self.log )
+           vocloadlib.commitTransaction(self.log)
         else:
-           vocloadlib.rollbackTransaction ( self.log )
-        self.checkForMissingTermsInInputFile( primaryTermIDs, secondaryTermIDs )
+           vocloadlib.rollbackTransaction(self.log)
+
+        self.checkForMissingTermsInInputFile(primaryTermIDs, secondaryTermIDs)
+
         return
 
-    def crossReferenceFileToDB (self, accID, primaryTermIDs, secondaryTermIDs ):
+    def crossReferenceFileToDB(self, accID, primaryTermIDs, secondaryTermIDs):
         # Purpose: Obsoleted terms should always remain in the input file.
         #          This subroutine is used to cross reference each record
         #          in the database to the input file; if the input file record 
@@ -905,8 +885,7 @@ class TermLoad:
            termFound = 1
            secondaryTermIDs[accID] = [termKey, term, termFound]
 
-
-    def checkForMissingTermsInInputFile (self, primaryTermIDs, secondaryTermIDs ):
+    def checkForMissingTermsInInputFile(self, primaryTermIDs, secondaryTermIDs):
         # Purpose: Obsoleted terms should always remain in the input file.
         #          This subroutine is used to check and make sure that all records
         #          in the database also exist in the input file; if the input file
@@ -932,7 +911,7 @@ class TermLoad:
             if not termFound:
               self.writeDiscrepancyFile ( accID, term, TERM_MISSING_FROM_INPUT_FILE )  
 
-
+	return
 
     def checkForDuplication (self, accID, term, termType, isObsolete ):
         # Purpose: Check to see if id is duplicated across primary
@@ -962,48 +941,54 @@ class TermLoad:
            # either within a list or across both lists, the record is a potential 
            # duplicate
 
-		if self.primaryAccIDFileList.has_key ( accID ) or self.secondaryAccIDFileList.contains ( accID ):
+	   if self.primaryAccIDFileList.has_key(accID) or self.secondaryAccIDFileList.contains(accID):
 
-              		if termType == SECONDARY:
-                 	# if it is a secondary term that is also an obsolete primary term
-                 	# it is permissible for it to appear on the list
-                 	# otherwise it is a duplicate
-                 		if self.primaryAccIDFileList.has_key ( accID ):
-					isObsolete = self.primaryAccIDFileList[accID]
-					if isObsolete == 0:
-						self.writeDiscrepancyFile ( accID, term, PRIMARY_SECONDARY_COLLISION_MSG )  
-						duplicate = 1
+              # if it is a secondary term that is also an obsolete primary term
+              # it is permissible for it to appear on the list
+              # otherwise it is a duplicate
 
-				else: #accID already appears in secondary list
-					self.writeDiscrepancyFile ( accID, term, PRIMARY_SECONDARY_COLLISION_MSG )  
-					duplicate = 1
+              if termType == SECONDARY:
 
-			else: #duplicate primary term
-                 		self.writeDiscrepancyFile ( accID, term, PRIMARY_SECONDARY_COLLISION_MSG )  
-                 		duplicate = 1
+                 if self.primaryAccIDFileList.has_key (accID):
 
-		else: #new term - add to list
-			if termType == PRIMARY:
-				self.primaryAccIDFileList[accID] = isObsolete
-			else:
-				self.secondaryAccIDFileList.add ( accID )
+		    isObsolete = self.primaryAccIDFileList[accID]
+
+		    if isObsolete == 0:
+		       self.writeDiscrepancyFile(accID, term, PRIMARY_SECONDARY_COLLISION_MSG)
+		       duplicate = 1
+
+		 else: #accID already appears in secondary list
+		    self.writeDiscrepancyFile(accID, term, PRIMARY_SECONDARY_COLLISION_MSG)
+		    duplicate = 1
+
+	      else: #duplicate primary term
+                 self.writeDiscrepancyFile(accID, term, PRIMARY_SECONDARY_COLLISION_MSG)
+                 duplicate = 1
+
+           else: #new term - add to list
+	      if termType == PRIMARY:
+	         self.primaryAccIDFileList[accID] = isObsolete
+	      else:
+	         self.secondaryAccIDFileList.add(accID)
 
 	return duplicate
 
-    def writeDiscrepancyFile (self, accID, term, msg ):
+    def writeDiscrepancyFile(self, accID, term, msg):
         # Purpose: write a record to the discrepancy file
         # Returns: nothing
         # Assumes: discrepancy file is open and writeable
         # Effects: report output
         # Throws:  propagates any exceptions raised 
-        self.accDiscrepFile.write ( html.getStartTableRowHTML () )
-        self.accDiscrepFile.write ( html.getCellHTML ( accID ) )
-        self.accDiscrepFile.write ( html.getCellHTML ( term  ) )
-        self.accDiscrepFile.write ( html.getCellHTML ( msg   ) )
-        self.accDiscrepFile.write ( html.getEndTableRowHTML () )
 
+        self.accDiscrepFile.write(html.getStartTableRowHTML())
+        self.accDiscrepFile.write(html.getCellHTML(accID))
+        self.accDiscrepFile.write(html.getCellHTML(term))
+        self.accDiscrepFile.write(html.getCellHTML(msg))
+        self.accDiscrepFile.write(html.getEndTableRowHTML())
 
-    def processSecondaryTerms (self, record, primaryTermIDs, secondaryTermIDs, associatedTermKey ):
+	return
+
+    def processSecondaryTerms(self, record, primaryTermIDs, secondaryTermIDs, associatedTermKey):
         # Purpose: Determines if input records need to be merged with other terms
         #          and if secondary terms should be added to the accession table
         #          and does so as necessary
@@ -1013,46 +998,65 @@ class TermLoad:
         #          if they are primary IDs
         # Effects: Terms are merged and new accession records are added as necessary
         # Throws:  propagates any exceptions raised 
-        otherIDs = string.strip (record['otherIDs'])
+
+        otherIDs = string.strip(record['otherIDs'])
+
         if otherIDs:
-            for id in string.split (otherIDs, OTHER_ID_DELIMITER ):
-                id = string.strip ( id )
-                self.crossReferenceFileToDB ( id, primaryTermIDs, secondaryTermIDs )
+
+            for id in string.split(otherIDs, OTHER_ID_DELIMITER):
+
+                id = string.strip(id)
+                self.crossReferenceFileToDB(id, primaryTermIDs, secondaryTermIDs)
+
                 # Check to see if secondary term is a duplicated
-                duplicate = self.checkForDuplication ( id, record['term'], "Secondary", 0 )
+
+                duplicate = self.checkForDuplication(id, record['term'], "Secondary", 0)
+
                 if duplicate:
                     self.commitTransaction = 0
 
-                if primaryTermIDs.has_key ( id ) and not duplicate:
+                if primaryTermIDs.has_key(id) and not duplicate:
+
                     # If the secondary term is in the primaryTermIDs 
                     # structure of existing database records, that means
                     # that the prefered bit is set to true in mgd 
                     # and we therefore need to execute a merge
                     # but only if the primary term is NOT obsolete
+
                     [termKey, isObsolete, term, termFound] = primaryTermIDs[id]
+
 		# 01/31/2005; this is causing a problem because sometimes obsoleted terms
 		# are merged.
+
 #                    if not isObsolete:
                     oldKey = termKey
                     newKey = associatedTermKey
+
 		    # If the keys are the same this is not a merge, e.g. in the mcv there is
 		    # a SO id and an MCV id associated with the same term with different
 		    # logicalDBs and both preferred ids
+
 		    if oldKey != newKey:
 			vocloadlib.nl_sqlog ( ( MERGE_TERMS % (oldKey, newKey) ), self.log )
+
                 else:
+
                     # check to see if secondary id already exists in database;
                     # if not, add it to accession table
-                    if not secondaryTermIDs.has_key ( id ):
+
+                    if not secondaryTermIDs.has_key(id):
+
                        # The secondary term doesn't exist, so add the term to the
                        # database and point it to the primary term
+
                        if not self.isBCPLoad:
                           self.max_accession_key = vocloadlib.getMax ('_Accession_key', 'ACC_Accession')
-                       self.addAccID ( id, associatedTermKey, 0 )
+
+                       self.addAccID(id, associatedTermKey, 0)
 
         return
 
-    def processRecordChanges (self, record, dbRecord, termKey ):
+    def processRecordChanges(self, record, dbRecord, termKey):
        # Purpose: Check to see if input file record is different from the database
        #          in terms of the definition, the comments, the synonyms, the 
        #          isObsolete field, and the term field.  Writes a 
@@ -1084,9 +1088,12 @@ class TermLoad:
           dbDefinition = ""
 
        if ( string.strip ( record['definition'] ) != string.strip ( dbDefinition ) ):
+
           # can't do simple update because of 255 size limit; therefore, do a delete and insert
-          vocloadlib.nl_sqlog ( DELETE_TEXT % termKey, self.log )
-          self.generateDefinitionSQL( record['definition'], termKey )
+	  # no longer true...this should be rewritten to use UPDATE
+
+          vocloadlib.nl_sqlog(DELETE_TEXT % termKey, self.log)
+          self.generateDefinitionSQL(record['definition'], termKey)
           recordChanged = 1
 
           # Now write report record if the DB record is not null or blank
@@ -1108,7 +1115,10 @@ class TermLoad:
           dbComment = ""
 
        if ( string.strip ( record['comment'] ) != string.strip ( dbComment ) ):
+
           # can't do simple update because of 255 size limit; therefore, do a delete and insert
+	  # no longer true...this should be rewritten to use UPDATE
+
           vocloadlib.nl_sqlog ( DELETE_NOTE % (termKey, os.environ['VOCAB_COMMENT_KEY']), self.log )
           self.generateCommentSQL( record['comment'], termKey )
           recordChanged = 1
@@ -1121,7 +1131,9 @@ class TermLoad:
        ###########################################################################
        # Check synonyms###########################################################
        ###########################################################################
+
        fileSynonyms = string.split (record['synonyms'], SYNONYM_DELIMITER )
+
        if fileSynonyms == ['']:
            fileSynonyms = []
 
@@ -1168,7 +1180,7 @@ class TermLoad:
           # the database, simply delete all existing synonyms
           # and reinsert them
           vocloadlib.nl_sqlog ( DELETE_ALL_SYNONYMS % (termKey, self.mgitype_key), self.log )
-          self.generateSynonymSQL ( fileSynonyms, fileSynonymTypes, termKey )
+          self.generateSynonymSQL(fileSynonyms, fileSynonymTypes, termKey)
           recordChanged = 1
 
        ###########################################################################
@@ -1189,7 +1201,7 @@ class TermLoad:
              obsoleteTermDiscrepancy = 1
 
        elif ( record['term'] != dbRecord[0]['term'] ):
-          vocloadlib.nl_sqlog ( UPDATE_TERM % ( record['term'].replace('\'','\'\''), termKey ), self.log )
+          vocloadlib.nl_sqlog (UPDATE_TERM % (record['term'], termKey), self.log )
           recordChanged = 1
 
        ###########################################################################
@@ -1230,17 +1242,21 @@ class TermLoad:
 
        return recordChanged
     
-    def generateSynonymSQL (self, fileSynonyms, fileSynonymTypes, termKey ):
+    def generateSynonymSQL(elf, fileSynonyms, fileSynonymTypes, termKey):
        # Purpose: add records as needed to MGI_Synonym table
        # Returns: nothing
        # Assumes: open database connection or bcp file
        # Effects: inserts via online sql or bcp into the
        #          MGI_Synonym table
        # Throws:  propagates any exceptions raised 
+
        for i in range(len(fileSynonyms)):
+
           if fileSynonyms[i]:
-             self.max_synonym_key = self.max_synonym_key +1
+
+             self.max_synonym_key = self.max_synonym_key + 1
              synonymTypeKey = vocloadlib.getSynonymTypeKey(fileSynonymTypes[i])
+
              if self.isBCPLoad:
                 self.loadSynonymBCP = 1
                 self.termSynonymBCPFile.write (BCP_INSERT_SYNONYM % \
@@ -1249,7 +1265,8 @@ class TermLoad:
                         self.mgitype_key,
                         synonymTypeKey,
                         self.refs_key,
-                        fileSynonyms[i].replace('\'','\'\'')) )
+                        fileSynonyms[i].replace('\'','\'\'')))
+
              else: # asserts self.isIncrementalLoad() or full load with on-line sql:
                 vocloadlib.nl_sqlog (INSERT_SYNONYM % \
                        (self.max_synonym_key,
@@ -1257,25 +1274,29 @@ class TermLoad:
                         self.mgitype_key,
                         synonymTypeKey,
                         self.refs_key,
-                        fileSynonyms[i].replace('\'','\'\'')),self.log)
+                        fileSynonyms[i].replace('\'','\'\'')), self.log)
 
-    def getIsObsolete ( self, recordStatus ):
+       return
+
+    def getIsObsolete(self, recordStatus):
        # Purpose: Returns an isObsolete bit based on the record status
        # Returns: 1 - record is obsolete, 0 - record is not obsolete
        # Assumes: recordStatus is 'obsolete' or 'current'
        # Effects: nothing
        # Throws:  propagates any exceptions raised
+
        return recordStatus == 'obsolete'
 
-    def isIncrementalLoad ( self ):
+    def isIncrementalLoad(self):
        # Purpose: Returns an isIncremental bit based on the self.mode
        # Returns: 1 - load is incremental, 0 - load is full
        # Assumes: mode is 'full' or 'incremental'
        # Effects: nothing
        # Throws:  propagates any exceptions raised
+
        return self.mode == 'incremental'
 
-    def setFullModeDataLoader ( self ):
+    def setFullModeDataLoader(self):
        # Purpose: Determines the mode of loading data to the database.
        #          The mode of loading is either bcp or on-line SQL.
        #          Incremental loads, by definition, use on-line SQL.
@@ -1287,16 +1308,22 @@ class TermLoad:
        # Assumes: mode is 'full' or 'incremental'
        # Effects: nothing
        # Throws:  propagates any exceptions raised
+
        fullModeDataLoader = os.environ['FULL_MODE_DATA_LOADER']
+
        if fullModeDataLoader == None:
            return 0
+
        elif fullModeDataLoader == "bcp":
+
            # Only do BCPs if it is a FULL load and FULL_MODE_DATA_LOADER
            # is set to 'bcp'; INCREMENTALS ALWAYS use on-line SQL
+
            if self.isIncrementalLoad():
               return 0
            else:
               return 1
+
        else:
            raise error, unknown_data_loader % fullModeDataLoader
 
@@ -1342,3 +1369,4 @@ if __name__ == '__main__':
     load = TermLoad (input_file, mode, vocab_key, refs_key, log)
     load.go()
     vocloadlib.unsetupSql ()
+

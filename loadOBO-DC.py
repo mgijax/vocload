@@ -31,6 +31,11 @@
 #		omim id
 #		'disease cluster' : name of the disease-cluster synonym type
 #		disease-cluster name : from the DC-OBO input file
+# History
+#
+# 12/23/2015	lec
+#	- TR11947/change diff2/ignore secondary ids
+#
 
 import sys 
 import os
@@ -61,6 +66,12 @@ def createSynonymFile():
 			omimID = line[:-1].split(':')[2].strip()
 			omimAllList.add(omimID)
 
+		# ignore obsolete
+
+		if len(omimID) > 0 and line.find('is_obsolete: true') >= 0:
+			omimAllList.remove(omimID)
+			continue
+
 		# look for cluster-name associated with the most recent OMIM id
 		if line.find('is_a: DC:') >= 0:
 
@@ -88,13 +99,15 @@ def createDiffFile():
 
 	global omimAllList
 
-	mgiList = {}
+	mgiList1 = {}
+	mgiList2 = {}
 
 	fp1 = open(os.environ['DCLUSTERDIFF1_FILE'], 'w')
 	fp2 = open(os.environ['DCLUSTERDIFF2_FILE'], 'w')
 
+	# check all preferred
 	results = db.sql('''
-		select a.accID, t.term
+		select a.accID, t.term, a.preferred
 		from VOC_Term t, ACC_Accession a 
 		where t._Vocab_key = 44
 		and t.isObsolete = 0
@@ -104,20 +117,33 @@ def createDiffFile():
 		''', 'auto')
 
 	for r in results:
-		mgiList.setdefault(r['accID'], []).append(r['term'])
+		mgiList1.setdefault(r['accID'], []).append(r['term'])
+
+	# check all preferred/not preferred
+	results = db.sql('''
+		select a.accID, t.term, a.preferred
+		from VOC_Term t, ACC_Accession a 
+		where t._Vocab_key = 44
+		and t.isObsolete = 0
+		and t._Term_key = a._Object_key
+		and a._MGIType_key = 13
+		''', 'auto')
+
+	for r in results:
+		mgiList2.setdefault(r['accID'], []).append(r['term'])
 
 	# OMIM.clusters.diff1 - OMIM ids in MGI but not in OBO-Disease-Cluster file
-	for accID in mgiList:
+	for accID in mgiList1:
 		if accID not in omimAllList:
 			# write file in OBO-format
 			fp1.write('[Term]\n')
 			fp1.write('id: OMIM:' + accID + '\n')
-			fp1.write('name: ' + mgiList[accID][0] + '\n')
+			fp1.write('name: ' + mgiList1[accID][0] + '\n')
 			fp1.write('is_a: DC:0000138 ! Disease Cluster\n\n')
 
 	# OMIM.clusters.diff2 - OMIM ids in OBO-Disease-Cluster file but not in MGI 
 	for accID in omimAllList:
-		if accID not in mgiList:
+		if accID not in mgiList2:
 			fp2.write(accID + '\n')
 
 	fp1.close()

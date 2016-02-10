@@ -91,6 +91,7 @@ secondaryIds = {}	# OMIM Ids and their secondary Ids (id:list of secondary ids)
 excludedIds = []	# OMIM Ids that are to be excluded (skipped)
 mimTermToMGI = {}	# TERMTYPE + OMIM ID + OMIM Term:MGI Term
 mimWordToMGI = {}	# bad word:good word
+annotIds = []
 
 def cacheExistingIds():
     #
@@ -113,6 +114,30 @@ def cacheExistingIds():
     for r in results:
         omimMGI[r['accID']] = r['term']
 
+def cacheExistingAnnotIds():
+    #
+    # Purpose: cache existing MIM ids that have annotations
+    # Returns:
+    # Assumes:
+    # Effects: populates global annotIds list
+    # Throws:
+    #
+
+    global annotIds
+
+    results = db.sql('''
+	select a.accID
+	from ACC_Accession a, VOC_Term t
+	where a._LogicalDB_key = %s
+	and a._MGIType_key = 13
+	and a._Object_key = t._Term_key
+	and exists (select 1 from VOC_Annot va 
+		where va._AnnotType_key = 1005
+		and va._Term_key = t._Term_key)
+	''' % (os.environ['LOGICALDB_KEY']), 'auto')
+    for r in results:
+        annotIds.append(r['accID'])
+
 def cacheSecondaryIds():
     #
     # Purpose: cache all secondary ids (those that have been "MOVED TO")
@@ -129,7 +154,7 @@ def cacheSecondaryIds():
     # as part of TR10551 migration (wts_projects/10500/10551/tr10551.csh)
     #
 
-    global secondaryIds
+    global secondaryIds, omimNew
 
     inFile = open(inFileName, 'r')
     line = inFile.readline()
@@ -295,7 +320,6 @@ def writeOMIM(term, mim, synonyms):
     # Throws:
     #
 
-
     global omimNew
 
     outFile.write(convertTerm(mim, term) + DELIM + mim + DELIM + activeStatus + DELIM + DELIM + DELIM + DELIM + DELIM)
@@ -325,11 +349,14 @@ def processOMIM():
     # process each OMIM that we want to load as a vocabulary term
     #
 
+    global omimNew
+
     mim = ''
     term = ''
     synonym = ''
     potentialsynonyms = []
     synonyms = []
+    isGeneOnly = 0
 
     inFile = open(inFileName, 'r')
 
@@ -352,6 +379,7 @@ def processOMIM():
 	    synonym = ''
 	    potentialsynonyms = []
 	    synonyms = []
+	    isGeneOnly = 0
 
         # the term itself
 
@@ -375,6 +403,8 @@ def processOMIM():
 			    # remove object from omimNew 
 			    # so it will be added as an obsolete term (see below)
 			    del omimNew[id]
+
+		isGeneOnly = 1
 
 	        continue
 
@@ -433,6 +463,20 @@ def processOMIM():
 	            if string.find(s, 'INCLUDED') < 0:
 			synonyms.append(s)
 
+	# if not gene-only
+	# and the field 'ANIMAL MODEL' exists
+	# and the OMIM term has no MGI annotations,
+	# then save the animal model information for displaying in the animalModelFile report
+
+	if isGeneOnly == 0 and string.find(line, 'ANIMAL MODEL') == 0 \
+		and len(line) == 12 and mim not in annotIds:
+
+                line = inFile.readline()
+	        line = line[:-1]
+                line = inFile.readline()
+	        line = line[:-1]
+        	animalModelFile.write(mim + '|' + str(term) + '|' + line + CRT)
+
         line = inFile.readline()
 
     inFile.close()
@@ -459,11 +503,14 @@ synFileName = os.environ['SYNONYM_FILE']
 transTermFileName = os.environ['TRANSTERM_FILE']
 transWordFileName = os.environ['TRANSWORD_FILE']
 excludedFileName = os.environ['EXCLUDE_FILE']
+animalModelFileName = os.environ['ANIMALMODEL_FILE']
 
 outFile = open(outFileName, 'w')
 synFile = open(synFileName, 'w')
+animalModelFile = open(animalModelFileName, 'w')
 
 cacheExistingIds()
+cacheExistingAnnotIds()
 cacheSecondaryIds()
 cacheTranslations()
 cacheExcluded()
@@ -471,3 +518,4 @@ processOMIM()
 
 outFile.close()
 synFile.close()
+animalModelFile.close()

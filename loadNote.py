@@ -26,14 +26,6 @@
 #      0:  Successful completion
 #      1:  An exception occurred
 #
-#  Assumes:
-#
-#      This script assumes that a note is not greater than 255 bytes, so it
-#      can fit in one record in MGI_NoteChunk.
-#
-#
-#  Notes:  None
-#
 ###########################################################################
 #
 #  Modification History:
@@ -65,7 +57,6 @@ password = string.strip(fp.readline())
 fp.close()
 vocloadlib.setupSql (server, database, username, password)
 
-
 # get vocabName, mgiTypeKey, jNumber and userKey from environment
 vocabName = os.environ['VOCAB_NAME']
 mgiType = os.environ['MGITYPE']
@@ -75,8 +66,6 @@ noteChunkBcpFile = os.environ['TERM_NOTECHUNK_BCP_FILE']
 bcpErrorFile = os.environ['BCP_ERROR_FILE']
 bcpLogFile = os.environ['BCP_LOG_FILE']
 cdate = mgi_utils.date("%m/%d/%Y")
-
-chunkSequence = 1
 
 # load synonym file into memory
 # in format  ID\ttype\tsynonym
