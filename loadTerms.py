@@ -390,7 +390,7 @@ class TermLoad:
 
 	return
 
-    def openDiscrepancyFiles ( self ):
+    def openDiscrepancyFiles(self):
         # Purpose: opens discrepancy file, and begins writing the HTML
         #          tags for the report content
         # Returns: nothing
@@ -414,7 +414,7 @@ class TermLoad:
 
 	return
 
-    def closeDiscrepancyFiles ( self ):
+    def closeDiscrepancyFiles(self):
         # Purpose: writes HTML tags to close the table and document tags
         #          and physically closes discrepancy file
         # Returns: nothing
@@ -431,7 +431,7 @@ class TermLoad:
 
 	return
 
-    def closeBCPFiles ( self ):
+    def closeBCPFiles(self):
         # Purpose: closes BCP files
         # Returns: nothing
         # Assumes: BCP files are open
@@ -1242,7 +1242,7 @@ class TermLoad:
 
        return recordChanged
     
-    def generateSynonymSQL(elf, fileSynonyms, fileSynonymTypes, termKey):
+    def generateSynonymSQL(self, fileSynonyms, fileSynonymTypes, termKey):
        # Purpose: add records as needed to MGI_Synonym table
        # Returns: nothing
        # Assumes: open database connection or bcp file
