@@ -6,7 +6,8 @@
 # Purpose: to load the input file of vocabulary terms to database tables
 #   VOC_Vocab, VOC_Term, VOC_Text, MGI_Synonym, 
 #
-# User Requirements Satisfied by This Program:
+#   for EMAPA/EMAPS:
+#	VOC_Term_EMAPA, VOC_Term_EMAPS
 #
 # System Requirements Satisfied by This Program:
 #
@@ -42,14 +43,9 @@
 #       1. script halted, data did not load, error noted in stderr
 #           (database is left in a consistent state)
 #
-#   Other System Requirements:
-#
 # Assumes:
 #   We assume no other users are adding/modifying database records during
 #   the run of this script.
-#
-# Implementation:
-#   Modules:
 #
 # History
 #
@@ -325,8 +321,6 @@ class TermLoad:
 
         self.id2key = {}    # maps term IDs to term keys
 
-        self.log.writeline(vocloadlib.timestamp('Init Stop:'))
-
 	#
         # for EMAPA/EMAPS
 	#
@@ -358,6 +352,8 @@ class TermLoad:
             self.datafile = vocloadlib.readTabFile(filename,
                 ['term', 'accID', 'status', 'abbreviation',
                 'definition', 'comment', 'synonyms', 'otherIDs'])
+
+        self.log.writeline(vocloadlib.timestamp('Init Stop:'))
 
         return
 
