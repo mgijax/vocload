@@ -136,11 +136,11 @@ def initialize():
     # These are DAG_Label terms and can represent either a DAG_Edge label i.e.
     # relationship or a DAG_Node label i.e. description
     validRelationshipType = {}
-    #print 'CODE loadOBO.py loading labels into lookup'
+    log.writeline('CODE loadOBO.py loading labels into lookup')
     for r in results[0]:
-	#print 'CODE loadOBO.py label: %s' % r['label']
+	log.writeline('CODE loadOBO.py label: %s' % r['label'])
         label = re.sub('[^a-zA-Z0-9]', '', r['label'])
-	#print 'CODE loadOBO.py regsub label: %s' % label
+	log.writeline('CODE loadOBO.py regsub label: %s' % label)
         validRelationshipType[label] = r['label']
 
     # Create a list of valid synonym types.
@@ -324,6 +324,15 @@ def parseOBOFile():
 	    continue
 	    #isValid = 0
 
+	#
+	# for EMAPA/EMAPS
+	#
+	if vocabName == 'EMAPA' and namespace == '':
+	    # skip this term
+	    term = parser.nextTerm()
+	    continue
+
+	#
         # Validate the namespace.  The namespace is used to determine which
         # DAG file to write to.  For the GO vocabulary, there are multiple
         # DAGs, so the namespace is required for each term.  For other
@@ -344,6 +353,7 @@ def parseOBOFile():
             else:
                 namespace = defaultNamespace
 
+	#
         # Validate the relationship type(s).  Strip out any characters that
         # are non-alphanumeric so they can be compared to the values from
         # the database.  This will allow a match on relationship types such
