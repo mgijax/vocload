@@ -405,6 +405,7 @@ class TermLoad:
 
         # these variables are used to track whether the applicable BCP
         # file has been created
+
         self.loadTermBCP      = 0
         self.loadTextBCP      = 0
         self.loadNoteBCP      = 0
@@ -446,6 +447,9 @@ class TermLoad:
             self.termSynonymBCPFileName   = os.environ['TERM_SYNONYM_BCP_FILE']
             self.accAccessionBCPFileName  = os.environ['ACCESSION_BCP_FILE']
 
+	#
+	# open files for write
+	#
         self.termTermBCPFile      = open(self.termTermBCPFileName, 'w')
         self.termTextBCPFile      = open(self.termTextBCPFileName, 'w')
         self.termNoteBCPFile      = open(self.termNoteBCPFileName, 'w')
@@ -887,8 +891,7 @@ class TermLoad:
         # for the terms.  if it isn't simple, the sequence number is
         # null.
         if self.isSimple:
-            termSeqNum = vocloadlib.getMax('sequenceNum', 'VOC_Term where _Vocab_key = %d') \
-	    	% self.vocab_key
+            termSeqNum = vocloadlib.getMax('sequenceNum', 'VOC_Term where _Vocab_key = %d') % self.vocab_key
         else:
             termSeqNum = 'null'
 
@@ -904,8 +907,10 @@ class TermLoad:
         #get the existing terms for the database
         print "Getting Existing Vocabulary Terms..."
         recordSet = vocloadlib.getTerms(self.vocab_key)
+
         # process data file
         vocloadlib.beginTransaction(self.log)
+
         for record in self.datafile:
             # Cross reference input file records to database records
             # Check for duplication on the primary term - primary accIDs
@@ -969,6 +974,7 @@ class TermLoad:
            [termKey, isObsolete, term, termFound] = primaryTermIDs[accID]
            termFound = 1
            primaryTermIDs[accID] = [termKey, isObsolete, term, termFound]
+
         if secondaryTermIDs.has_key(accID):
            [ termKey, term, termFound ] = secondaryTermIDs[accID]
            termFound = 1
