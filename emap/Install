@@ -91,7 +91,7 @@ chgrp mgi ${LOGDIR}
 #
 # The DLAInstall script removes all permissions from shell scripts for
 # group "other" on non-development servers. The QC report wrapper
-# script needs to have permissions restored on hobbiton to allow the
+# script needs to have permissions restored to allow the
 # curation staff to run it.
 #
 chmod -f 755 ${LOAD_QC}
