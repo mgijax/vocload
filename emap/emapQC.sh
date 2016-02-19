@@ -150,10 +150,10 @@ cp ${QC_WARNING_RPT} ${CURRENTDIR}
 
 if [ ${FILE_ERROR} -ne 0 ]
 then
-    echo "Finished running sanity checks on the input file : fatal error" >> ${LOG}
+    echo "Finished sanity checks: failed" >> ${LOG}
     exit 1
 else
-    echo "Finished running sanity checks on the input file : successful" >> ${LOG}
+    echo "Finished sanity checks: successful" >> ${LOG}
     exit 0
 fi
 
