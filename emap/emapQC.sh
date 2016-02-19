@@ -150,10 +150,10 @@ cp ${QC_WARNING_RPT} ${CURRENTDIR}
 
 if [ ${FILE_ERROR} -ne 0 ]
 then
-    echo "Finished sanity checks: failed" >> ${LOG}
+    echo "Finished sanity checks: failed" | tee -a ${LOG}
     exit 1
 else
-    echo "Finished sanity checks: successful" >> ${LOG}
+    echo "Finished sanity checks: successful" | tee -a ${LOG}
     exit 0
 fi
 
