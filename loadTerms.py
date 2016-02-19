@@ -457,6 +457,9 @@ class TermLoad:
         self.termSynonymBCPFile   = open(self.termSynonymBCPFileName, 'w')
         self.accAccessionBCPFile  = open(self.accAccessionBCPFileName, 'w')
 
+	#
+        # for EMAPA/EMAPS
+	#
         if self.vocab_name in ('EMAPA', 'EMAPS'):
 	    self.termEmapBCPFile  = open(self.termEmapBCPFileName, 'w')
 
