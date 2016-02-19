@@ -98,13 +98,10 @@ then
     exit 1
 fi
 
-QC_LOGFILE=${CURRENTDIR}/`basename ${QC_LOGFILE}`
-QC_ERROR_RPT=${CURRENTDIR}/`basename ${QC_ERROR_RPT}`
-QC_WARNING_RPT=${CURRENTDIR}/`basename ${QC_WARNING_RPT}`
-
 #
 # Initialize the log file.
 #
+QC_LOGFILE=${CURRENTDIR}/`basename ${QC_LOGFILE}`
 LOG=${QC_LOGFILE}
 rm -rf ${LOG}
 touch ${LOG}
@@ -112,7 +109,7 @@ touch ${LOG}
 #
 # Initialize the report files to make sure the current user can write to them.
 #
-rm -f ${QC_ERROR_RPT}; >${QC_ERROR_RPT}
+rm -f ${QC_ERROR_RPT} >${QC_ERROR_RPT}
 rm -f ${QC_WARNING_RPT}; >${QC_WARNING_RPT}
 
 #
@@ -121,7 +118,6 @@ rm -f ${QC_WARNING_RPT}; >${QC_WARNING_RPT}
 echo "" >> ${LOG}
 date >> ${LOG}
 echo "Run sanity checks on the input file" >> ${LOG}
-FILE_ERROR=0
 
 # run the first set of sanity checks (non well-formed obo file or proprietary
 # EMAPA obo file checks)
@@ -141,19 +137,23 @@ INPUT_FILE_DEFAULT=${INPUT_FILE}
 export INPUT_FILE_DEFAULT
 
 # run emapload.py in sanity check only mode (LIVE_RUN = 0)
+FILE_ERROR=0
 ${VOCLOAD}/emap/emapload.py
 if [ $? -ne 0 ]
 then
-    echo "Fatal sanity errors detected. See ${QC_ERROR_RPT}" | tee -a ${LOG}
-    cat ${QC_ERROR_RPT}
-    date >> ${LOG}
-    echo "Finished running sanity checks on the input file" >> ${LOG}
-    exit 1
-else
-    echo "No fatal errors detected."
-    date >> ${LOG}
-    echo "Finished running sanity checks on the input file" >> ${LOG}
-    exit 0
+    FILE_ERROR=1
 fi
 
+date >> ${LOG}
+cp ${QC_ERROR_RPT} ${CURRENTDIR}
+cp ${QC_WARNING_RPT} ${CURRENTDIR}
+
+if [ ${FILE_ERROR} -ne 0 ]
+then
+    echo "Finished running sanity checks on the input file : fatal error" >> ${LOG}
+    exit 1
+else
+    echo "Finished running sanity checks on the input file : successful" >> ${LOG}
+    exit 0
+fi
 

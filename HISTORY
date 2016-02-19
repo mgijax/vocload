@@ -2,8 +2,8 @@ TAG: vocload-tr12223-?
 DATE: 
 STAFF: lec 
 CHANGES: TR12223/gxd anatomy II/emap
-1) changes to loadTerms.py
-2) created 'emap' directory
+1) changes to loadTerms.py for EMAPA/EMAPS
+2) created 'emap' directory/moved emapload into this directory
 emapload.config.default 
 emapload.py 
 emapload.sh 
