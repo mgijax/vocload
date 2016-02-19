@@ -743,7 +743,7 @@ class TermLoad:
         return
 
     def addSecondaryTerms(self,
-        record,     # dictionary of input file fieldname -> value pairs
+        record,           # dictionary of input file fieldname -> value pairs
         associatedTermKey # primary term key associated with the secondary ID
         ):
         # Purpose: add secondary ids for the term in 'record' 
@@ -782,7 +782,7 @@ class TermLoad:
 
        if self.isBCPLoad:
           self.loadTextBCP = 1
-          self.termTextBCPFile.write(BCP_INSERT_TEXT % (termKey, definitionRecord.replace('\'','\'\'')))
+          self.termTextBCPFile.write(BCP_INSERT_TEXT % (termKey, definitionRecord))
 
        else: # asserts self.isIncrementalLoad() or full load with on-line sql:
            vocloadlib.nl_sqlog(INSERT_TEXT % (termKey, definitionRecord.replace('\'','\'\'')), self.log)
@@ -816,7 +816,7 @@ class TermLoad:
        if self.isBCPLoad:
            self.loadNoteChunkBCP = 1
            self.termNoteChunkBCPFile.write(BCP_INSERT_NOTECHUNK % \
-	   	(self.max_note_key, commentRecord.replace('\'','\'\'')))
+	   	(self.max_note_key, commentRecord))
 
        else: # asserts self.isIncrementalLoad() or full load with on-line sql:
            vocloadlib.nl_sqlog(INSERT_NOTECHUNK % \
@@ -825,7 +825,7 @@ class TermLoad:
        return
 
     def addAccID(self,
-        accID,      # string; accession ID to add
+        accID,             # string; accession ID to add
         associatedTermKey, # Term Key associated with the record being added
         preferred = 0      # boolean (0/1); is this the object's preferred ID?
         ):
@@ -1362,7 +1362,7 @@ class TermLoad:
                         self.mgitype_key,
                         synonymTypeKey,
                         self.refs_key,
-                        fileSynonyms[i].replace('\'','\'\'')))
+                        fileSynonyms[i]))
 
              else: # asserts self.isIncrementalLoad() or full load with on-line sql:
                 vocloadlib.nl_sqlog(INSERT_SYNONYM % \
