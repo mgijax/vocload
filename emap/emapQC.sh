@@ -99,8 +99,8 @@ then
 fi
 
 QC_LOGFILE=${CURRENTDIR}/`basename ${QC_LOGFILE}`
-QC_RPT=${CURRENTDIR}/`basename ${QC_RPT}`
-QC_WARN_RPT=${CURRENTDIR}/`basename ${QC_WARN_RPT}`
+QC_ERROR_RPT=${CURRENTDIR}/`basename ${QC_ERROR_RPT}`
+QC_WARNING_RPT=${CURRENTDIR}/`basename ${QC_WARNING_RPT}`
 
 #
 # Initialize the log file.
@@ -112,8 +112,9 @@ touch ${LOG}
 #
 # Initialize the report files to make sure the current user can write to them.
 #
-rm -f ${QC_RPT}; >${QC_RPT}
-rm -f ${QC_WARN_RPT}; >${QC_WARN_RPT}
+rm -f ${QC_ERROR_RPT}; >${QC_ERROR_RPT}
+rm -f ${QC_WARNING_RPT}; >${QC_WARNING_RPT}
+
 #
 # Run sanity checks on EMAPA obo file
 #
@@ -143,20 +144,16 @@ export INPUT_FILE_DEFAULT
 ${VOCLOAD}/emap/emapload.py
 if [ $? -ne 0 ]
 then
-    FILE_ERROR=1
-fi
-
-if [ ${FILE_ERROR} -ne 0 ]
-then
-    echo "Fatal sanity errors detected. See ${QC_RPT}" | tee -a ${LOG}
-    echo "" | tee -a ${LOG}
+    echo "Fatal sanity errors detected. See ${QC_ERROR_RPT}" | tee -a ${LOG}
+    cat ${QC_ERROR_RPT}
+    date >> ${LOG}
+    echo "Finished running sanity checks on the input file" >> ${LOG}
     exit 1
 else
     echo "No fatal errors detected."
+    date >> ${LOG}
+    echo "Finished running sanity checks on the input file" >> ${LOG}
+    exit 0
 fi
 
-echo "" >> ${LOG}
-date >> ${LOG}
-echo "Finished running sanity checks on the input file" >> ${LOG}
 
-exit 0

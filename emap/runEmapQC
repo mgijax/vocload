@@ -30,7 +30,6 @@ then
 fi
 
 . ${MGICONFIG}/master.config.sh
-WRAPPER=${VOCLOAD}/emap/emapQC.sh
 
 #
 # The emapload product is not installed on all servers, so make sure
@@ -59,4 +58,5 @@ fi
 # passed to this script. This actually invokes the load script in 
 # QC mode
 #
-${WRAPPER} $1 
+${VOCLOAD}/emap/emapQC.sh $1
+
