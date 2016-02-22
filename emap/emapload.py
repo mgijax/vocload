@@ -983,14 +983,14 @@ def createFiles():
 
 # end createFiles() -------------------------------------
 
-def runTermLoad(file, vocabKey):
+def runTermLoad(file, vocabKey, mode):
     # Purpose: Runs a term load
     # Returns: Nothing
     # Assumes: Nothing
     # Effects: terms are loaded into a database
     # Throws: Nothing
 
-    termload = loadTerms.TermLoad (file, 'full', vocabKey, refsKey, log, passwordFileName)
+    termload = loadTerms.TermLoad (file, mode, vocabKey, refsKey, log, passwordFileName)
     termload.go()
 
     return
@@ -1113,7 +1113,7 @@ def runLoads():
     # Throws: Nothing
 
     print 'running EMAPA term load'
-    runTermLoad(emapaTermFile, emapaVocabKey)
+    runTermLoad(emapaTermFile, emapaVocabKey, 'incremental')
 
     print 'running EMAPA dag load'
     runDagLoad(emapaDagFile, 'EMAPA')
@@ -1122,7 +1122,7 @@ def runLoads():
     os.environ['BCP_LOG_FILE'] = os.environ['BCP_S_LOG_FILE']
     os.environ['BCP_ERROR_FILE'] = os.environ['BCP_S_ERROR_FILE']
 
-    runTermLoad(emapsTermFile, emapsVocabKey)
+    runTermLoad(emapsTermFile, emapsVocabKey, 'full')
 
     print 'running EMAPS dag loads'
     for ts in emapsDagFileDict.keys():
