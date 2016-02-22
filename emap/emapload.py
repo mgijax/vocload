@@ -44,7 +44,12 @@
 #      4) Generate the sanity reports.
 #      5) Close the input/output files.
 #
-#  Notes:  None
+#  History
+#
+#  02/22/2016	lec
+#	- TR12223/gxd anatomy II
+#	- see ../loadTerms.py history
+#	- added Annotation tests (annotDiscrepancyList, annotEMAPIDSet, annotDict)
 #
 ###########################################################################
 
@@ -565,8 +570,8 @@ def createFiles():
     # Throws: Nothing
 
     global errorCount, aRootTermList, sRootTermList, noOverlapList
-    global tsDiscrepancyList, cyclesList, annotDiscrepancyList
-    global seenEMAPIDSet, annotEMAPIDSet, annotDict
+    global tsDiscrepancyList, cyclesList, seenEMAPIDSet
+    global annotDiscrepancyList, annotEMAPIDSet, annotDict
 
     # list of EMAPA root nodes, if > 1 will report
     aRootTermList = []
@@ -633,14 +638,14 @@ def createFiles():
 		where s._emapa_term_key = a._object_key
 		and a._mgitype_key = 13
 		and a._logicaldb_key = 169
-		and a._preferred = 1
+		and a.preferred = 1
 		union all
     		select distinct a.accid
 		from GXD_ISResultStructure s, ACC_Accession a
 		where s._emapa_term_key = a._object_key
 		and a._mgitype_key = 13
 		and a._logicaldb_key = 169
-		and a._preferred = 1
+		and a.preferred = 1
 		)
     		''', 'auto')
     for r in results:
@@ -657,7 +662,7 @@ def createFiles():
 		where s._emapa_term_key = a._object_key
 		and a._mgitype_key = 13
 		and a._logicaldb_key = 169
-		and a._preferred = 1
+		and a.preferred = 1
 		and s._stage_key = ts._stage_key
 		group by a.accid
 		union all
@@ -666,7 +671,7 @@ def createFiles():
 		where s._emapa_term_key = a._object_key
 		and a._mgitype_key = 13
 		and a._logicaldb_key = 169
-		and a._preferred = 1
+		and a.preferred = 1
 		and s._stage_key = ts._stage_key
 		group by a.accid
 		)
@@ -757,11 +762,11 @@ def createFiles():
 	errorCount += 1
 	if annotDict.has_key(emapaId):
 		if annotDict[emapaId]['minStage'] < start:
-		   annotDiscrepancyList.append('start stage annotation conflict: %s, %s, %s (new)' \
+		   annotDiscrepancyList.append('start stage annotation conflict: %s, %s (in mgi), %s (in obo)' \
 		   	% (emapaId, annotDict[emapaId]['minStage'], start))
 		   errorCount += 1
 		if annotDict[emapaId]['maxStage'] > end:
-		   annotDiscrepancyList.append('end stage annotation conflict: %s, %s, %s (new)' \
+		   annotDiscrepancyList.append('end stage annotation conflict: %s, %s (in mgi), %s (in obo)' \
 		   	% (emapaId, annotDict[emapaId]['maxStage'], end))
 		   errorCount += 1
 
@@ -954,20 +959,20 @@ def createFiles():
 			fpEmapsDagDict[int(ts)].write('%s%s%s%s%s%s%s' % \
 			    (emapsId, TAB, TAB, edge, TAB, pEmapsId, CRT))
 		    
-	#
-    	# end : for t in ont.iterNodes():	# iterate through the nodes 
-	#
-
-	#
-	# terms exist in annotations but not obo file
-	#
-	diff = annotEMAPIDSet - seenEMAPIDSet
-	if len(diff) > 0:
-	   annotDiscrepancyList.append('terms exist in annotations but not in obo file: %s' % (diff))
-	   errorCount += 1
-
 	if errorCount:
 	    continue
+
+    #
+    # end : for t in ont.iterNodes():	# iterate through the nodes 
+    #
+
+    #
+    # if terms exist in annotations but are not in obo file
+    #
+    diff = annotEMAPIDSet - seenEMAPIDSet
+    if len(diff) > 0:
+        annotDiscrepancyList.append('terms exist in annotations but are not in obo file: %s' % (diff))
+	errorCount += 1
 
     # Check if dags rooted in one term
 
