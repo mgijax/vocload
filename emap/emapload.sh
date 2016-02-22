@@ -11,7 +11,6 @@
 cd `dirname $0`/..
 
 CONFIG_LOAD=`pwd`/emap/emapload.config
-
 USAGE='Usage: emapload.sh'
 
 LOG=`pwd`/emap/emapload.log

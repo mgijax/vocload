@@ -57,9 +57,7 @@
 #
 ###########################################################################
 
-CURRENTDIR=`pwd`
-
-CONFIG=emapload.config
+CONFIG_LOAD=`pwd`/emap/emapload.config
 USAGE='Usage: sanity.sh filename'
 
 #

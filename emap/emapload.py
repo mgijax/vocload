@@ -13,6 +13,7 @@
 #      The following environment variable is set by the wrapper script:
 #
 #          LIVE_RUN
+#
 #      If LIVE_RUN=0, just do sanity checks
 #      If LIVE_RUN=1, do sanity checks and if no errors, load the data
 #
@@ -607,7 +608,7 @@ def createFiles():
     # list of EMAPS root nodes, if > 1 will report
     sRootTermList = []
  
-    # list of terms whose TS range does not overlap  one or more of its
+    # list of terms whose TS range does not overlap one or more of its
     # parents' for reporting
     noOverlapList = []
 
@@ -651,6 +652,7 @@ def createFiles():
 
     # t is instance of EmapTerm which extends Ontology.OBOTerm
     for t in ont.iterNodes():	# iterate through the nodes 
+
         # only consider anatomical_structure namespace
         if t.namespace != ns or t.is_obsolete:
             continue
@@ -816,8 +818,7 @@ def createFiles():
 	if isRoot:
 	    edge = ''
 	    pid = ''
-	    fpEmapaDag.write('%s%s%s%s%s%s%s' % \
-		(emapaId, TAB, TAB, edge, TAB, pid, CRT))
+	    fpEmapaDag.write('%s%s%s%s%s%s%s' % (emapaId, TAB, TAB, edge, TAB, pid, CRT))
 
 	# if edges, translate to proper edge term, write out to emapa dag 
 	# file and save for later use determining emaps
@@ -836,8 +837,7 @@ def createFiles():
 	    parentEdgeDict[pid].append(edge)
 
             # write out to the dag file
-            fpEmapaDag.write('%s%s%s%s%s%s%s' % \
-		(emapaId, TAB, TAB, edge, TAB, pid, CRT))
+            fpEmapaDag.write('%s%s%s%s%s%s%s' % (emapaId, TAB, TAB, edge, TAB, pid, CRT))
 	
 	# 
 	# determine EMAPS terms and
@@ -873,8 +873,7 @@ def createFiles():
 	    else:
 		pidList.sort()
 		dep = pidList[0].split('|')[1]
-		defaultEmapsParent = '%s%s' % \
-		    (dep.replace('A:', 'S:'), tsString)
+		defaultEmapsParent = '%s%s' % (dep.replace('A:', 'S:'), tsString)
 
 	    # write to emaps term file; status, synonyms, synType same as EMAPA
 	    fpEmapsTerm.write('%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s' % \
@@ -1103,7 +1102,7 @@ if errorCount > 0:
 if liveRun == '1':
 
     # this function will exit with dbError if can't connect to db
-    initDB()
+    #initDB()
 
     # run the term and DAG loads
     runLoads()
