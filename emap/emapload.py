@@ -57,10 +57,10 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 import string
 import Set 
 import Ontology
-import vocloadlib
 import loadTerms
 import loadDAG
 import Log 
+import db
 
 #
 #  CONSTANTS
@@ -83,10 +83,6 @@ liveRun = os.environ['LIVE_RUN']
 qcRptFile = os.environ['QC_RPT']
 qcWarnFile = os.environ['QC_WARN_RPT']
 errorCount = 0
-
-# file creation globals
-# errors
-dberror = 'emapload.initDB'
 
 # input files
 oboFile = os.environ['INPUT_FILE_DEFAULT']
@@ -182,35 +178,6 @@ def checkArgs():
     return
 
 # end checkArgs() -------------------------------
-
-def initDB():
-    # Purpose: Creates connection to a database
-    # Returns: Nothing
-    # Assumes: Nothing
-    # Effects: connects to and queries a database
-    # Throws: dberror if cannot connect to a database
-
-    try:
-        server = os.environ['MGD_DBSERVER']
-        database = os.environ['MGD_DBNAME']
-        username = os.environ['MGD_DBUSER']
-        passwordFileName = os.environ['MGD_DBPASSWORDFILE']
-        passwordFile = open(passwordFileName, 'r')
-        password = string.strip(passwordFile.readline())
-
-        vocloadlib.setupSql(server, database, username, password)
-
-        # confirm the sql setup worked by doing simple query
-
-        vocloadlib.sql('select count(*) from VOC_Vocab')
-
-    except:
-	exctype, value = sys.exc_info()[:2]
-        raise dberror, 'failed SQL initialization: type %s, value%s' % (exctype, value)
-
-    return
-
-# end initDB() -------------------------------
 
 def openOutputFiles():
     # Purpose: Open the files.
@@ -446,6 +413,7 @@ def getInitialSanityErrors():
 	retCode = 2
 
 	openQCFiles()
+
 	fpQcRpt.write('You must fix all errors in this report and run the QC script again%s' % CRT)
 	fpQcRpt.write('to find any additional errors %s%s' % (CRT, CRT))
 
@@ -597,7 +565,8 @@ def createFiles():
     # Throws: Nothing
 
     global errorCount, aRootTermList, sRootTermList, noOverlapList
-    global tsDiscrepancyList, seenEMAPIDSet, cyclesList
+    global tsDiscrepancyList, cyclesList, annotDiscrepancyList
+    global seenEMAPIDSet, annotEMAPIDSet, annotDict
 
     # list of EMAPA root nodes, if > 1 will report
     aRootTermList = []
@@ -615,15 +584,23 @@ def createFiles():
     # list of terms with TS discrepancies, for reporting
     tsDiscrepancyList = []
 
+    # list of terms with Annotation discrepancies, for reporting
+    annotDiscrepancyList = []
+
     # EMAPA IDs we've seen so far
     seenEMAPIDSet = set([])
+
+    # EMAPA IDs in annotations
+    annotEMAPIDSet = set([])
+
+    # EMAPA IDs in annotations w/ min/max stage
+    annotDict = {}
 
     # consider only terms from this namespace
     ns = 'anatomical_structure'
 
     # 'ont' is instance of Ontology.OboOntology
-    ont = Ontology.load( oboFile, cullObsolete=False, cullCrossEdges=True, \
-	termCallBack=termCleanup, nodeType=EmapTerm)
+    ont = Ontology.load(oboFile, cullObsolete=False, cullCrossEdges=True, termCallBack=termCleanup, nodeType=EmapTerm)
 
     #
     # remove root node EMAPA:0
@@ -647,6 +624,58 @@ def createFiles():
 	    cyclesList.append('%s %s' % (t.id, t.name))
 
     #
+    # create dictionary of existing annotations : emapa id
+    #
+    results = db.sql('''
+		(
+    		select distinct a.accid
+		from GXD_GelLaneStructure s, ACC_Accession a
+		where s._emapa_term_key = a._object_key
+		and a._mgitype_key = 13
+		and a._logicaldb_key = 169
+		and a._preferred = 1
+		union all
+    		select distinct a.accid
+		from GXD_ISResultStructure s, ACC_Accession a
+		where s._emapa_term_key = a._object_key
+		and a._mgitype_key = 13
+		and a._logicaldb_key = 169
+		and a._preferred = 1
+		)
+    		''', 'auto')
+    for r in results:
+	key = r['accid']
+	annotEMAPIDSet.add(key)
+
+    #
+    # create dictionary of existing annotations : emapa id, min-stage, max-stage
+    #
+    results = db.sql('''
+		(
+    		select distinct a.accid, min(ts.stage) as minStage, max(ts.stage) as maxStage
+		from GXD_GelLaneStructure s, GXD_TheilerStage ts, ACC_Accession a
+		where s._emapa_term_key = a._object_key
+		and a._mgitype_key = 13
+		and a._logicaldb_key = 169
+		and a._preferred = 1
+		and s._stage_key = ts._stage_key
+		group by a.accid
+		union all
+    		select distinct a.accid, min(ts.stage) as minStage, max(ts.stage) as maxStage
+		from GXD_ISResultStructure s, GXD_TheilerStage ts, ACC_Accession a
+		where s._emapa_term_key = a._object_key
+		and a._mgitype_key = 13
+		and a._logicaldb_key = 169
+		and a._preferred = 1
+		and s._stage_key = ts._stage_key
+		group by a.accid
+		)
+    		''', 'auto')
+    for r in results:
+	key = r['accid']
+	annotDict[key] = r
+
+    #
     # build EMAPA/EMAPS term and dag files, checking for errors as we go
     #
 
@@ -654,7 +683,7 @@ def createFiles():
     for t in ont.iterNodes():	# iterate through the nodes 
 
         # only consider anatomical_structure namespace
-        if t.namespace != ns or t.is_obsolete:
+        if t.namespace != ns:
             continue
 
 	# determine if root node, we'll use this more than once
@@ -709,6 +738,32 @@ def createFiles():
 	if term == '' or emapaId == '':
 	    missingNameIdList.append('id: "%s", name: "%s" has blank attribute' % (emapaId, term))
 	    errorCount += 1
+
+	# add to seenEMAPIDSet...
+	seenEMAPIDSet.add(emapaId)
+
+	#
+	# if annotations exist and term is obsolete, then error
+	#
+	if annotDict.has_key(emapaId) and t.is_obsolete:
+	   annotDiscrepancyList.append('annotation exists for obsolete term: %s' % (emapaId))
+	   errorCount += 1
+
+	#
+	# if annotation exist and start/end stage conflicts, then error
+	# 	annotation/minStage is less than the new start stage
+	# 	annotation/maxStage is greater than the new end stage
+	#
+	errorCount += 1
+	if annotDict.has_key(emapaId):
+		if annotDict[emapaId]['minStage'] < start:
+		   annotDiscrepancyList.append('start stage annotation conflict: %s, %s, %s (new)' \
+		   	% (emapaId, annotDict[emapaId]['minStage'], start))
+		   errorCount += 1
+		if annotDict[emapaId]['maxStage'] > end:
+		   annotDiscrepancyList.append('end stage annotation conflict: %s, %s, %s (new)' \
+		   	% (emapaId, annotDict[emapaId]['maxStage'], end))
+		   errorCount += 1
 
 	# get the term's alternate ids joining with '|'
 	altIdList = t.getAltIDs()
@@ -899,6 +954,18 @@ def createFiles():
 			fpEmapsDagDict[int(ts)].write('%s%s%s%s%s%s%s' % \
 			    (emapsId, TAB, TAB, edge, TAB, pEmapsId, CRT))
 		    
+	#
+    	# end : for t in ont.iterNodes():	# iterate through the nodes 
+	#
+
+	#
+	# terms exist in annotations but not obo file
+	#
+	diff = annotEMAPIDSet - seenEMAPIDSet
+	if len(diff) > 0:
+	   annotDiscrepancyList.append('terms exist in annotations but not in obo file: %s' % (diff))
+	   errorCount += 1
+
 	if errorCount:
 	    continue
 
@@ -974,6 +1041,12 @@ def writeFatalSanityReport():
     if len(tsDiscrepancyList) > 0:
         fpQcRpt.write('Terms with starts_at or ends_at discrepancies: %s%s' % (CRT, CRT))
         for line in tsDiscrepancyList:
+            fpQcRpt.write('%s%s' % (line, CRT))
+        fpQcRpt.write('%s' % CRT)
+
+    if len(annotDiscrepancyList) > 0:
+        fpQcRpt.write('Terms with annotation discrepancies: %s%s' % (CRT, CRT))
+        for line in annotDiscrepancyList:
             fpQcRpt.write('%s%s' % (line, CRT))
         fpQcRpt.write('%s' % CRT)
 
@@ -1100,10 +1173,6 @@ if errorCount > 0:
 
 # if this is a live run, load the terms and dags
 if liveRun == '1':
-
-    # this function will exit with dbError if can't connect to db
-    #initDB()
-
     # run the term and DAG loads
     runLoads()
 
