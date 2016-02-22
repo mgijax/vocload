@@ -51,13 +51,11 @@ export DAG_ROOT_ID
 # Full path to the sanity check log.
 QC_LOGFILE=${LOGDIR}/emapQC.log
 
-# Full path to errors with error label
-QC_ERROR_RPT=${OUTPUTDIR}/emapFatalQC.rpt
+# Full path to the fatal sanity check report.
+QC_RPT=${RPTDIR}/emapFatalQC.rpt
 
-# Full path to intermediate all warnings with warning label
-QC_WARNING_RPT=${OUTPUTDIR}/emapWarningQC.rpt
-
-export QC_ERROR_RPT QC_WARNING_RPT
+# Full path to the warning sanity check report
+QC_WARN_RPT=${RPTDIR}/emapWarningQC.rpt
 
 # Full path to the sanity check wrapper
 LOAD_SANITY=${VOCLOAD}/emap/sanity.sh
@@ -65,10 +63,48 @@ LOAD_SANITY=${VOCLOAD}/emap/sanity.sh
 # Full path to QC script.
 LOAD_QC=${VOCLOAD}/emap/emapQC.sh
 
+export QC_LOGFILE QC_RPT QC_WARN_RPT LOAD_SANITY LOAD_QC
+
 # Full path to intermediate dup ID report
 DUP_IDS_RPT=${OUTPUTDIR}/dupId.txt
 
-export QC_LOGFILE QC_ERROR_RPT QC_WARNING_RPT LOAD_QC DUP_IDS_RPT
+# Full path to intermediate invalid TS report
+INVALID_TS_RPT=${OUTPUTDIR}/invalidTS.txt
+
+# Full path to the intermediate missing field report
+MISSING_FIELD_RPT=${OUTPUTDIR}/missingField.txt
+
+# Full path to the intermediate invalid EMAPA ID report
+INVALID_ID_RPT=${OUTPUTDIR}/invalidId.txt
+
+# Full path to the intermediate file containing number of terms if  
+# < MIN_TERMS_EXPECTED 
+MIN_TERMS_RPT=${OUTPUTDIR}/minTerms.txt
+
+# Full path to the intermediate file containing parent ids that are not defined
+UNDEFINED_PARENT_RPT=${OUTPUTDIR}/undefinedParent.txt
+
+# Full path to the  intermediate file containing alt ids which are also primary
+ALT_IS_PRIMARY_RPT=${OUTPUTDIR}/altIsPrimary.txt
+
+# Full path to the  intermediate file containing obsolete ids which are parents
+OBS_IS_PARENT_RPT=${OUTPUTDIR}/obsIsParent.txt
+
+# Full path to the  intermediate file containing obsolete ids with relationships
+OBS_WITH_RELATIONSHIP_RPT=${OUTPUTDIR}/obsWithRelationship.txt
+
+# Full path to the intermediate file containing list of ids in the database
+# but not in the input file
+TERM_IN_DB_NOTIN_INPUT_RPT=${OUTPUTDIR}/inDbNotInInput.txt
+
+# Full path the the intermediate file containing list if ids from the obo 
+# file that have tabs in their stanzas
+STANZA_HAS_TAB_RPT=${OUTPUTDIR}/stanzaHasTab.txt
+
+export DUP_IDS_RPT INVALID_TS_RPT MISSING_FIELD_RPT
+export INVALID_ID_RPT MIN_TERMS_RPT UNDEFINED_PARENT_RPT ALT_IS_PRIMARY_RPT
+export OBS_IS_PARENT_RPT OBS_WITH_RELATIONSHIP_RPT TERM_IN_DB_NOTIN_INPUT_RPT
+export STANZA_HAS_TAB_RPT
 
 #
 # Inputs

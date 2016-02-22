@@ -358,10 +358,10 @@ def doSanityChecks( ):
 	    hasNameValue = 1
 	    if hasId and currentStanzaDict['id'] == ['']:
 		hasIdValue = 0
-	    if hasName and currentStanzaDict.has_key('name') == ['']:
+	    if hasName and currentStanzaDict['name'] == ['']:
 		hasNameValue = 0
 	    msg = ''
-	    if not (hasId and hasName and hasIdValue and hasNameValue):
+	    if not hasId or not hasName or not hasIdValue or not hasNameValue:
 	 	if not hasId:
 		    msg = 'Stanza missing id field:%s' % CRT
 		elif not hasName:
