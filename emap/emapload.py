@@ -6,23 +6,13 @@
 #  Purpose:
 #
 #      This script will perform sanity checks on emapload data.
-#
-#      If no sanity errors and LIVE_RUN=1:
-#
-#         run the vocabularies
-#         VOC_Vocab, VOC_Term, VOC_Text, MGI_Synonym, 
-#
-#	  run extra EMAPA/EMAPS piece
-#         VOC_Term_EMAPA, VOC_Term_EMAPS
-#
-#	Assumes that sanity.sh was successfully run (see emapload.sh)
+#	If no sanity errors and LIVE_RUN=1, load the data
 #
 #  Env Vars:
 #
-#      The following environment variable is set by the emapload.sh wrapper script:
+#      The following environment variable is set by the wrapper script:
 #
 #          LIVE_RUN
-#
 #      If LIVE_RUN=0, just do sanity checks
 #      If LIVE_RUN=1, do sanity checks and if no errors, load the data
 #
@@ -32,9 +22,8 @@
 #
 #  Outputs:
 #
-#      - Fatal QC report (${QC_ERROR_RPT})
-#      - Warning QC report (${QC_WARNING_RPT})
-#      - Vocabulary Term bcp files
+#      - Fatal QC report (${QC_RPT})
+#      - Warning QC report (${QC_WARN_RPT})
 #
 #  Exit Codes:
 #
@@ -51,26 +40,26 @@
 #      1) Validate the arguments to the script.
 #      2) Perform initialization steps.
 #      3) Open the input/output files.
-#      4) Generate the secondary sanity reports.
+#      4) Generate the sanity reports.
 #      5) Close the input/output files.
 #
 #  Notes:  None
 #
 ###########################################################################
 
-import sys
+import sys 
 import os
 
 # adjust the path so that it will find the loadTerms.py one directory up
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 import string
-import Set
+import Set 
 import Ontology
 import vocloadlib
 import loadTerms
 import loadDAG
-import Log
+import Log 
 
 #
 #  CONSTANTS
@@ -78,7 +67,7 @@ import Log
 TAB = '\t'
 CRT = '\n'
 STATUS = 'current'
-SYNTYPE = 'exact'
+SYNTYPE = 'EXACT'
 USAGE = 'emapload.py'
 
 # valid Theiler Stages
@@ -90,10 +79,12 @@ TSEND = int(os.environ['TS_END'])
 #
 # QC globals
 liveRun = os.environ['LIVE_RUN']
-qcRptFile = os.environ['QC_ERROR_RPT']
+qcRptFile = os.environ['QC_RPT']
+qcWarnFile = os.environ['QC_WARN_RPT']
 errorCount = 0
 
-# file creation globals errors
+# file creation globals
+# errors
 dberror = 'emapload.initDB'
 
 # input files
@@ -104,6 +95,40 @@ dupFile = os.environ['DUP_IDS_RPT']
 
 # duplicate EMAPA IDs, created by the sanity checker	
 dupEMAPAIDList = []
+
+# invalid TS in the input file, created by the sanity checker
+invalidTSFile = os.environ['INVALID_TS_RPT']
+
+# missing fields in obo stanzas file, created by the sanity checker
+missingFieldsFile = os.environ['MISSING_FIELD_RPT']
+
+# missing EMAPA IDs or terms
+missingNameIdList = []
+
+# invalid EMAPA ids in the input file, created by the sanity checker
+invalidIdFile = os.environ['INVALID_ID_RPT']
+
+# EMAPA IDs in the db and not in the input file, created by the sanity checker
+inDbNotInInputFile = os.environ['TERM_IN_DB_NOTIN_INPUT_RPT']
+
+# created by initial sanity checker to indicate when an obo file does not have 
+# a configured min number of terms
+minTermsFile = os.environ['MIN_TERMS_RPT']
+
+# undefined parent ids in the input file, created by the sanity checker
+undefinedParentFile = os.environ['UNDEFINED_PARENT_RPT']
+
+# alt_ids that are also primary ids
+altIsPrimaryFile = os.environ['ALT_IS_PRIMARY_RPT']
+
+# obsolete ids that are parent ids
+obsIsParentFile = os.environ['OBS_IS_PARENT_RPT']
+
+# obsolete ids that  have relationships
+obsWithRelationshipFile = os.environ['OBS_WITH_RELATIONSHIP_RPT']
+
+# EMAPA ids with stanza lines containing tabs 
+stanzaHasTabFile = os.environ['STANZA_HAS_TAB_RPT']
 
 # database keys
 emapaVocabKey = os.environ['EMAPA_VOCAB_KEY']
@@ -183,7 +208,7 @@ def initDB():
 
 # end initDB() -------------------------------
 
-def openFiles():
+def openOutputFiles():
     # Purpose: Open the files.
     # Returns: Nothing
     # Assumes: Nothing
@@ -191,13 +216,10 @@ def openFiles():
     #  creates files in the file system
 
     global fpEmapaTerm, fpEmapsTerm, fpEmapaDag, fpEmapsDagDict
-    global fpQcRpt
     global emapsDagFileDict
-    global dupEMAPAIDList
 
     fpEmapsDagDict = {}
     emapsDagFileDict = {}
-    dupEMAPAIDList = []
 
     try:
         fpEmapaTerm = open(emapaTermFile, 'w')
@@ -226,11 +248,18 @@ def openFiles():
         print 'Cannot open EMAPS DAG file: %s' % tsFile
         sys.exit(1)
 
-    try:
-	fpQcRpt = open(qcRptFile, 'w+')
-    except:
-        print 'Cannot open/append qc report file: %s' % qcRptFile
-        sys.exit(1)
+    return
+
+# end openOutputFiles() -------------------------------
+
+def parseDupFile():
+    # Purpose: Open the files.
+    # Returns: Nothing
+    # Assumes: Nothing
+    # Effects: Sets global variables, exits if a file cannot be opened
+    # Throws: Nothing
+
+    global dupEMAPAIDList
 
     try:
         fpDupFile = open(dupFile, 'r')
@@ -241,15 +270,241 @@ def openFiles():
 
     for d in fpDupFile.readlines():
 	dupEMAPAIDList.append(d)
-    fpDupFile.close()
 
     return
 
-# end openFiles() -------------------------------
-
 # end parseDupFile() -------------------------------
 
-def closeFiles():
+def getInitialSanityErrors():
+    # Purpose: Writes out initial sanity errors to the report
+    # Returns: Nothing
+    # Assumes: fpQcRpt has been initialized
+    # Effects: Sets global variables, opens its own input files, exits if 
+    #  error opening files
+    # Throws: Nothing
+
+    global fpQcRpt
+
+    retCode = 0
+
+    parseDupFile()
+
+    #
+    # Invalid Theiler Stages
+    #
+
+    invalidTSList = []
+    
+    try:
+	fpInvalidTS = open(invalidTSFile, 'r')
+    except:
+        print 'Cannot open invalid TS file: %s' % invalidTSFile
+        sys.exit(1)
+
+    for d in fpInvalidTS.readlines():
+        invalidTSList.append(d)
+    fpInvalidTS.close()
+
+    #
+    # missing fields in stanza
+    #
+
+    missingFieldsList = []
+
+    try:
+	fpMissingFields = open(missingFieldsFile, 'r')
+    except:
+	print 'Cannot open missing Fields file: %s' % missingFieldsFile
+        sys.exit(1)
+
+    for m in fpMissingFields.readlines():
+         missingFieldsList.append(m)
+    fpMissingFields.close()
+
+    #
+    # invalid EMAPA id format
+    #
+
+    invalidIdList = []
+
+    try:
+        fpInvalidId = open(invalidIdFile, 'r')
+    except:
+        print 'Cannot open invalid Id file: %s' % invalidIdFile
+        sys.exit(1)
+
+    for m in fpInvalidId.readlines():
+         invalidIdList.append(m)
+    fpInvalidId.close()
+
+    #
+    # if minimum number of terms in input file not present
+    #
+
+    minTermsList = []
+
+    try:
+	fpMinTerms = open(minTermsFile, 'r')
+    except:
+	print 'Cannot open minumum terms file: %s' % minTermsFile
+        sys.exit(1)
+
+    for t in fpMinTerms.readlines():
+	minTermsList.append(t)
+    fpMinTerms.close()
+
+    #
+    # Parent IDs which are not defined
+    #
+
+    undefinedParentList = []
+
+    try:
+	fpUndefinedParent = open(undefinedParentFile, 'r')
+    except:
+	print 'Cannot open undefined parent file: %s' % undefinedParentFile
+	sys.exit(1)
+
+    for u in fpUndefinedParent.readlines():
+	undefinedParentList .append(u)
+    fpUndefinedParent.close()
+
+    #
+    # alt_ids which are also primary ids
+    #
+
+    altIsPrimaryList = []
+
+    try:
+        fpAltIdPrimary = open(altIsPrimaryFile, 'r')
+    except:
+        print 'Cannot open alt ids also defined as primary file: %s' % altIsPrimaryFile
+        sys.exit(1)
+
+    for a in fpAltIdPrimary.readlines():
+	altIsPrimaryList.append(a)
+    fpAltIdPrimary.close()
+
+    #
+    # obsolete ids which are parents
+    #
+
+    obsIsParentList = []
+
+    try:
+	fpObsIsParent = open(obsIsParentFile, 'r')
+    except:
+	print 'Cannot open obsolete ids that are parents file: %s' % obsIsParentFile
+
+    for o in fpObsIsParent.readlines():
+	obsIsParentList.append(o)
+    fpObsIsParent.close()
+
+    #
+    # obsolete ids which have relationships
+    #
+
+    obsWithRelationshipList = []
+
+    try:
+        fpObsWithRelationship = open(obsWithRelationshipFile, 'r')
+    except:
+        print 'Cannot open obsolete ids with relationships file: %s' % obsWithRelationshipFile
+
+    for o in fpObsWithRelationship.readlines():
+        obsWithRelationshipList.append(o)
+    fpObsWithRelationship.close()
+
+    #
+    # Ids with lines containing tabs
+    #
+
+    stanzaHasTabList = []
+
+    try:
+	fpStanzaHasTab = open(stanzaHasTabFile, 'r')
+    except:
+	print 'Cannot open Stanzas with tab file: %s' % stanzaHasTabFile
+
+    for i in fpStanzaHasTab.readlines():
+	stanzaHasTabList.append(i)
+    fpStanzaHasTab.close()
+
+    #
+    # Now determine and report all sanity errors
+    #
+
+    if len(invalidTSList) or len(missingFieldsList) or len(invalidIdList) \
+      or len(minTermsList) or len(undefinedParentList) \
+      or len(altIsPrimaryList) or len(obsIsParentList) \
+      or len(obsWithRelationshipList) or len(stanzaHasTabList):
+
+	retCode = 2
+
+	openQCFiles()
+	fpQcRpt.write('You must fix all errors in this report and run the QC script again%s' % CRT)
+	fpQcRpt.write('to find any additional errors %s%s' % (CRT, CRT))
+
+	if len(invalidTSList):
+	    fpQcRpt.write('EMAPA IDs with invalid Theiler stages: %s%s' % (CRT, CRT))
+	    for ts in invalidTSList:
+		fpQcRpt.write('%s' % (ts))
+	    fpQcRpt.write(CRT)
+
+	if len(missingFieldsList):
+	    for msg in missingFieldsList:
+		fpQcRpt.write('%s' % (msg))
+	    fpQcRpt.write(CRT)
+
+	if len(invalidIdList):
+	    fpQcRpt.write('Invalid EMAPA IDs: %s%s' % (CRT, CRT))
+	    for id in invalidIdList:
+		fpQcRpt.write('%s' % (id))
+	    fpQcRpt.write(CRT)
+	    
+	if len(minTermsList):
+	    for msg in minTermsList:
+		fpQcRpt.write('%s' % (msg))
+	    fpQcRpt.write(CRT)
+
+	if len(undefinedParentList):
+	    fpQcRpt.write('Undefined parent IDs: %s%s' % (CRT, CRT))
+	    for id in undefinedParentList:
+		 fpQcRpt.write('%s' % (id))
+	    fpQcRpt.write(CRT)
+
+	if len(altIsPrimaryList):
+	    fpQcRpt.write('Alt_ids that are also primary:  %s%s' % (CRT, CRT))
+	    for id in altIsPrimaryList:
+		fpQcRpt.write('%s' % (id))
+	    fpQcRpt.write(CRT)
+
+	if len(obsIsParentList):
+	    fpQcRpt.write('Obsolete Ids that are also parents: %s%s' % (CRT, CRT))
+	    for id in obsIsParentList:
+		fpQcRpt.write('%s' % (id))
+	    fpQcRpt.write(CRT)
+
+	if len(obsWithRelationshipList):
+	    fpQcRpt.write('Obsolete Ids that have parent or TS relationships: %s%s' % (CRT, CRT))
+            for id in obsWithRelationshipList:
+                fpQcRpt.write('%s' % (id))
+            fpQcRpt.write(CRT)
+
+	if len(stanzaHasTabList):
+	    fpQcRpt.write('Stanzas with embedded tabs: %s%s' % (CRT, CRT))
+	    for line in stanzaHasTabList:
+		fpQcRpt.write('%s' % (line)) 
+
+    if retCode != 0:
+	closeQCFiles()
+	sys.exit(retCode)
+
+    return
+
+# end getInitialSanityErrors() -------------------------------
+
+def closeOutputFiles():
     # Purpose: Close all file descriptors
     # Returns: Nothing
     # Assumes: all file descriptors were initialized
@@ -261,15 +516,45 @@ def closeFiles():
     fpEmapaTerm.close()
     fpEmapsTerm.close()
     fpEmapaDag.close()
-
     for ts in fpEmapsDagDict.keys():
 	fpEmapsDagDict[ts].close()
 
-    fpQcRpt.close()
+    return
+
+# end closeOutputFiles() -------------------------------
+
+def openQCFiles():
+    # Purpose: Open the QC  file
+    # Returns: Nothing
+    # Assumes: Nothing
+    # Effects: Sets global variables. Creates file in the filesystem
+    # Throws: Nothing
+
+    global fpQcRpt
+
+    try:
+	fpQcRpt = open(qcRptFile, 'w')
+    except:
+        print 'Cannot open qc report file: %s' % qcRptFile
+        sys.exit(1)
 
     return
 
-# end closeFiles() -------------------------------
+# end openQCFiles() -------------------------------
+
+def closeQCFiles():
+    # Purpose: Close the files.
+    # Returns: Nothing
+    # Assumes: Nothing
+    # Effects: Nothing
+    # Throws: Nothing
+
+    global fpQcRpt
+    
+    fpQcRpt.close()
+    return
+
+# end  closeQCFiles() -------------------------------
 
 def termCleanup(t,	# a term object (OboTerm)
 		stanza	# dict whose keys are the stanza keywords,
@@ -307,11 +592,14 @@ def createFiles():
     # Throws: Nothing
 
     global errorCount, aRootTermList, sRootTermList, noOverlapList
-    global tsDiscrepancyList, cyclesList, missingNameIdList, seenEMAPIDSet
+    global tsDiscrepancyList, seenEMAPIDSet, cyclesList
 
     # list of EMAPA root nodes, if > 1 will report
     aRootTermList = []
   
+    # list of EMAPA cycles, if any will report
+    cyclesList = []
+ 
     # list of EMAPS root nodes, if > 1 will report
     sRootTermList = []
  
@@ -321,12 +609,6 @@ def createFiles():
 
     # list of terms with TS discrepancies, for reporting
     tsDiscrepancyList = []
-
-    # list of EMAPA cycles, if any will report
-    cyclesList = []
- 
-    # list of missing EMAPA IDs or terms
-    missingNameIdList = []
 
     # EMAPA IDs we've seen so far
     seenEMAPIDSet = set([])
@@ -616,7 +898,6 @@ def createFiles():
 		    
 	if errorCount:
 	    continue
-
     # Check if dags rooted in one term
     if len(aRootTermList) > 1 or len(sRootTermList) > 1:
 	errorCount += 1
@@ -655,9 +936,16 @@ def writeFatalSanityReport():
     #       exits with return code 2 if sanity errors are found
     # Throws: Nothing
 
+    openQCFiles()
+
     if len(aRootTermList) > 1:
         fpQcRpt.write('Multiple EMAPA Root Nodes: %s%s' % (CRT, CRT))
         fpQcRpt.write(string.join(aRootTermList, ', '))
+        fpQcRpt.write('%s%s' % ( CRT, CRT))
+
+    if len(cyclesList) > 0:
+        fpQcRpt.write('Cycles exist between the following nodes: %s%s' % (CRT, CRT))
+        fpQcRpt.write(string.join(cyclesList, CRT))
         fpQcRpt.write('%s%s' % ( CRT, CRT))
 
     if len(sRootTermList) > 1:
@@ -678,23 +966,53 @@ def writeFatalSanityReport():
             fpQcRpt.write('%s%s' % (line, CRT))
         fpQcRpt.write('%s' % CRT)
 
-    if len(cyclesList) > 0:
-        fpQcRpt.write('Cycles exist between the following nodes: %s%s' % (CRT, CRT))
-        fpQcRpt.write(string.join(cyclesList, CRT))
-        fpQcRpt.write('%s%s' % ( CRT, CRT))
-
-    if len(missingNameIdList) > 1:
-        fpQcRpt.write('Terms with missing id and/or name: %s%s' % (CRT, CRT))
-        for line in missingNameIdList:
-            fpQcRpt.write('%s%s' % (line, CRT))
-
     if len(dupEMAPAIDList) > 0:
         fpQcRpt.write('EMAPA IDs duplicated in the input: %s%s' % (CRT, CRT))
         for line in dupEMAPAIDList:
             fpQcRpt.write('%s' % (line))
         fpQcRpt.write('%s' % CRT)
 
-    return
+    if len(missingNameIdList) > 1:
+        fpQcRpt.write('Terms with missing id and/or name: %s%s' % (CRT, CRT))
+        for line in missingNameIdList:
+            fpQcRpt.write('%s%s' % (line, CRT))
+
+    closeQCFiles()
+
+    sys.exit(2)
+
+def writeWarningSanityReport():
+
+    #
+    # EMAPA id in database and not in input file
+    #
+
+    try:
+        fpInDbNotInInput = open(inDbNotInInputFile, 'r')
+    except:
+        print 'Cannot open invalid Id file: %s' % inDbNotInInputFile
+        sys.exit(1)
+
+    try:
+	fpWarning = open(qcWarnFile, 'w')
+    except:
+        print 'Cannot open Warning Sanity file: %s' % qcWarnFile
+        sys.exit(1)
+
+    lines = fpInDbNotInInput.readlines()
+
+    if len(lines):
+	print 'Non-fatal errors detected. See %s%s' % (qcWarnFile, CRT)
+    else:
+	print 'No warnings detected.'
+
+    for line in lines:
+	fpWarning.write(line)
+
+    fpWarning.close()
+    fpInDbNotInInput.close()
+    
+# end writeFatalSanityReport() -------------------------------
 
 def runLoads():
     # Purpose: runs all EMAPA/EMAPS term and dag loads
@@ -704,7 +1022,7 @@ def runLoads():
     # Throws: Nothing
 
     print 'running EMAPA term load'
-    runTermLoad(emapaTermFile, emapaVocabKey)
+    runTermLoad(emapaTermFile, emapaVocabKey, 90)
 
     print 'running EMAPA dag load'
     runDagLoad(emapaDagFile, 'EMAPA')
@@ -713,7 +1031,7 @@ def runLoads():
     os.environ['BCP_LOG_FILE'] = os.environ['BCP_S_LOG_FILE']
     os.environ['BCP_ERROR_FILE'] = os.environ['BCP_S_ERROR_FILE']
 
-    runTermLoad(emapsTermFile, emapsVocabKey)
+    runTermLoad(emapsTermFile, emapsVocabKey, 91)
 
     print 'running EMAPS dag loads'
     for ts in emapsDagFileDict.keys():
@@ -747,21 +1065,25 @@ def runLoads():
 # check the arguments to this script
 checkArgs()
 
+# this function will exit(2) if any initial sanity errors are found
+getInitialSanityErrors()
+
 # this function will exit(1) if errors opening files
-openFiles()
+openOutputFiles()
 
 # create term and dag input files, running sanity checks as it goes
 createFiles()
+
+# close all output files
+closeOutputFiles()
+
+# write any warnings to the warning report
+writeWarningSanityReport()
 
 # if createFiles finds any sanity errors write them out
 # this function will exit(2) if any sanity errors are found while creating files
 if errorCount > 0:
     writeFatalSanityReport()
-    closeFiles()
-    sys.exit(1)
-
-# close all files
-closeFiles()
 
 # if this is a live run, load the terms and dags
 if liveRun == '1':

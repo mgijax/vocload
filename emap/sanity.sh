@@ -57,8 +57,6 @@
 #
 ###########################################################################
 
-cd `dirname $0`
-
 CURRENTDIR=`pwd`
 
 CONFIG=emapload.config
@@ -109,7 +107,6 @@ INPUT_FILE_DEFAULT=${INPUT_FILE}
 export INPUT_FILE_DEFAULT
 
 # run sanity.py
-${VOCLOAD}/emap/sanity.py
+${EMAPLOAD}/bin/sanity.py
 STAT=$?
 exit ${STAT}
-

@@ -58,7 +58,7 @@
 #
 ###########################################################################
 
-cd `dirname $0`
+cd `dirname $0` 
 
 CURRENTDIR=`pwd`
 
@@ -98,10 +98,13 @@ then
     exit 1
 fi
 
+QC_LOGFILE=${CURRENTDIR}/`basename ${QC_LOGFILE}`
+QC_RPT=${CURRENTDIR}/`basename ${QC_RPT}`
+QC_WARN_RPT=${CURRENTDIR}/`basename ${QC_WARN_RPT}`
+
 #
 # Initialize the log file.
 #
-QC_LOGFILE=${CURRENTDIR}/`basename ${QC_LOGFILE}`
 LOG=${QC_LOGFILE}
 rm -rf ${LOG}
 touch ${LOG}
@@ -109,19 +112,19 @@ touch ${LOG}
 #
 # Initialize the report files to make sure the current user can write to them.
 #
-rm -f ${QC_ERROR_RPT} >${QC_ERROR_RPT}
-rm -f ${QC_WARNING_RPT}; >${QC_WARNING_RPT}
-
+rm -f ${QC_RPT}; >${QC_RPT}
+rm -f ${QC_WARN_RPT}; >${QC_WARN_RPT}
 #
 # Run sanity checks on EMAPA obo file
 #
 echo "" >> ${LOG}
 date >> ${LOG}
 echo "Run sanity checks on the input file" >> ${LOG}
+FILE_ERROR=0
 
 # run the first set of sanity checks (non well-formed obo file or proprietary
 # EMAPA obo file checks)
-${VOCLOAD}/emap/sanity.sh ${INPUT_FILE}
+${VOCLOAD}/emap/sanity.sh  ${INPUT_FILE}
 STAT=$?
 if [ ${STAT} -ne 0 ]
 then
@@ -137,23 +140,23 @@ INPUT_FILE_DEFAULT=${INPUT_FILE}
 export INPUT_FILE_DEFAULT
 
 # run emapload.py in sanity check only mode (LIVE_RUN = 0)
-FILE_ERROR=0
 ${VOCLOAD}/emap/emapload.py
 if [ $? -ne 0 ]
 then
     FILE_ERROR=1
 fi
 
-date >> ${LOG}
-cp ${QC_ERROR_RPT} ${CURRENTDIR}
-cp ${QC_WARNING_RPT} ${CURRENTDIR}
-
 if [ ${FILE_ERROR} -ne 0 ]
 then
-    echo "Finished sanity checks: failed" | tee -a ${LOG}
+    echo "Fatal sanity errors detected. See ${QC_RPT}" | tee -a ${LOG}
+    echo "" | tee -a ${LOG}
     exit 1
 else
-    echo "Finished sanity checks: successful" | tee -a ${LOG}
-    exit 0
+    echo "No fatal errors detected."
 fi
 
+echo "" >> ${LOG}
+date >> ${LOG}
+echo "Finished running sanity checks on the input file" >> ${LOG}
+
+exit 0

@@ -14,9 +14,17 @@
 #	TS_END
 #	MIN_TERMS_EXPECTED 
 #	INPUT_FILE_DEFAULT
+#	INVALID_TS_RPT
+#       MISSING_FIELD_RPT
+#       INVALID_ID_RPT
+#       MIN_TERMS_RPT
+#       UNDEFINED_PARENT_RPT
+#       ALT_IS_PRIMARY_RPT
+#       OBS_IS_PARENT_RPT
+#       OBS_WITH_RELATIONSHIP_RPT
 #	OBO_FILE_VERSION
-#	QC_ERROR_RPT
-#	QC_WARNING_RPT
+#	TERM_IN_DB_NOTIN_INPUT_RPT
+#	STANZA_HAS_TAB_RPT'
 #
 #  Inputs:
 #
@@ -47,11 +55,6 @@
 #
 #  Notes:  None
 #
-# History
-#
-# 02/19/2016	lec
-#	- TR12223/gxd anatomy II/add some more sanity checks
-#
 ###########################################################################
 
 import sys
@@ -65,6 +68,8 @@ import db
 #
 TAB = '\t'
 CRT = '\n'
+STATUS = 'current'
+SYNTYPE = 'EXACT'
 USAGE = 'sanity.py'
 
 # The obo version expected by the load 
@@ -87,21 +92,18 @@ MINTERMS = int(os.environ['MIN_TERMS_EXPECTED'])
 # input file
 oboFile = os.environ['INPUT_FILE_DEFAULT']
 
-invalidTS = 'EMAPA IDs with invalid Theiler stages'
-missingField = 'Missing Field'
-invalidId = 'Invalid EMAPA IDs'
-minTerms = 'Minimum Terms (%s)' % (MINTERMS)
-undefinedParent = 'Undefined parent IDs'
-altIsPrimary = 'Alt_ids that are also primary'
-obsIsParent = 'Obsolete Ids that are also parents'
-obsWithRelationship = 'Obsolete Ids that have parent or TS relationships'
-stanzaHasTab = 'Stanzas with embedded tabs'
-inDbNotInInput = 'In database, not in input'
-
 # output files - these files are used by emapload.py which is responsible
 # for reporting these errors
-errorFile = os.environ['QC_ERROR_RPT']
-warningFile = os.environ['QC_WARNING_RPT']
+invalidTSFile = os.environ['INVALID_TS_RPT']
+missingFieldFile = os.environ['MISSING_FIELD_RPT']
+invalidIdFile = os.environ['INVALID_ID_RPT']
+minTermsFile = os.environ['MIN_TERMS_RPT']
+undefinedParentFile = os.environ['UNDEFINED_PARENT_RPT']
+altIsPrimaryFile = os.environ['ALT_IS_PRIMARY_RPT']
+obsIsParentFile = os.environ['OBS_IS_PARENT_RPT']
+obsWithRelationshipFile = os.environ['OBS_WITH_RELATIONSHIP_RPT']
+inDbNotInInputFile = os.environ['TERM_IN_DB_NOTIN_INPUT_RPT']
+stanzaHasTabFile = os.environ['STANZA_HAS_TAB_RPT']
 
 # dict representing all anatomical structure stanzas in the obo file
 # Looks like 
@@ -111,7 +113,6 @@ allStanzasDict = {}
 # these two lists used to determine any parent ids that don't exist as terms
 # list of all EMAPA term ids in the input file
 termIdList = []
-
 # list of all EMAPA parent ids
 parentIdList = []
 
@@ -152,28 +153,79 @@ def openFiles ():
     # Effects: Sets global variables.
     # Throws: Nothing
 
-    global fpObo
-    global fpError, fpWarning
-
+    global fpInvalidTS, fpMissingField, fpInvalidId, fpMinTerms, fpObo
+    global fpUndefinedParent, fpAltIsPrimary, fpObsIsParent
+    global fpObsWithRelationship, fpInDbNotInInput, fpStanzaHasTab
     try:
-        fpObo = open(oboFile, 'r')
+        fpInvalidTS = open(invalidTSFile, 'w')
     except:
-        print 'Preprocess cannot open obo file: %s' % oboFile
+        print 'Preprocess cannot open invalid TS file: %s' % invalidTSFile
         sys.exit(1)
 
     try:
-        fpError = open(errorFile, 'w')
+        fpMissingField = open(missingFieldFile, 'w')
     except:
-        print 'Preprocess cannot open error file: %s' % errorFile
+        print 'Preprocess cannot open missing field file: %s' % missingFieldFile
         sys.exit(1)
 
     try:
-        fpWarning = open(warningFile, 'w')
+        fpInvalidId = open(invalidIdFile, 'w')
     except:
-        print 'Preprocess cannot open warning file: %s' % warningFile
+        print 'Preprocess cannot open invalid id file: %s' % invalidIdFile
         sys.exit(1)
 
-    fpError.write('You must fix all errors in this report and run the QC script again\n\n')
+    try:
+        fpMinTerms = open(minTermsFile, 'w')
+    except:
+        print 'Preprocess cannot open minimum term file: %s' % minTermsFile
+        sys.exit(1)
+
+    try:
+	fpObo = open(oboFile, 'r')
+    except:
+	print 'Preprocess cannot open obo file: %s' % oboFile
+	sys.exit(1)
+
+    try:
+	fpUndefinedParent = open(undefinedParentFile, 'w')
+    except:
+	print 'Preprocess cannot open undefined parent file: %s' % \
+	    undefinedParentFile
+	sys.exit(1)
+
+    try:
+        fpAltIsPrimary	 = open(altIsPrimaryFile, 'w')
+    except:
+        print 'Preprocess cannot open alt id is primary file: %s' % \
+	    altIsPrimaryFile
+        sys.exit(1)
+
+    try:
+        fpObsIsParent   = open(obsIsParentFile, 'w')
+    except:
+        print 'Preprocess cannot open obsolete is parent file: %s' % \
+	    obsIsParentFile
+        sys.exit(1)
+
+    try:
+        fpObsWithRelationship   = open(obsWithRelationshipFile, 'w')
+    except:
+        print 'Preprocess cannot open obsolete with relationship file: %s' % \
+	    obsWithRelationshipFile
+        sys.exit(1)
+
+    try:
+        fpInDbNotInInput = open(inDbNotInInputFile, 'w')
+    except:
+        print 'Preprocess cannot open obsolete with relationship file: %s' % \
+            inDbNotInInputFile
+        sys.exit(1)
+    try:
+        fpStanzaHasTab = open(stanzaHasTabFile, 'w')
+    except:
+        print 'Preprocess cannot open stanza with tab file: %s' % \
+            stanzaHasTabFile
+        sys.exit(1)
 
     return
 
@@ -184,22 +236,24 @@ def closeFiles ():
     # Effects: Nothing
     # Throws: Nothing
 
-    global fpObo
-    global fpError, fpWarning
+    global fpInvalidTS, fpMissingField, fpInvalidId, fpMinTerms, fpObo
+    global fpUndefinedParent, fpAltIsPrimary, fpObsIsParent
+    global fpObsWithRelationship
  
+    fpInvalidTS.close()
+    fpMissingField.close()
+    fpInvalidId.close()
+    fpMinTerms.close()
     fpObo.close()
-    fpError.close()
-    fpWarning.close()
-
+    fpUndefinedParent.close()
+    fpAltIsPrimary.close()
+    fpObsIsParent.close()
+    fpObsWithRelationship.close()
+    fpInDbNotInInput.close()
+    fpStanzaHasTab.close()
     return
 
 def getDbTermIds():
-    # Purpose: load all emapa id/term into dbTermIdDict
-    # Returns: Nothing
-    # Assumes: Nothing
-    # Effects: Nothing
-    # Throws: Nothing
-
     global dbTermIdDict
 
     results = db.sql('''select a.accId, t.term
@@ -212,7 +266,6 @@ def getDbTermIds():
 	dbTermIdDict[r['accId']] = r['term']
 
     return
-
 def doSanityChecks( ):
     # Purpose: Run a set of sanity checks on an obo file
     # Returns: Nothing
@@ -310,15 +363,18 @@ def doSanityChecks( ):
 	    msg = ''
 	    if not (hasId and hasName and hasIdValue and hasNameValue):
 	 	if not hasId:
-		    msg = 'Stanza missing id field%s' % (TAB)
+		    msg = 'Stanza missing id field:%s' % CRT
 		elif not hasName:
-		    msg = 'Stanza missing name field%s' % (TAB)
+		     msg = 'Stanza missing name field:%s' % CRT
 		elif not hasIdValue:
-		    msg = 'Stanza missing id value%s' % (TAB)
+		    msg = 'Stanza missing id value:%s' % CRT
 		elif not hasNameValue:
-		    msg = 'Stanza missing name value%s' % (TAB)
+		    msg = 'Stanza missing name value%s' % CRT
+		fpMissingField.write(msg)
 		for key in currentStanzaDict.keys():
-		    fpError.write('%s%s%s%s%s%s%s\n' % (missingField, TAB, msg, TAB, key, TAB, currentStanzaDict[key]))
+		    fpMissingField.write('%s:%s%s' % \
+			(key, currentStanzaDict[key], CRT))
+		fpMissingField.write(CRT)
 
 	    # check for proper EMAPA id format
 	    id = ''
@@ -360,7 +416,7 @@ def doSanityChecks( ):
 		elif hasName:
 		    label = currentStanzaDict['name'][0]
 		for entry in linesWithTabList:
-		    fpError.write("%s%s%s has tab on line: '%s'\n" % (stanzaHasTab, TAB, label, entry))
+		    fpStanzaHasTab.write("%s has tab on line: '%s'%s" % (label, entry, CRT))
 	    # look at all 'relationship' fields
 	    if currentStanzaDict.has_key('relationship'):
 		rList = currentStanzaDict['relationship']
@@ -382,7 +438,7 @@ def doSanityChecks( ):
 			elif hasName:
 			    label = currentStanzaDict['name'][0]
 			if ts not in validTSList:
-			    fpError.write('%s%s%s%s%s\n' % (invalidTS, TAB, label, TAB, ts))
+			    fpInvalidTS.write('%s: %s%s' % (label, ts, CRT))
 		    # add to list of pids for undefined undefined parent check
 	   	    # e.g. 'part_of EMAPA:25765' 
 		    elif string.find(r, 'is_a') != -1 or \
@@ -404,7 +460,7 @@ def doSanityChecks( ):
     # report if number of anatomical dictionary stanzas in obo file is less than
     # the configured minimum value
     if stanzaCtr < MINTERMS:
-	fpWarning.write('%s%s%s contains %s terms\n' % (minTerms, TAB, oboFile, stanzaCtr))
+	fpMinTerms.write('%sWARNING: %s contains %s terms which is fewer than the minimum allowed %s terms%s%s' % (CRT, oboFile, stanzaCtr, MINTERMS, CRT, CRT))
 
     # exit if the 'format-version' field not present in the obo file
     if foundVersion == 0:
@@ -418,23 +474,23 @@ def doSanityChecks( ):
 
     if len(undefinedSet):
 	for u in undefinedSet:
-	     fpError.write('%s%s%s\n' % (undefinedParent, TAB, u))
+	     fpUndefinedParent.write('%s%s' % (u, CRT))
 
     # check for alt_id's that are also primary
     altIsPrimarySet = termIdSet.intersection(set(altIdList))
     if len(altIsPrimarySet):
 	for a in altIsPrimarySet:
-	    fpError.write('%s%s%s\n' % (altIsPrimary, TAB, a))
+	    fpAltIsPrimary.write('%s%s' % (a, CRT))
 
     # check for obsolete IDs that are parents of primary terms
     obsIsParentSet = parentIdSet.intersection(set(obsoleteIdList))
     
     if len(obsIsParentSet):
 	for o in obsIsParentSet:
-	    fpError.write('%s%s%s\n' % (obsIsParent, TAB, o))
+	    fpObsIsParent.write('%s%s' % (o, CRT))
     if len(obsWithRelationshipList):
 	for o in obsWithRelationshipList:
-	    fpError.write('%s%s%s\n' % (obsWithRelationship, TAB, o))
+	    fpObsWithRelationship.write('%s%s' % (o, CRT))
 
     # check for ids in the database, but not in the input file
     # also check alt Ids in the input file
@@ -443,35 +499,26 @@ def doSanityChecks( ):
     inDbNotInFileSet = inDbSet.difference(inFileSet)
     numNotInFile = len(inDbNotInFileSet)
     if numNotInFile:
-	fpError.write('%s%sEMAPA IDs in the database and not in the input file\n' % (inDbNotInInput, TAB))
+	fpInDbNotInInput.write('EMAPA IDs in the database and not in the input file%s%s' % (CRT, CRT))
 	for id in inDbNotInFileSet:
 	    term = dbTermIdDict[id]
 	    entry = '%s%s%s' % (id, TAB, term)
-	    fpError.write('%s%sentry\n' % (inDbNotInInput, TAB))
+	    fpInDbNotInInput.write(entry + CRT)
 
     # Report, on the command line, the number of terms in the obo file as a
     # convenience to the curator running the sanity checks
-    print '%sThere are %s EMAPA terms in %s%s' % (CRT, stanzaCtr, oboFile, CRT)
+    print '%sThere are %s Anatomical Structure terms in %s%s' % \
+	(CRT, stanzaCtr, oboFile, CRT)
 
 #####################
 #
 # Main
 #
 #####################
-
-# check the arguments to this script
 checkArgs()
-
-# open input/output files
 openFiles()
-
-# load existing emapa id/term that are in database
 getDbTermIds()
-
-# run sanity checks
 doSanityChecks()
-
-# close all input/output files
 closeFiles()
 
 sys.exit(0)
