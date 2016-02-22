@@ -57,7 +57,7 @@
 #
 ###########################################################################
 
-CONFIG_LOAD=`pwd`/emap/emapload.config
+CONFIG=${VOCLOAD}/emap/emapload.config
 USAGE='Usage: sanity.sh filename'
 
 #

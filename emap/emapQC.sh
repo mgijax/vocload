@@ -62,7 +62,7 @@ cd `dirname $0`
 
 CURRENTDIR=`pwd`
 
-CONFIG=emapload.config
+CONFIG=${VOCLOAD}/emap/emapload.config
 USAGE='Usage: emapQC.sh  filename'
 
 # this is a sanity check only run, set LIVE_RUN accordingly

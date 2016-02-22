@@ -1035,7 +1035,7 @@ def runLoads():
     # Throws: Nothing
 
     print 'running EMAPA term load'
-    runTermLoad(emapaTermFile, emapaVocabKey, 90)
+    runTermLoad(emapaTermFile, emapaVocabKey)
 
     print 'running EMAPA dag load'
     runDagLoad(emapaDagFile, 'EMAPA')
@@ -1044,7 +1044,7 @@ def runLoads():
     os.environ['BCP_LOG_FILE'] = os.environ['BCP_S_LOG_FILE']
     os.environ['BCP_ERROR_FILE'] = os.environ['BCP_S_ERROR_FILE']
 
-    runTermLoad(emapsTermFile, emapsVocabKey, 91)
+    runTermLoad(emapsTermFile, emapsVocabKey)
 
     print 'running EMAPS dag loads'
     for ts in emapsDagFileDict.keys():

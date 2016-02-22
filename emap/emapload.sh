@@ -10,7 +10,7 @@
 
 cd `dirname $0`/..
 
-CONFIG_LOAD=`pwd`/emap/emapload.config
+CONFIG=${VOCLOAD}/emap/emapload.config
 USAGE='Usage: emapload.sh'
 
 LOG=`pwd`/emap/emapload.log
@@ -29,13 +29,13 @@ fi
 # verify & source the configuration file
 #
 
-if [ ! -r ${CONFIG_LOAD} ]
+if [ ! -r ${CONFIG} ]
 then
-    echo "Cannot read configuration file: ${CONFIG_LOAD}"
+    echo "Cannot read configuration file: ${CONFIG}"
     exit 1
 fi
 
-. ${CONFIG_LOAD}
+. ${CONFIG}
 
 echo "MGD_DBSERVER: ${MGD_DBSERVER}"
 echo "MGD_DBNAME: ${MGD_DBNAME}"
