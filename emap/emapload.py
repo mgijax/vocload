@@ -177,6 +177,7 @@ def checkArgs():
     if len(sys.argv) != 1:
         print USAGE
         sys.exit(1)
+
     return
 
 # end checkArgs() -------------------------------
@@ -205,6 +206,8 @@ def initDB():
     except:
 	exctype, value = sys.exc_info()[:2]
         raise dberror, 'failed SQL initialization: type %s, value%s' % (exctype, value)
+
+    return
 
 # end initDB() -------------------------------
 
@@ -552,6 +555,7 @@ def closeQCFiles():
     global fpQcRpt
     
     fpQcRpt.close()
+
     return
 
 # end  closeQCFiles() -------------------------------
@@ -898,9 +902,13 @@ def createFiles():
 		    
 	if errorCount:
 	    continue
+
     # Check if dags rooted in one term
+
     if len(aRootTermList) > 1 or len(sRootTermList) > 1:
 	errorCount += 1
+
+    return
 
 # end createFiles() -------------------------------------
 
@@ -914,6 +922,8 @@ def runTermLoad(file, vocabKey):
     termload = loadTerms.TermLoad (file, 'full', vocabKey, refsKey, log, passwordFileName)
     termload.go()
 
+    return
+
 # end  runTermLoad() -------------------------------
 
 def runDagLoad(file, dag):
@@ -925,6 +935,8 @@ def runDagLoad(file, dag):
 
     dagload = loadDAG.DAGLoad (file, 'full', dag, log, passwordFileName)
     dagload.go()
+
+    return
 
 # end  runDagLoad() -------------------------------
 
@@ -1011,6 +1023,8 @@ def writeWarningSanityReport():
 
     fpWarning.close()
     fpInDbNotInInput.close()
+
+    return
     
 # end writeFatalSanityReport() -------------------------------
 

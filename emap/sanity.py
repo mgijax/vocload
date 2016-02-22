@@ -26,6 +26,9 @@
 #	TERM_IN_DB_NOTIN_INPUT_RPT
 #	STANZA_HAS_TAB_RPT'
 #
+#  We may want to create one error file and one warning file and
+#  instead of 10 different output files.
+#
 #  Inputs:
 #
 #	EMAPA.obo
