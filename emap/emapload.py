@@ -779,7 +779,6 @@ def createFiles():
 	# 	annotation/minStage is less than the new start stage
 	# 	annotation/maxStage is greater than the new end stage
 	#
-	errorCount += 1
 	if annotDict.has_key(emapaId):
 	    if annotDict[emapaId]['minStage'] < start:
 	       annotDiscrepancyList.append('start stage annotation conflict: %s, %s (in mgi), %s (in obo)' \
