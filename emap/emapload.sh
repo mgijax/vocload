@@ -4,16 +4,15 @@
 # This script is a wrapper around the process that loads EMAPA/EMAPS
 # vocabularies
 #
-#
 #     emapload.sh 
 #
 
-cd `dirname $0`/..
+cd `dirname $0`
 
 CONFIG=${VOCLOAD}/emap/emapload.config
 USAGE='Usage: emapload.sh'
 
-LOG=`pwd`/emap/emapload.log
+LOG=${VOCLOAD}/emap/emapload.log
 rm -rf ${LOG}
 
 #
@@ -109,10 +108,8 @@ STAT=$?
 if [ ${STAT} -eq 2 ]
 then
     checkStatus ${STAT} "\nInvalid OBO format ${INPUT_FILE_DEFAULT}. Version ${OBO_FILE_VERSION} expected\n"
-    
     # run postload cleanup and email logs
     shutDown
-
 fi
 
 #
@@ -174,6 +171,5 @@ rm ${SLIM_LASTRUN}
 ${VOCABBREVLOAD}/bin/vaload.sh emapslimload.config
 
 # run postload cleanup and email logs
-
 shutDown
 

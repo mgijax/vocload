@@ -58,8 +58,6 @@
 #
 ###########################################################################
 
-cd `dirname $0` 
-
 CURRENTDIR=`pwd`
 
 CONFIG=${VOCLOAD}/emap/emapload.config

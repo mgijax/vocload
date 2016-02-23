@@ -50,6 +50,7 @@
 #	- TR12223/gxd anatomy II
 #	- see ../loadTerms.py history
 #	- added Annotation tests (annotDiscrepancyList, annotEMAPIDSet, annotDict)
+#	- added 'mode' ro runTermLoad()
 #
 ###########################################################################
 
@@ -73,7 +74,7 @@ import db
 TAB = '\t'
 CRT = '\n'
 STATUS = 'current'
-SYNTYPE = 'EXACT'
+SYNTYPE = 'exact'
 USAGE = 'emapload.py'
 
 # valid Theiler Stages
@@ -572,6 +573,7 @@ def createFiles():
     global errorCount, aRootTermList, sRootTermList, noOverlapList
     global tsDiscrepancyList, cyclesList, seenEMAPIDSet
     global annotDiscrepancyList, annotEMAPIDSet, annotDict
+    global allEMAPIDs
 
     # list of EMAPA root nodes, if > 1 will report
     aRootTermList = []
@@ -601,6 +603,9 @@ def createFiles():
     # EMAPA IDs in annotations w/ min/max stage
     annotDict = {}
 
+    # all EMAPA IDs - both preferred and non-preferred
+    allEMAPIDs = {}
+
     # consider only terms from this namespace
     ns = 'anatomical_structure'
 
@@ -627,6 +632,21 @@ def createFiles():
 	errorCount +=1
 	for t in cycleNodes:
 	    cyclesList.append('%s %s' % (t.id, t.name))
+
+    # 
+    # create dictionary of EMAPA terms (both preferred & non-preferred)
+    # will be used to check for merges
+    #
+    results = db.sql('''
+    	select distinct accid, _object_key 
+	from ACC_Accession
+	where _mgitype_key = 13
+	and _logicaldb_key = 169
+    	''', 'auto')
+    for r in results:
+        key = r['accid']
+	value = r['_object_key']
+	allEMAPIDs[key] = value
 
     #
     # create dictionary of existing annotations : emapa id
@@ -751,8 +771,8 @@ def createFiles():
 	# if annotations exist and term is obsolete, then error
 	#
 	if annotDict.has_key(emapaId) and t.is_obsolete:
-	   annotDiscrepancyList.append('annotation exists for obsolete term: %s' % (emapaId))
-	   errorCount += 1
+	    annotDiscrepancyList.append('annotation exists for obsolete term: %s' % (emapaId))
+	    errorCount += 1
 
 	#
 	# if annotation exist and start/end stage conflicts, then error
@@ -761,18 +781,26 @@ def createFiles():
 	#
 	errorCount += 1
 	if annotDict.has_key(emapaId):
-		if annotDict[emapaId]['minStage'] < start:
-		   annotDiscrepancyList.append('start stage annotation conflict: %s, %s (in mgi), %s (in obo)' \
-		   	% (emapaId, annotDict[emapaId]['minStage'], start))
-		   errorCount += 1
-		if annotDict[emapaId]['maxStage'] > end:
-		   annotDiscrepancyList.append('end stage annotation conflict: %s, %s (in mgi), %s (in obo)' \
-		   	% (emapaId, annotDict[emapaId]['maxStage'], end))
-		   errorCount += 1
+	    if annotDict[emapaId]['minStage'] < start:
+	       annotDiscrepancyList.append('start stage annotation conflict: %s, %s (in mgi), %s (in obo)' \
+	           % (emapaId, annotDict[emapaId]['minStage'], start))
+	       errorCount += 1
+	    if annotDict[emapaId]['maxStage'] > end:
+	       annotDiscrepancyList.append('end stage annotation conflict: %s, %s (in mgi), %s (in obo)' \
+                   % (emapaId, annotDict[emapaId]['maxStage'], end))
+	       errorCount += 1
 
 	# get the term's alternate ids joining with '|'
 	altIdList = t.getAltIDs()
 	altIds = string.join(altIdList, '|')
+
+	# if altID term object != emapaID term object, then this is a merge, report error
+	if allEMAPIDs.has_key(emapaId):
+	    for a in altIdList:
+	        if allEMAPIDs.has_key(a):
+		    if allEMAPIDs[emapaId] != allEMAPIDs[a]:
+		        annotDiscrepancyList.append('term merge detected: %s, alt id = %s' % (emapaId, a))
+			errorCount += 1
 
         # get the term's synonyms joining with '|'
         synList = t.getSynonyms()

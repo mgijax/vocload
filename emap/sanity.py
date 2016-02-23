@@ -71,8 +71,6 @@ import db
 #
 TAB = '\t'
 CRT = '\n'
-STATUS = 'current'
-SYNTYPE = 'EXACT'
 USAGE = 'sanity.py'
 
 # The obo version expected by the load 
