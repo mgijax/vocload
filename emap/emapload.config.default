@@ -43,6 +43,8 @@ export INPUTDIR FILEDIR LOGDIR RPTDIR OUTPUTDIR ARCHIVEDIR
 
 DAG_ROOT_ID="EMAPA:0"
 export DAG_ROOT_ID
+ANNOT_TYPE_KEY=0        # EMAPA terms are not stored in VOC_Annot
+export ANNOT_TYPE_KEY
 
 #
 # Sanity check settings

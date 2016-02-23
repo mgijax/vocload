@@ -74,7 +74,7 @@ import db
 TAB = '\t'
 CRT = '\n'
 STATUS = 'current'
-SYNTYPE = 'exact'
+SYNTYPE = 'EXACT'
 USAGE = 'emapload.py'
 
 # valid Theiler Stages
