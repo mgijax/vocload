@@ -4,6 +4,7 @@ STAFF: lec
 CHANGES: TR12223/gxd anatomy II/emap
 1) changes to loadTerms.py for EMAPA/EMAPS
 2) created 'emap' directory/moved emapload into this directory
+3) fixed bug in sanity.py/missingField
 emapload.config.default 
 emapload.py 
 emapload.sh 

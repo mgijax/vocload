@@ -176,6 +176,8 @@ DELETE_NOTE = '''delete from MGI_Note where _Object_key = %d and _NoteType_key =
 
 DELETE_ALL_SYNONYMS ='''delete from MGI_Synonym where _Object_key = %d and _MGIType_key = %d'''
 
+DELETE_EMAPA = '''delete from VOC_Term_EMAPA'''
+
 UPDATE_TERM = '''update VOC_Term 
 	set term = '%s', modification_date = now(), _ModifiedBy_key = 1001
 	where _Term_key = %d '''
@@ -185,7 +187,6 @@ UPDATE_STATUS = '''update VOC_Term
 	where _Term_key = %d '''
 
 MERGE_TERMS = '''select * from VOC_mergeTerms(%d, %d);'''
-
 
 ########################################################################
 ########################################################################
@@ -915,10 +916,13 @@ class TermLoad:
         vocloadlib.beginTransaction(self.log)
 
         for record in self.datafile:
+
             # Cross reference input file records to database records
             # Check for duplication on the primary term - primary accIDs
             # may not refer to more than one term
+
             self.crossReferenceFileToDB(record['accID'], primaryTermIDs, secondaryTermIDs)
+
             if record['accID'] != DAG_ROOT_ID:
                 duplicate = self.checkForDuplication(record['accID'], record['term'], "Primary", self.getIsObsolete(record['status']))
                 if duplicate:
@@ -932,22 +936,26 @@ class TermLoad:
             # its secondary terms; if it does exist
             # check for changes to it and process the 
             # secondary terms
+
             if primaryTermIDs.has_key(record['accID']):
-               [termKey, isObsolete, term, termFound] = primaryTermIDs[record['accID'] ]
+
+               [termKey, isObsolete, term, termFound] = primaryTermIDs[record['accID']]
                dbRecord = recordSet.find('_Term_key', termKey)
+
                if dbRecord == []:
                   raise error, 'Accession ID in ACC_Accession does not exist in VOC Tables for _Object/_Term_Key: "%d"' % termKey
+
                else:
-                  # Existing record found in VOC tables.  Now check
-                  # if record changed
-		  
+                  # Existing record found in VOC tables.  Now check if record changed
                   recordChanged = self.processRecordChanges(record, dbRecord, termKey)
                   self.processSecondaryTerms(record, primaryTermIDs, secondaryTermIDs, termKey)
 
-            else: #New term
+            else: # New term
+
                # in this case, perform full load
                if self.isSimple:
                   termSeqNum = termSeqNum + 1
+
                self.addTerm(record, termSeqNum)
                self.processSecondaryTerms(record, primaryTermIDs, secondaryTermIDs, self.max_term_key)
 
@@ -1446,8 +1454,14 @@ class TermLoad:
 
 	emapaTermDict = {}
 
+	# since EMAPA is run as 'incremental', truncate VOC_Term_EMAPA
+	# since EMAPS is run as 'full', VOC_Term_EMAPS is automatically truncated
+
+        vocloadlib.nl_sqlog(DELETE_EMAPA, self.log)
+
+	#and a.preferred = 1
 	results = vocloadlib.sql('''select a.accid, a._Object_key
-	    from  ACC_Accession a
+	    from ACC_Accession a
 	    where a._MGIType_key = 13
 	    and a._LogicalDB_key = 169''')
 	for r in results:
@@ -1477,6 +1491,7 @@ class TermLoad:
         results = vocloadlib.sql('''select a.accid, a._Object_key
 	    from  ACC_Accession a
 	    where a._MGIType_key = 13
+	    and a.preferred = 1
 	    and a._LogicalDB_key in(169, 170) ''')
         for r in results:
 	    emapTermDict[r['accid']] = r['_Object_key']

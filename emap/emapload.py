@@ -781,11 +781,11 @@ def createFiles():
 	#
 	if annotDict.has_key(emapaId):
 	    if annotDict[emapaId]['minStage'] < start:
-	       annotDiscrepancyList.append('start stage annotation conflict: %s, %s (in mgi), %s (in obo)' \
+	       annotDiscrepancyList.append('start stage conflict: %s, %s (in mgi), %s (in obo)' \
 	           % (emapaId, annotDict[emapaId]['minStage'], start))
 	       errorCount += 1
 	    if annotDict[emapaId]['maxStage'] > end:
-	       annotDiscrepancyList.append('end stage annotation conflict: %s, %s (in mgi), %s (in obo)' \
+	       annotDiscrepancyList.append('end stage conflict: %s, %s (in mgi), %s (in obo)' \
                    % (emapaId, annotDict[emapaId]['maxStage'], end))
 	       errorCount += 1
 
