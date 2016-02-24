@@ -941,7 +941,7 @@ class TermLoad:
 	          # for EMAPA 
 	          # always insert stage info as VOC_Term_EMAPA is a full reload
                   if self.vocab_name == 'EMAPA':
-                      self.emapTSDict[self.termKey] = [record['start'], record['end'], record['parent']]
+                      self.emapTSDict[termKey] = [record['start'], record['end'], record['parent']]
 
             else: # New term
 

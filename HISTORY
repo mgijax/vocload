@@ -1,10 +1,12 @@
 TAG: vocload-tr12223-?
-DATE: 
+DATE: 02/24/2016
 STAFF: lec 
 CHANGES: TR12223/gxd anatomy II/emap
 1) changes to loadTerms.py for EMAPA/EMAPS
 2) created 'emap' directory/moved emapload into this directory
 3) fixed bug in sanity.py/missingField
+4) added new emapload.py/sanity checks for assay annotations
+5) changed EMAPA to incremental
 emapload.config.default 
 emapload.py 
 emapload.sh 
