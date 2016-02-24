@@ -47,23 +47,45 @@ runQuery ()
 {
 cat - <<EOSQL | ${PG_DBUTILS}/bin/doisql.csh $0
 
-select count(*) from ACC_Accession where _mgitype_key = 13 and _prelogicaldb_key = 169 and preferred = 1;
-select count(*) from ACC_Accession where _mgitype_key = 13 and _prelogicaldb_key = 169 and preferred = 0;
+select count(*) from ACC_Accession where _mgitype_key = 13 and _logicaldb_key = 169 and preferred = 1;
+select count(*) from ACC_Accession where _mgitype_key = 13 and _logicaldb_key = 169 and preferred = 0;
 select count(*) from VOC_Term where _Vocab_key = 90;
 select count(*) from VOC_Term_EMAPA;
 select count(*) from DAG_Closure where _dag_key = 13;
 select count(d.*) from DAG_Node d, DAG_DAG dd where d._dag_key = dd._dag_key and dd._mgitype_key = 13 and dd._dag_key = 13;
 
-select count(*) from ACC_Accession where _mgitype_key = 13 and _prelogicaldb_key = 170 and preferred = 1;
-select count(*) from ACC_Accession where _mgitype_key = 13 and _prelogicaldb_key = 170 and preferred = 0;
+select count(*) from ACC_Accession where _mgitype_key = 13 and _logicaldb_key = 170 and preferred = 1;
+select count(*) from ACC_Accession where _mgitype_key = 13 and _logicaldb_key = 170 and preferred = 0;
 select count(*) from VOC_Term where _Vocab_key = 91;
 select count(*) from VOC_Term_EMAPS;
 select count(*) from DAG_Closure where _dag_key between 14 and 42;
 select count(d.*) from DAG_Node d, DAG_DAG dd 
 where d._dag_key = dd._dag_key and dd._mgitype_key = 13 and dd._dag_key between 14 and 42;
 
+select distinct creation_date from VOC_Term_EMAPA;
+select distinct creation_date from VOC_Term_EMAPS;
+select distinct creation_date from DAG_Node where _dag_key between 13 and 42;
+
 EOSQL
 }
+
+cat - <<EOSQL | ${PG_DBUTILS}/bin/doisql.csh $0 | tee -a $LOG
+
+--are there terms in the DAG that are not in the VOC_Term any more?
+
+select d.*
+from DAG_Node d
+where d._dag_key = 13
+and not exists (select 1 from VOC_Term t where d._object_key = t._term_key)
+;
+
+select d.*
+from DAG_Node d
+where d._dag_key between 14 and 42
+and not exists (select 1 from VOC_Term t where d._object_key = t._term_key)
+;
+
+EOSQL
 
 # use "production" obo file
 # /data/loads/lec/mgi/vocload/emap/input/EMAPA.obo

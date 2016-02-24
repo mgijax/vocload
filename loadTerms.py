@@ -328,7 +328,7 @@ class TermLoad:
         if self.vocab_name in ('EMAPA', 'EMAPS'):
 
 	    # keep track of the TS info
-	    self.emapTSDict =  {}
+	    self.emapTSDict = {}
 
             if self.vocab_name == 'EMAPA':
                 self.datafile = vocloadlib.readTabFile(filename,
@@ -415,19 +415,10 @@ class TermLoad:
         self.loadAccessionBCP = 0
             
 	#
-        # for EMAPA/EMAPS
+        # for EMAPS
 	#
-        if self.vocab_name == 'EMAPA':
-            self.termTermBCPFileName      = os.environ['TERM_TERM_BCP_FILE']
-            self.termTextBCPFileName      = os.environ['TERM_TEXT_BCP_FILE']
-            self.termNoteBCPFileName      = os.environ['TERM_NOTE_BCP_FILE']
-            self.termNoteChunkBCPFileName = os.environ['TERM_NOTECHUNK_BCP_FILE']
-            self.termSynonymBCPFileName   = os.environ['TERM_SYNONYM_BCP_FILE']
-            self.accAccessionBCPFileName  = os.environ['ACCESSION_BCP_FILE']
-            self.termEmapBCPFileName      = os.environ['TERM_EMAPA_TS_BCP_FILE']
-            self.TS_TABLE = 'VOC_TERM_EMAPA'
 
-        elif self.vocab_name == 'EMAPS':
+        if self.vocab_name == 'EMAPS':
             self.termTermBCPFileName      = os.environ['TERM_TERM_S_BCP_FILE']
             self.termTextBCPFileName      = os.environ['TERM_TEXT_S_BCP_FILE']
             self.termNoteBCPFileName      = os.environ['TERM_NOTE_S_BCP_FILE']
@@ -459,10 +450,10 @@ class TermLoad:
         self.accAccessionBCPFile  = open(self.accAccessionBCPFileName, 'w')
 
 	#
-        # for EMAPA/EMAPS
+        # for EMAPS
 	#
-        if self.vocab_name in ('EMAPA', 'EMAPS'):
-	    self.termEmapBCPFile  = open(self.termEmapBCPFileName, 'w')
+        if self.vocab_name in ('EMAPS'):
+	    self.termEmapBCPFile = open(self.termEmapBCPFileName, 'w')
 
 	return
 
@@ -639,14 +630,9 @@ class TermLoad:
               vocloadlib.rollbackTransaction(self.log)
 
 	#
-        # for EMAPA/EMAPS
+        # for EMAPS
 	#
-        if self.vocab_name == 'EMAPA':
-            self.createEMAPABCP()
-            self.termEmapBCPFile.close()
-            self.loadEMAPBCPFiles()
-
-        elif self.vocab_name == 'EMAPS':
+        if self.vocab_name == 'EMAPS':
             self.createEMAPSBCP()
             self.termEmapBCPFile.close()
             self.loadEMAPBCPFiles()
@@ -940,15 +926,22 @@ class TermLoad:
             if primaryTermIDs.has_key(record['accID']):
 
                [termKey, isObsolete, term, termFound] = primaryTermIDs[record['accID']]
+
                dbRecord = recordSet.find('_Term_key', termKey)
 
                if dbRecord == []:
-                  raise error, 'Accession ID in ACC_Accession does not exist in VOC Tables for _Object/_Term_Key: "%d"' % termKey
+                  raise error, 'AccID in ACC_Accession does not exist in VOC tables for _Object/_Term_Key: "%d"' % termKey
 
-               else:
-                  # Existing record found in VOC tables.  Now check if record changed
+               else: # Existing record found in VOC tables.  
+	       
+	          # check if record changed
                   recordChanged = self.processRecordChanges(record, dbRecord, termKey)
                   self.processSecondaryTerms(record, primaryTermIDs, secondaryTermIDs, termKey)
+
+	          # for EMAPA 
+	          # always insert stage info as VOC_Term_EMAPA is a full reload
+                  if self.vocab_name == 'EMAPA':
+                      self.emapTSDict[self.termKey] = [record['start'], record['end'], record['parent']]
 
             else: # New term
 
@@ -956,6 +949,7 @@ class TermLoad:
                if self.isSimple:
                   termSeqNum = termSeqNum + 1
 
+	       # note : for EMAPA, addTerm will handle the stage info
                self.addTerm(record, termSeqNum)
                self.processSecondaryTerms(record, primaryTermIDs, secondaryTermIDs, self.max_term_key)
 
@@ -965,6 +959,18 @@ class TermLoad:
            vocloadlib.rollbackTransaction(self.log)
 
         self.checkForMissingTermsInInputFile(primaryTermIDs, secondaryTermIDs)
+
+	#
+        # for EMAPA
+	# VOC_Term_EMAPA is a full reload
+	#
+        if self.vocab_name == 'EMAPA':
+	    self.termEmapBCPFileName = os.environ['TERM_EMAPA_TS_BCP_FILE']
+	    self.termEmapBCPFile = open(self.termEmapBCPFileName, 'w')
+	    self.TS_TABLE = 'VOC_TERM_EMAPA'
+            self.createEMAPABCP()
+            self.termEmapBCPFile.close()
+            self.loadEMAPBCPFiles()
 
         return
 
@@ -1007,6 +1013,7 @@ class TermLoad:
         # Check both the primary AND secondary lists because 
         # if it is a secondary term that is also an obsolete primary term
         # it is permissible for it to appear on both lists
+
         for accID in primaryTermIDs.keys():
             [termKey, isObsolete, term, termFound] = primaryTermIDs[accID]
             if not termFound:
@@ -1455,14 +1462,13 @@ class TermLoad:
 	emapaTermDict = {}
 
 	# since EMAPA is run as 'incremental', truncate VOC_Term_EMAPA
-	# since EMAPS is run as 'full', VOC_Term_EMAPS is automatically truncated
 
         vocloadlib.nl_sqlog(DELETE_EMAPA, self.log)
 
-	#and a.preferred = 1
 	results = vocloadlib.sql('''select a.accid, a._Object_key
 	    from ACC_Accession a
 	    where a._MGIType_key = 13
+	    and a.preferred = 1
 	    and a._LogicalDB_key = 169''')
 	for r in results:
 	    emapaTermDict[r['accid']] = r['_Object_key']
@@ -1492,7 +1498,7 @@ class TermLoad:
 	    from  ACC_Accession a
 	    where a._MGIType_key = 13
 	    and a.preferred = 1
-	    and a._LogicalDB_key in(169, 170) ''')
+	    and a._LogicalDB_key in(169, 170)''')
         for r in results:
 	    emapTermDict[r['accid']] = r['_Object_key']
 
