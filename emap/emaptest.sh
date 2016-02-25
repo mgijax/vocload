@@ -95,11 +95,11 @@ EOSQL
 echo 'test 1 : obsoletes added' | tee -a $LOG
 runQuery | tee -a $PRELOG
 ${VOCLOAD}/emap/emapload.sh | tee -a $LOG
-runQuery | tee -a $POSTLOG
-echo 'pre-emapload, post-emapload counts should differ by number of obsolete terms' | tee -a $LOG
-echo 'diff emaptest.sh.postlog emaptest.sh.prelog' | tee -a $LOG
-diff emaptest.sh.postlog emaptest.sh.prelog | tee -a $LOG
-echo 'diff should show that obsoletes are now added to EMAPA (90), but not EMAPS (91)'
+#runQuery | tee -a $POSTLOG
+#echo 'pre-emapload, post-emapload counts should differ by number of obsolete terms' | tee -a $LOG
+#echo 'diff emaptest.sh.postlog emaptest.sh.prelog' | tee -a $LOG
+#diff emaptest.sh.postlog emaptest.sh.prelog | tee -a $LOG
+#echo 'diff should show that obsoletes are now added to EMAPA (90), but not EMAPS (91)'
 
 #echo 'test 2 : use same EMAPA.obo file : no changes' | tee -a $LOG
 #runQuery | tee -a $PRELOG

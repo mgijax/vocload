@@ -1463,32 +1463,37 @@ class TermLoad:
         # Effects: writes to a bcp file
         # Throws:  Propagates vocloadlib errors
 
-	emapaTermDict = {}
-
 	# since EMAPA is run as 'incremental', truncate VOC_Term_EMAPA
 
         vocloadlib.nl_sqlog(DELETE_EMAPA, self.log)
 
+	emapaTermDict = {}
+
 	results = vocloadlib.sql('''select a.accid, a._Object_key
 	    from ACC_Accession a
 	    where a._MGIType_key = 13
-	    and a.preferred = 1
 	    and a._LogicalDB_key = 169
+	    and a.preferred = 1
 	    and exists (select 1 from VOC_Term t where a._Object_key = t._Term_key and t.isObsolete = 0)
 	    ''')
+
 	for r in results:
 	    emapaTermDict[r['accid']] = r['_Object_key']
 
 	for key in self.emapTSDict.keys():
+
 	    tsList = self.emapTSDict[key]
 	    start = tsList[0]
 	    end = tsList[1]
 	    parent = tsList[2]
+
 	    if emapaTermDict.has_key(parent):
 		pKey = emapaTermDict[parent]
-	    else:
+	    elif len(start) > 0:
 		pKey = ''	# root term
-	
+	    else:
+	        continue
+
 	    self.termEmapBCPFile.write(BCP_INSERT_EMAPA % (key, pKey, start, end))
 
     def createEMAPSBCP(self):
@@ -1503,14 +1508,16 @@ class TermLoad:
         results = vocloadlib.sql('''select a.accid, a._Object_key
 	    from  ACC_Accession a
 	    where a._MGIType_key = 13
-	    and a.preferred = 1
 	    and a._LogicalDB_key in(169, 170)
+	    and a.preferred = 1
 	    and exists (select 1 from VOC_Term t where a._Object_key = t._Term_key and t.isObsolete = 0)
 	    ''')
+
         for r in results:
 	    emapTermDict[r['accid']] = r['_Object_key']
 
 	for key in self.emapTSDict.keys():
+
             tsList = self.emapTSDict[key]
 	    emapa = tsList[0]
             ts = tsList[1]
@@ -1524,11 +1531,12 @@ class TermLoad:
 		continue
 
 	    # resolve the default parent ID to a key
-	    pKey = ''
 	    if emapTermDict.has_key(parent):
                 pKey = emapTermDict[parent]
-            else:
+	    elif len(ts) > 0:
                 pKey = ''       # root term
+            else:
+	        continue
 
 	    self.termEmapBCPFile.write(BCP_INSERT_EMAPA % (key, ts, pKey, aKey))
 
@@ -1537,8 +1545,10 @@ class TermLoad:
 # needs to be rewritten to get configuration from an rcd file
 
 if __name__ == '__main__':
+
     try:
         options, args = getopt.getopt(sys.argv[1:], 'finl:')
+
     except getopt.error:
         print 'Error: Unknown command-line options/args'
         print USAGE
@@ -1551,11 +1561,14 @@ if __name__ == '__main__':
 
     mode = 'full'
     log = Log.Log()
-    [ server, database, username, password ] = args[:4]
-    [ vocab_key, refs_key, input_file ] = args[4:]
+
+    [server, database, username, password] = args[:4]
+    [vocab_key, refs_key, input_file] = args[4:]
+
     vocab_key = string.atoi(vocab_key)
 
     noload = 0
+
     for (option, value) in options:
         if option == '-f':
             mode = 'full'
