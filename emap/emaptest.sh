@@ -95,41 +95,50 @@ EOSQL
 echo 'test 1 : obsoletes added' | tee -a $LOG
 runQuery | tee -a $PRELOG
 ${VOCLOAD}/emap/emapload.sh | tee -a $LOG
-#runQuery | tee -a $POSTLOG
-#echo 'pre-emapload, post-emapload counts should differ by number of obsolete terms' | tee -a $LOG
-#echo 'diff emaptest.sh.postlog emaptest.sh.prelog' | tee -a $LOG
-#diff emaptest.sh.postlog emaptest.sh.prelog | tee -a $LOG
-#echo 'diff should show that obsoletes are now added to EMAPA (90), but not EMAPS (91)'
+runQuery | tee -a $POSTLOG
+echo 'pre-emapload, post-emapload counts should differ by number of obsolete terms' | tee -a $LOG
+echo 'diff emaptest.sh.postlog emaptest.sh.prelog' | tee -a $LOG
+diff emaptest.sh.postlog emaptest.sh.prelog | tee -a $LOG
+echo 'diff should show that obsoletes are now added to EMAPA (90), but not EMAPS (91)'
+cp /data/loads/lec/mgi/vocload/emap/output/T* /data/loads/lec/mgi/vocload/emap/test1
+cp /data/loads/lec/mgi/vocload/emap/output/VOC_Term* /data/loads/lec/mgi/vocload/emap/test1
+cp /data/loads/lec/mgi/vocload/emap/output/MGI_Synonym* /data/loads/lec/mgi/vocload/emap/test1
 
-#echo 'test 2 : use same EMAPA.obo file : no changes' | tee -a $LOG
-#runQuery | tee -a $PRELOG
-#${VOCLOAD}/emap/emapload.sh | tee -a $LOG
-#runQuery | tee -a $POSTLOG
-#echo 'pre-emapload, post-emapload counts should be equal' | tee -a $LOG
-#echo 'diff emaptest.sh.postlog emaptest.sh.prelog' | tee -a $LOG
-#diff emaptest.sh.postlog emaptest.sh.prelog | tee -a $LOG
-#echo 'diff should show no changes'
+echo 'test 2 : use same EMAPA.obo file : no changes' | tee -a $LOG
+runQuery | tee -a $PRELOG
+${VOCLOAD}/emap/emapload.sh | tee -a $LOG
+runQuery | tee -a $POSTLOG
+echo 'pre-emapload, post-emapload counts should be equal' | tee -a $LOG
+echo 'diff emaptest.sh.postlog emaptest.sh.prelog' | tee -a $LOG
+diff emaptest.sh.postlog emaptest.sh.prelog | tee -a $LOG
+echo 'diff should show no changes'
+cp /data/loads/lec/mgi/vocload/emap/output/T* /data/loads/lec/mgi/vocload/emap/test2
+cp /data/loads/lec/mgi/vocload/emap/output/VOC_Term* /data/loads/lec/mgi/vocload/emap/test2
+cp /data/loads/lec/mgi/vocload/emap/output/MGI_Synonym* /data/loads/lec/mgi/vocload/emap/test2
 
-#echo 'test 3 : use same EMAPA.obo file : delete all EMAPA terms that have no annotations' | tee -a $LOG
-#echo 'this will test the adding of new terms'
-#cat - <<EOSQL | ${PG_DBUTILS}/bin/doisql.csh $0 | tee -a $PRELOG
-#CREATE TEMP TABLE tmp_delete
-#AS (select _Term_key
-#from VOC_Term t
-#where t._Vocab_key = 90
-#and not exists (select 1 from GXD_ISResultStructure s where t._Term_key = s._EMAPA_Term_key)
-#and not exists (select 1 from GXD_GelLaneStructure s where t._Term_key = s._EMAPA_Term_key)
-#)
-#;
-#DELETE FROM VOC_Term
-#USING tmp_delete
-#WHERE tmp_delete._Term_key = VOC_Term._Term_key
-#;
-#EOSQL
-#runQuery | tee -a $PRELOG
-#${VOCLOAD}/emap/emapload.sh | tee -a $LOG
-#runQuery | tee -a $POSTLOG
-#echo 'pre-emapload, post-emapload counts should be equal' | tee -a $LOG
+echo 'test 3 : use same EMAPA.obo file : delete all EMAPA terms that have no annotations' | tee -a $LOG
+echo 'this will test the adding of new terms'
+cat - <<EOSQL | ${PG_DBUTILS}/bin/doisql.csh $0 | tee -a $PRELOG
+CREATE TEMP TABLE tmp_delete
+AS (select _Term_key
+from VOC_Term t
+where t._Vocab_key = 90
+and not exists (select 1 from GXD_ISResultStructure s where t._Term_key = s._EMAPA_Term_key)
+and not exists (select 1 from GXD_GelLaneStructure s where t._Term_key = s._EMAPA_Term_key)
+)
+;
+DELETE FROM VOC_Term
+USING tmp_delete
+WHERE tmp_delete._Term_key = VOC_Term._Term_key
+;
+EOSQL
+runQuery | tee -a $PRELOG
+${VOCLOAD}/emap/emapload.sh | tee -a $LOG
+runQuery | tee -a $POSTLOG
+echo 'pre-emapload, post-emapload counts should be equal' | tee -a $LOG
+cp /data/loads/lec/mgi/vocload/emap/output/T* /data/loads/lec/mgi/vocload/emap/test3
+cp /data/loads/lec/mgi/vocload/emap/output/VOC_Term* /data/loads/lec/mgi/vocload/emap/test3
+cp /data/loads/lec/mgi/vocload/emap/output/MGI_Synonym* /data/loads/lec/mgi/vocload/emap/test3
 
 date |tee -a $LOG
 
