@@ -74,6 +74,7 @@ import db
 TAB = '\t'
 CRT = '\n'
 STATUS = 'current'
+OBSTATUS = 'obsolete'
 SYNTYPE = 'EXACT'
 USAGE = 'emapload.py'
 
@@ -716,6 +717,35 @@ def createFiles():
 	if ont.isRoot(t):
 	    isRoot = 1
 
+	# get the term and its ID
+        term = t.name
+        emapaId = t.id
+
+	if term == '' or emapaId == '':
+	    missingNameIdList.append('id: "%s", name: "%s" has blank attribute' % (emapaId, term))
+	    errorCount += 1
+
+	# for now...continue on...even if term/emapaId is missing...?
+
+	# add to seenEMAPIDSet...
+	seenEMAPIDSet.add(emapaId)
+
+	#
+	# for obsolete terms...
+	#
+	if t.is_obsolete:
+
+	    # if annotations exist, then error
+	    if annotDict.has_key(emapaId):
+	        annotDiscrepancyList.append('annotation exists for obsolete term: %s' % (emapaId))
+	        errorCount += 1
+
+            fpEmapaTerm.write('%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s' % \
+	        (term, TAB, emapaId, TAB, OBSTATUS, TAB, TAB, TAB, TAB, \
+		 TAB, TAB, TAB, TAB, TAB, CRT))
+
+            continue
+   		 
         # get the theiler stage start and end values
         # for terms that don't have start/end
         # QC catches terms missing one or the other or multi
@@ -757,23 +787,6 @@ def createFiles():
 		tsDiscrepancyList.append('Invalid ends_at value %s for %s' % (start, t.id))
 		errorCount += 1
 	
-	# get the term and its ID
-        term = t.name
-        emapaId = t.id
-	if term == '' or emapaId == '':
-	    missingNameIdList.append('id: "%s", name: "%s" has blank attribute' % (emapaId, term))
-	    errorCount += 1
-
-	# add to seenEMAPIDSet...
-	seenEMAPIDSet.add(emapaId)
-
-	#
-	# if annotations exist and term is obsolete, then error
-	#
-	if annotDict.has_key(emapaId) and t.is_obsolete:
-	    annotDiscrepancyList.append('annotation exists for obsolete term: %s' % (emapaId))
-	    errorCount += 1
-
 	#
 	# if annotation exist and start/end stage conflicts, then error
 	# 	annotation/minStage is less than the new start stage
@@ -893,8 +906,7 @@ def createFiles():
         # write out to the emapa term file
         fpEmapaTerm.write('%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s' % \
 	    (term, TAB, emapaId, TAB, STATUS, TAB, TAB, TAB, TAB, \
-		syns, TAB, synType, TAB, altIds, TAB, start, TAB, end, TAB, \
-		defaultParent, CRT) )
+		syns, TAB, synType, TAB, altIds, TAB, start, TAB, end, TAB, defaultParent, CRT))
     
 	#
 	# get the parent edges, parent is an EMAPTerm object
@@ -965,8 +977,7 @@ def createFiles():
 	    # write to emaps term file; status, synonyms, synType same as EMAPA
 	    fpEmapsTerm.write('%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s' % \
 		(sTerm, TAB, emapsId, TAB, STATUS, TAB, TAB, TAB, TAB, syns, \
-		TAB, synType, TAB, TAB, emapaId, TAB, ts, TAB, \
-		defaultEmapsParent, CRT) ) 
+		TAB, synType, TAB, TAB, emapaId, TAB, ts, TAB, defaultEmapsParent, CRT)) 
 	    
 	    # create emaps dag file for each emaps TS overlap with parent
 	    for p in pidList: 

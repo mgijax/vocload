@@ -533,7 +533,10 @@ class TermLoad:
         bcpLogFile   = os.environ['BCP_LOG_FILE']
         bcpErrorFile = os.environ['BCP_ERROR_FILE']
 
+	#vocloadlib.NO_LOAD = 1
+
         if not vocloadlib.NO_LOAD:
+
            if self.loadTermBCP:
               vocloadlib.loadBCPFile(self.termTermBCPFileName, bcpLogFile, bcpErrorFile, 'VOC_Term', self.passwordFile)
                                                                    
@@ -1306,6 +1309,7 @@ class TermLoad:
        # In the case of OMIM, this would wipe out the "real" term.
 
        if (fileIsObsoleteField != dbRecord[0]['isObsolete']):
+
           vocloadlib.nl_sqlog(UPDATE_STATUS % (fileIsObsoleteField, termKey), self.log)
           recordChanged = 1
 
