@@ -22,6 +22,7 @@ touch $POSTLOG
  
 date | tee -a $LOG
  
+#echo 'some sanity checking tests...'
 #${VOCLOAD}/emap/runEmapQC /data/loads/lec/mgi/vocload/emap/input/EMAPA_oboonly_test.txt
 #mv emapFatalQC.rpt emapFatalQC.oboonly.rpt
 #mv emapWarningQC.rpt emapWarningQC.oboonly.rpt
@@ -35,13 +36,6 @@ date | tee -a $LOG
 #mv emapFatalQC.rpt emapFatalQC.truncatefile.rpt
 #mv emapWarningQC.rpt emapWarningQC.truncatefile.rpt
 #exit 0
-
-#cd ${QCRPTS}
-#cd /home/lec/mgi/qcreports_db-trunk
-#. ./Configuration
-#cd mgd
-#GXD_EMAPA_Terms.py
-#GXD_EMAPS_Terms.py
 
 runQuery ()
 {
