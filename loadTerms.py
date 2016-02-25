@@ -1473,7 +1473,9 @@ class TermLoad:
 	    from ACC_Accession a
 	    where a._MGIType_key = 13
 	    and a.preferred = 1
-	    and a._LogicalDB_key = 169''')
+	    and a._LogicalDB_key = 169
+	    and exists (select 1 from VOC_Term t where a._Object_key = t._Term_key and t.isObsolete = 0)
+	    ''')
 	for r in results:
 	    emapaTermDict[r['accid']] = r['_Object_key']
 
@@ -1502,7 +1504,9 @@ class TermLoad:
 	    from  ACC_Accession a
 	    where a._MGIType_key = 13
 	    and a.preferred = 1
-	    and a._LogicalDB_key in(169, 170)''')
+	    and a._LogicalDB_key in(169, 170)
+	    and exists (select 1 from VOC_Term t where a._Object_key = t._Term_key and t.isObsolete = 0)
+	    ''')
         for r in results:
 	    emapTermDict[r['accid']] = r['_Object_key']
 
