@@ -69,7 +69,7 @@ select distinct creation_date from DAG_Node where _dag_key between 13 and 42;
 (
 select a.accID, ta.term as EMAPA, st.startStage, st.endStage
 from ACC_Accession a, VOC_Term ta, VOC_Term_EMAPA st
-where a.accid in ('EMAPA:16032', 'EMAPA:16033')
+where a.accid in ('EMAPA:16032', 'EMAPA:16033','EMAPA:35182', 'EMAPA:16097')
 and a._MGIType_key = 13
 and a._Object_key = ta._Term_key
 and ta._Term_key = st._Term_key
