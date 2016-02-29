@@ -965,6 +965,7 @@ def createFiles():
 		# parentless terms are root terms, save for multi-root detection
                 sRootTermList.append(emapsId)
 		continue
+
 	    # Calculate the emaps default parent ID
 	    # null if its the root 
 	    if isRoot:

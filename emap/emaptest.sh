@@ -76,7 +76,7 @@ and ta._Term_key = st._Term_key
 union
 select a.accID, s.synonym, st.startStage, st.endStage
 from ACC_Accession a, MGI_Synonym s, VOC_Term_EMAPA st
-where a.accid in ('EMAPA:16032', 'EMAPA:16033')
+where a.accid in ('EMAPA:16032', 'EMAPA:16033', 'EMAPA:35182', 'EMAPA:16097')
 and a._MGIType_key = 13
 and a._Object_key = s._Object_key
 and s._MGIType_key = 13
