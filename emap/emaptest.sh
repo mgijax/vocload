@@ -63,6 +63,29 @@ select distinct creation_date from VOC_Term_EMAPS;
 select distinct creation_date from DAG_Node where _dag_key between 13 and 42;
 
 --
+-- EMAPA_sto79.obo
+--
+
+(
+select a.accID, ta.term as EMAPA, st.startStage, st.endStage
+from ACC_Accession a, VOC_Term ta, VOC_Term_EMAPA st
+where a.accid in ('EMAPA:16032', 'EMAPA:16033')
+and a._MGIType_key = 13
+and a._Object_key = ta._Term_key
+and ta._Term_key = st._Term_key
+union
+select a.accID, s.synonym, st.startStage, st.endStage
+from ACC_Accession a, MGI_Synonym s, VOC_Term_EMAPA st
+where a.accid in ('EMAPA:16032', 'EMAPA:16033')
+and a._MGIType_key = 13
+and a._Object_key = s._Object_key
+and s._MGIType_key = 13
+and a._Object_key = st._Term_key
+)
+order by accID
+;
+
+--
 -- EMAPA_passsanitycheck_test.txt
 --
 
@@ -76,29 +99,29 @@ select distinct creation_date from DAG_Node where _dag_key between 13 and 42;
 -- EMAPA:16097 : end was TS26, now TS11
 -- EMAPA:18220 : alt_id for EMAPA:18219
 
-select a.accID, ta.term as EMAPA, ta.isObsolete
-from ACC_Accession a, VOC_Term ta
-where a.accid in ('EMAPA:36675', 'EMAPA:35162', 'EMAPA:35862', 
-	'EMAPA:35909', 'EMAPA:35182', 'EMAPA:16097', 'EMAPA:18219', 'EMAPA:18220')
-and a._MGIType_key = 13
-and a._Object_key = ta._Term_key
-order by a.accID
-;
+--select a.accID, ta.term as EMAPA, ta.isObsolete
+--from ACC_Accession a, VOC_Term ta
+--where a.accid in ('EMAPA:36675', 'EMAPA:35162', 'EMAPA:35862', 
+	--'EMAPA:35909', 'EMAPA:35182', 'EMAPA:16097', 'EMAPA:18219', 'EMAPA:18220')
+--and a._MGIType_key = 13
+--and a._Object_key = ta._Term_key
+--order by a.accID
+--;
 
 -- EMAPA:35909 : should not appear
 -- EMAPA:18220 : alt_id for EMAPA:18219
 
-select a.accID, ta.term as EMAPA, emaps._Stage_key, emapa.startStage, emapa.endStage
-from ACC_Accession a, VOC_Term ta, VOC_Term_EMAPA emapa, VOC_Term_EMAPS emaps, VOC_Term ts
-where a.accid in ('EMAPA:36675', 'EMAPA:35162', 'EMAPA:35862', 
-	'EMAPA:35909', 'EMAPA:35182', 'EMAPA:16097', 'EMAPA:18219', 'EMAPA:18220')
-and a._MGIType_key = 13
-and a._Object_key = ta._Term_key
-and ta._Term_key = emapa._Term_key
-and emapa._Term_key = emaps._EMAPA_Term_key
-and emaps._Term_key = ts._Term_key
-order by a.accID, emaps._Stage_key
-;
+--select a.accID, ta.term as EMAPA, emaps._Stage_key, emapa.startStage, emapa.endStage
+--from ACC_Accession a, VOC_Term ta, VOC_Term_EMAPA emapa, VOC_Term_EMAPS emaps, VOC_Term ts
+--where a.accid in ('EMAPA:36675', 'EMAPA:35162', 'EMAPA:35862', 
+	--'EMAPA:35909', 'EMAPA:35182', 'EMAPA:16097', 'EMAPA:18219', 'EMAPA:18220')
+--and a._MGIType_key = 13
+--and a._Object_key = ta._Term_key
+--and ta._Term_key = emapa._Term_key
+--and emapa._Term_key = emaps._EMAPA_Term_key
+--and emaps._Term_key = ts._Term_key
+--order by a.accID, emaps._Stage_key
+--;
 
 EOSQL
 }
@@ -135,9 +158,12 @@ echo '*****'
 echo 'DIFF emaptest.sh.postlog emaptest.sh.prelog' | tee -a $LOG
 diff emaptest.sh.postlog emaptest.sh.prelog | tee -a $LOG
 echo 'DIFF should show that obsoletes are now added to EMAPA (90), but not EMAPS (91)'
-cp /data/loads/lec/mgi/vocload/emap/output/T* /data/loads/lec/mgi/vocload/emap/test1
-cp /data/loads/lec/mgi/vocload/emap/output/VOC_Term* /data/loads/lec/mgi/vocload/emap/test1
-cp /data/loads/lec/mgi/vocload/emap/output/MGI_Synonym* /data/loads/lec/mgi/vocload/emap/test1
+cp /data/loads/lec/mgi/vocload/emap/output/Termfile.emapa /data/loads/lec/mgi/vocload/emap/test1
+cp /data/loads/lec/mgi/vocload/emap/output/Termfile.emaps /data/loads/lec/mgi/vocload/emap/test1
+cp /data/loads/lec/mgi/vocload/emap/output/VOC_Term.s.bcp /data/loads/lec/mgi/vocload/emap/test1
+cp /data/loads/lec/mgi/vocload/emap/output/VOC_Term_EMAPA.bcp /data/loads/lec/mgi/vocload/emap/test1
+cp /data/loads/lec/mgi/vocload/emap/output/VOC_Term_EMAPS.bcp /data/loads/lec/mgi/vocload/emap/test1
+cp /data/loads/lec/mgi/vocload/emap/output/MGI_Synonym.s.bcp /data/loads/lec/mgi/vocload/emap/test1
 
 echo '######'
 echo 'test 2 : use same EMAPA.obo file : no changes' | tee -a $LOG
@@ -149,14 +175,18 @@ echo '*****'
 echo 'DIFF emaptest.sh.postlog emaptest.sh.prelog' | tee -a $LOG
 diff emaptest.sh.postlog emaptest.sh.prelog | tee -a $LOG
 echo 'DIFF should show no changes'
-cp /data/loads/lec/mgi/vocload/emap/output/T* /data/loads/lec/mgi/vocload/emap/test2
-cp /data/loads/lec/mgi/vocload/emap/output/VOC_Term* /data/loads/lec/mgi/vocload/emap/test2
-cp /data/loads/lec/mgi/vocload/emap/output/MGI_Synonym* /data/loads/lec/mgi/vocload/emap/test2
+cp /data/loads/lec/mgi/vocload/emap/output/Termfile.emapa /data/loads/lec/mgi/vocload/emap/test2
+cp /data/loads/lec/mgi/vocload/emap/output/Termfile.emaps /data/loads/lec/mgi/vocload/emap/test2
+cp /data/loads/lec/mgi/vocload/emap/output/VOC_Term.s.bcp /data/loads/lec/mgi/vocload/emap/test2
+cp /data/loads/lec/mgi/vocload/emap/output/VOC_Term_EMAPA.bcp /data/loads/lec/mgi/vocload/emap/test2
+cp /data/loads/lec/mgi/vocload/emap/output/VOC_Term_EMAPS.bcp /data/loads/lec/mgi/vocload/emap/test2
+cp /data/loads/lec/mgi/vocload/emap/output/MGI_Synonym.s.bcp /data/loads/lec/mgi/vocload/emap/test2
 
 echo '######'
 echo 'test 3 : use same EMAPA.obo file : delete all EMAPA terms that have no annotations' | tee -a $LOG
 echo 'this will test the adding of new terms'
-cat - <<EOSQL | ${PG_DBUTILS}/bin/doisql.csh $0 | tee -a $PRELOG
+runQuery | tee -a $PRELOG
+cat - <<EOSQL | ${PG_DBUTILS}/bin/doisql.csh $0 | tee -a $LOG
 CREATE TEMP TABLE tmp_delete
 AS (select _Term_key
 from VOC_Term t
@@ -170,7 +200,6 @@ USING tmp_delete
 WHERE tmp_delete._Term_key = VOC_Term._Term_key
 ;
 EOSQL
-runQuery | tee -a $PRELOG
 ${VOCLOAD}/emap/emapload.sh | tee -a $LOG
 runQuery | tee -a $POSTLOG
 echo 'pre-emapload, post-emapload counts should be equal' | tee -a $LOG
@@ -178,13 +207,16 @@ echo '*****'
 echo 'DIFF emaptest.sh.postlog emaptest.sh.prelog' | tee -a $LOG
 diff emaptest.sh.postlog emaptest.sh.prelog | tee -a $LOG
 echo 'DIFF should show changes due to adding new terms'
-cp /data/loads/lec/mgi/vocload/emap/output/T* /data/loads/lec/mgi/vocload/emap/test3
-cp /data/loads/lec/mgi/vocload/emap/output/VOC_Term* /data/loads/lec/mgi/vocload/emap/test3
-cp /data/loads/lec/mgi/vocload/emap/output/MGI_Synonym* /data/loads/lec/mgi/vocload/emap/test3
+cp /data/loads/lec/mgi/vocload/emap/output/Termfile.emapa /data/loads/lec/mgi/vocload/emap/test3
+cp /data/loads/lec/mgi/vocload/emap/output/Termfile.emaps /data/loads/lec/mgi/vocload/emap/test3
+cp /data/loads/lec/mgi/vocload/emap/output/VOC_Term.s.bcp /data/loads/lec/mgi/vocload/emap/test3
+cp /data/loads/lec/mgi/vocload/emap/output/VOC_Term_EMAPA.bcp /data/loads/lec/mgi/vocload/emap/test3
+cp /data/loads/lec/mgi/vocload/emap/output/VOC_Term_EMAPS.bcp /data/loads/lec/mgi/vocload/emap/test3
+cp /data/loads/lec/mgi/vocload/emap/output/MGI_Synonym.s.bcp /data/loads/lec/mgi/vocload/emap/test3
 
 echo '######'
-echo 'test 4 : EMAPA_passsanitycheck_test.txt' | tee -a $LOG
-cp /data/loads/lec/mgi/vocload/emap/input/EMAPA_passsanitycheck_test.txt /data/loads/lec/mgi/vocload/emap/input/EMAPA.obo
+echo 'test 4 : EMAPA_sto79.txt' | tee -a $LOG
+cp /data/loads/lec/mgi/vocload/emap/input/EMAPA_sto79.txt /data/loads/lec/mgi/vocload/emap/input/EMAPA.obo
 runQuery | tee -a $PRELOG
 ${VOCLOAD}/emap/emapload.sh | tee -a $LOG
 runQuery | tee -a $POSTLOG
@@ -193,8 +225,30 @@ echo '*****'
 echo 'DIFF emaptest.sh.postlog emaptest.sh.prelog' | tee -a $LOG
 diff emaptest.sh.postlog emaptest.sh.prelog | tee -a $LOG
 echo 'DIFF should show no changes'
-cp /data/loads/lec/mgi/vocload/emap/output/T* /data/loads/lec/mgi/vocload/emap/test4
-cp /data/loads/lec/mgi/vocload/emap/output/VOC_Term* /data/loads/lec/mgi/vocload/emap/test4
-cp /data/loads/lec/mgi/vocload/emap/output/MGI_Synonym* /data/loads/lec/mgi/vocload/emap/test4
 date |tee -a $LOG
+cp /data/loads/lec/mgi/vocload/emap/output/Termfile.emapa /data/loads/lec/mgi/vocload/emap/test4
+cp /data/loads/lec/mgi/vocload/emap/output/Termfile.emaps /data/loads/lec/mgi/vocload/emap/test4
+cp /data/loads/lec/mgi/vocload/emap/output/VOC_Term.s.bcp /data/loads/lec/mgi/vocload/emap/test4
+cp /data/loads/lec/mgi/vocload/emap/output/VOC_Term_EMAPA.bcp /data/loads/lec/mgi/vocload/emap/test4
+cp /data/loads/lec/mgi/vocload/emap/output/VOC_Term_EMAPS.bcp /data/loads/lec/mgi/vocload/emap/test4
+cp /data/loads/lec/mgi/vocload/emap/output/MGI_Synonym.s.bcp /data/loads/lec/mgi/vocload/emap/test4
+
+#echo '######'
+#echo 'test 5 : EMAPA_passsanitycheck_test.txt' | tee -a $LOG
+#cp /data/loads/lec/mgi/vocload/emap/input/EMAPA_passsanitycheck_test.txt /data/loads/lec/mgi/vocload/emap/input/EMAPA.obo
+#runQuery | tee -a $PRELOG
+#${VOCLOAD}/emap/emapload.sh | tee -a $LOG
+#runQuery | tee -a $POSTLOG
+#echo 'pre-emapload, post-emapload counts should be equal' | tee -a $LOG
+#echo '*****'
+#echo 'DIFF emaptest.sh.postlog emaptest.sh.prelog' | tee -a $LOG
+#diff emaptest.sh.postlog emaptest.sh.prelog | tee -a $LOG
+#echo 'DIFF should show no changes'
+#date |tee -a $LOG
+#cp /data/loads/lec/mgi/vocload/emap/output/Termfile.emapa /data/loads/lec/mgi/vocload/emap/test5
+#cp /data/loads/lec/mgi/vocload/emap/output/Termfile.emaps /data/loads/lec/mgi/vocload/emap/test5
+#cp /data/loads/lec/mgi/vocload/emap/output/VOC_Term.s.bcp /data/loads/lec/mgi/vocload/emap/test5
+#cp /data/loads/lec/mgi/vocload/emap/output/VOC_Term_EMAPA.bcp /data/loads/lec/mgi/vocload/emap/test5
+#cp /data/loads/lec/mgi/vocload/emap/output/VOC_Term_EMAPS.bcp /data/loads/lec/mgi/vocload/emap/test5
+#cp /data/loads/lec/mgi/vocload/emap/output/MGI_Synonym.s.bcp /data/loads/lec/mgi/vocload/emap/test5
 
