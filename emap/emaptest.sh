@@ -94,7 +94,7 @@ select distinct creation_date from DAG_Node where _dag_key between 13 and 42;
 -- test 3: stage change
 -- test 4: EMAPA merge if EMAPA is not used in an Assay annotation
 -- EMAPA:36675 : new (part_of EMAPA:35162,EMAPA:35862)
--- EMAPA:35909 : obsolete
+-- EMAPA:35683 : obsolete
 -- EMAPA:35182 : start was TS27, now TS17
 -- EMAPA:16097 : end was TS26, now TS11
 -- EMAPA:18220 : alt_id for EMAPA:18219
@@ -102,19 +102,19 @@ select distinct creation_date from DAG_Node where _dag_key between 13 and 42;
 select a.accID, a.preferred, ta.term as EMAPA, ta.isObsolete
 from ACC_Accession a, VOC_Term ta
 where a.accid in ('EMAPA:36675', 'EMAPA:35162', 'EMAPA:35862', 
-	'EMAPA:35909', 'EMAPA:35182', 'EMAPA:16097', 'EMAPA:18219', 'EMAPA:18220')
+	'EMAPA:35683', 'EMAPA:35182', 'EMAPA:16097', 'EMAPA:18219', 'EMAPA:18220')
 and a._MGIType_key = 13
 and a._Object_key = ta._Term_key
 order by a.accID
 ;
 
--- EMAPA:35909 : should not appear
+-- EMAPA:35683 : should not appear
 -- EMAPA:18220 : alt_id for EMAPA:18219
 
 select a.accID, ta.term as EMAPA, emaps._Stage_key, emapa.startStage, emapa.endStage
 from ACC_Accession a, VOC_Term ta, VOC_Term_EMAPA emapa, VOC_Term_EMAPS emaps, VOC_Term ts
 where a.accid in ('EMAPA:36675', 'EMAPA:35162', 'EMAPA:35862', 
-	'EMAPA:35909', 'EMAPA:35182', 'EMAPA:16097', 'EMAPA:18219', 'EMAPA:18220')
+	'EMAPA:35683', 'EMAPA:35182', 'EMAPA:16097', 'EMAPA:18219', 'EMAPA:18220')
 and a._MGIType_key = 13
 and a._Object_key = ta._Term_key
 and ta._Term_key = emapa._Term_key

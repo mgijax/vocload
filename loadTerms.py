@@ -172,6 +172,10 @@ BCP_INSERT_ACCESSION_NUMPART = '''%%d|%%s|%%s|%%s|%%d|%%d|%%d|%%d|%%d|%d|%d|%s|%
 BCP_INSERT_EMAPA = '''%%s|%%s|%%s|%%s|%d|%d|%s|%s\n''' % \
         (CREATEDBY_KEY, CREATEDBY_KEY, CDATE, CDATE)
 
+#
+# note : using 'delete' will fire triggers; truncate will not
+#
+
 DELETE_TEXT = '''delete from VOC_Text where _Term_key = %d'''
 
 DELETE_NOTE = '''delete from MGI_Note where _Object_key = %d and _NoteType_key = %s'''
@@ -200,8 +204,8 @@ DAG_ROOT_ID = os.environ['DAG_ROOT_ID']
 # defines used for convenience
 PRIMARY   = "Primary"
 SECONDARY = "Secondary"
-PRIMARY_SECONDARY_COLLISION_MSG = "Duplicate Primary/Secondary Accession ID Used. This is a fatal error - no data was loaded to the database."
-TERM_MISSING_FROM_INPUT_FILE = "Term Exists in Database but NOT in the Input File.  This is a non-fatal error."
+PRIMARY_SECONDARY_COLLISION_MSG = "FATAL ERROR : no data loaded : Duplicate Primary/Secondary Accession ID used."
+TERM_MISSING_FROM_INPUT_FILE = "FATAL ERROR: Term exists in database but NOT in the input file."
 OTHER_ID_DELIMITER = '|'
 SYNONYM_DELIMITER = '|'
 SYNONYM_TYPE_DELIMITER = '|'
@@ -375,8 +379,7 @@ class TermLoad:
 
         # unless this is reset to 0, transaction will be committed
         # (or, in the case of bcp, bcp files will be loaded);
-        # only major discrepancies cause this variable to 
-        # be reset
+        # only major discrepancies cause this variable to be reset
 
         self.commitTransaction = 1 
 
@@ -586,9 +589,8 @@ class TermLoad:
         self.max_synonym_key = vocloadlib.getMax('_Synonym_key', 'MGI_Synonym')
         self.max_note_key = vocloadlib.getMax('_Note_key', 'MGI_Note')
 
-        # if this is a simple vocabulary, we provide sequence numbers
-        # for the terms.  if it isn't simple, the sequence number is
-        # null.
+        # if this is a simple vocabulary, provide sequence numbers for the terms.  
+	# if it isn't simple, the sequence number is null.
 
         if self.isSimple:
             termSeqNum = 0
@@ -703,14 +705,14 @@ class TermLoad:
         # add records as needed to MGI_Synonym:
         synonyms = string.split(record['synonyms'], SYNONYM_DELIMITER)
 
-        # If the input record has synonym types, use them.  Otherwise, use
-        # a list of "EXACT" synonym types for each synonym.
+        # If the input record has synonym types, use them.  
+	# Otherwise, use a list of "exact" synonym types for each synonym.
         if self.useSynonymType:
             synonymTypes = string.split(record['synonymTypes'], SYNONYM_TYPE_DELIMITER)
         else:
             synonymTypes = []
             for i in range(len(synonyms)):
-                synonymTypes.append("EXACT")
+                synonymTypes.append("exact")
 
         self.generateSynonymSQL(synonyms, synonymTypes, self.max_term_key)
 
@@ -1262,7 +1264,7 @@ class TermLoad:
        else:
            fileSynonymTypes = []
            for i in range(len(fileSynonyms)):
-               fileSynonymTypes.append("EXACT")
+               fileSynonymTypes.append("exact")
 
        dbSynonyms = dbRecord[0]['synonyms']
        dbSynonymTypes = dbRecord[0]['synonymTypes']
