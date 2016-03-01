@@ -66,24 +66,24 @@ select distinct creation_date from DAG_Node where _dag_key between 13 and 42;
 -- EMAPA_sto79.obo
 --
 
-(
-select a.accID, ta.term as EMAPA, st.startStage, st.endStage
-from ACC_Accession a, VOC_Term ta, VOC_Term_EMAPA st
-where a.accid in ('EMAPA:16032', 'EMAPA:16033','EMAPA:35182', 'EMAPA:16097')
-and a._MGIType_key = 13
-and a._Object_key = ta._Term_key
-and ta._Term_key = st._Term_key
-union
-select a.accID, s.synonym, st.startStage, st.endStage
-from ACC_Accession a, MGI_Synonym s, VOC_Term_EMAPA st
-where a.accid in ('EMAPA:16032', 'EMAPA:16033', 'EMAPA:35182', 'EMAPA:16097')
-and a._MGIType_key = 13
-and a._Object_key = s._Object_key
-and s._MGIType_key = 13
-and a._Object_key = st._Term_key
-)
-order by accID
-;
+--(
+--select a.accID, ta.term as EMAPA, st.startStage, st.endStage
+--from ACC_Accession a, VOC_Term ta, VOC_Term_EMAPA st
+--where a.accid in ('EMAPA:16032', 'EMAPA:16033','EMAPA:35182', 'EMAPA:16097')
+--and a._MGIType_key = 13
+--and a._Object_key = ta._Term_key
+--and ta._Term_key = st._Term_key
+--union
+--select a.accID, s.synonym, st.startStage, st.endStage
+--from ACC_Accession a, MGI_Synonym s, VOC_Term_EMAPA st
+--where a.accid in ('EMAPA:16032', 'EMAPA:16033', 'EMAPA:35182', 'EMAPA:16097')
+--and a._MGIType_key = 13
+--and a._Object_key = s._Object_key
+--and s._MGIType_key = 13
+--and a._Object_key = st._Term_key
+--)
+--order by accID
+--;
 
 --
 -- EMAPA_passsanitycheck_test.txt
@@ -99,29 +99,29 @@ order by accID
 -- EMAPA:16097 : end was TS26, now TS11
 -- EMAPA:18220 : alt_id for EMAPA:18219
 
---select a.accID, ta.term as EMAPA, ta.isObsolete
---from ACC_Accession a, VOC_Term ta
---where a.accid in ('EMAPA:36675', 'EMAPA:35162', 'EMAPA:35862', 
-	--'EMAPA:35909', 'EMAPA:35182', 'EMAPA:16097', 'EMAPA:18219', 'EMAPA:18220')
---and a._MGIType_key = 13
---and a._Object_key = ta._Term_key
---order by a.accID
---;
+select a.accID, a.preferred, ta.term as EMAPA, ta.isObsolete
+from ACC_Accession a, VOC_Term ta
+where a.accid in ('EMAPA:36675', 'EMAPA:35162', 'EMAPA:35862', 
+	'EMAPA:35909', 'EMAPA:35182', 'EMAPA:16097', 'EMAPA:18219', 'EMAPA:18220')
+and a._MGIType_key = 13
+and a._Object_key = ta._Term_key
+order by a.accID
+;
 
 -- EMAPA:35909 : should not appear
 -- EMAPA:18220 : alt_id for EMAPA:18219
 
---select a.accID, ta.term as EMAPA, emaps._Stage_key, emapa.startStage, emapa.endStage
---from ACC_Accession a, VOC_Term ta, VOC_Term_EMAPA emapa, VOC_Term_EMAPS emaps, VOC_Term ts
---where a.accid in ('EMAPA:36675', 'EMAPA:35162', 'EMAPA:35862', 
-	--'EMAPA:35909', 'EMAPA:35182', 'EMAPA:16097', 'EMAPA:18219', 'EMAPA:18220')
---and a._MGIType_key = 13
---and a._Object_key = ta._Term_key
---and ta._Term_key = emapa._Term_key
---and emapa._Term_key = emaps._EMAPA_Term_key
---and emaps._Term_key = ts._Term_key
---order by a.accID, emaps._Stage_key
---;
+select a.accID, ta.term as EMAPA, emaps._Stage_key, emapa.startStage, emapa.endStage
+from ACC_Accession a, VOC_Term ta, VOC_Term_EMAPA emapa, VOC_Term_EMAPS emaps, VOC_Term ts
+where a.accid in ('EMAPA:36675', 'EMAPA:35162', 'EMAPA:35862', 
+	'EMAPA:35909', 'EMAPA:35182', 'EMAPA:16097', 'EMAPA:18219', 'EMAPA:18220')
+and a._MGIType_key = 13
+and a._Object_key = ta._Term_key
+and ta._Term_key = emapa._Term_key
+and emapa._Term_key = emaps._EMAPA_Term_key
+and emaps._Term_key = ts._Term_key
+order by a.accID, emaps._Stage_key
+;
 
 EOSQL
 }
