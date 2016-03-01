@@ -4,7 +4,8 @@
 # Program: loadTerms
 #
 # Purpose: to load the input file of vocabulary terms to database tables
-#   VOC_Vocab, VOC_Term, VOC_Text, MGI_Synonym, 
+#
+#   VOC_Vocab, VOC_Term, VOC_Text, MGI_Synonym
 #
 #   for EMAPA/EMAPS:
 #	VOC_Term_EMAPA, VOC_Term_EMAPS
@@ -51,7 +52,7 @@
 #
 # lec	02/18/2016
 #	- TR12223/gxd anatomy II
-#	needed to merge emapload product into vocload product so we could use the
+#	merged emapload product into vocload product so we could use the
 #	same loadTerms.py class for the EMAPA/EMAPS obo load.  The loadTerms.py was
 #	split into a separate emapload version (see TR12188) when only full term loads
 #	were required by both EMAPA and EMAPS.  but now the EMAPA load requires an
@@ -60,7 +61,8 @@
 #       the merge of the 2 products allows us to have 1 common loadTerms.py class.
 #
 #	the other parts of the emapload product are in the vocload/emap directory, as is.
-#	added minor changes to support the vocload directory structures.
+#	added minor changes to support the vocload directory structures, and the
+#	incremental mode.
 #
 # lec	08/02/2005
 #	- added UPDATE_STATUS to separate the updating of the status from the term.
@@ -80,7 +82,7 @@
 #	- TR 3670; UPDATE_TERM was using single quotes; all other SQL was using double quotes
 #
 
-import sys          # standard Python libraries
+import sys
 import types
 import string
 import getopt
@@ -1463,11 +1465,18 @@ class TermLoad:
         # Effects: writes to a bcp file
         # Throws:  Propagates vocloadlib errors
 
-	# since EMAPA is run as 'incremental', truncate VOC_Term_EMAPA
+	#
+	# VOC_Term for EMAPA is incremental
+	# VOC_Term_EMAPA will remain as full so truncate
+	#
 
         vocloadlib.nl_sqlog(DELETE_EMAPA, self.log)
 
 	emapaTermDict = {}
+
+	#
+	# note : obsolete terms are excluded
+	#
 
 	results = vocloadlib.sql('''select a.accid, a._Object_key
 	    from ACC_Accession a
@@ -1505,8 +1514,12 @@ class TermLoad:
 
         emapTermDict = {}
 
+	#
+	# note : obsolete terms are excluded
+	#
+
         results = vocloadlib.sql('''select a.accid, a._Object_key
-	    from  ACC_Accession a
+	    from ACC_Accession a
 	    where a._MGIType_key = 13
 	    and a._LogicalDB_key in(169, 170)
 	    and a.preferred = 1

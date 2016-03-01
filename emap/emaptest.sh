@@ -147,6 +147,9 @@ EOSQL
 # use "production" obo file
 # /data/loads/lec/mgi/vocload/emap/input/EMAPA.obo
 
+#make sure we didn't break anything
+#${VOCLOAD}/runOBOIncLoad.sh MA.lec.config
+
 echo '######' | tee -a $LOG
 echo 'test 1 : obsoletes added' | tee -a $LOG
 cp /data/loads/lec/mgi/vocload/emap/input/EMAPA.obo.bak /data/loads/lec/mgi/vocload/emap/input/EMAPA.obo
