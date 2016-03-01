@@ -149,6 +149,7 @@ EOSQL
 
 #make sure we didn't break anything
 #${VOCLOAD}/runOBOIncLoad.sh MA.lec.config
+#${VOCLOAD}/runOBOIncLoad.sh MCV.lec.config
 
 echo '######' | tee -a $LOG
 echo 'test 1 : obsoletes added' | tee -a $LOG
