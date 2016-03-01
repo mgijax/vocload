@@ -147,7 +147,7 @@ EOSQL
 # use "production" obo file
 # /data/loads/lec/mgi/vocload/emap/input/EMAPA.obo
 
-echo '######'
+echo '######' | tee -a $LOG
 echo 'test 1 : obsoletes added' | tee -a $LOG
 cp /data/loads/lec/mgi/vocload/emap/input/EMAPA.obo.bak /data/loads/lec/mgi/vocload/emap/input/EMAPA.obo
 runQuery | tee -a $PRELOG
@@ -165,77 +165,26 @@ cp /data/loads/lec/mgi/vocload/emap/output/VOC_Term_EMAPA.bcp /data/loads/lec/mg
 cp /data/loads/lec/mgi/vocload/emap/output/VOC_Term_EMAPS.bcp /data/loads/lec/mgi/vocload/emap/test1
 cp /data/loads/lec/mgi/vocload/emap/output/MGI_Synonym.s.bcp /data/loads/lec/mgi/vocload/emap/test1
 
-echo '######'
-echo 'test 2 : use same EMAPA.obo file : no changes' | tee -a $LOG
-runQuery | tee -a $PRELOG
-${VOCLOAD}/emap/emapload.sh | tee -a $LOG
-runQuery | tee -a $POSTLOG
-echo 'pre-emapload, post-emapload counts should be equal' | tee -a $LOG
-echo '*****'
-echo 'DIFF emaptest.sh.postlog emaptest.sh.prelog' | tee -a $LOG
-diff emaptest.sh.postlog emaptest.sh.prelog | tee -a $LOG
-echo 'DIFF should show no changes'
-cp /data/loads/lec/mgi/vocload/emap/output/Termfile.emapa /data/loads/lec/mgi/vocload/emap/test2
-cp /data/loads/lec/mgi/vocload/emap/output/Termfile.emaps /data/loads/lec/mgi/vocload/emap/test2
-cp /data/loads/lec/mgi/vocload/emap/output/VOC_Term.s.bcp /data/loads/lec/mgi/vocload/emap/test2
-cp /data/loads/lec/mgi/vocload/emap/output/VOC_Term_EMAPA.bcp /data/loads/lec/mgi/vocload/emap/test2
-cp /data/loads/lec/mgi/vocload/emap/output/VOC_Term_EMAPS.bcp /data/loads/lec/mgi/vocload/emap/test2
-cp /data/loads/lec/mgi/vocload/emap/output/MGI_Synonym.s.bcp /data/loads/lec/mgi/vocload/emap/test2
-
-echo '######'
-echo 'test 3 : EMAPA_sto79.txt' | tee -a $LOG
-cp /data/loads/lec/mgi/vocload/emap/input/EMAPA_sto79.txt /data/loads/lec/mgi/vocload/emap/input/EMAPA.obo
-runQuery | tee -a $PRELOG
-${VOCLOAD}/emap/emapload.sh | tee -a $LOG
-runQuery | tee -a $POSTLOG
-echo 'pre-emapload, post-emapload counts should be equal' | tee -a $LOG
-echo '*****'
-echo 'DIFF emaptest.sh.postlog emaptest.sh.prelog' | tee -a $LOG
-diff emaptest.sh.postlog emaptest.sh.prelog | tee -a $LOG
-echo 'DIFF should show no changes'
-date |tee -a $LOG
-cp /data/loads/lec/mgi/vocload/emap/output/Termfile.emapa /data/loads/lec/mgi/vocload/emap/test3
-cp /data/loads/lec/mgi/vocload/emap/output/Termfile.emaps /data/loads/lec/mgi/vocload/emap/test3
-cp /data/loads/lec/mgi/vocload/emap/output/VOC_Term.s.bcp /data/loads/lec/mgi/vocload/emap/test3
-cp /data/loads/lec/mgi/vocload/emap/output/VOC_Term_EMAPA.bcp /data/loads/lec/mgi/vocload/emap/test3
-cp /data/loads/lec/mgi/vocload/emap/output/VOC_Term_EMAPS.bcp /data/loads/lec/mgi/vocload/emap/test3
-cp /data/loads/lec/mgi/vocload/emap/output/MGI_Synonym.s.bcp /data/loads/lec/mgi/vocload/emap/test3
-
-#echo '######'
-#echo 'test 4 : use same EMAPA.obo file : delete all EMAPA terms that have no annotations' | tee -a $LOG
-#echo 'this will test the adding of new terms'
+#echo '######' | tee -a $LOG
+#echo 'test 2 : use same EMAPA.obo file : no changes' | tee -a $LOG
 #runQuery | tee -a $PRELOG
-#cat - <<EOSQL | ${PG_DBUTILS}/bin/doisql.csh $0 | tee -a $LOG
-#CREATE TEMP TABLE tmp_delete
-#AS (select _Term_key
-#from VOC_Term t
-#where t._Vocab_key = 90
-#and not exists (select 1 from GXD_ISResultStructure s where t._Term_key = s._EMAPA_Term_key)
-#and not exists (select 1 from GXD_GelLaneStructure s where t._Term_key = s._EMAPA_Term_key)
-#)
-#;
-#DELETE FROM VOC_Term
-#USING tmp_delete
-#WHERE tmp_delete._Term_key = VOC_Term._Term_key
-#;
-#EOSQL
 #${VOCLOAD}/emap/emapload.sh | tee -a $LOG
 #runQuery | tee -a $POSTLOG
 #echo 'pre-emapload, post-emapload counts should be equal' | tee -a $LOG
 #echo '*****'
 #echo 'DIFF emaptest.sh.postlog emaptest.sh.prelog' | tee -a $LOG
 #diff emaptest.sh.postlog emaptest.sh.prelog | tee -a $LOG
-#echo 'DIFF should show changes due to adding new terms'
-#cp /data/loads/lec/mgi/vocload/emap/output/Termfile.emapa /data/loads/lec/mgi/vocload/emap/test4
-#cp /data/loads/lec/mgi/vocload/emap/output/Termfile.emaps /data/loads/lec/mgi/vocload/emap/test4
-#cp /data/loads/lec/mgi/vocload/emap/output/VOC_Term.s.bcp /data/loads/lec/mgi/vocload/emap/test4
-#cp /data/loads/lec/mgi/vocload/emap/output/VOC_Term_EMAPA.bcp /data/loads/lec/mgi/vocload/emap/test4
-#cp /data/loads/lec/mgi/vocload/emap/output/VOC_Term_EMAPS.bcp /data/loads/lec/mgi/vocload/emap/test3
-#cp /data/loads/lec/mgi/vocload/emap/output/MGI_Synonym.s.bcp /data/loads/lec/mgi/vocload/emap/test3
+#echo 'DIFF should show no changes'
+#cp /data/loads/lec/mgi/vocload/emap/output/Termfile.emapa /data/loads/lec/mgi/vocload/emap/test2
+#cp /data/loads/lec/mgi/vocload/emap/output/Termfile.emaps /data/loads/lec/mgi/vocload/emap/test2
+#cp /data/loads/lec/mgi/vocload/emap/output/VOC_Term.s.bcp /data/loads/lec/mgi/vocload/emap/test2
+#cp /data/loads/lec/mgi/vocload/emap/output/VOC_Term_EMAPA.bcp /data/loads/lec/mgi/vocload/emap/test2
+#cp /data/loads/lec/mgi/vocload/emap/output/VOC_Term_EMAPS.bcp /data/loads/lec/mgi/vocload/emap/test2
+#cp /data/loads/lec/mgi/vocload/emap/output/MGI_Synonym.s.bcp /data/loads/lec/mgi/vocload/emap/test2
 
-#echo '######'
-#echo 'test 5 : EMAPA_passsanitycheck_test.txt' | tee -a $LOG
-#cp /data/loads/lec/mgi/vocload/emap/input/EMAPA_passsanitycheck_test.txt /data/loads/lec/mgi/vocload/emap/input/EMAPA.obo
+#echo '######' | tee -a $LOG
+#echo 'test 3 : EMAPA_sto79.txt' | tee -a $LOG
+#cp /data/loads/lec/mgi/vocload/emap/input/EMAPA_sto79.txt /data/loads/lec/mgi/vocload/emap/input/EMAPA.obo
 #runQuery | tee -a $PRELOG
 #${VOCLOAD}/emap/emapload.sh | tee -a $LOG
 #runQuery | tee -a $POSTLOG
@@ -245,10 +194,29 @@ cp /data/loads/lec/mgi/vocload/emap/output/MGI_Synonym.s.bcp /data/loads/lec/mgi
 #diff emaptest.sh.postlog emaptest.sh.prelog | tee -a $LOG
 #echo 'DIFF should show no changes'
 #date |tee -a $LOG
-#cp /data/loads/lec/mgi/vocload/emap/output/Termfile.emapa /data/loads/lec/mgi/vocload/emap/test5
-#cp /data/loads/lec/mgi/vocload/emap/output/Termfile.emaps /data/loads/lec/mgi/vocload/emap/test5
-#cp /data/loads/lec/mgi/vocload/emap/output/VOC_Term.s.bcp /data/loads/lec/mgi/vocload/emap/test5
-#cp /data/loads/lec/mgi/vocload/emap/output/VOC_Term_EMAPA.bcp /data/loads/lec/mgi/vocload/emap/test5
-#cp /data/loads/lec/mgi/vocload/emap/output/VOC_Term_EMAPS.bcp /data/loads/lec/mgi/vocload/emap/test5
-#cp /data/loads/lec/mgi/vocload/emap/output/MGI_Synonym.s.bcp /data/loads/lec/mgi/vocload/emap/test5
+#cp /data/loads/lec/mgi/vocload/emap/output/Termfile.emapa /data/loads/lec/mgi/vocload/emap/test3
+#cp /data/loads/lec/mgi/vocload/emap/output/Termfile.emaps /data/loads/lec/mgi/vocload/emap/test3
+#cp /data/loads/lec/mgi/vocload/emap/output/VOC_Term.s.bcp /data/loads/lec/mgi/vocload/emap/test3
+#cp /data/loads/lec/mgi/vocload/emap/output/VOC_Term_EMAPA.bcp /data/loads/lec/mgi/vocload/emap/test3
+#cp /data/loads/lec/mgi/vocload/emap/output/VOC_Term_EMAPS.bcp /data/loads/lec/mgi/vocload/emap/test3
+#cp /data/loads/lec/mgi/vocload/emap/output/MGI_Synonym.s.bcp /data/loads/lec/mgi/vocload/emap/test3
+
+echo '######'
+echo 'test 4 : EMAPA_passsanitycheck_test.txt' | tee -a $LOG
+cp /data/loads/lec/mgi/vocload/emap/input/EMAPA_passsanitycheck_test.txt /data/loads/lec/mgi/vocload/emap/input/EMAPA.obo
+runQuery | tee -a $PRELOG
+${VOCLOAD}/emap/emapload.sh | tee -a $LOG
+runQuery | tee -a $POSTLOG
+echo 'pre-emapload, post-emapload counts should be equal' | tee -a $LOG
+echo '*****'
+echo 'DIFF emaptest.sh.postlog emaptest.sh.prelog' | tee -a $LOG
+diff emaptest.sh.postlog emaptest.sh.prelog | tee -a $LOG
+echo 'DIFF should show no changes'
+date |tee -a $LOG
+cp /data/loads/lec/mgi/vocload/emap/output/Termfile.emapa /data/loads/lec/mgi/vocload/emap/test4
+cp /data/loads/lec/mgi/vocload/emap/output/Termfile.emaps /data/loads/lec/mgi/vocload/emap/test4
+cp /data/loads/lec/mgi/vocload/emap/output/VOC_Term.s.bcp /data/loads/lec/mgi/vocload/emap/test4
+cp /data/loads/lec/mgi/vocload/emap/output/VOC_Term_EMAPA.bcp /data/loads/lec/mgi/vocload/emap/test4
+cp /data/loads/lec/mgi/vocload/emap/output/VOC_Term_EMAPS.bcp /data/loads/lec/mgi/vocload/emap/test4
+cp /data/loads/lec/mgi/vocload/emap/output/MGI_Synonym.s.bcp /data/loads/lec/mgi/vocload/emap/test4
 
