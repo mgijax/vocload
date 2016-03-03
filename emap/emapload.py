@@ -810,8 +810,9 @@ def createFiles():
 	if allEMAPIDs.has_key(emapaId):
 	    for a in altIdList:
 	        if allEMAPIDs.has_key(a):
-		    if allEMAPIDs[emapaId] != allEMAPIDs[a]:
-		        annotDiscrepancyList.append('term merge detected: %s, alt id = %s' % (emapaId, a))
+		    if allEMAPIDs[emapaId] != allEMAPIDs[a] and annotDict.has_key(a):
+			message = 'term merge detected and annotations exist for alt_id: %s, alt_id = %s'
+		        annotDiscrepancyList.append(message % (emapaId, a))
 			errorCount += 1
 
         # get the term's synonyms joining with '|'
