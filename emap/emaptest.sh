@@ -93,37 +93,27 @@ select distinct creation_date from DAG_Node where _dag_key between 13 and 42;
 -- test 2: obsolete EMAPA term that is not used in an Assay annotation
 -- test 3: stage change
 -- test 4: EMAPA merge if EMAPA is not used in an Assay annotation
--- EMAPA:36675 : new (part_of EMAPA:35162,EMAPA:35862)
--- EMAPA:35683 : obsolete
--- EMAPA:35182 : start was TS27, now TS17
--- EMAPA:16097 : end was TS26, now TS11
--- EMAPA:28547 : alt_id for EMAPA:16097
 
-select a.accID, a.preferred, ta.term as EMAPA, ta.isObsolete
-from ACC_Accession a, VOC_Term ta
-where a.accid in ('EMAPA:36675', 'EMAPA:35162', 'EMAPA:35862', 
-	'EMAPA:35683', 'EMAPA:35182', 'EMAPA:16097', 'EMAPA:28547', 'EMAPA:16097')
+select distinct a.accID, a.preferred, ta.term as EMAPA, ta.isObsolete, emapa.startStage, emapa.endStage
+from ACC_Accession a, 
+	VOC_Term ta LEFT OUTER JOIN VOC_Term_EMAPA emapa ON (ta._Term_key = emapa._Term_key)
+where a.accid in (
+	'EMAPA:36675',  -- new (part_of EMAPA:35162,EMAPA:35862)
+	'EMAPA:35162',  -- alt_id of new EMAPA:36675
+	'EMAPA:35862',  -- alt_id of new EMAPA:36675
+	'EMAPA:35683',  -- obsolete
+	'EMAPA:35182',  -- start was TS27, now TS17
+	'EMAPA:16097',  -- end was TS26, now TS11
+	'EMAPA:28547',  -- merge : alt_id for EMAPA:16097
+	'EMAPA:16097'   -- merge : alt_id for EMAPA:16097
+	)
 and a._MGIType_key = 13
 and a._Object_key = ta._Term_key
 order by a.accID
 ;
 
--- EMAPA:35683 : should not appear
--- EMAPA:28547 : alt_id for EMAPA:16097
-
-select a.accID, ta.term as EMAPA, emaps._Stage_key, emapa.startStage, emapa.endStage
-from ACC_Accession a, VOC_Term ta, VOC_Term_EMAPA emapa, VOC_Term_EMAPS emaps, VOC_Term ts
-where a.accid in ('EMAPA:36675', 'EMAPA:35162', 'EMAPA:35862', 
-	'EMAPA:35683', 'EMAPA:35182', 'EMAPA:16097', 'EMAPA:28547', 'EMAPA:16097')
-and a._MGIType_key = 13
-and a._Object_key = ta._Term_key
-and ta._Term_key = emapa._Term_key
-and emapa._Term_key = emaps._EMAPA_Term_key
-and emaps._Term_key = ts._Term_key
-order by a.accID, emaps._Stage_key
-;
-
 EOSQL
+
 }
 
 cat - <<EOSQL | ${PG_DBUTILS}/bin/doisql.csh $0 | tee -a $LOG
@@ -151,23 +141,23 @@ EOSQL
 #${VOCLOAD}/runOBOIncLoad.sh MA.lec.config
 #${VOCLOAD}/runOBOIncLoad.sh MCV.lec.config
 
-echo '######' | tee -a $LOG
-echo 'test 1 : obsoletes added' | tee -a $LOG
-cp /data/loads/lec/mgi/vocload/emap/input/EMAPA.obo.bak /data/loads/lec/mgi/vocload/emap/input/EMAPA.obo
-runQuery | tee -a $PRELOG
-${VOCLOAD}/emap/emapload.sh | tee -a $LOG
-runQuery | tee -a $POSTLOG
-echo 'pre-emapload, post-emapload counts should differ by number of obsolete terms' | tee -a $LOG
-echo '*****'
-echo 'DIFF emaptest.sh.postlog emaptest.sh.prelog' | tee -a $LOG
-diff emaptest.sh.postlog emaptest.sh.prelog | tee -a $LOG
-echo 'DIFF should show that obsoletes are now added to EMAPA (90), but not EMAPS (91)'
-cp /data/loads/lec/mgi/vocload/emap/output/Termfile.emapa /data/loads/lec/mgi/vocload/emap/test1
-cp /data/loads/lec/mgi/vocload/emap/output/Termfile.emaps /data/loads/lec/mgi/vocload/emap/test1
-cp /data/loads/lec/mgi/vocload/emap/output/VOC_Term.s.bcp /data/loads/lec/mgi/vocload/emap/test1
-cp /data/loads/lec/mgi/vocload/emap/output/VOC_Term_EMAPA.bcp /data/loads/lec/mgi/vocload/emap/test1
-cp /data/loads/lec/mgi/vocload/emap/output/VOC_Term_EMAPS.bcp /data/loads/lec/mgi/vocload/emap/test1
-cp /data/loads/lec/mgi/vocload/emap/output/MGI_Synonym.s.bcp /data/loads/lec/mgi/vocload/emap/test1
+#echo '######' | tee -a $LOG
+#echo 'test 1 : obsoletes added' | tee -a $LOG
+#cp /data/loads/lec/mgi/vocload/emap/input/EMAPA.obo.bak /data/loads/lec/mgi/vocload/emap/input/EMAPA.obo
+#runQuery | tee -a $PRELOG
+#${VOCLOAD}/emap/emapload.sh | tee -a $LOG
+#runQuery | tee -a $POSTLOG
+#echo 'pre-emapload, post-emapload counts should differ by number of obsolete terms' | tee -a $LOG
+#echo '*****'
+#echo 'DIFF emaptest.sh.postlog emaptest.sh.prelog' | tee -a $LOG
+#diff emaptest.sh.postlog emaptest.sh.prelog | tee -a $LOG
+#echo 'DIFF should show that obsoletes are now added to EMAPA (90), but not EMAPS (91)'
+#cp /data/loads/lec/mgi/vocload/emap/output/Termfile.emapa /data/loads/lec/mgi/vocload/emap/test1
+#cp /data/loads/lec/mgi/vocload/emap/output/Termfile.emaps /data/loads/lec/mgi/vocload/emap/test1
+#cp /data/loads/lec/mgi/vocload/emap/output/VOC_Term.s.bcp /data/loads/lec/mgi/vocload/emap/test1
+#cp /data/loads/lec/mgi/vocload/emap/output/VOC_Term_EMAPA.bcp /data/loads/lec/mgi/vocload/emap/test1
+#cp /data/loads/lec/mgi/vocload/emap/output/VOC_Term_EMAPS.bcp /data/loads/lec/mgi/vocload/emap/test1
+#cp /data/loads/lec/mgi/vocload/emap/output/MGI_Synonym.s.bcp /data/loads/lec/mgi/vocload/emap/test1
 
 #echo '######' | tee -a $LOG
 #echo 'test 2 : use same EMAPA.obo file : no changes' | tee -a $LOG
