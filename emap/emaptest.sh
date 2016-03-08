@@ -104,8 +104,8 @@ where a.accid in (
 	'EMAPA:35683',  -- obsolete
 	'EMAPA:35182',  -- start was TS27, now TS17
 	'EMAPA:16097',  -- end was TS26, now TS11
-	'EMAPA:28547',  -- merge : alt_id for EMAPA:16097
-	'EMAPA:16097'   -- merge : alt_id for EMAPA:16097
+	'EMAPA:28547',  -- merge : alt_id for EMAPA:16107
+	'EMAPA:16107'   -- merge : alt_id for EMAPA:16107
 	)
 and a._MGIType_key = 13
 and a._Object_key = ta._Term_key

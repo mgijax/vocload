@@ -5,10 +5,16 @@
 #
 # Purpose: to load the input file of vocabulary terms to database tables
 #
-#   VOC_Vocab, VOC_Term, VOC_Text, MGI_Synonym
+#   VOC_Term
+#   VOC_Text
+#   VOC_Vocab
+#   ACC_Accession
+#   MGI_NoteChunk
+#   MGI_Synonym
 #
 #   for EMAPA/EMAPS:
-#	VOC_Term_EMAPA, VOC_Term_EMAPS
+#   VOC_Term_EMAPA
+#   VOC_Term_EMAPS
 #
 # System Requirements Satisfied by This Program:
 #
