@@ -394,6 +394,9 @@ def parseOBOFile():
                 status = 'obsolete'
             else:
                 status = 'current'
+	    if vocabName == 'Human Phenotype Ontology' and status == 'obsolete':
+		term = parser.nextTerm()
+		continue
 
             # Write the term information to the Termfile.
             #
@@ -433,7 +436,6 @@ def parseOBOFile():
             	if (vocabName == 'GO' or vocabName == 'Sequence Ontology') and \
 		    	status == 'obsolete' and termID != dagRootID:
                 	fpDAG[obsoleteNamespace].write(termID + '\t' + '\t' + 'is-a' + '\t' + obsoleteID + '\n')
-
         # Get the next term from the parser.
         #
         term = parser.nextTerm()

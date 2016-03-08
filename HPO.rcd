@@ -1,0 +1,28 @@
+#
+# Progam:  HPO.rcd
+#
+# Purpose:
+#
+#	Configuration file for HPO Vocabulary load
+#	which defines the HPO DAGs
+#
+# Usage:
+#
+#	Used by Python Configuration module
+#
+# History:
+#
+#	03/04/2016	sc
+#	- new
+
+RUNTIME_DIR = /data/loads/mgi/vocload/runTimeHPO
+
+# DAGs which are part of the vocabulary (for complex vocabularies)
+
+[
+        NAME = Human Phenotype Ontology
+        NAME_SPACE = human_phenotype
+        ABBREV = HPO
+        ONTOLOGY_FILE = ${RUNTIME_DIR}/HPO.ontology
+        LOAD_FILE = ${RUNTIME_DIR}/dag.hpo
+]

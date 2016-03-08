@@ -84,6 +84,15 @@ then
     mkdir -p ${DATALOADSOUTPUT}/mgi/vocload/runTimeBiotype/vega
 fi
 
+if [ ! -d ${DATALOADSOUTPUT}/mgi/vocload/archiveHPO ]
+then
+    mkdir -p ${DATALOADSOUTPUT}/mgi/vocload/archiveHPO
+fi
+if [ ! -d ${DATALOADSOUTPUT}/mgi/vocload/runTimeHPO ]
+then
+    mkdir -p ${DATALOADSOUTPUT}/mgi/vocload/runTimeHPO
+fi
+
 # Set mode
 echo "Setting modes..."
 chmod 775 *

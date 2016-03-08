@@ -1,3 +1,11 @@
+TAG: vocload-tr12267-1
+DATE: 3/8/2016
+STAFF: sc
+CHANGES: 
+1) HPO.config, HPO.rcd - added
+2) Install - create HPO runtime directory
+3) loadOBO.py - if HPO, don't load obsolete terms
+
 TAG: vocload-tr12267-BP
 DATE: 3/8/2016
 STAFF: sc
