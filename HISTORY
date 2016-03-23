@@ -38,7 +38,7 @@ CHANGES:
 3) TR12021/OMIM/animalmodel report
 4) loadNote.py/loadTerms.py:
 change calls to MGI_NoteChunk to only create one row per note
-as we no longer need to create chunks of 255 
+as we no longer need to create chunks
 
 TAG: vocload-tr12223-BP
 DATE: 1/7/2016
