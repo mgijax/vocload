@@ -78,8 +78,10 @@ import vocloadlib
 import loadVOC
 import db
 
-USAGE = 'Usage:  %s [-n] [-f|-i] [-l <log file>] <RcdFile>' % sys.argv[0]
+db.setAutoTranslate(False)
+db.setAutoTranslateBE(False)
 
+USAGE = 'Usage:  %s [-n] [-f|-i] [-l <log file>] <RcdFile>' % sys.argv[0]
 TERM_ABBR = ''
 
 # Purpose: Write a status to the log, close the log and exit.

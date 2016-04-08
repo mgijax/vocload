@@ -5,6 +5,9 @@ import os
 import db
 import string
 
+db.setAutoTranslate(False)
+db.setAutoTranslateBE(False)
+
 USAGE = '''Usage: %s <file> <vocab> <J#> <ldb> <user> <pwd> <server> <db>
 	<file>   : name of input file
 	<vocab>  : name of the vocabulary in the database

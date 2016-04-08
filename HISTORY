@@ -16,6 +16,7 @@ publishEmapa
 runEmapQC 
 sanity.py 
 sanity.sh
+6) added 'db.db.setAutoTranslate(False)/'db.db.setAutoTranslateBE(False)
 
 TAG: vocload-6-0-2-4
 DATE: 2/8/2016

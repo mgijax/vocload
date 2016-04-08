@@ -2,10 +2,8 @@
 
 import sys
 import os
-
 import vocloadlib
 import loadWrapper
-import tempfile
 
 class OMIM_Wrapper (loadWrapper.LoadWrapper):
 	def preProcess (self):
