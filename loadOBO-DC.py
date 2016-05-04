@@ -41,6 +41,9 @@ import sys
 import os
 import db
 
+db.setAutoTranslate(False)
+db.setAutoTranslateBE(False)
+
 # save list to check for duplicates
 omimList = set([])
 

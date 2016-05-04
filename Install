@@ -55,6 +55,7 @@ if [ ! -d ${DATALOADSOUTPUT}/mgi/vocload/archiveRV ]
 then
     mkdir -p ${DATALOADSOUTPUT}/mgi/vocload/archiveRV
 fi
+
 if [ ! -d ${DATALOADSOUTPUT}/mgi/vocload/runTimeRV ]
 then
     mkdir -p ${DATALOADSOUTPUT}/mgi/vocload/runTimeRV
@@ -64,6 +65,7 @@ if [ ! -d ${DATALOADSOUTPUT}/mgi/vocload/archiveCL ]
 then
     mkdir -p ${DATALOADSOUTPUT}/mgi/vocload/archiveCL
 fi
+
 if [ ! -d ${DATALOADSOUTPUT}/mgi/vocload/runTimeCL ]
 then
     mkdir -p ${DATALOADSOUTPUT}/mgi/vocload/runTimeCL
@@ -87,4 +89,10 @@ fi
 # Set mode
 echo "Setting modes..."
 chmod 775 *
+
+#
+# install EMAPA/EMAPS-specific things...
+#
+cd emap
+./Install
 
