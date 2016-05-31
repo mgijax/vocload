@@ -671,7 +671,7 @@ class TermLoad:
         #   comment, synonyms, accID, otherIDs
 
         self.max_term_key = self.max_term_key + 1
-        self.log.writeline('------ Term: %s ------' % record['term'])
+        #self.log.writeline('------ Term: %s ------' % record['term'])
 
         # add record to VOC_Term:
         if self.isBCPLoad:
