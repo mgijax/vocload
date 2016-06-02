@@ -23,6 +23,11 @@ if [ ! -d ${DATALOADSOUTPUT}/mgi/vocload/OMIM ]
 then
     mkdir -p ${DATALOADSOUTPUT}/mgi/vocload/OMIM
 fi
+if [ ! -d ${DATALOADSOUTPUT}/mgi/vocload/OMIM/archive ]
+then
+    mkdir -p ${DATALOADSOUTPUT}/mgi/vocload/OMIM/archive
+    mkdir -p ${DATALOADSOUTPUT}/mgi/vocload/OMIM/archive/reports
+fi
 
 if [ ! -d ${DATALOADSOUTPUT}/mgi/vocload/archiveMA ]
 then
