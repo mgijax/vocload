@@ -40,6 +40,7 @@ import os
 import vocloadlib   # MGI-written Python libraries
 import loadDAG
 import loadTerms
+import db
 
 ###--- Exceptions ---###
 
@@ -111,7 +112,7 @@ class VOCLoad:
 	vocloadlib.setupSql (self.server, self.database,
 	    self.username, self.password)
 	# confirm the sql setup worked by doing simple query
-	vocloadlib.sql ('select count(1) from VOC_Vocab')
+	db.sql ('select count(1) from VOC_Vocab')
 
         self.vocab_name = os.environ['VOCAB_NAME']
         self.isSimple = string.atoi(os.environ['IS_SIMPLE'])
@@ -121,7 +122,7 @@ class VOCLoad:
 
         vocloadlib.setVocabMGITypeKey (self.mgitype_key)
 
-        results = vocloadlib.sql (
+        results = db.sql (
             '''select _Vocab_key, isSimple
                 from VOC_Vocab
                 where name = '%s' ''' % self.vocab_name
@@ -135,7 +136,7 @@ class VOCLoad:
 
         self.jnum = os.environ['JNUM']
 
-        result = vocloadlib.sql ('''select _Refs_key
+        result = db.sql ('''select _Refs_key
                     from BIB_View
                     where jnumID = '%s' ''' % self.jnum)
         if len(result) == 0:
@@ -174,7 +175,7 @@ class VOCLoad:
 
         # Only delete data if it currently exists in the database
         if self.vocab_key:
-            dags = vocloadlib.sql ('''select _DAG_key
+            dags = db.sql ('''select _DAG_key
                         from VOC_VocabDAG
                         where _Vocab_key = %d''' % \
                         self.vocab_key)
@@ -195,7 +196,7 @@ class VOCLoad:
         else:
             #insert into VOC_Vocab table only if a record does not already exist
 
-            result = vocloadlib.sql ('''select max(_Vocab_key) as maxkey from VOC_Vocab''')
+            result = db.sql ('''select max(_Vocab_key) as maxkey from VOC_Vocab''')
             self.vocab_key = max (0, result[0]['maxkey']) + 1
 
             vocloadlib.nl_sqlog (INSERT_VOCAB % (self.vocab_key,
@@ -211,7 +212,7 @@ class VOCLoad:
         # load the DAGs if it is a complex vocabulary
 
         if not self.isSimple:
-            result = vocloadlib.sql ('select max(_DAG_key) as maxkey from DAG_DAG')
+            result = db.sql ('select max(_DAG_key) as maxkey from DAG_DAG')
             dag_key = max (0, result[0]['maxkey']) + 1
 
             for (key, dag) in self.config.items():

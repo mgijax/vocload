@@ -47,6 +47,7 @@ import string
 import os
 import vocloadlib
 import mgi_utils
+import db
 
 
 # init database connection
@@ -97,7 +98,7 @@ vocabKey = vocloadlib.getVocabKey(vocabName)
 #
 #  Get the DAG key for the current vocabulary.
 #
-results = vocloadlib.sql('''
+results = db.sql('''
         select _dag_key from voc_vocabdag vd 
         where vd._vocab_key=%s
     ''' % vocabKey)
@@ -107,7 +108,7 @@ dagKey = results[0]['_dag_key']
 #
 #  Get the label key for a "Header" label.
 #
-results = vocloadlib.sql('select _label_key ' + \
+results = db.sql('select _label_key ' + \
             'from DAG_Label ' + \
             'where label = \'Header\'')
 
@@ -118,7 +119,7 @@ print 'DAG key: %d' % dagKey
 print 'Label key: %d' % labelKey
 
 tempTable = "tmp_voc_header"
-vocloadlib.sql('''
+db.sql('''
 select distinct a.accid into temp %s 
 from acc_accession a 
 where a._mgitype_key=13
@@ -130,7 +131,7 @@ where a._mgitype_key=13
 #  Find all the DAG nodes for the accession IDs in the VOC_Header table
 #  and save them in a temp table.
 #
-vocloadlib.sql('select n._Node_key ' + \
+db.sql('select n._Node_key ' + \
             'into temp Nodes ' + \
             'from %s h, ' % (tempTable) + \
                  'ACC_Accession a, ' + \
@@ -142,34 +143,35 @@ vocloadlib.sql('select n._Node_key ' + \
                   't._Vocab_key = ' + str(vocabKey) + ' and ' + \
                   't._Term_key = n._Object_key and ' + \
                   'n._DAG_key = ' + str(dagKey))
-vocloadlib.sql('create index idx1 on Nodes(_Node_key)')
+db.sql('create index idx1 on Nodes(_Node_key)')
 
 #
 #  Update the label key for each of the identified nodes using the label key
 #  for a header label.
 #
-vocloadlib.sql('update DAG_Node ' + \
+db.sql('update DAG_Node ' + \
             'set _Label_key = ' + str(labelKey) + ' ' + \
             'from Nodes t ' + \
             'where DAG_Node._Node_key = t._Node_key')
 
-vocloadlib.sql('update DAG_Closure ' + \
+db.sql('update DAG_Closure ' + \
             'set _AncestorLabel_key = ' + str(labelKey) + ' ' + \
             'from Nodes t ' + \
             'where DAG_Closure._Ancestor_key = t._Node_key')
 
-vocloadlib.sql('update DAG_Closure ' + \
+db.sql('update DAG_Closure ' + \
             'set _DescendentLabel_key = ' + str(labelKey) + ' ' + \
             'from  Nodes t ' + \
             'where DAG_Closure._Descendent_key = t._Node_key')
 
-results = vocloadlib.sql('select count(*) as cnt from Nodes')
+results = db.sql('select count(*) as cnt from Nodes')
 print 'Number of header nodes identified: %d' % results[0]['cnt']
 
 
 
 if headerAnnotTypeKey:
 	procName = 'VOC_processAnnotHeaderAll'
-	vocloadlib.sql('''select %s(%s);''' % (procName, headerAnnotTypeKey))
+	db.sql('''select %s(%s);''' % (procName, headerAnnotTypeKey))
 
+db.commit()
 sys.exit(0)

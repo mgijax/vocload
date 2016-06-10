@@ -53,6 +53,7 @@ import string
 import os
 import vocloadlib
 import mgi_utils
+import db
 
 
 # init database connection
@@ -99,7 +100,7 @@ print 'Vocab key: %d' % vocabKey
 #
 #  Get the reference key for the J-Number.
 #
-results = vocloadlib.sql('select _object_key from ACC_Accession ' + \
+results = db.sql('select _object_key from ACC_Accession ' + \
 	'where accID = \'' + jNumber + '\' and _MGIType_key = 1 and _LogicalDB_key = 1')
 refsKey = results[0]['_object_key']
 
@@ -123,7 +124,7 @@ for synType in synTypes:
 	
 synTypesIn = ','.join([str(key) for key in synTypeKeys])
 
-vocloadlib.sql('delete from MGI_Synonym ' + \
+db.sql('delete from MGI_Synonym ' + \
             'using MGI_SynonymType st, VOC_Term t ' + \
             'where MGI_Synonym._Object_key = t._Term_key and ' + \
                   't._Vocab_key = ' + str(vocabKey) + ' and ' + \
@@ -185,8 +186,9 @@ for r in bcpRecords:
 	fp.write('%s\n' % '|'.join([str(c) for c in r]))
 fp.close()
 
-vocloadlib.loadBCPFile( bcpFile, bcpLogFile, bcpErrorFile, 'mgi_synonym', passwordFileName) 
+db.bcp(bcpFile, 'MGI_Synonym', delimiter='|')
 
+db.commit()
 
 sys.exit(0)
 

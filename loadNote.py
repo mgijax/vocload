@@ -45,6 +45,7 @@ import string
 import os
 import vocloadlib
 import mgi_utils
+import db
 
 
 # init database connection
@@ -105,7 +106,7 @@ for noteType in noteTypes:
 noteTypesIn = ','.join([str(key) for key in noteTypeKeys])
 
 
-vocloadlib.sql('delete from MGI_Note ' + \
+db.sql('delete from MGI_Note ' + \
             'using MGI_NoteType nt, VOC_Term t ' + \
             'where MGI_Note._Object_key = t._Term_key and ' + \
                   't._Vocab_key = ' + str(vocabKey) + ' and ' + \
@@ -186,8 +187,9 @@ for r in noteChunkBcpRecords:
         fp.write('%s\n' % '|'.join([str(c) for c in r]))
 fp.close()
 
-vocloadlib.loadBCPFile( noteBcpFile, bcpLogFile, bcpErrorFile, 'mgi_note', passwordFileName)
-vocloadlib.loadBCPFile( noteChunkBcpFile, bcpLogFile, bcpErrorFile, 'mgi_notechunk', passwordFileName)
+db.bcp(noteBcpFile, 'MGI_Note', delimiter='|')
+db.bcp(noteChunkBcpFile, 'MGI_NoteChunk', delimiter='|')
 
+db.commit()
 
 sys.exit(0)

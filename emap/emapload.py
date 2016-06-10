@@ -63,10 +63,11 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 import string
 import Set 
 import Ontology
-import loadTerms
 import loadDAG
 import Log 
 import db
+
+from emap_term_loaders import EMAPALoad, EMAPSLoad
 
 #
 #  CONSTANTS
@@ -1023,19 +1024,6 @@ def createFiles():
 
 # end createFiles() -------------------------------------
 
-def runTermLoad(file, vocabKey, mode):
-    # Purpose: Runs a term load
-    # Returns: Nothing
-    # Assumes: Nothing
-    # Effects: terms are loaded into a database
-    # Throws: Nothing
-
-    termload = loadTerms.TermLoad (file, mode, vocabKey, refsKey, log, passwordFileName)
-    termload.go()
-
-    return
-
-# end  runTermLoad() -------------------------------
 
 def runDagLoad(file, dag):
     # Purpose: Runs a DAG load
@@ -1153,23 +1141,35 @@ def runLoads():
     # Throws: Nothing
 
     print 'running EMAPA term load'
-    runTermLoad(emapaTermFile, emapaVocabKey, 'incremental')
-
+    termload = EMAPALoad (emapaTermFile, 'incremental', emapaVocabKey, \
+                          refsKey, log, passwordFileName)
+    termload.go()
+    
     print 'running EMAPA dag load'
     runDagLoad(emapaDagFile, 'EMAPA')
 
     print 'running EMAPS term load'
-    os.environ['BCP_LOG_FILE'] = os.environ['BCP_S_LOG_FILE']
-    os.environ['BCP_ERROR_FILE'] = os.environ['BCP_S_ERROR_FILE']
-
-    runTermLoad(emapsTermFile, emapsVocabKey, 'full')
+    
+    # reset the TermLoad environment variables
+    os.environ['TERM_TERM_BCP_FILE'] = os.environ['TERM_TERM_S_BCP_FILE']
+    os.environ['TERM_TEXT_BCP_FILE'] = os.environ['TERM_TEXT_S_BCP_FILE']
+    os.environ['TERM_NOTE_BCP_FILE'] = os.environ['TERM_NOTE_S_BCP_FILE']
+    os.environ['TERM_NOTECHUNK_BCP_FILE'] = os.environ['TERM_NOTECHUNK_S_BCP_FILE']
+    os.environ['TERM_SYNONYM_BCP_FILE']  = os.environ['TERM_SYNONYM_S_BCP_FILE']
+    os.environ['ACCESSION_BCP_FILE']  = os.environ['ACCESSION_S_BCP_FILE']
+    os.environ['DISCREP_FILE'] = os.environ['DISCREP_S_FILE']
+    
+    # run the EMAPS load
+    termload = EMAPSLoad (emapsTermFile, 'full', emapsVocabKey, \
+                          refsKey, log, passwordFileName)
+    termload.go()
 
     print 'running EMAPS dag loads'
     for ts in emapsDagFileDict.keys():
         tsFile = emapsDagFileDict[ts]
 
     	# dynamically create discrepancy, edge, node and closure file names
-	# and set them in the environment
+        # and set them in the environment
         discrepFile = os.environ['DAG_DISCREP_S_FILE']
         os.environ['DAG_DISCREP_FILE'] = discrepFile.replace('~', '%s' % ts) 
 
@@ -1220,5 +1220,6 @@ if errorCount > 0:
 if liveRun == '1':
     # run the term and DAG loads
     runLoads()
+    db.commit()
 
 sys.exit(0)
