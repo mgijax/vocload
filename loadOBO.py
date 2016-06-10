@@ -343,6 +343,8 @@ def parseOBOFile():
         #
         if vocabName == 'Cell Ontology':
 	    namespace = 'cell'
+        elif vocabName == 'Evidence Code Ontology':
+	    namespace = 'eco'
         elif namespace != '':
             if namespace not in validNamespace:
                 fpValid.write('(' + termID + ') Invalid namespace: ' + namespace + '\n')
@@ -361,7 +363,7 @@ def parseOBOFile():
         # the database.  This will allow a match on relationship types such
         # "is_a" vs "is-a".
         #
-        if vocabName != 'Cell Ontology':
+        if vocabName not in ('Cell Ontology', 'Evidence Code Ontology'):
         	for r in relationshipType:
             		label = re.sub('[^a-zA-Z0-9]','',r)
             		if not validRelationshipType.has_key(label):
@@ -423,7 +425,7 @@ def parseOBOFile():
             # root ID, write a record to the DAG file that relates this
             # term to the root ID.
             #
-            if vocabName != 'Cell Ontology':
+            if vocabName not in ('Cell Ontology', 'Evidence Code Ontology'):
             	if name == namespace and dagRootID:
 			if vocabName == 'Feature Relationship':
 		    		fpDAG[namespace].write(termID + '\t' + '\t' + '\t' +'\n')

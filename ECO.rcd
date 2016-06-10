@@ -1,0 +1,26 @@
+#
+# Progam:  ECO.rcd
+#
+# Purpose:
+#
+#	Configuration file for ECO Vocabulary load
+#	which defines the ECO DAGs
+#
+# Usage:
+#
+#	Used by Python Configuration module
+#
+# History:
+#
+#	06/10/2016	lec
+#	- TR12349/12340/12345/part of GO/Noctua
+#
+
+RUNTIME_DIR = /data/loads/mgi/vocload/runTimeECO
+
+[
+        NAME = Evidence Code Ontology
+        NAME_SPACE = eco
+        ONTOLOGY_FILE = ${RUNTIME_DIR}/eco.obo
+        LOAD_FILE = ${RUNTIME_DIR}/dag.eco
+]

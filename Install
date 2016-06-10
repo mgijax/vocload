@@ -76,6 +76,16 @@ then
     mkdir -p ${DATALOADSOUTPUT}/mgi/vocload/runTimeCL
 fi
 
+if [ ! -d ${DATALOADSOUTPUT}/mgi/vocload/archiveECO ]
+then
+    mkdir -p ${DATALOADSOUTPUT}/mgi/vocload/archiveECO
+fi
+
+if [ ! -d ${DATALOADSOUTPUT}/mgi/vocload/runTimeECO ]
+then
+    mkdir -p ${DATALOADSOUTPUT}/mgi/vocload/runTimeECO
+fi
+
 if [ ! -d ${DATALOADSOUTPUT}/mgi/vocload/archiveBiotype ]
 then
     mkdir -p ${DATALOADSOUTPUT}/mgi/vocload/archiveBiotype
