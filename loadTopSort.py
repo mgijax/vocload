@@ -339,7 +339,7 @@ print 'Build the DAG'
 buildDAG()
 
 node = dag.findNode(rootKey)
-print 'Root term: %s' % node.getLabel()
+#print 'Root term: %s' % node.getLabel()
 
 print 'Apply topological sort order to the DAG'
 sortNode(node)
