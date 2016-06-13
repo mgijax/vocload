@@ -250,7 +250,7 @@ def parseOBOFile():
 	# ignore the 'real' root for Feature Relationship vocab
 	if vocabName == 'Feature Relationship':
 	    pass
-	elif vocabName == 'Marker Category':
+	elif vocabName in ['Marker Category']:
 	     fpDAG[validNamespace[0]].write(dagRootID + '\t' + 'show' + '\t' + '\t' + '\n') 
 	else:
 	    for i in validNamespace:
@@ -341,6 +341,7 @@ def parseOBOFile():
         # vocabularies (e.g. MP and MA), the namespace is not defined for
         # each term, so the default namespace from the header is used.
         #
+
         if vocabName == 'Cell Ontology':
 	    namespace = 'cell'
         elif vocabName == 'Evidence Code Ontology':
@@ -363,7 +364,7 @@ def parseOBOFile():
         # the database.  This will allow a match on relationship types such
         # "is_a" vs "is-a".
         #
-        if vocabName not in ('Cell Ontology', 'Evidence Code Ontology'):
+        if vocabName not in ('Cell Ontology'):
         	for r in relationshipType:
             		label = re.sub('[^a-zA-Z0-9]','',r)
             		if not validRelationshipType.has_key(label):
@@ -425,17 +426,23 @@ def parseOBOFile():
             # root ID, write a record to the DAG file that relates this
             # term to the root ID.
             #
-            if vocabName not in ('Cell Ontology', 'Evidence Code Ontology'):
+            #log.writeline('parseOBOFile:term:' + str(termID) + '\n')
+            #log.writeline('parseOBOFile:namespace:' + str(namespace) + '\n')
+            #log.writeline('parseOBOFile:dagRootID:' + str(dagRootID) + '\n')
+            if vocabName not in ('Cell Ontology'):
             	if name == namespace and dagRootID:
 			if vocabName == 'Feature Relationship':
 		    		fpDAG[namespace].write(termID + '\t' + '\t' + '\t' +'\n')
 		    		term = parser.nextTerm()
 		    		continue
 			else:
+                                #log.writeline('parseOBOFile:fpDAG:1\n')
 		    		fpDAG[namespace].write(termID + '\t' + '\t' + 'is-a' + '\t' + dagRootID + '\n')
 
             	# Write to the DAG file.
+                #log.writeline('parseOBOFile:relationships:' + str(len(relationship)) + '\n')
             	for i in range(len(relationship)):
+                        #log.writeline('parseOBOFile:fpDAG:2\n')
                 	fpDAG[namespace].write(termID + '\t' + \
 		    	dag_child_label + '\t' + \
 		    	validRelationshipType[re.sub('[^a-zA-Z0-9]','',relationshipType[i])] + '\t' + \
@@ -446,6 +453,7 @@ def parseOBOFile():
             	#
             	if (vocabName == 'GO' or vocabName == 'Sequence Ontology') and \
 		    	status == 'obsolete' and termID != dagRootID:
+                        #log.writeline('parseOBOFile:fpDAG[obsoleteNamespace]\n')
                 	fpDAG[obsoleteNamespace].write(termID + '\t' + '\t' + 'is-a' + '\t' + obsoleteID + '\n')
 
         # Get the next term from the parser.

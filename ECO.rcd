@@ -16,11 +16,13 @@
 #	- TR12349/12340/12345/part of GO/Noctua
 #
 
-RUNTIME_DIR = /data/loads/mgi/vocload/runTimeECO
+#RUNTIME_DIR = /data/loads/mgi/vocload/runTimeECO
+RUNTIME_DIR = /data/loads/lec/mgi/vocload/runTimeECO
 
 [
         NAME = Evidence Code Ontology
         NAME_SPACE = eco
+	ABBREV = eco
         ONTOLOGY_FILE = ${RUNTIME_DIR}/eco.obo
         LOAD_FILE = ${RUNTIME_DIR}/dag.eco
 ]
