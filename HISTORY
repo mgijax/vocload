@@ -8,6 +8,7 @@ CHANGES:
 1) TR12345/ECO (Evidence Code Ontology)
 OBOParser.py : must add 'union_of'
 DAG_Label : must add 'used_in'
+ECO.config, ECO.rcd, ECOindex.html
 
 TAG: vocload-6-0-4-7
 TAG: vocload-6-0-4-6
