@@ -141,12 +141,6 @@ class Parser:
                 self.term.addRelationship (re.split (' ', self.line)[1])
                 self.term.addRelationshipType ('is-a')
 
-            # Save an "union_of" relationship.
-            #
-            if tag == 'union_of':
-                self.term.addRelationship (re.split (' ', self.line)[1])
-                self.term.addRelationshipType ('is-a')
-
             # Save a relationship.
             #
             if tag == 'relationship':
