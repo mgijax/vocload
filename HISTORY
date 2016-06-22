@@ -8,8 +8,9 @@ DATE: 06/10/2016, 6/14/2016
 STAFF: lec 
 CHANGES:
 1) TR12345/ECO (Evidence Code Ontology)
-DAG_Label : must add 'used_in'
+DAG_Label : must add 'union_of'
 ECO.config, ECO.rcd, ECOindex.html
+OBOParser.py : add tag : 'union_of'
 
 TAG: vocload-6-0-4-7
 TAG: vocload-6-0-4-6
