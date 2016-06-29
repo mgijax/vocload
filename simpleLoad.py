@@ -53,10 +53,8 @@
 
 import sys
 import os
-
 import vocloadlib
 import loadWrapper
-import tempfile
 
 class SimpleVoc_Wrapper (loadWrapper.LoadWrapper):
 	def preProcess (self):

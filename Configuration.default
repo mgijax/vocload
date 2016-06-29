@@ -33,14 +33,6 @@ fi
 
 . ${MGICONFIG}/master.config.sh
 
-umask 002
-
-SUCCESS=0
-FAILURE=1
-
-export SUCCESS
-export FAILURE
-
 MGITYPE=13	# ACC_MGIType._MGIType_key for Vocabulary
 export MGITYPE
 

@@ -23,6 +23,11 @@ if [ ! -d ${DATALOADSOUTPUT}/mgi/vocload/OMIM ]
 then
     mkdir -p ${DATALOADSOUTPUT}/mgi/vocload/OMIM
 fi
+if [ ! -d ${DATALOADSOUTPUT}/mgi/vocload/OMIM/archive ]
+then
+    mkdir -p ${DATALOADSOUTPUT}/mgi/vocload/OMIM/archive
+    mkdir -p ${DATALOADSOUTPUT}/mgi/vocload/OMIM/archive/reports
+fi
 
 if [ ! -d ${DATALOADSOUTPUT}/mgi/vocload/archiveMA ]
 then
@@ -55,6 +60,7 @@ if [ ! -d ${DATALOADSOUTPUT}/mgi/vocload/archiveRV ]
 then
     mkdir -p ${DATALOADSOUTPUT}/mgi/vocload/archiveRV
 fi
+
 if [ ! -d ${DATALOADSOUTPUT}/mgi/vocload/runTimeRV ]
 then
     mkdir -p ${DATALOADSOUTPUT}/mgi/vocload/runTimeRV
@@ -64,9 +70,20 @@ if [ ! -d ${DATALOADSOUTPUT}/mgi/vocload/archiveCL ]
 then
     mkdir -p ${DATALOADSOUTPUT}/mgi/vocload/archiveCL
 fi
+
 if [ ! -d ${DATALOADSOUTPUT}/mgi/vocload/runTimeCL ]
 then
     mkdir -p ${DATALOADSOUTPUT}/mgi/vocload/runTimeCL
+fi
+
+if [ ! -d ${DATALOADSOUTPUT}/mgi/vocload/archiveECO ]
+then
+    mkdir -p ${DATALOADSOUTPUT}/mgi/vocload/archiveECO
+fi
+
+if [ ! -d ${DATALOADSOUTPUT}/mgi/vocload/runTimeECO ]
+then
+    mkdir -p ${DATALOADSOUTPUT}/mgi/vocload/runTimeECO
 fi
 
 if [ ! -d ${DATALOADSOUTPUT}/mgi/vocload/archiveBiotype ]
@@ -96,4 +113,10 @@ fi
 # Set mode
 echo "Setting modes..."
 chmod 775 *
+
+#
+# install EMAPA/EMAPS-specific things...
+#
+cd emap
+./Install
 

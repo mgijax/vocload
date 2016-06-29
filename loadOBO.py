@@ -78,8 +78,10 @@ import vocloadlib
 import loadVOC
 import db
 
-USAGE = 'Usage:  %s [-n] [-f|-i] [-l <log file>] <RcdFile>' % sys.argv[0]
+db.setAutoTranslate(False)
+db.setAutoTranslateBE(False)
 
+USAGE = 'Usage:  %s [-n] [-f|-i] [-l <log file>] <RcdFile>' % sys.argv[0]
 TERM_ABBR = ''
 
 # Purpose: Write a status to the log, close the log and exit.
@@ -136,11 +138,11 @@ def initialize():
     # These are DAG_Label terms and can represent either a DAG_Edge label i.e.
     # relationship or a DAG_Node label i.e. description
     validRelationshipType = {}
-    #print 'CODE loadOBO.py loading labels into lookup'
+    log.writeline('CODE loadOBO.py loading labels into lookup')
     for r in results[0]:
-	#print 'CODE loadOBO.py label: %s' % r['label']
+	log.writeline('CODE loadOBO.py label: %s' % r['label'])
         label = re.sub('[^a-zA-Z0-9]', '', r['label'])
-	#print 'CODE loadOBO.py regsub label: %s' % label
+	log.writeline('CODE loadOBO.py regsub label: %s' % label)
         validRelationshipType[label] = r['label']
 
     # Create a list of valid synonym types.
@@ -248,7 +250,7 @@ def parseOBOFile():
 	# ignore the 'real' root for Feature Relationship vocab
 	if vocabName == 'Feature Relationship':
 	    pass
-	elif vocabName == 'Marker Category':
+	elif vocabName in ['Marker Category']:
 	     fpDAG[validNamespace[0]].write(dagRootID + '\t' + 'show' + '\t' + '\t' + '\n') 
 	else:
 	    for i in validNamespace:
@@ -324,14 +326,26 @@ def parseOBOFile():
 	    continue
 	    #isValid = 0
 
+	#
+	# for EMAPA/EMAPS
+	#
+	if vocabName == 'EMAPA' and namespace == '':
+	    # skip this term
+	    term = parser.nextTerm()
+	    continue
+
+	#
         # Validate the namespace.  The namespace is used to determine which
         # DAG file to write to.  For the GO vocabulary, there are multiple
         # DAGs, so the namespace is required for each term.  For other
         # vocabularies (e.g. MP and MA), the namespace is not defined for
         # each term, so the default namespace from the header is used.
         #
+
         if vocabName == 'Cell Ontology':
 	    namespace = 'cell'
+        elif vocabName == 'Evidence Code Ontology':
+	    namespace = 'eco'
         elif namespace != '':
             if namespace not in validNamespace:
                 fpValid.write('(' + termID + ') Invalid namespace: ' + namespace + '\n')
@@ -344,12 +358,13 @@ def parseOBOFile():
             else:
                 namespace = defaultNamespace
 
+	#
         # Validate the relationship type(s).  Strip out any characters that
         # are non-alphanumeric so they can be compared to the values from
         # the database.  This will allow a match on relationship types such
         # "is_a" vs "is-a".
         #
-        if vocabName != 'Cell Ontology':
+        if vocabName not in ('Cell Ontology'):
         	for r in relationshipType:
             		label = re.sub('[^a-zA-Z0-9]','',r)
             		if not validRelationshipType.has_key(label):
@@ -414,17 +429,23 @@ def parseOBOFile():
             # root ID, write a record to the DAG file that relates this
             # term to the root ID.
             #
-            if vocabName != 'Cell Ontology':
+            #log.writeline('parseOBOFile:term:' + str(termID) + '\n')
+            #log.writeline('parseOBOFile:namespace:' + str(namespace) + '\n')
+            #log.writeline('parseOBOFile:dagRootID:' + str(dagRootID) + '\n')
+            if vocabName not in ('Cell Ontology'):
             	if name == namespace and dagRootID:
 			if vocabName == 'Feature Relationship':
 		    		fpDAG[namespace].write(termID + '\t' + '\t' + '\t' +'\n')
 		    		term = parser.nextTerm()
 		    		continue
 			else:
+                                #log.writeline('parseOBOFile:fpDAG:1\n')
 		    		fpDAG[namespace].write(termID + '\t' + '\t' + 'is-a' + '\t' + dagRootID + '\n')
 
             	# Write to the DAG file.
+                #log.writeline('parseOBOFile:relationships:' + str(len(relationship)) + '\n')
             	for i in range(len(relationship)):
+                        #log.writeline('parseOBOFile:fpDAG:2\n')
                 	fpDAG[namespace].write(termID + '\t' + \
 		    	dag_child_label + '\t' + \
 		    	validRelationshipType[re.sub('[^a-zA-Z0-9]','',relationshipType[i])] + '\t' + \
@@ -435,6 +456,7 @@ def parseOBOFile():
             	#
             	if (vocabName == 'GO' or vocabName == 'Sequence Ontology') and \
 		    	status == 'obsolete' and termID != dagRootID:
+                        #log.writeline('parseOBOFile:fpDAG[obsoleteNamespace]\n')
                 	fpDAG[obsoleteNamespace].write(termID + '\t' + '\t' + 'is-a' + '\t' + obsoleteID + '\n')
         # Get the next term from the parser.
         #

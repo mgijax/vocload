@@ -17,11 +17,10 @@
 #
 
 RUNTIME_DIR = /data/loads/mgi/vocload/runTimeCL
-DATA_DIR = /data/downloads/purl.obolibrary.org/obo/cl/cl-basic.obo
 
 [
         NAME = Cell Ontology
         NAME_SPACE = cell
-        ONTOLOGY_FILE = ${DATA_DIR}/cl.obo
+        ONTOLOGY_FILE = ${RUNTIME_DIR}/cl.obo
         LOAD_FILE = ${RUNTIME_DIR}/dag.cell
 ]

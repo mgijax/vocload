@@ -12,6 +12,55 @@ CHANGES:
 2) Install - create HPO runtime directory
 3) loadOBO.py - if HPO, don't load obsolete terms
 
+TAG: vocload-6-0-4-?
+TAG: vocload-6-0-4-12
+TAG: vocload-6-0-4-11
+TAG: vocload-6-0-4-10
+TAG: vocload-6-0-4-9
+TAG: vocload-6-0-4-8
+DATE: 06/10/2016, 6/14/2016
+STAFF: lec 
+CHANGES:
+1) TR12345/ECO (Evidence Code Ontology)
+DAG_Label : must add 'union_of'
+ECO.config, ECO.rcd, ECOindex.html
+OBOParser.py : add tag : 'union_of'
+
+TAG: vocload-6-0-4-7
+TAG: vocload-6-0-4-6
+DATE: 06/02/2016
+STAFF: lec 
+CHANGES:
+1) TR12328
+2) Install/OMIM.config
+
+TAG: vocload-6-0-4-5
+TAG: vocload-6-0-4-4
+DATE: 05/31/2016
+STAFF: lec 
+CHANGES:
+1) CL.rcd
+2) loadTerms.py
+3) OMIMtermcheck.py
+
+TAG: vocload-6-0-4-3
+DATE: 05/24/2016
+STAFF: lec 
+CHANGES:
+1) remove fail/success variables from Configuration.default/VOClib.config
+2) add fix to OBOParser.py/def
+3) convert to Git
+
+TAG: vocload-6-0-4-2
+DATE: 05/24/2016
+STAFF: lec 
+CHANGES: TR12223/gxd anatomy II/emap : merge to trunk
+
+TAG: vocload-6-0-4-1
+DATE: 05/04/2016
+STAFF: lec 
+CHANGES: TR12223/gxd anatomy II/emap : merge to trunk
+
 TAG: vocload-tr12267-BP
 DATE: 3/8/2016
 STAFF: sc
@@ -39,6 +88,49 @@ CHANGES:
 4) loadNote.py/loadTerms.py:
 change calls to MGI_NoteChunk to only create one row per note
 as we no longer need to create chunks of 255 
+
+TAG: vocload-tr12223-1
+DATE: 02/24/2016, 05/04/2016
+STAFF: lec 
+CHANGES: TR12223/gxd anatomy II/emap
+1) changes to loadTerms.py for EMAPA/EMAPS
+2) created 'emap' directory/moved emapload into this directory
+3) fixed bug in sanity.py/missingField
+4) added new emapload.py/sanity checks for assay annotations
+5) changed EMAPA to incremental
+emapload.config.default 
+emapload.py 
+emapload.sh 
+emapQC.sh 
+Install 
+publishEmapa 
+runEmapQC 
+sanity.py 
+sanity.sh
+6) added 'db.db.setAutoTranslate(False)/'db.db.setAutoTranslateBE(False)
+
+TAG: vocload-6-0-2-4
+DATE: 2/8/2016
+STAFF: sc
+CHANGES:
+1) OMIMtermcheck.py - added g.prefixPart = 'MGI:' so genotype RRIDs not included.
+
+TAG: vocload-6-0-2-3
+DATE: 2/2/2016
+STAFF: dbm 
+CHANGES: TR12163
+1) Configuration.default: Change location of input file
+
+TAG: vocload-6-0-2-2
+DATE: 01/20/2014
+STAFF: lec 
+CHANGES:
+1) TR11947/loadOBO-DC.py
+2) TR11956/OMIMtermcheck.py
+3) TR12021/OMIM/animalmodel report
+4) loadNote.py/loadTerms.py:
+change calls to MGI_NoteChunk to only create one row per note
+as we no longer need to create chunks
 
 TAG: vocload-tr12223-BP
 DATE: 1/7/2016

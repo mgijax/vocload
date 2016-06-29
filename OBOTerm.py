@@ -1,5 +1,6 @@
 import sys
 import os
+import re
 
 # CLASS: Term
 # IS: An object that holds specific attributes from a Term stanza of an

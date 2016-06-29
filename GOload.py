@@ -17,10 +17,8 @@
 import sys
 import os
 import string
-
 import vocloadlib
 import loadWrapper
-import tempfile
 import GOVocab
 
 def textEdgeType (char):
