@@ -63,6 +63,7 @@ import os
 
 import DAG
 import vocloadlib
+import db
 
 
 # init database connection
@@ -140,7 +141,7 @@ def initialize():
 
     vocabKey = vocloadlib.getVocabKey(vocabName)
 
-    results = vocloadlib.sql('''
+    results = db.sql('''
         select _dag_key from voc_vocabdag vd 
 	where vd._vocab_key=%s
     ''' % vocabKey)
@@ -152,7 +153,7 @@ def initialize():
 
     #  Get the root key for the DAG.
     #
-    results = vocloadlib.sql('select n._Node_key ' + \
+    results = db.sql('select n._Node_key ' + \
                      'from DAG_Node n ' + \
                      'where n._DAG_key = ' + str(dagKey) + ' and ' + \
                            'not exists (select 1 ' + \
@@ -186,7 +187,7 @@ def buildDAG ():
                       'n._DAG_key = ' + str(dagKey))
     cmds.append('select * from TermNode')
 
-    results = vocloadlib.sql(cmds)
+    results = db.sql(cmds)
 
     print 'Nodes: %d' % len(results[1])
 
@@ -204,7 +205,7 @@ def buildDAG ():
                       'e._Child_key = t2._Node_key and ' + \
                       'e._DAG_key = ' + str(dagKey))
 
-    results = vocloadlib.sql(cmds)
+    results = db.sql(cmds)
 
     print 'Edges: %d' % len(results[0])
 
@@ -306,16 +307,16 @@ def loadBCPFile(bcpFileName):
 
     # create a table to insert the bcp file
     tempTable = 'tmp_voc_dagsort'
-    vocloadlib.sql('''create table %s (_term_key int, sequencenum int)''' % tempTable)
+    db.sql('''create table %s (_term_key int, sequencenum int)''' % tempTable)
 
     try:
 	# import term sort data
-	vocloadlib.loadBCPFile( bcpFileName, bcpLogFile, bcpErrorFile, tempTable, passwordFileName)
+        db.bcp(bcpFileName, tempTable, delimiter='|')
 
-	vocloadlib.sql('''create index %s_idx_term_key on %s (_term_key)''' % (tempTable, tempTable))
+	db.sql('''create index %s_idx_term_key on %s (_term_key)''' % (tempTable, tempTable))
 
 	# now update voc_term using this imported data
-	vocloadlib.sql('''update VOC_Term
+	db.sql('''update VOC_Term
 	    set sequenceNum = seq.sequenceNum
 	    from VOC_Vocab v,
 		 %s seq
@@ -325,7 +326,7 @@ def loadBCPFile(bcpFileName):
 	''' % (tempTable, vocabName))
     finally:
         # ensure table is removed when we are finished
-        vocloadlib.sql('''drop table %s''' % tempTable)
+        db.sql('''drop table %s''' % tempTable)
 
 
 #
@@ -348,5 +349,7 @@ finalize()
 
 print 'import term sequencenum into voc_term'
 loadBCPFile(dagSortBCPFile)
+
+db.commit()
 
 sys.exit(0)

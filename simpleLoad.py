@@ -55,6 +55,7 @@ import sys
 import os
 import vocloadlib
 import loadWrapper
+import db
 
 class SimpleVoc_Wrapper (loadWrapper.LoadWrapper):
 	def preProcess (self):
@@ -87,6 +88,9 @@ class SimpleVoc_Wrapper (loadWrapper.LoadWrapper):
 		return
 
 if __name__ == '__main__':
+
 	wrapper = SimpleVoc_Wrapper (sys.argv[1:])
 	wrapper.go()
+
+        db.commit()
 

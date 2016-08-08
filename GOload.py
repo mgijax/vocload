@@ -20,6 +20,7 @@ import string
 import vocloadlib
 import loadWrapper
 import GOVocab
+import db
 
 def textEdgeType (char):
         if char == '%':
@@ -126,4 +127,6 @@ class GO_Wrapper (loadWrapper.LoadWrapper):
 if __name__ == '__main__':
         wrapper = GO_Wrapper (sys.argv[1:])
         wrapper.go()
+
+        db.commit()
 

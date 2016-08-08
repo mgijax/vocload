@@ -37,3 +37,5 @@ class OMIM_Wrapper (loadWrapper.LoadWrapper):
 if __name__ == '__main__':
 	wrapper = OMIM_Wrapper (sys.argv[1:])
 	wrapper.go()
+
+        db.commit()

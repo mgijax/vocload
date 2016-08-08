@@ -525,4 +525,6 @@ if parseOBOFile() != 0:
 vocload = loadVOC.VOCLoad(config, mode, log)
 vocload.go()
 
+db.commit()
+
 exit(0)

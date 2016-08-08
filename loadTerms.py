@@ -1,7 +1,3 @@
-#!/usr/local/bin/python
-
-#
-# Program: loadTerms
 #
 # Purpose: to load the input file of vocabulary terms to database tables
 #
@@ -11,10 +7,6 @@
 #   ACC_Accession
 #   MGI_NoteChunk
 #   MGI_Synonym
-#
-#   for EMAPA/EMAPS:
-#   VOC_Term_EMAPA
-#   VOC_Term_EMAPS
 #
 # System Requirements Satisfied by This Program:
 #
@@ -31,11 +23,6 @@
 #           Comment (optional)
 #           Synonyms (optional)
 #           Secondary Accession IDs (optional)
-#
-#	    for EMAPA/EMAPS:
-#           TS start
-#           TS end
-#           default parent ID
 #
 #       2. mode (full or incremental)
 #           'incremental' is not valid for simple vocabularies
@@ -55,6 +42,15 @@
 #   the run of this script.
 #
 # History
+#
+# kstone 06/09/2016
+#   - TR12336 Fixing bug with new EMAPA terms not getting VOC_Term_EMAPA records.
+#   The logic in here was too coupled to the EMAP load, and made it difficult to
+#   fix the order in which VOC_Term_EMAPA information is gathered. 
+#
+#       EMAPA/S logic moved to sub classes in the emap directory
+#       They use TermLoad.loadDataFile and TermLoad.postProcess as hooks into 
+#       customizing the file input format and the loading of additional tables.
 #
 # lec	02/18/2016
 #	- TR12223/gxd anatomy II
@@ -100,6 +96,7 @@ import accessionlib
 import Set
 import html
 import mgi_utils
+import db
 
 USAGE = '''Usage: %s [-f|-i][-n][-l <file>] <server> <db> <user> <pwd> <key> <input>
     -f | -i : full load or incremental load? (default is full)
@@ -121,7 +118,10 @@ CREATEDBY_KEY = 1001
 
 ###--- Exceptions ---###
 
-error = 'TermLoad.error'    # exception raised with these values:
+class TermLoadError(Exception):
+    """
+    For all TermLoad exceptions
+    """
 
 unknown_mode = 'unknown load mode: %s'
 unknown_data_loader = 'unknown data loader: %s'
@@ -175,9 +175,6 @@ BCP_INSERT_ACCESSION_NULL_NUMPART = '''%%d|%%s|%%s||%%d|%%d|%%d|%%d|%%d|%d|%d|%s
 BCP_INSERT_ACCESSION_NUMPART = '''%%d|%%s|%%s|%%s|%%d|%%d|%%d|%%d|%%d|%d|%d|%s|%s\n''' % \
 	(CREATEDBY_KEY, CREATEDBY_KEY, CDATE, CDATE)
 
-BCP_INSERT_EMAPA = '''%%s|%%s|%%s|%%s|%d|%d|%s|%s\n''' % \
-        (CREATEDBY_KEY, CREATEDBY_KEY, CDATE, CDATE)
-
 #
 # note : using 'delete' will fire triggers; truncate will not
 #
@@ -187,8 +184,6 @@ DELETE_TEXT = '''delete from VOC_Text where _Term_key = %d'''
 DELETE_NOTE = '''delete from MGI_Note where _Object_key = %d and _NoteType_key = %s'''
 
 DELETE_ALL_SYNONYMS ='''delete from MGI_Synonym where _Object_key = %d and _MGIType_key = %d'''
-
-DELETE_EMAPA = '''delete from VOC_Term_EMAPA'''
 
 UPDATE_TERM = '''update VOC_Term 
 	set term = '%s', modification_date = now(), _ModifiedBy_key = 1001
@@ -280,7 +275,7 @@ class TermLoad:
 
         # check that the mode is valid
         if mode not in [ 'full', 'incremental' ]:
-            raise error, unknown_mode % mode
+            raise TermLoadError(unknown_mode % mode)
         self.mode = mode
 
         # determine if you will be creating a bcp file
@@ -293,10 +288,10 @@ class TermLoad:
         #   referenced
 
         if self.isSimple and mode != 'full':
-            raise error, full_only % vocab
+            raise TermLoadError(full_only % vocab)
 
         if mode == 'full' and vocloadlib.anyTermsCrossReferenced(self.vocab_key):
-                raise error, has_refs % vocab
+                raise TermLoadError(has_refs % vocab)
 
         # when we actually do the load, we'll look up the current
         # maximum keys for various tables...  For now, we'll just
@@ -334,30 +329,19 @@ class TermLoad:
 
         self.id2key = {}    # maps term IDs to term keys
 
-	#
-        # for EMAPA/EMAPS
-	#
-        if self.vocab_name in ('EMAPA', 'EMAPS'):
+        # initialize and load term datafile
+        self.loadDataFile(filename)
 
-	    # keep track of the TS info
-	    self.emapTSDict = {}
+        self.log.writeline(vocloadlib.timestamp('Init Stop:'))
 
-            if self.vocab_name == 'EMAPA':
-                self.datafile = vocloadlib.readTabFile(filename,
-                    [ 'term', 'accID', 'status', 'abbreviation',
-                    'definition', 'comment', 'synonyms', 'synonymTypes',
-                    'otherIDs', 'start', 'end', 'parent' ])
+        return
 
-            elif self.vocab_name == 'EMAPS':
-                self.datafile = vocloadlib.readTabFile(filename,
-                    [ 'term', 'accID', 'status', 'abbreviation',
-                    'definition', 'comment', 'synonyms', 'synonymTypes',
-                    'otherIDs', 'emapa', 'ts', 'parent' ])
-
-	#
-        # all others
-	#
-        elif self.useSynonymType:
+    def loadDataFile(self, filename):
+        """
+        Load the term datafile from filename
+        sets self.datafile
+        """
+        if self.useSynonymType:
             self.datafile = vocloadlib.readTabFile(filename,
                 ['term', 'accID', 'status', 'abbreviation',
                 'definition', 'comment', 'synonyms', 'synonymTypes', 'otherIDs'])
@@ -366,9 +350,7 @@ class TermLoad:
                 ['term', 'accID', 'status', 'abbreviation',
                 'definition', 'comment', 'synonyms', 'otherIDs'])
 
-        self.log.writeline(vocloadlib.timestamp('Init Stop:'))
 
-        return
 
     def go(self):
         # Purpose: run the load
@@ -398,11 +380,18 @@ class TermLoad:
 
         self.log.writeline('=' * 40)       # end of the load
         self.closeDiscrepancyFiles()
+        
+        
+        # call any post-processing defined by sub class
+        self.postProcess()
 
         if not self.commitTransaction:
+            db.sql('rollback')
+            self.log.writeline('Rolling Back Transaction...') 
+
             msg = "Loading Terms FAILED! Please check %s for errant terms which caused failure" % self.accDiscrepFileName
             self.log.writeline(msg)
-            raise msg
+            raise TermLoadError(msg)
 
         return
 
@@ -425,30 +414,12 @@ class TermLoad:
         self.loadSynonymBCP   = 0
         self.loadAccessionBCP = 0
             
-	#
-        # for EMAPS
-	#
-
-        if self.vocab_name == 'EMAPS':
-            self.termTermBCPFileName      = os.environ['TERM_TERM_S_BCP_FILE']
-            self.termTextBCPFileName      = os.environ['TERM_TEXT_S_BCP_FILE']
-            self.termNoteBCPFileName      = os.environ['TERM_NOTE_S_BCP_FILE']
-            self.termNoteChunkBCPFileName = os.environ['TERM_NOTECHUNK_S_BCP_FILE']
-            self.termSynonymBCPFileName   = os.environ['TERM_SYNONYM_S_BCP_FILE']
-            self.accAccessionBCPFileName  = os.environ['ACCESSION_S_BCP_FILE']
-            self.termEmapBCPFileName      = os.environ['TERM_EMAPS_TS_BCP_FILE']
-            self.TS_TABLE = 'VOC_TERM_EMAPS'
-
-	#
-        # all others
-	#
-	else:
-            self.termTermBCPFileName      = os.environ['TERM_TERM_BCP_FILE']
-            self.termTextBCPFileName      = os.environ['TERM_TEXT_BCP_FILE']
-            self.termNoteBCPFileName      = os.environ['TERM_NOTE_BCP_FILE']
-            self.termNoteChunkBCPFileName = os.environ['TERM_NOTECHUNK_BCP_FILE']
-            self.termSynonymBCPFileName   = os.environ['TERM_SYNONYM_BCP_FILE']
-            self.accAccessionBCPFileName  = os.environ['ACCESSION_BCP_FILE']
+        self.termTermBCPFileName      = os.environ['TERM_TERM_BCP_FILE']
+        self.termTextBCPFileName      = os.environ['TERM_TEXT_BCP_FILE']
+        self.termNoteBCPFileName      = os.environ['TERM_NOTE_BCP_FILE']
+        self.termNoteChunkBCPFileName = os.environ['TERM_NOTECHUNK_BCP_FILE']
+        self.termSynonymBCPFileName   = os.environ['TERM_SYNONYM_BCP_FILE']
+        self.accAccessionBCPFileName  = os.environ['ACCESSION_BCP_FILE']
 
 	#
 	# open files for write
@@ -459,12 +430,6 @@ class TermLoad:
         self.termNoteChunkBCPFile = open(self.termNoteChunkBCPFileName, 'w')
         self.termSynonymBCPFile   = open(self.termSynonymBCPFileName, 'w')
         self.accAccessionBCPFile  = open(self.accAccessionBCPFileName, 'w')
-
-	#
-        # for EMAPS
-	#
-        if self.vocab_name in ('EMAPS'):
-	    self.termEmapBCPFile = open(self.termEmapBCPFileName, 'w')
 
 	return
 
@@ -477,16 +442,9 @@ class TermLoad:
         # Throws:  propagates all exceptions opening files
 
         # open the discrepancy file
-
-	#
-	# for EMAPS only
-	#
-        if self.vocab_name == 'EMAPS':
-            self.accDiscrepFileName = os.environ['DISCREP_S_FILE']
-        else:
-            self.accDiscrepFileName = os.environ['DISCREP_FILE']
-
-	print "Discrepancy filename: %s" % self.accDiscrepFileName
+        self.accDiscrepFileName = os.environ['DISCREP_FILE']
+        
+        print "Discrepancy filename: %s" % self.accDiscrepFileName
         self.accDiscrepFile = open(self.accDiscrepFileName, 'w')
 
         # now write HTML header information
@@ -541,30 +499,25 @@ class TermLoad:
         # Effects: database is loaded
         # Throws:  propagates all bcp exceptions
 
-        bcpLogFile   = os.environ['BCP_LOG_FILE']
-        bcpErrorFile = os.environ['BCP_ERROR_FILE']
-
-	#vocloadlib.NO_LOAD = 1
-
         if not vocloadlib.NO_LOAD:
 
            if self.loadTermBCP:
-              vocloadlib.loadBCPFile(self.termTermBCPFileName, bcpLogFile, bcpErrorFile, 'VOC_Term', self.passwordFile)
+              db.bcp(self.termTermBCPFileName, 'VOC_Term', delimiter='|')
                                                                    
            if self.loadTextBCP:
-              vocloadlib.loadBCPFile(self.termTextBCPFileName, bcpLogFile, bcpErrorFile, 'VOC_Text', self.passwordFile)
+              db.bcp(self.termTextBCPFileName, 'VOC_Text', delimiter='|')
                                                                    
            if self.loadNoteBCP:
-              vocloadlib.loadBCPFile(self.termNoteBCPFileName, bcpLogFile, bcpErrorFile, 'MGI_Note', self.passwordFile)
+              db.bcp(self.termNoteBCPFileName, 'MGI_Note', delimiter='|')
                                                                    
            if self.loadNoteChunkBCP:
-              vocloadlib.loadBCPFile(self.termNoteChunkBCPFileName, bcpLogFile, bcpErrorFile, 'MGI_NoteChunk', self.passwordFile)
+              db.bcp(self.termNoteChunkBCPFileName, 'MGI_NoteChunk', delimiter='|')
                                                                    
            if self.loadSynonymBCP:                                 
-              vocloadlib.loadBCPFile(self.termSynonymBCPFileName, bcpLogFile, bcpErrorFile, 'MGI_Synonym', self.passwordFile)
+              db.bcp(self.termSynonymBCPFileName, 'MGI_Synonym', delimiter='|')
                                                                    
            if self.loadAccessionBCP:                               
-              vocloadlib.loadBCPFile(self.accAccessionBCPFileName, bcpLogFile, bcpErrorFile, 'ACC_Accession', self.passwordFile)
+              db.bcp(self.accAccessionBCPFileName, 'ACC_Accession', delimiter='|')
 
         return
 
@@ -604,10 +557,6 @@ class TermLoad:
             termSeqNum = 'null'
 
         # each record in the data file should be added as a new term:
-         
-        # open up a transaction if not loading via bcp
-        if not self.isBCPLoad:
-           vocloadlib.beginTransaction(self.log)
 
         for record in self.datafile:
 
@@ -636,19 +585,6 @@ class TermLoad:
            if self.isBCPLoad:
               self.closeBCPFiles()
               self.loadBCPFiles()
-           else:
-              vocloadlib.commitTransaction(self.log)
-        else:
-           if not self.isBCPLoad:
-              vocloadlib.rollbackTransaction(self.log)
-
-	#
-        # for EMAPS
-	#
-        if self.vocab_name == 'EMAPS':
-            self.createEMAPSBCP()
-            self.termEmapBCPFile.close()
-            self.loadEMAPBCPFiles()
 
         self.log.writeline(vocloadlib.timestamp('Full Term Load Stop:'))
 
@@ -677,11 +613,6 @@ class TermLoad:
         if self.isBCPLoad:
 
            self.loadTermBCP = 1
-
-           if self.vocab_name == 'EMAPA':
-               self.emapTSDict[self.max_term_key] = [record['start'], record['end'], record['parent']]
-           elif self.vocab_name == 'EMAPS':
-               self.emapTSDict[self.max_term_key] = [record['emapa'], record['ts'], record['parent']]
 
            self.termTermBCPFile.write(BCP_INSERT_TERM % \
                                        (self.max_term_key,
@@ -911,9 +842,6 @@ class TermLoad:
         print "Getting Existing Vocabulary Terms..."
         recordSet = vocloadlib.getTerms(self.vocab_key)
 
-        # process data file
-        vocloadlib.beginTransaction(self.log)
-
         for record in self.datafile:
 
             # Cross reference input file records to database records
@@ -943,7 +871,7 @@ class TermLoad:
                dbRecord = recordSet.find('_Term_key', termKey)
 
                if dbRecord == []:
-                  raise error, 'AccID in ACC_Accession does not exist in VOC tables for _Object/_Term_Key: "%d"' % termKey
+                  raise TermLoadError('AccID in ACC_Accession does not exist in VOC tables for _Object/_Term_Key: "%d"' % termKey)
 
                else: # Existing record found in VOC tables.  
 	       
@@ -951,39 +879,16 @@ class TermLoad:
                   recordChanged = self.processRecordChanges(record, dbRecord, termKey)
                   self.processSecondaryTerms(record, primaryTermIDs, secondaryTermIDs, termKey)
 
-	          # for EMAPA 
-	          # always insert stage info as VOC_Term_EMAPA is a full reload
-                  if self.vocab_name == 'EMAPA':
-                      self.emapTSDict[termKey] = [record['start'], record['end'], record['parent']]
-
             else: # New term
 
                # in this case, perform full load
                if self.isSimple:
                   termSeqNum = termSeqNum + 1
 
-	       # note : for EMAPA, addTerm will handle the stage info
                self.addTerm(record, termSeqNum)
                self.processSecondaryTerms(record, primaryTermIDs, secondaryTermIDs, self.max_term_key)
 
-        if self.commitTransaction:
-           vocloadlib.commitTransaction(self.log)
-        else:
-           vocloadlib.rollbackTransaction(self.log)
-
         self.checkForMissingTermsInInputFile(primaryTermIDs, secondaryTermIDs)
-
-	#
-        # for EMAPA
-	# VOC_Term_EMAPA is a full reload
-	#
-        if self.vocab_name == 'EMAPA':
-	    self.termEmapBCPFileName = os.environ['TERM_EMAPA_TS_BCP_FILE']
-	    self.termEmapBCPFile = open(self.termEmapBCPFileName, 'w')
-	    self.TS_TABLE = 'VOC_TERM_EMAPA'
-            self.createEMAPABCP()
-            self.termEmapBCPFile.close()
-            self.loadEMAPBCPFiles()
 
         return
 
@@ -1454,112 +1359,17 @@ class TermLoad:
               return 1
 
        else:
-           raise error, unknown_data_loader % fullModeDataLoader
-
-###--- for EMAPA/EMAPS only
-
-    def loadEMAPBCPFiles(self):
-    
-        bcpLogFile   = os.environ['BCP_LOG_FILE'] 
-        bcpErrorFile = os.environ['BCP_ERROR_FILE']
-
-        vocloadlib.loadBCPFile(self.termEmapBCPFileName, bcpLogFile, bcpErrorFile, \
-		self.TS_TABLE, self.passwordFile)
-
-    def createEMAPABCP(self):
-        # Purpose: Create the VOC_Term_EMAPA BCP file
-        # Returns: nothing
-        # Assumes: EMAPA terms are in the database
-        # Effects: writes to a bcp file
-        # Throws:  Propagates vocloadlib errors
-
-	#
-	# VOC_Term for EMAPA is incremental
-	# VOC_Term_EMAPA will remain as full so truncate
-	#
-
-        vocloadlib.nl_sqlog(DELETE_EMAPA, self.log)
-
-	emapaTermDict = {}
-
-	#
-	# note : obsolete terms are excluded
-	#
-
-	results = vocloadlib.sql('''select a.accid, a._Object_key
-	    from ACC_Accession a
-	    where a._MGIType_key = 13
-	    and a._LogicalDB_key = 169
-	    and a.preferred = 1
-	    and exists (select 1 from VOC_Term t where a._Object_key = t._Term_key and t.isObsolete = 0)
-	    ''')
-
-	for r in results:
-	    emapaTermDict[r['accid']] = r['_Object_key']
-
-	for key in self.emapTSDict.keys():
-
-	    tsList = self.emapTSDict[key]
-	    start = tsList[0]
-	    end = tsList[1]
-	    parent = tsList[2]
-
-	    if emapaTermDict.has_key(parent):
-		pKey = emapaTermDict[parent]
-	    elif len(start) > 0:
-		pKey = ''	# root term
-	    else:
-	        continue
-
-	    self.termEmapBCPFile.write(BCP_INSERT_EMAPA % (key, pKey, start, end))
-
-    def createEMAPSBCP(self):
-        # Purpose: Create the VOC_Term_EMAPS BCP file
-        # Returns: nothing
-        # Assumes: EMAPA terms are in the database
-        # Effects:  writes to a bcp file
-        # Throws: Propagates vocloadlib errors
-
-        emapTermDict = {}
-
-	#
-	# note : obsolete terms are excluded
-	#
-
-        results = vocloadlib.sql('''select a.accid, a._Object_key
-	    from ACC_Accession a
-	    where a._MGIType_key = 13
-	    and a._LogicalDB_key in(169, 170)
-	    and a.preferred = 1
-	    and exists (select 1 from VOC_Term t where a._Object_key = t._Term_key and t.isObsolete = 0)
-	    ''')
-
-        for r in results:
-	    emapTermDict[r['accid']] = r['_Object_key']
-
-	for key in self.emapTSDict.keys():
-
-            tsList = self.emapTSDict[key]
-	    emapa = tsList[0]
-            ts = tsList[1]
-            parent = tsList[2]
-
-	    # resolve the emapa ID to a key
-	    aKey = ''
-	    if emapTermDict.has_key(emapa):
-		aKey = emapTermDict[emapa]
-	    else:
-		continue
-
-	    # resolve the default parent ID to a key
-	    if emapTermDict.has_key(parent):
-                pKey = emapTermDict[parent]
-	    elif len(ts) > 0:
-                pKey = ''       # root term
-            else:
-	        continue
-
-	    self.termEmapBCPFile.write(BCP_INSERT_EMAPA % (key, ts, pKey, aKey))
+           raise TermLoadError(unknown_data_loader % fullModeDataLoader)
+       
+       
+    ###--- Post Process Hook ---###
+    def postProcess(self):
+       """
+       Use this method in a sub class to do unique post processing
+       of a vocabulary load
+       """
+       pass
+       
 
 ###--- Main Program ---###
 
@@ -1607,5 +1417,7 @@ if __name__ == '__main__':
     vocloadlib.setupSql(server, database, username, password)
     load = TermLoad(input_file, mode, vocab_key, refs_key, log)
     load.go()
+    if load.commitTransaction:
+	   db.commit()
     vocloadlib.unsetupSql()
 
