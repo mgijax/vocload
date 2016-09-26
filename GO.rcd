@@ -17,27 +17,27 @@
 #
 
 RUNTIME_DIR = /data/loads/mgi/vocload/runTimeGO
-DATA_DIR = /data/downloads/ftp.geneontology.org/pub/go/ontology
+DATA_DIR = /data/downloads/purl.obolibrary.org/obo/go/data/downloads/purl.obolibrary.org/obo/go
 
 [
         NAME = Molecular Function
         NAME_SPACE = molecular_function
         ABBREV = F
-        ONTOLOGY_FILE = ${DATA_DIR}/function.ontology
+        ONTOLOGY_FILE = ${DATA_DIR}/go-basic.obo
         LOAD_FILE = ${RUNTIME_DIR}/dag.f
 ]
 [
         NAME = Biological Process
         NAME_SPACE = biological_process
         ABBREV = P
-        ONTOLOGY_FILE = ${DATA_DIR}/process.ontology
+        ONTOLOGY_FILE = ${DATA_DIR}/go-basic.obo
         LOAD_FILE = ${RUNTIME_DIR}/dag.p
 ]
 [
         NAME = Cellular Component
         NAME_SPACE = cellular_component
         ABBREV = C
-        ONTOLOGY_FILE = ${DATA_DIR}/component.ontology
+        ONTOLOGY_FILE = ${DATA_DIR}/go-basic.obo
         LOAD_FILE = ${RUNTIME_DIR}/dag.c
 ]
 [

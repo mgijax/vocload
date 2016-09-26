@@ -117,8 +117,6 @@ class Parser:
             #
             if tag == 'def':
                 newLine = self.line.replace('\\"', "'")
-		print 'newline'
-		print newLine
                 self.term.setDefinition (re.split ('"', newLine)[1])
 
             # Save the obsolete indicator.
