@@ -783,10 +783,11 @@ class TermLoad:
 	# for now, just do this for 'Disease Ontology'
 	#
 	# that is:
-	# if prefixPart = 'OMIM:', then search database for ACC_LogicalDB.name = 'OMIM'
+	# if prefixPart = 'OMIM:xxx', then search database for ACC_LogicalDB.name = 'OMIM'
 	#
 	if (self.vocab_name == 'Disease Ontology'):
-	    results = db.sql(''' select _LogicalDB_key from ACC_LogicalDB where name = '%s' ''' % (prefixPart[:-1]), 'auto')
+	    justLDB = prefixPart.split(':')
+	    results = db.sql(''' select _LogicalDB_key from ACC_LogicalDB where name = '%s' ''' % (justLDB[0]), 'auto')
 	    if len(results) > 0:
 	        useLogicalDBkey = results[0]['_LogicalDB_key']
 
