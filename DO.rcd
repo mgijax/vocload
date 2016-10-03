@@ -1,0 +1,31 @@
+#
+# Progam:  DO.rcd
+#
+# Purpose:
+#
+#	Configuration file for DO Vocabulary load
+#	which defines the DO DAGs
+#
+# Usage:
+#
+#	Used by Python Configuration module
+#
+# History:
+#
+#	03/25/2003	lec
+#	- moved simple vocab variables to DO.config
+#
+
+#RUNTIME_DIR = /data/loads/mgi/vocload/runTimeDO
+RUNTIME_DIR = /data/loads/lec/mgi/vocload/runTimeDO
+DATA_DIR = /data/downloads/raw.githubusercontent.com/DiseaseOntology/HumanDiseaseOntology/master/src/ontology
+
+# DAGs which are part of the vocabulary (for complex vocabularies)
+
+[
+        NAME = Disease Ontology
+        NAME_SPACE = disease_ontology
+        ABBREV = DOID
+        ONTOLOGY_FILE = ${DATA_DIR}/doid.obo
+        LOAD_FILE = ${RUNTIME_DIR}/dag.do
+]

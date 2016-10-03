@@ -133,6 +133,14 @@ class Parser:
             if tag == 'alt_id':
                 self.term.addAltID (re.split (' ', self.line, 1)[1].strip())
 
+            # Save an alternate ID using xref.
+	    # hard-coded list of xref to be loaded from Disease Ontology
+	    xreflist = ['OMIM']
+            if tag == 'xref' and self.vocabName == 'Disease Ontology':
+		for x in xreflist:
+		    if self.line.find(x) >= 0:
+                        self.term.addAltID (re.split (' ', self.line, 1)[1].strip())
+
             # Save an "is-a" relationship.
             #
             if tag == 'is_a':
@@ -154,7 +162,7 @@ class Parser:
             # Save a synonym and its synonym type.
             #
             if tag == 'synonym':
-		self.term.addSynonym (re.split ('"', self.line)[1])
+		self.term.addSynonym (re.split ('"', self.line)[1].rstrip())
 		synType = re.split (' ', re.split ('"', self.line)[2].lstrip())[0]
 		if self.vocabName == 'Feature Relationship' and synType == 'RELATED':
 		    # example from obo file:
@@ -168,9 +176,13 @@ class Parser:
 
 	    # Save the subset value
 	    # For MCV this is the show/hide value of the term
+	    # For Disease Ontology, this is the DO_MGI_slim
 	    #
 	    if tag == 'subset':
-		self.term.addSubset(re.split (' ', self.line)[1])
+	        if self.vocabName == 'Disease Ontoloty':
+		    self.term.addSubset(re.split (' ', self.line)[1])
+                else:
+		    self.term.addSubset(re.split (' ', self.line)[1])
 
             # Read the next line from the OBO file.
             #

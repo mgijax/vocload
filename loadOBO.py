@@ -423,7 +423,7 @@ def parseOBOFile():
                          comment + '\t' + \
                          '|'.join(synonym) + '\t' + \
                          '|'.join(synonymType) + '\t' + \
-                         '|'.join(altID) + '\n')
+                         '|'.join(altID) + '\t' + '\n')
 
             # If the term name is the same as the namespace AND there is a
             # root ID, write a record to the DAG file that relates this

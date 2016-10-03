@@ -388,7 +388,6 @@ class TermLoad:
         if not self.commitTransaction:
             db.sql('rollback')
             self.log.writeline('Rolling Back Transaction...') 
-
             msg = "Loading Terms FAILED! Please check %s for errant terms which caused failure" % self.accDiscrepFileName
             self.log.writeline(msg)
             raise TermLoadError(msg)
@@ -565,6 +564,7 @@ class TermLoad:
                duplicate = self.checkForDuplication(record['accID'], record['term'], \
 	       		"Primary", self.getIsObsolete(record['status']))
                if duplicate:
+		   self.log.writeline('Duplicate Primary Term')
                    self.commitTransaction = 0
 
             if self.isSimple:
@@ -965,6 +965,9 @@ class TermLoad:
         # only check if using actual accession ids (mgi ids will be blank in 
         # the Termfile)
 
+	self.log.writeline(str(self.logicalDBkey))
+	self.log.writeline(str(MGI_LOGICALDB_KEY))
+
 	if self.logicalDBkey != MGI_LOGICALDB_KEY and self.logicalDBkey != -1:
 
            # the primaryAccIDFileList and secondaryAccIDFileList are simply individual
@@ -1001,6 +1004,12 @@ class TermLoad:
 	         self.primaryAccIDFileList[accID] = isObsolete
 	      else:
 	         self.secondaryAccIDFileList.add(accID)
+
+	#
+	# DO: print the discrepency but do not process as a duplicate
+	#
+	if (self.vocab_name == 'Disease Ontology'):
+	    duplicate = 0
 
 	return duplicate
 
