@@ -135,9 +135,9 @@ class Parser:
 
             # Save an alternate ID using xref.
 	    # hard-coded list of xref to be loaded from Disease Ontology
-	    xreflist = ['OMIM']
+	    xrefList = ['OMIM']
             if tag == 'xref' and self.vocabName == 'Disease Ontology':
-		for x in xreflist:
+		for x in xrefList:
 		    if self.line.find(x) >= 0:
                         self.term.addAltID (re.split (' ', self.line, 1)[1].strip())
 
@@ -178,9 +178,12 @@ class Parser:
 	    # For MCV this is the show/hide value of the term
 	    # For Disease Ontology, this is the DO_MGI_slim
 	    #
+	    subsetList = ['DO_MGI_slim']
 	    if tag == 'subset':
-	        if self.vocabName == 'Disease Ontoloty':
-		    self.term.addSubset(re.split (' ', self.line)[1])
+	        if self.vocabName == 'Disease Ontology':
+		    for s in subsetList:
+		        if self.line.find(s) >= 0:
+		            self.term.addSubset(re.split (' ', self.line)[1].strip())
                 else:
 		    self.term.addSubset(re.split (' ', self.line)[1])
 

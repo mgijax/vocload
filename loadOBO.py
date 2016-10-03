@@ -160,6 +160,7 @@ def initialize():
 #
 def openFiles():
     global fpOBO, fpValid, fpTerm, fpDAG
+    global fpDOmgislim
 
     oboFile = os.environ['OBO_FILE']
     validFile = os.environ['VALIDATION_LOG_FILE']
@@ -206,6 +207,15 @@ def openFiles():
 
         log.writeline('DAG file = ' + dagFile)
 
+    # Open the DO_MGI_slim file.
+    #
+    if vocabName == 'Disease Ontology':
+        try:
+            domgislimFile = os.environ['DO_MGI_SLIM_FILE']
+            fpDOmgislim = open(domgislimFile, 'w')
+        except:
+            log.writeline('Cannot open DO_MGI_slim file: ' + domgislimFile)
+            exit(1)
 
 # Purpose: Close all the input and output files.
 # Returns: Nothing
@@ -214,12 +224,18 @@ def openFiles():
 # Throws: Nothing
 #
 def closeFiles():
+
     fpOBO.close()
     fpValid.close()
     fpTerm.close()
+
     for i in fpDAG.values():
         i.close()
 
+    try:
+        fpDOmgislim.close()
+    except:
+    	pass
 
 # Purpose: Use an OBOParser object to get header/term attributes from the
 #          OBO input file and use this information to create the Termfile
@@ -230,6 +246,7 @@ def closeFiles():
 # Throws: Nothing
 #
 def parseOBOFile():
+    global vocabName
 
     vocabName = os.environ['VOCAB_NAME']
     expectedVersion = os.environ['OBO_FILE_VERSION']
@@ -380,7 +397,7 @@ def parseOBOFile():
 
         # If this is the MCV, validate the subset aka Node Label; description of the Node
 	dag_child_label = ''
-	if  vocabName == 'Marker Category' and len(subset) > 0:
+	if vocabName == 'Marker Category' and len(subset) > 0:
 	    if len(subset) > 1:
 		fpValid.write('(%s) More than one MCV Node Label: \n' % (termID, subset))
                 isValid = 0
@@ -393,8 +410,7 @@ def parseOBOFile():
 	    if isValid == 1:
 		dag_child_label = validRelationshipType[l] 
 
-        # If there are no validation errors, the term can be processed
-        # further.
+        # If there are no validation errors, the term can be processed further.
         #
         if isValid:
 
@@ -423,7 +439,7 @@ def parseOBOFile():
                          comment + '\t' + \
                          '|'.join(synonym) + '\t' + \
                          '|'.join(synonymType) + '\t' + \
-                         '|'.join(altID) + '\t' + '\n')
+                         '|'.join(altID) + '\n')
 
             # If the term name is the same as the namespace AND there is a
             # root ID, write a record to the DAG file that relates this
@@ -432,6 +448,7 @@ def parseOBOFile():
             #log.writeline('parseOBOFile:term:' + str(termID) + '\n')
             #log.writeline('parseOBOFile:namespace:' + str(namespace) + '\n')
             #log.writeline('parseOBOFile:dagRootID:' + str(dagRootID) + '\n')
+
             if vocabName not in ('Cell Ontology'):
             	if name == namespace and dagRootID:
 			if vocabName == 'Feature Relationship':
@@ -458,6 +475,12 @@ def parseOBOFile():
 		    	status == 'obsolete' and termID != dagRootID:
                         #log.writeline('parseOBOFile:fpDAG[obsoleteNamespace]\n')
                 	fpDAG[obsoleteNamespace].write(termID + '\t' + '\t' + 'is-a' + '\t' + obsoleteID + '\n')
+	    #
+	    # TR12427/Disease Ontology/subset DO_MGI_slim
+	    #
+	    if vocabName == 'Disease Ontology' and len(subset) > 0:
+	        fpDOmgislim.write(termID + '\t' + name + '\n')
+
         # Get the next term from the parser.
         #
         term = parser.nextTerm()

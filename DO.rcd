@@ -12,8 +12,8 @@
 #
 # History:
 #
-#	03/25/2003	lec
-#	- moved simple vocab variables to DO.config
+# 10/03/2016	lec
+#	- TR12427/Disease Ontology
 #
 
 #RUNTIME_DIR = /data/loads/mgi/vocload/runTimeDO

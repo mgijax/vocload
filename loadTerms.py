@@ -341,6 +341,7 @@ class TermLoad:
         Load the term datafile from filename
         sets self.datafile
         """
+
         if self.useSynonymType:
             self.datafile = vocloadlib.readTabFile(filename,
                 ['term', 'accID', 'status', 'abbreviation',
@@ -773,6 +774,21 @@ class TermLoad:
 
         self.max_accession_key = self.max_accession_key + 1
         prefixPart, numericPart = accessionlib.split_accnum(accID)
+	useLogicalDBkey = self.logicalDBkey
+
+	#
+	# TR12427/Disease Ontology
+	# pull in tag 'xref'; attach same as 'alt_id'
+	# but use a different logicalDB based on the accession id prefix (minus the ending ":")
+	# for now, just do this for 'Disease Ontology'
+	#
+	# that is:
+	# if prefixPart = 'OMIM:', then search database for ACC_LogicalDB.name = 'OMIM'
+	#
+	if (self.vocab_name == 'Disease Ontology'):
+	    results = db.sql(''' select _LogicalDB_key from ACC_LogicalDB where name = '%s' ''' % (prefixPart[:-1]), 'auto')
+	    if len(results) > 0:
+	        useLogicalDBkey = results[0]['_LogicalDB_key']
 
         if self.isBCPLoad:
 
@@ -782,7 +798,7 @@ class TermLoad:
 					  (self.max_accession_key,
                                           accID,
                                           prefixPart,
-                                          self.logicalDBkey,
+                                          useLogicalDBkey,
                                           associatedTermKey,
                                           self.mgitype_key,
                                           self.isPrivate,
@@ -795,7 +811,7 @@ class TermLoad:
                    accID,
                    prefixPart,
                    numericPart,
-                   self.logicalDBkey,
+                   useLogicalDBkey,
                    associatedTermKey,
                    self.mgitype_key,
                    self.isPrivate,
@@ -964,9 +980,6 @@ class TermLoad:
 
         # only check if using actual accession ids (mgi ids will be blank in 
         # the Termfile)
-
-	self.log.writeline(str(self.logicalDBkey))
-	self.log.writeline(str(MGI_LOGICALDB_KEY))
 
 	if self.logicalDBkey != MGI_LOGICALDB_KEY and self.logicalDBkey != -1:
 
