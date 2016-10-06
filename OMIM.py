@@ -171,7 +171,7 @@ def cacheSecondaryIds():
 
 	    if tokens[0][0] == '^' and tokens[1] == 'MOVED':
 	        key = 'OMIM:' + tokens[3]	# the mim id of the term this id is a secondary of...
-	        sid = tokens[0][1:]             # the secondary id
+	        sid = 'OMIM:' + tokens[0][1:]             # the secondary id
 	        if not secondaryIds.has_key(key):
 	            secondaryIds[key] = []
 	        secondaryIds[key].append(sid)
