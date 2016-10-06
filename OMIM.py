@@ -170,8 +170,8 @@ def cacheSecondaryIds():
 	    tokens = string.split(line, ' ')
 
 	    if tokens[0][0] == '^' and tokens[1] == 'MOVED':
-	        key = tokens[3]	# the mim id of the term this id is a secondary of...
-	        sid = tokens[0][1:] # the secondary id
+	        key = 'OMIM:' + tokens[3]	# the mim id of the term this id is a secondary of...
+	        sid = tokens[0][1:]             # the secondary id
 	        if not secondaryIds.has_key(key):
 	            secondaryIds[key] = []
 	        secondaryIds[key].append(sid)
@@ -196,7 +196,7 @@ def cacheTranslations():
     for line in transTermFile.readlines():
 	tokens = string.split(line[:-1], '\t')
 	termType = tokens[0]
-	mim = tokens[1]
+	mim = 'OMIM:' + tokens[1]
 	mimTerm = tokens[2]
 	mgiTerm = tokens[3]
 	mimTermToMGI[termType + mim + mimTerm] = mgiTerm
@@ -226,7 +226,7 @@ def cacheExcluded():
     while line:
         line = line[:-1]
 	tokens = string.split(line, '\t')
-	id = tokens[0]
+	id = 'OMIM:' + tokens[0]
 	excludedIds.append(id)
         line = excludedFile.readline()
     excludedFile.close()
@@ -377,7 +377,7 @@ def processOMIM():
 	        writeOMIM(term, mim, synonyms)
 
             line = inFile.readline()
-	    mim = string.strip(line)
+	    mim = 'OMIM:' + string.strip(line)
 	    term = ''
 	    synonym = ''
 	    potentialsynonyms = []

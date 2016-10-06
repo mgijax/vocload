@@ -10,6 +10,13 @@ modified:   Install
 modified:   OBOParser.py
 modified:   loadOBO.py
 modified:   loadTerms.py
+modified:   VOClib.config
+
+obsolete:
+loadOBO-DC.py
+loadOBO-DC.csh
+/data/loads/mgi/vocload/OMIM/OMIM.clusters
+/data/loads/mgi/vocload/OMIM/OMIM.clusters.synonym
 
 TAG: vocload-6-0-5-4
 DATE: 09/26/2016
