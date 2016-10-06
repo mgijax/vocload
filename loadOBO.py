@@ -479,7 +479,7 @@ def parseOBOFile():
 	    # TR12427/Disease Ontology/subset DO_MGI_slim
 	    #
 	    if vocabName == 'Disease Ontology' and len(subset) > 0:
-	        fpDOmgislim.write(termID + '\t' + name + '\n')
+	        fpDOmgislim.write(termID + '\t\n')
 
         # Get the next term from the parser.
         #
