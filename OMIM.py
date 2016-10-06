@@ -34,6 +34,9 @@
 #
 # History:
 #
+# lec   10/06/2016
+#	- TR12427/per Sue/remove cacheSecondaryIds() and all OMIM secondary ids
+#
 # lec	10/12/2011
 #	- TR 10878/TRANSTERM_FILE = OMIM.translation
 #	field 0: translation type = 'T' (term)
@@ -43,24 +46,7 @@
 #	all have been updated to 'T' (term)
 #
 # lec	04/27/2011
-#	- TR 10551; delete records from omimNew that need to be obsoleted
-#	  this occurs when the original term is a non-*, non-^ term (added to the database)
-#	  but the "MOVED TO" term is a * or ^ term.
-#	  in this case, we need to remove the original term
-#	  from omimNew so that it falls into the "obsolete" area.
-#
-#	  the same thing can happen if the "MOVED TO" is in the OMIM.exclude bucket.
-#
-#         for example:
-#		176680 MOVED TO 142880
-#		142880 contains "*"
-#		176680 is removed from omimNew so it will
-#		fall into the "obsolete" area of OMIM.tab.
-#
-#		606642 MOVED TO 606641
-#		606641 is in the OMIM.exclude bucket
-#		606642 is removed from omimNew so it will
-#		fall into the "obsolete" area of OMIM.tab.
+#	- TR 10551; obsolete/removed; see TR for original request
 #		
 # lec	04/13/2005
 #	- TR 3853, OMIM
@@ -90,7 +76,6 @@ synonymType = 'exact'
 
 omimNew = {}		# OMIM Id:Term that are in the new input file
 omimMGI = {}		# OMIM records (id/term) that are currently in MGI
-secondaryIds = {}	# OMIM Ids and their secondary Ids (id:list of secondary ids)
 excludedIds = []	# OMIM Ids that are to be excluded (skipped)
 mimTermToMGI = {}	# TERMTYPE + OMIM ID + OMIM Term:MGI Term
 mimWordToMGI = {}	# bad word:good word
@@ -140,46 +125,6 @@ def cacheExistingAnnotIds():
 	''' % (os.environ['LOGICALDB_KEY']), 'auto')
     for r in results:
         annotIds.append(r['accID'])
-
-def cacheSecondaryIds():
-    #
-    # Purpose: cache all secondary ids (those that have been "MOVED TO")
-    # Returns:
-    # Assumes:
-    # Effects: populates global secondaryIds, omimNew dictionaries
-    # Throws:
-    #
-
-    #
-    # Note that there is one instance of:
-    # ^171850 MOVED TO 171680 AND 610681
-    # This code is not handling this case and have manually obsoleted 171850.
-    # as part of TR10551 migration (wts_projects/10500/10551/tr10551.csh)
-    #
-
-    global secondaryIds, omimNew
-
-    inFile = open(inFileName, 'r')
-    line = inFile.readline()
-    while line:
-        line = line[:-1]
-
-	# this term has been moved and is now a secondary id of another term
-
-        if string.find(line, ' MOVED TO') > 0:
-	    tokens = string.split(line, ' ')
-
-	    if tokens[0][0] == '^' and tokens[1] == 'MOVED':
-	        key = 'OMIM:' + tokens[3]	# the mim id of the term this id is a secondary of...
-	        sid = 'OMIM:' + tokens[0][1:]             # the secondary id
-	        if not secondaryIds.has_key(key):
-	            secondaryIds[key] = []
-	        secondaryIds[key].append(sid)
-		omimNew[sid] = PLACEHOLDERTERM
-
-        line = inFile.readline()
-
-    inFile.close()
 
 def cacheTranslations():
     #
@@ -326,8 +271,6 @@ def writeOMIM(term, mim, synonyms):
     global omimNew
 
     outFile.write(convertTerm(mim, term) + DELIM + mim + DELIM + activeStatus + DELIM + DELIM + DELIM + DELIM + DELIM)
-    if secondaryIds.has_key(mim):
-	outFile.write(string.join(secondaryIds[mim], '|'))
     outFile.write(CRT)
 
     for s in synonyms:
@@ -397,33 +340,12 @@ def processOMIM():
 	    # exclude all other entries
 
 	    if tokens[0][0] in ['*', '^']:
-
-		# if this entry is excluded but exists as a secondary id...
-	        if secondaryIds.has_key(mim):
-		    for id in secondaryIds[mim]:
-			# if this entry exists in omimNew...
-	                if omimNew.has_key(id):
-			    # remove object from omimNew 
-			    # so it will be added as an obsolete term (see below)
-			    del omimNew[id]
-
 		isGeneOnly = 1
-
 	        continue
 
 	    # if the term is in our excluded file, we don't want it
 
 	    if mim in excludedIds:
-
-		# if this entry is excluded but exists as a secondary id...
-	        if secondaryIds.has_key(mim):
-		    for id in secondaryIds[mim]:
-			# if this entry exists in omimNew...
-	                if omimNew.has_key(id):
-			    # remove object from omimNew 
-			    # so it will be added as an obsolete term (see below)
-			    del omimNew[id]
-
 		continue
 
 	    # if the term has been removed, we don't want it
@@ -514,7 +436,6 @@ animalModelFile = open(animalModelFileName, 'w')
 
 cacheExistingIds()
 cacheExistingAnnotIds()
-cacheSecondaryIds()
 cacheTranslations()
 cacheExcluded()
 processOMIM()
