@@ -1021,6 +1021,7 @@ class TermLoad:
 
 	#
 	# DO: print the discrepency but do not process as a duplicate
+	# at some point, perhaps just entirely skip this entire check for DO?
 	#
 	if (self.vocab_name == 'Disease Ontology'):
 	    duplicate = 0
