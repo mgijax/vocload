@@ -135,11 +135,13 @@ class Parser:
 
             # Save an alternate ID using xref.
 	    # hard-coded list of xref to be loaded from Disease Ontology
-	    xrefList = ['OMIM', 'EFO', 'KEGG', 'MESH', 'NCI', 'ORDO']
+	    xrefList = ['OMIM:', 'EFO:', 'KEGG:', 'MESH:', 'NCI:', 'ORDO:', 'HP:']
             if tag == 'xref' and self.vocabName == 'Disease Ontology':
 		for x in xrefList:
 		    if self.line.find(x) >= 0:
-                        self.term.addAltID (re.split (' ', self.line, 1)[1].strip())
+                        xref = re.split (' ', self.line, 1)[1].strip()
+			xref = xref.replace('HP:', 'HPO:')
+                        self.term.addAltID (xref)
 
             # Save an "is-a" relationship.
             #
