@@ -139,9 +139,7 @@ class Parser:
             if tag == 'xref' and self.vocabName == 'Disease Ontology':
 		for x in xrefList:
 		    if self.line.find(x) >= 0:
-                        xref = re.split (' ', self.line, 1)[1].strip()
-			xref = xref.replace('HP:', 'HPO:')
-                        self.term.addAltID (xref)
+                        self.term.addAltID (re.split (' ', self.line, 1)[1].strip())
 
             # Save an "is-a" relationship.
             #
