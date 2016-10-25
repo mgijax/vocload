@@ -795,10 +795,11 @@ class TermLoad:
 
 	   self.loadAccessionBCP = 1
 
-	   self.accAccessionBCPFile.write(BCP_INSERT_ACCESSION_NULL_NUMPART % \
+	   self.accAccessionBCPFile.write(BCP_INSERT_ACCESSION_NUMPART % \
 					  (self.max_accession_key,
                                           accID,
                                           prefixPart,
+					  numericPart,
                                           useLogicalDBkey,
                                           associatedTermKey,
                                           self.mgitype_key,
