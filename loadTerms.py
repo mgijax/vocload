@@ -795,6 +795,9 @@ class TermLoad:
 
 	   self.loadAccessionBCP = 1
 
+	   if numericPart == None:
+	   	numericPart = 'null'
+
 	   self.accAccessionBCPFile.write(BCP_INSERT_ACCESSION_NUMPART % \
 					  (self.max_accession_key,
                                           accID,
