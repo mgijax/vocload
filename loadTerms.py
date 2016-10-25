@@ -773,7 +773,11 @@ class TermLoad:
         #   nl_sqlog() function
 
         self.max_accession_key = self.max_accession_key + 1
+
         prefixPart, numericPart = accessionlib.split_accnum(accID)
+	if numericPart == None:
+	   numericPart = 'null'
+
 	useLogicalDBkey = self.logicalDBkey
 
 	#
@@ -794,9 +798,6 @@ class TermLoad:
         if self.isBCPLoad:
 
 	   self.loadAccessionBCP = 1
-
-	   if numericPart == None:
-	   	numericPart = 'null'
 
 	   self.accAccessionBCPFile.write(BCP_INSERT_ACCESSION_NUMPART % \
 					  (self.max_accession_key,
