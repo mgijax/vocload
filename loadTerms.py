@@ -185,6 +185,17 @@ DELETE_NOTE = '''delete from MGI_Note where _Object_key = %d and _NoteType_key =
 
 DELETE_ALL_SYNONYMS ='''delete from MGI_Synonym where _Object_key = %d and _MGIType_key = %d'''
 
+#
+# specific delete for Disease Ontology only
+#
+DELETE_DO_XREF = '''delete from ACC_Accession a
+USING VOC_Term t
+WHERE a.preferred = 0
+AND a._LogicalDB_key in (180, 192, 193, 194, 195, 196, 197, 198)
+and a._Object_key = t._Term_key
+AND t._Vocab_key = 125
+'''
+
 UPDATE_TERM = '''update VOC_Term 
 	set term = '%s', modification_date = now(), _ModifiedBy_key = 1001
 	where _Term_key = %d '''
@@ -381,7 +392,6 @@ class TermLoad:
 
         self.log.writeline('=' * 40)       # end of the load
         self.closeDiscrepancyFiles()
-        
         
         # call any post-processing defined by sub class
         self.postProcess()
@@ -854,8 +864,13 @@ class TermLoad:
         # set annotation type key - this will be used for merging changes
         self.ANNOT_TYPE_KEY = os.environ['ANNOT_TYPE_KEY']
 
+	#
+	# DELETE_DO_XREF
+	#
+	if (self.vocab_name == 'Disease Ontology'):
+        	vocloadlib.nl_sqlog(DELETE_DO_XREF, self.log)
+
         # get the existing Accession IDs/Terms from the database
-        # all at once
         print "Getting Accession IDs..."
         primaryTermIDs = vocloadlib.getTermIDs(self.vocab_key)
         secondaryTermIDs = vocloadlib.getSecondaryTermIDs(self.vocab_key)
