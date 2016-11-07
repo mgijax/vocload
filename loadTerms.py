@@ -191,7 +191,7 @@ DELETE_ALL_SYNONYMS ='''delete from MGI_Synonym where _Object_key = %d and _MGIT
 DELETE_DO_XREF = '''delete from ACC_Accession a
 USING VOC_Term t
 WHERE a.preferred = 0
-AND a._LogicalDB_key in (180, 192, 193, 194, 195, 196, 197, 198)
+AND a._LogicalDB_key in (15, 180, 192, 193, 194, 195, 196, 197, 198)
 and a._Object_key = t._Term_key
 AND t._Vocab_key = 125
 '''
