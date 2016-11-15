@@ -98,6 +98,9 @@ import html
 import mgi_utils
 import db
 
+db.setAutoTranslate(False)
+db.setAutoTranslateBE(False)
+
 USAGE = '''Usage: %s [-f|-i][-n][-l <file>] <server> <db> <user> <pwd> <key> <input>
     -f | -i : full load or incremental load? (default is full)
     -n      : use no-load option (log changes, but don't execute them)

@@ -36,11 +36,13 @@
 import sys      # standard Python libraries
 import string
 import os
-
 import vocloadlib   # MGI-written Python libraries
 import loadDAG
 import loadTerms
 import db
+
+db.setAutoTranslate(False)
+db.setAutoTranslateBE(False)
 
 ###--- Exceptions ---###
 
@@ -56,14 +58,13 @@ unknown_vocab = 'cannot find _Vocab_key for vocab \'%s\''
 # We define these template here to aid reability of the code.  They
 # are formatted to increase readability of the log file.
 
-INSERT_VOCAB = '''insert into VOC_Vocab (_Vocab_key, _Refs_key, isSimple, isPrivate,
-        _LogicalDB_key, name)
-    values (%d, %d, %d, %d, %d, \'%s\')'''
+INSERT_VOCAB = '''insert into VOC_Vocab (_Vocab_key, _Refs_key, isSimple, isPrivate, _LogicalDB_key, name)
+    values (%d, %d, %d, %d, %d, '%s')
+    '''
 
-INSERT_DAG = '''insert into DAG_DAG (_DAG_key, _Refs_key, _MGIType_key,
-        abbreviation, name)
-    values (%d, %d, %d,
-        \'%s\', \'%s\')'''
+INSERT_DAG = '''insert into DAG_DAG (_DAG_key, _Refs_key, _MGIType_key, abbreviation, name)
+    values (%d, %d, %d, %s, %s)
+    '''
 
 INSERT_VOCABDAG = 'insert into VOC_VocabDAG (_Vocab_key, _DAG_key) values (%d, %d)'
 
@@ -109,8 +110,7 @@ class VOCLoad:
 	self.passwordFile = open ( self.passwordFileName, 'r' )
 	self.password = string.strip ( self.passwordFile.readline() )
 
-	vocloadlib.setupSql (self.server, self.database,
-	    self.username, self.password)
+	vocloadlib.setupSql (self.server, self.database, self.username, self.password)
 	# confirm the sql setup worked by doing simple query
 	db.sql ('select count(1) from VOC_Vocab')
 
@@ -125,8 +125,8 @@ class VOCLoad:
         results = db.sql (
             '''select _Vocab_key, isSimple
                 from VOC_Vocab
-                where name = '%s' ''' % self.vocab_name
-                )
+                where name = '%s' 
+	    ''' % self.vocab_name)
         if len(results) > 0:
             self.vocab_key = results[0]['_Vocab_key']
             if results[0]['isSimple'] != self.isSimple:
@@ -138,7 +138,8 @@ class VOCLoad:
 
         result = db.sql ('''select _Refs_key
                     from BIB_View
-                    where jnumID = '%s' ''' % self.jnum)
+                    where jnumID = '%s' 
+		    ''' % self.jnum)
         if len(result) == 0:
             raise error, unknown_jnum % self.jnum
         self.refs_key = result[0]['_Refs_key']
@@ -177,8 +178,8 @@ class VOCLoad:
         if self.vocab_key:
             dags = db.sql ('''select _DAG_key
                         from VOC_VocabDAG
-                        where _Vocab_key = %d''' % \
-                        self.vocab_key)
+                        where _Vocab_key = %d
+			''' % self.vocab_key)
             for dag in dags:
                 vocloadlib.nl_sqlog ( 'delete from DAG_DAG where _DAG_key = %d' % dag['_DAG_key'], self.log )
 

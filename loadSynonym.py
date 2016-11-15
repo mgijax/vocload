@@ -55,6 +55,8 @@ import vocloadlib
 import mgi_utils
 import db
 
+db.setAutoTranslate(False)
+db.setAutoTranslateBE(False)
 
 # init database connection
 server = os.environ['DBSERVER']
@@ -124,11 +126,13 @@ for synType in synTypes:
 	
 synTypesIn = ','.join([str(key) for key in synTypeKeys])
 
-db.sql('delete from MGI_Synonym ' + \
-            'using MGI_SynonymType st, VOC_Term t ' + \
-            'where MGI_Synonym._Object_key = t._Term_key and ' + \
-                  't._Vocab_key = ' + str(vocabKey) + ' and ' + \
-                  'MGI_Synonym._SynonymType_key in (' + synTypesIn + ')')
+db.sql('''
+	delete from MGI_Synonym
+        using MGI_SynonymType st, VOC_Term t
+        where MGI_Synonym._Object_key = t._Term_key
+        and t._Vocab_key = %s
+        and MGI_Synonym._SynonymType_key in (%s)
+	''' % (str(vocabKey), synTypesIn))
 
 #
 # map term ID to _term_key

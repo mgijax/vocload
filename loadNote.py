@@ -47,6 +47,8 @@ import vocloadlib
 import mgi_utils
 import db
 
+db.setAutoTranslate(False)
+db.setAutoTranslateBE(False)
 
 # init database connection
 server = os.environ['DBSERVER']
@@ -106,11 +108,13 @@ for noteType in noteTypes:
 noteTypesIn = ','.join([str(key) for key in noteTypeKeys])
 
 
-db.sql('delete from MGI_Note ' + \
-            'using MGI_NoteType nt, VOC_Term t ' + \
-            'where MGI_Note._Object_key = t._Term_key and ' + \
-                  't._Vocab_key = ' + str(vocabKey) + ' and ' + \
-                  'MGI_Note._NoteType_key in (' + noteTypesIn + ')')
+db.sql('''
+	delete from MGI_Note 
+        using MGI_NoteType nt, VOC_Term t 
+        where MGI_Note._Object_key = t._Term_key 
+	and t._Vocab_key = %s
+        and MGI_Note._NoteType_key in (%s)
+	''' % (str(vocabKey), noteTypesIn)
 
 #
 # map term ID to _term_key

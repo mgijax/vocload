@@ -65,6 +65,8 @@ import DAG
 import vocloadlib
 import db
 
+db.setAutoTranslate(False)
+db.setAutoTranslateBE(False)
 
 # init database connection
 server = os.environ['DBSERVER']
