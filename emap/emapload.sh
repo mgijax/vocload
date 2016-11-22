@@ -36,8 +36,8 @@ fi
 
 . ${CONFIG}
 
-echo "MGD_DBSERVER: ${MGD_DBSERVER}"
-echo "MGD_DBNAME: ${MGD_DBNAME}"
+echo "PG_DBSERVER: ${PG_DBSERVER}"
+echo "PG_DBNAME: ${PG_DBNAME}"
 # this is a live run, set LIVE_RUN accordingly
 LIVE_RUN=1; export LIVE_RUN
 

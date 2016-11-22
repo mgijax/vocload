@@ -150,7 +150,7 @@ emapsDagFile = os.environ['EMAPS_DAG_FILE']
 
 log = Log.Log(0, os.environ['LOG_EMAP_TERMDAG'])
 
-passwordFileName = os.environ['MGD_DBPASSWORDFILE']
+passwordFileName = os.environ['PG_DBPASSWORDFILE']
 
 class EmapTerm(Ontology.OboTerm):
      # IS: an OboTerm
