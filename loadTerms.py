@@ -1234,7 +1234,8 @@ class TermLoad:
              obsoleteTermDiscrepancy = 1
 
        elif (record['term'] != dbRecord[0]['term']):
-          vocloadlib.nl_sqlog(UPDATE_TERM % (record['term'], termKey), self.log)
+	  # double-quote any single-quote values
+          vocloadlib.nl_sqlog(UPDATE_TERM % (record['term'].replace("'", "''"), termKey), self.log)
           recordChanged = 1
 
        #

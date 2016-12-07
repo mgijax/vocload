@@ -1,3 +1,8 @@
+TAG: vocload-6-0-6-1
+DATE: 12/07/2016
+STAFF: lec
+1) loadTerms.py/UPDATE_TERM/double-quote any single-quote values
+
 TAG: created tr12427 branch/no tag
 DATE: 09/30/2016
 STAFF: lec
