@@ -114,7 +114,7 @@ db.sql('''
         where MGI_Note._Object_key = t._Term_key 
 	and t._Vocab_key = %s
         and MGI_Note._NoteType_key in (%s)
-	''' % (str(vocabKey), noteTypesIn)
+	''' % (str(vocabKey), noteTypesIn))
 
 #
 # map term ID to _term_key

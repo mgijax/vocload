@@ -352,6 +352,14 @@ def parseOBOFile():
 	    continue
 
 	#
+	# for Disease Ontology
+	#
+	if vocabName == 'Disease Ontology' and termID.find('DOID:') < 0:
+	    # skip this term
+	    term = parser.nextTerm()
+	    continue
+
+	#
         # Validate the namespace.  The namespace is used to determine which
         # DAG file to write to.  For the GO vocabulary, there are multiple
         # DAGs, so the namespace is required for each term.  For other

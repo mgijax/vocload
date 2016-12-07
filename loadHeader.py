@@ -154,21 +154,21 @@ db.sql('''
             set _Label_key = %s
             from Nodes t 
             where DAG_Node._Node_key = t._Node_key
-	''' % (str(labelKey))
+	''' % (str(labelKey)))
 
 db.sql('''
 	update DAG_Closure 
             set _AncestorLabel_key = %s
             from Nodes t 
             where DAG_Closure._Ancestor_key = t._Node_key
-	''' % (str(labelKey))
+	''' % (str(labelKey)))
 
 db.sql('''
 	update DAG_Closure 
             set _DescendentLabel_key = %s
             from  Nodes t 
             where DAG_Closure._Descendent_key = t._Node_key
-	''' % (str(labelKey))
+	''' % (str(labelKey)))
 
 results = db.sql('select count(*) as cnt from Nodes')
 print 'Number of header nodes identified: %d' % results[0]['cnt']
