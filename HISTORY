@@ -18,6 +18,16 @@ loadOBO-DC.csh
 /data/loads/mgi/vocload/OMIM/OMIM.clusters
 /data/loads/mgi/vocload/OMIM/OMIM.clusters.synonym
 
+TAG: vocload-6-0-6-1
+DATE: 12/07/2016
+STAFF: lec
+1) loadTerms.py/UPDATE_TERM/double-quote any single-quote values
+
+TAG: created tr12427 branch/no tag
+DATE: 09/30/2016
+STAFF: lec
+TR12427/DO (Disease Ontology)
+
 TAG: vocload-6-0-5-4
 DATE: 09/26/2016
 STAFF: lec
