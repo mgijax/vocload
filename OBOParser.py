@@ -158,6 +158,8 @@ class Parser:
             # Save a relationship.
             #
             if tag == 'relationship':
+	        if self.vocabName == 'Disease Ontology':
+		    continue
                 self.term.addRelationship (re.split (' ', self.line)[2])
                 self.term.addRelationshipType (re.split (' ', self.line)[1])
 

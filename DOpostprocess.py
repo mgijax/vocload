@@ -8,12 +8,12 @@
 #
 # ${OBO_FILE}
 #
-# Output:
+# What it does:
 #
-# ACC_Accession input file
+# if the OMIM id has a 'omim_susceptibilty' relationship with the DO term
+# then, add OMIM id as a secondar id of the DO term
 #
-# to associated OMIM ids with DO ids
-# that appear in
+# example:
 #
 # [Term]
 # id: OMIM:000000
@@ -24,6 +24,11 @@
 # name: Alzheimer's disease 9
 # is_a: OMIM:000000 ! omim_susceptibilty
 # relationship: RO:0003304 DOID:10652 ! Alzheimers disease
+#
+# History
+#
+# 12/07/2016	lec
+#	- TR12427/Disease Ontology (DO) project
 #
 '''
 
