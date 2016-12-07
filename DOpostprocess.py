@@ -77,7 +77,6 @@ for line in doFile.readlines():
         prefixPart, numericPart = accessionlib.split_accnum(omimId)
         objectKey = loadlib.verifyObject(doId, 13, None, None, None)
         addSQL = INSERT_ACCESSION % (omimId, prefixPart, numericPart, objectKey)
-	print addSQL
         db.sql(addSQL, None)
 
     else:
@@ -85,4 +84,5 @@ for line in doFile.readlines():
 
 doFile.close()
 db.commit()
+sys.exit(0)
 

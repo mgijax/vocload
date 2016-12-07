@@ -18,4 +18,8 @@
 cd ${RUNTIME_DIR}
 
 ${SETLOAD}/setload.csh ${VOCLOAD}/DOmgislim.config
-
+STAT=$?
+if [ ${STAT} -ne 0 ]
+then
+   exit 1
+fi
