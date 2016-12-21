@@ -17,9 +17,6 @@ import sys
 import os
 import db
 
-db.setAutoTranslate(False)
-db.setAutoTranslateBE(False)
-
 # Main
 #
 

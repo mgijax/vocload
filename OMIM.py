@@ -59,9 +59,6 @@ import string
 import db
 import reportlib
 
-db.setAutoTranslate(False)
-db.setAutoTranslateBE(False)
-
 # globals
 
 DELIM = '\t'

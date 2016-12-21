@@ -61,9 +61,6 @@ import db
 
 #globals
 
-db.setAutoTranslate(False)
-db.setAutoTranslateBE(False)
-
 TAB = reportlib.TAB	# tab
 CRT = reportlib.CRT	# carriage return/newline
 

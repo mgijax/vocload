@@ -5,12 +5,16 @@ TR12427/Disease Ontology (DO)
 new file:   DO.config
 new file:   DO.rcd
 new file:   DOmgislim.config
+new file:   DOpostprocess.py
 modified:   HISTORY
 modified:   Install
 modified:   OBOParser.py
 modified:   loadOBO.py
 modified:   loadTerms.py
 modified:   VOClib.config
+
+obsolete:
+remove db.setAutoTranslate
 
 obsolete:
 loadOBO-DC.py

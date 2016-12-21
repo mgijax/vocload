@@ -38,9 +38,6 @@ import db
 import accessionlib
 import loadlib
 
-db.setAutoTranslate(False)
-db.setAutoTranslateBE(False)
-
 # do formatted file
 doFileName = None
 # do file pointer

@@ -41,9 +41,6 @@ import loadDAG
 import loadTerms
 import db
 
-db.setAutoTranslate(False)
-db.setAutoTranslateBE(False)
-
 ###--- Exceptions ---###
 
 error = 'VOCLoad.error'     # exception raised with values:
