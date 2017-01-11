@@ -103,7 +103,7 @@ def processSusceptibility():
 #
 def processSlim():
 
-    dosanityFileName = os.environ['DO_SLIM_SANITYCHECK_FILE']
+    dosanityFileName = os.environ['DO_MGI_SLIM_SANITY_FILE']
     dosanityFile = open(dosanityFileName, 'w')
 
     DELETE_SLIM = 'delete from MGI_SetMember where _Set_key = 1048 and _SetMember_key = %s'
