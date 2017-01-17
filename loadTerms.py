@@ -999,8 +999,7 @@ class TermLoad:
 
 	duplicate = 0
 
-        # only check if using actual accession ids (mgi ids will be blank in 
-        # the Termfile)
+        # only check if using actual accession ids (mgi ids will be blank in the Termfile)
 
 	if self.logicalDBkey != MGI_LOGICALDB_KEY and self.logicalDBkey != -1:
 
@@ -1084,11 +1083,13 @@ class TermLoad:
                 self.crossReferenceFileToDB(id, primaryTermIDs, secondaryTermIDs)
 
                 # Check to see if secondary term is a duplicated
+		# For 'Disease Ontology', skip this step as duplicate secondary ids are allowed
 
-                duplicate = self.checkForDuplication(id, record['term'], "Secondary", 0)
+	        if (self.vocab_name != 'Disease Ontology'):
+                    duplicate = self.checkForDuplication(id, record['term'], "Secondary", 0)
 
-                if duplicate:
-                    self.commitTransaction = 0
+                    if duplicate:
+                        self.commitTransaction = 0
 
                 if primaryTermIDs.has_key(id) and not duplicate:
 
