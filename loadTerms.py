@@ -191,7 +191,7 @@ DELETE_ALL_SYNONYMS ='''delete from MGI_Synonym where _Object_key = %d and _MGIT
 DELETE_DO_XREF = '''delete from ACC_Accession a
 USING VOC_Term t
 WHERE a.preferred = 0
-AND a._LogicalDB_key in (15, 180, 192, 193, 194, 195, 196, 197, 198)
+AND a._LogicalDB_key in (15, 180, 192, 193, 194, 195, 196, 197, 198, 201)
 and a._Object_key = t._Term_key
 AND t._Vocab_key = 125
 '''
@@ -800,8 +800,11 @@ class TermLoad:
 	# if prefixPart = 'OMIM:xxx', then search database for ACC_LogicalDB.name = 'OMIM'
 	#
 	if (self.vocab_name == 'Disease Ontology'):
-	    justLDB = prefixPart.split(':')
-	    results = db.sql(''' select _LogicalDB_key from ACC_LogicalDB where name = '%s' ''' % (justLDB[0]), 'auto')
+	    if prefixPart.find('OMIM:PS') >= 0:
+	        findLDB = 'OMIM:PS'
+	    else:
+	        findLDB, ignoreIt = prefixPart.split(':')
+	    results = db.sql('''select _LogicalDB_key from ACC_LogicalDB where name = '%s' ''' % (findLDB), 'auto')
 	    if len(results) > 0:
 	        useLogicalDBkey = results[0]['_LogicalDB_key']
 
