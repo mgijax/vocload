@@ -1,3 +1,10 @@
+TAG: vocload-6-0-8-2
+DATE: 02/17/2017
+STAFF: sc
+CHANGES: TR12513 - bypass TS child within parent for new develops_from relationship
+1) emapload.sh - fix use of  ${VOCLOAD} before config is sourced
+2) emapload.py - bypass QC for develops_from
+
 TAG: vocload-6-0-8-1
 DATE: 09/30/2016, 02/14/2017
 STAFF: lec

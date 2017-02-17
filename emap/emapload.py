@@ -550,16 +550,16 @@ def termCleanup(t,	# a term object (OboTerm)
 
     setattr(t, "starts_at", [])
     setattr(t, "ends_at", [])
-
     # check for starts_at and ends_at relationships
     for r in stanza.get("relationship", []): 
-	(reltype, id) = r.split()
+	(reltype, relid) = r.split()
+
 	if reltype == "starts_at":
-	    #setattr(t, "starts_at", int(id[2:]))
-	    t.starts_at.append(int(id[2:]))
+	    #setattr(t, "starts_at", int(relid[2:]))
+	    t.starts_at.append(int(relid[2:]))
 	if reltype == "ends_at":
-	    #setattr(t, "ends_at", int(id[2:]))	
-	    t.ends_at.append(int(id[2:]))
+	    #setattr(t, "ends_at", int(relid[2:]))	
+	    t.ends_at.append(int(relid[2:]))
     return
 
 # end termCleanup() -------------------------------
@@ -721,7 +721,7 @@ def createFiles():
 	# get the term and its ID
         term = t.name
         emapaId = t.id
-
+	
 	if term == '' or emapaId == '':
 	    missingNameIdList.append('id: "%s", name: "%s" has blank attribute' % (emapaId, term))
 	    errorCount += 1
@@ -831,6 +831,10 @@ def createFiles():
         for i in range(start, end + 1):
             cTSList.append(i)
 
+	# get parent's end edges of 't'
+	parentDict = {}
+	for parent, edge in ont.iterInEdges(t):
+		parentDict[parent] = edge
 	#
 	# Determine parent overlap
 	#
@@ -844,15 +848,20 @@ def createFiles():
 	parentOverlapTSDict = {}
 
 	# root term has no parents - add all ts to the dictionary
-	pList = ont.getParents(t)
+	#pList = ont.getParents(t)
+	pList = parentDict.keys()
+
 	if len(pList) == 0:
 	    for i in range(1, 29):
 		parentOverlapTSDict[i] = ['root|']
 
+	# We want to skip this check if relationship is develops_from or attached_to
 	# iterate over the parents adding to the overlap dict
 	for p in pList:
+	    # get relationship between the node and this parent
 	    # we need to sort on the term, but we need the ID for the
             # defaultParent
+	    
             parentList.append('%s|%s' % (p.name, p.id))
 
 	    # create a set of parent TS values to determine TS overlap
@@ -876,15 +885,19 @@ def createFiles():
 
 	    # check for child/parent TS overlap
 	    hasOverlap = False
-	    for ts in cTSList:
-		# all it takes is one overlap to be valid
-		if ts in pTSSet:
-		    hasOverlap = True
-		    pid = '%s|%s' %(p.name, p.id)
-		    if not parentOverlapTSDict.has_key(ts):
-			parentOverlapTSDict[ts] = []
-		    if pid  not in  parentOverlapTSDict[ts]:
-			parentOverlapTSDict[ts].append(pid)
+	    if parentDict[p] == 'develops_from' or parentDict[p] == 'attached_to':
+                hasOverlap = True # skip this QC check, child with develops_from relationship will NOT
+				  # overlap parent
+	    else:
+		for ts in cTSList:
+		    # all it takes is one overlap to be valid
+		    if ts in pTSSet:
+			hasOverlap = True
+			pid = '%s|%s' %(p.name, p.id)
+			if not parentOverlapTSDict.has_key(ts):
+			    parentOverlapTSDict[ts] = []
+			if pid  not in  parentOverlapTSDict[ts]:
+			    parentOverlapTSDict[ts].append(pid)
 		    
 	    # If hasOverlap is false we have no overlap
 	    if hasOverlap == False:
@@ -928,7 +941,7 @@ def createFiles():
 	for (parent, edgeLabel) in ont.iterInEdges(t):
             # part_of -> part-of, is_a -> is-a
             edge = edgeLabel.replace('_', '-')
-
+	    
             # get id from parent object
             pid = parent.id
 

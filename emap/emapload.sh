@@ -9,10 +9,10 @@
 
 cd `dirname $0`
 
-CONFIG=${VOCLOAD}/emap/emapload.config
+CONFIG=emapload.config
 USAGE='Usage: emapload.sh'
 
-LOG=${VOCLOAD}/emap/emapload.log
+LOG=emapload.log
 rm -rf ${LOG}
 
 #
