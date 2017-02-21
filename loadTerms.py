@@ -803,7 +803,8 @@ class TermLoad:
 	    if prefixPart.find('OMIM:PS') >= 0:
 	        findLDB = 'OMIM:PS'
 	    else:
-	        findLDB, ignoreIt = prefixPart.split(':')
+	        xrefs = prefixPart.split(':')
+		findLDB = xrefs[0]
 	    results = db.sql('''select _LogicalDB_key from ACC_LogicalDB where name = '%s' ''' % (findLDB), 'auto')
 	    if len(results) > 0:
 	        useLogicalDBkey = results[0]['_LogicalDB_key']

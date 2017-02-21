@@ -1,6 +1,7 @@
+TAG: vocload-6-0-8-5
 TAG: vocload-6-0-8-4
 TAG: vocload-6-0-8-3
-DATE: 02/17/2017
+DATE: 02/17/2017, 02/21/2017
 STAFF: sc
 CHANGES: TR12513
 1) emapload.sh - uncomment lastrun functionality
