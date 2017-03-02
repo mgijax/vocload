@@ -76,7 +76,7 @@ omimMGI = {}		# OMIM records (id/term) that are currently in MGI
 excludedIds = []	# OMIM Ids that are to be excluded (skipped)
 mimTermToMGI = {}	# TERMTYPE + OMIM ID + OMIM Term:MGI Term
 mimWordToMGI = {}	# bad word:good word
-annotIds = []
+#annotIds = []
 
 def cacheExistingIds():
     #
@@ -99,29 +99,29 @@ def cacheExistingIds():
     for r in results:
         omimMGI[r['accID']] = r['term']
 
-def cacheExistingAnnotIds():
-    #
-    # Purpose: cache existing MIM ids that have annotations
-    # Returns:
-    # Assumes:
-    # Effects: populates global annotIds list
-    # Throws:
-    #
-
-    global annotIds
-
-    results = db.sql('''
-	select a.accID
-	from ACC_Accession a, VOC_Term t
-	where a._LogicalDB_key = %s
-	and a._MGIType_key = 13
-	and a._Object_key = t._Term_key
-	and exists (select 1 from VOC_Annot va 
-		where va._AnnotType_key = 1005
-		and va._Term_key = t._Term_key)
-	''' % (os.environ['LOGICALDB_KEY']), 'auto')
-    for r in results:
-        annotIds.append(r['accID'])
+#def cacheExistingAnnotIds():
+#    #
+#    # Purpose: cache existing MIM ids that have annotations
+#    # Returns:
+#    # Assumes:
+#    # Effects: populates global annotIds list
+#    # Throws:
+#    #
+#
+#    global annotIds
+#
+#    results = db.sql('''
+#	select a.accID
+#	from ACC_Accession a, VOC_Term t
+#	where a._LogicalDB_key = %s
+#	and a._MGIType_key = 13
+#	and a._Object_key = t._Term_key
+#	and exists (select 1 from VOC_Annot va 
+#		where va._AnnotType_key = 1005
+#		and va._Term_key = t._Term_key)
+#	''' % (os.environ['LOGICALDB_KEY']), 'auto')
+#    for r in results:
+#        annotIds.append(r['accID'])
 
 def cacheTranslations():
     #
@@ -385,19 +385,23 @@ def processOMIM():
 	            if string.find(s, 'INCLUDED') < 0:
 			synonyms.append(s)
 
+	#
+	# TR12540/Disease Ontology
+	# comment out; on demand only; needs to be migrated from OMIM annotations to DO annotations
+	#
 	# if not gene-only
 	# and the field 'ANIMAL MODEL' exists
 	# and the OMIM term has no MGI annotations,
 	# then save the animal model information for displaying in the animalModelFile report
 
-	if isGeneOnly == 0 and string.find(line, 'ANIMAL MODEL') == 0 \
-		and len(line) == 12 and mim not in annotIds:
-
-                line = inFile.readline()
-	        line = line[:-1]
-                line = inFile.readline()
-	        line = line[:-1]
-        	animalModelFile.write(mim + '|' + str(term) + '|' + line + CRT)
+#	if isGeneOnly == 0 and string.find(line, 'ANIMAL MODEL') == 0 \
+#		and len(line) == 12 and mim not in annotIds:
+#
+#                line = inFile.readline()
+#	        line = line[:-1]
+#                line = inFile.readline()
+#	        line = line[:-1]
+#        	animalModelFile.write(mim + '|' + str(term) + '|' + line + CRT)
 
         line = inFile.readline()
 
@@ -432,7 +436,7 @@ synFile = open(synFileName, 'w')
 animalModelFile = open(animalModelFileName, 'w')
 
 cacheExistingIds()
-cacheExistingAnnotIds()
+#cacheExistingAnnotIds()
 cacheTranslations()
 cacheExcluded()
 processOMIM()

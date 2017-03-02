@@ -9,8 +9,11 @@
 #
 # History
 #
-#	11/11/2016	lec
-#	- TR12427/Disease Ontology (DO)/added OMIMdeleteobsolete.py
+# 03/02/2017	lec
+#	- TR12540/do not call this from OMIM.config
+#	the OMIM annotations have been removed from the database, so this query is obsolete
+#
+#	perhaps we may want to re-write this to use the OMIM->DO translation
 #
 
 import sys 
@@ -27,11 +30,11 @@ from VOC_Term t
 where t._Vocab_key = 44
 and t.isObsolete = 1
 and not exists (select 1 from VOC_Annot a
-	where a._AnnotType_key in (1005, 1012, 1006, 1020, 1021, 1022)
+	where a._AnnotType_key in (1005, 1012, 1006)
 	and a._Term_key = t._Term_key
 	)
 and not exists (select 1 from VOC_Annot a
-	where a._AnnotType_key in (1018, 1024)
+	where a._AnnotType_key in (1018)
 	and a._Object_key = t._Term_key
 	)
 ''', None)
