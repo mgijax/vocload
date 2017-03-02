@@ -49,6 +49,11 @@
 #
 # History
 #
+# 03/02/2017	lec
+#	- TR12540
+#	report 2 is now a duplicate of report 1 and is obsolete
+#	report 3 is obsolete
+#
 # 12/23/2015	lec
 #	- TR11956/added report2/moved report2 to report3
 #
@@ -91,66 +96,6 @@ def report1():
 	        fp.write(string.ljust(t, 15) + TAB)
 	        fp.write(string.ljust(mgiTerms[t], 65) + TAB)
 	        fp.write(string.ljust(omimTerms[t], 65) + CRT)
-
-    fp.write(CRT*2)
-
-def report2():
-
-    fp.write('''A report of new OMIM.tab term vs. MGI OMIM term where the:
-           OMIM.tab id = MGI OMIM id
-           OMIM.tab term != MGI OMIM term
-           ''')
-
-    fp.write(CRT)
-    fp.write(string.ljust('MGI OMIM ID', 15) + TAB)
-    fp.write(string.ljust('MGI OMIM term', 65) + TAB)
-    fp.write(string.ljust('OMIM.tab term', 65) + CRT*2)
-
-    for t in mgiTerms:
-        if omimTerms.has_key(t):
-	    mTerm = mgiTerms[t]
-	    oTerm = omimTerms[t]
-
-	    # only print if the terms are not equal
-
-	    if mTerm != oTerm:
-	        fp.write(string.ljust(t, 15) + TAB)
-	        fp.write(string.ljust(mgiTerms[t], 65) + TAB)
-	        fp.write(string.ljust(omimTerms[t], 65) + CRT)
-
-    fp.write(CRT*2)
-
-def report3():
-
-    fp.write('''A report of secondary OMIM.tab ids vs. MGI OMIM secondary ids where the:
-           OMIM.tab id = MGI OMIM id
-	   OMIM.tab secondary id != MGI OMIM secondary id
-           ''')
-
-    fp.write(CRT)
-    fp.write(string.ljust('MGI OMIM ID', 15) + TAB)
-    fp.write(string.ljust('MGI OMIM secondary ID', 25) + TAB)
-    fp.write(string.ljust('OMIM secondary ID', 25) + CRT*2)
-
-    # for each omim secondary that exists in mgi as a primary...
-    for t in mgiSecondarys:
-
-	secondaryExists = 0
-
-        if omimSecondarys.has_key(t):
-
-	    mSecondary = mgiSecondarys[t]
-
-	    for oSecondary in omimSecondarys[t]:
-	        if mSecondary == oSecondary:
-		    secondaryExists = 1
-
-	    # only print if the secondaries are not equal
-
-	    if secondaryExists == 0:
-	        fp.write(string.ljust(t, 15) + TAB)
-	        fp.write(string.ljust(mgiSecondarys[t], 25) + TAB)
-	        fp.write(string.ljust(string.join(omimSecondarys[t],'|'), 25) + CRT)
 
     fp.write(CRT*2)
 
@@ -226,7 +171,5 @@ mgiSecondarys = {}
 
 init()
 report1()
-report2()
-report3()
 reportlib.finish_nonps(fp)	# non-postscript file
 
