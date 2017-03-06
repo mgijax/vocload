@@ -429,11 +429,11 @@ synFileName = os.environ['SYNONYM_FILE']
 transTermFileName = os.environ['TRANSTERM_FILE']
 transWordFileName = os.environ['TRANSWORD_FILE']
 excludedFileName = os.environ['EXCLUDE_FILE']
-animalModelFileName = os.environ['ANIMALMODEL_FILE']
+#animalModelFileName = os.environ['ANIMALMODEL_FILE']
 
 outFile = open(outFileName, 'w')
 synFile = open(synFileName, 'w')
-animalModelFile = open(animalModelFileName, 'w')
+#animalModelFile = open(animalModelFileName, 'w')
 
 cacheExistingIds()
 #cacheExistingAnnotIds()
@@ -443,4 +443,4 @@ processOMIM()
 
 outFile.close()
 synFile.close()
-animalModelFile.close()
+#animalModelFile.close()
