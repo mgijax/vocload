@@ -1089,6 +1089,8 @@ class TermLoad:
                 # Check to see if secondary term is a duplicated
 		# For 'Disease Ontology', skip this step as duplicate secondary ids are allowed
 
+		duplicate = 0
+
 	        if (self.vocab_name != 'Disease Ontology'):
                     duplicate = self.checkForDuplication(id, record['term'], "Secondary", 0)
 
