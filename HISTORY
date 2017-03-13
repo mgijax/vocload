@@ -7,6 +7,11 @@ OMIM.config : OMIMdeleteobsolete.py is obsolete
 OMIM.py : comment out OMIM.animalmodel
 OMIMtermcheck.py : remove OMIM annotation query
 
+TAG: vocload-6-0-8-6
+DATE: 03/13/2016
+STAFF: lec
+loadTerms.py/processSecondaryTerms/duplicate
+
 TAG: vocload-6-0-8-5
 TAG: vocload-6-0-8-4
 TAG: vocload-6-0-8-3
