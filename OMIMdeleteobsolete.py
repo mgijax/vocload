@@ -30,11 +30,11 @@ from VOC_Term t
 where t._Vocab_key = 44
 and t.isObsolete = 1
 and not exists (select 1 from VOC_Annot a
-	where a._AnnotType_key in (1005, 1012, 1006)
+	where a._AnnotType_key in (1020, 1021, 1022)
 	and a._Term_key = t._Term_key
 	)
 and not exists (select 1 from VOC_Annot a
-	where a._AnnotType_key in (1018)
+	where a._AnnotType_key in (1024)
 	and a._Object_key = t._Term_key
 	)
 ''', None)

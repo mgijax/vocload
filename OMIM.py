@@ -117,7 +117,7 @@ def cacheExistingIds():
 #	and a._MGIType_key = 13
 #	and a._Object_key = t._Term_key
 #	and exists (select 1 from VOC_Annot va 
-#		where va._AnnotType_key = 1005
+#		where va._AnnotType_key = 1020
 #		and va._Term_key = t._Term_key)
 #	''' % (os.environ['LOGICALDB_KEY']), 'auto')
 #    for r in results:
