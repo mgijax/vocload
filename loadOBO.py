@@ -425,11 +425,17 @@ def parseOBOFile():
             definition = re.sub('\t', '', definition)
 
             # Determine what status to use in the Termfile.
+	    # if symbol is obsolete, do not load synonyms (03/16/2017/TR12540)
             #
             if obsolete:
                 status = 'obsolete'
+	        includeSynonym = ''
+		includeSynonymType = ''
             else:
                 status = 'current'
+		includeSynonym = '|'.join(synonym)
+		includeSynonymType = '|'.join(synonymType)
+
 	    if vocabName == 'Human Phenotype Ontology' and status == 'obsolete':
 		term = parser.nextTerm()
 		continue
@@ -442,8 +448,8 @@ def parseOBOFile():
                          TERM_ABBR + '\t' + \
                          definition + '\t' + \
                          comment + '\t' + \
-                         '|'.join(synonym) + '\t' + \
-                         '|'.join(synonymType) + '\t' + \
+                         includeSynonym + '\t' + \
+                         includeSynonymType + '\t' + \
                          '|'.join(altID) + '\n')
 
             # If the term name is the same as the namespace AND there is a
