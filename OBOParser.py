@@ -89,15 +89,17 @@ class Parser:
         # term until another stanza is found or EOF is reached.
         #
         self.line = self.fpOBO.readline()
+	obsolete = 'false'
+
         while self.line and self.line[0] != '[':
             self.line = self.line[:-1]
             tag = re.split (':', self.line, 1)[0]
-            obsolete = 'false'
 
             # Save the term ID.
             #
             if tag == 'id':
                 self.term.setTermID (re.split (' ', self.line, 1)[1].strip())
+                obsolete = 'false'
 
             # Save the term name.
             #
