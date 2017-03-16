@@ -92,6 +92,7 @@ class Parser:
         while self.line and self.line[0] != '[':
             self.line = self.line[:-1]
             tag = re.split (':', self.line, 1)[0]
+            obsolete = 'false':
 
             # Save the term ID.
             #
@@ -164,8 +165,9 @@ class Parser:
                 self.term.addRelationshipType (re.split (' ', self.line)[1])
 
             # Save a synonym and its synonym type.
+	    # do not consider synonyms is term is obsolete
             #
-            if tag == 'synonym':
+            if tag == 'synonym' and obsolete == 'false':
 		self.term.addSynonym (re.split ('"', self.line)[1].rstrip())
 		synType = re.split (' ', re.split ('"', self.line)[2].lstrip())[0]
 		if self.vocabName == 'Feature Relationship' and synType == 'RELATED':
