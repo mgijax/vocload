@@ -89,7 +89,6 @@ class Parser:
         # term until another stanza is found or EOF is reached.
         #
         self.line = self.fpOBO.readline()
-	obsolete = 'false'
 
         while self.line and self.line[0] != '[':
             self.line = self.line[:-1]
@@ -99,7 +98,6 @@ class Parser:
             #
             if tag == 'id':
                 self.term.setTermID (re.split (' ', self.line, 1)[1].strip())
-                obsolete = 'false'
 
             # Save the term name.
             #
@@ -167,9 +165,8 @@ class Parser:
                 self.term.addRelationshipType (re.split (' ', self.line)[1])
 
             # Save a synonym and its synonym type.
-	    # do not consider synonyms is term is obsolete
             #
-            if tag == 'synonym' and obsolete == 'false':
+            if tag == 'synonym':
 		self.term.addSynonym (re.split ('"', self.line)[1].rstrip())
 		synType = re.split (' ', re.split ('"', self.line)[2].lstrip())[0]
 		if self.vocabName == 'Feature Relationship' and synType == 'RELATED':
