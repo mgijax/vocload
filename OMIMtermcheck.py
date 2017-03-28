@@ -23,20 +23,6 @@
 #		MGI OMIM term
 #		OMIM.tab term
 #
-#	TR9461
-#	To generate report 2 of merged OMIM terms
-#	where the:
-#		OMIM.tab id = MGI OMIM id
-#		OMIM.tab secondary exists
-#		OMIM.tab term
-#		MGI OMIM term
-#
-#	Report output 2:
-#
-#		MGI OMIM ID
-#		OMIM.tab secondary ID (column 7)
-#		MGI OMIM secondary ID
-#
 # Inputs:
 #
 #	/data/loads/mgi/vocload/OMIM/OMIM.tab
@@ -53,6 +39,7 @@
 #	- TR12540
 #	report 2 is now a duplicate of report 1 and is obsolete
 #	report 3 is obsolete
+#	added new report 2; new OMIM ids
 #
 # 12/23/2015	lec
 #	- TR11956/added report2/moved report2 to report3
@@ -83,7 +70,6 @@ def report1():
     fp.write(string.ljust('MGI OMIM ID', 15) + TAB)
     fp.write(string.ljust('MGI OMIM term', 65) + TAB)
     fp.write(string.ljust('OMIM.tab term', 65) + CRT*2)
-    #fp.write('MGI ID of the Genotype annotations' + CRT*2)
 
     for t in mgiTerms:
         if omimTerms.has_key(t):
@@ -99,23 +85,19 @@ def report1():
 
     fp.write(CRT*2)
 
+def report2():
+
+    fp.write('A report of new OMIM.tab terms added since the last load:\n\n')
+
+    for t in omimTerms:
+        if not mgiTerms.has_key(t):
+	    fp.write(string.ljust(omimTerms[t], 65) + CRT)
+
+    fp.write(CRT*2)
+
 def init():
 
-    global omimTerms, omimSecondarys, mgiTerms, mgiSecondarys
-
-    # grab the new OMIM terms
-    for line in inFile.readlines():
-        tokens = string.split(line[:-1], '\t')
-        term = tokens[0]
-        id = tokens[1]
-	secondary = tokens[7]
-        omimTerms[id] = term
-
-	if len(secondary) > 0:
-	    tokens = string.split(secondary, '|')
-	    omimSecondarys[id] = []
-	    for t in tokens:
-		omimSecondarys[id].append(t)
+    global omimTerms, mgiTerms
 
     inFile.close()
 
@@ -134,30 +116,11 @@ def init():
         id = r['accID']
         mgiTerms[id] = term
 
-    # grab the existing OMIM secondary terms in MGI
-    results = db.sql('''select distinct a.accID, s.accID as secondary
-        from VOC_Term t, ACC_Accession a, ACC_Accession s
-        where t._Vocab_key = 44
-        and t._Term_key = a._Object_key 
-        and a._MGIType_key = 13 
-        and a.preferred = 1
-        and t._Term_key = s._Object_key 
-        and s._MGIType_key = 13 
-        and s.preferred = 0
-        order by s.accID, a.accID
-        ''', 'auto')
-
-    for r in results:
-        id = r['accID']
-	secondary = r['secondary']
-        mgiSecondarys[id] = secondary
-
 #
 # Main
 #
 
-fp = reportlib.init(sys.argv[0], printHeading = 0, outputdir = os.environ['RUNTIME_DIR'],
-	fileExt = '.' + os.environ['DATE'] + '.rpt')
+fp = reportlib.init(sys.argv[0], printHeading = 0, outputdir = os.environ['RUNTIME_DIR'], fileExt = '.' + os.environ['DATE'] + '.rpt')
 os.system('rm -rf ${RUNTIME_DIR}/OMIMtermcheck.current.rpt')
 os.system('ln -s ${RUNTIME_DIR}/OMIMtermcheck.${DATE}.rpt ${RUNTIME_DIR}/OMIMtermcheck.current.rpt')
 
@@ -165,11 +128,10 @@ os.system('ln -s ${RUNTIME_DIR}/OMIMtermcheck.${DATE}.rpt ${RUNTIME_DIR}/OMIMter
 inFile = open(os.environ['DATA_FILE'], 'r')
 
 omimTerms = {}
-omimSecondarys = {}
 mgiTerms = {}
-mgiSecondarys = {}
 
 init()
 report1()
+report2()
 reportlib.finish_nonps(fp)	# non-postscript file
 
