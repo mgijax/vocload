@@ -99,6 +99,13 @@ def init():
 
     global omimTerms, mgiTerms
 
+    # grab the new OMIM terms
+    for line in inFile.readlines():
+        tokens = string.split(line[:-1], '\t')
+        term = tokens[0]
+        id = tokens[1]
+        omimTerms[id] = term
+
     inFile.close()
 
     # grab the existing OMIM terms in MGI
