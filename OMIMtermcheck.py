@@ -91,7 +91,7 @@ def report2():
 
     for t in omimTerms:
         if not mgiTerms.has_key(t):
-	    fp.write(string.ljust(omimTerms[t], 65) + CRT)
+	    fp.write(t + TAB + string.ljust(omimTerms[t], 65) + CRT)
 
     fp.write(CRT*2)
 
