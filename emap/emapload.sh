@@ -6,7 +6,11 @@
 #
 #     emapload.sh 
 #
-
+# HISTORY
+#
+#  04/19/17 - delete old fatal and warning reports before running
+#	emapload.py, we don't want old ones hanging around
+#
 cd `dirname $0`
 
 CONFIG=emapload.config
@@ -40,6 +44,17 @@ echo "PG_DBSERVER: ${PG_DBSERVER}"
 echo "PG_DBNAME: ${PG_DBNAME}"
 # this is a live run, set LIVE_RUN accordingly
 LIVE_RUN=1; export LIVE_RUN
+
+# remove any old QC reports
+if [ -f ${QC_RPT}} ]
+then
+    rm ${QC_RPT}
+fi
+
+if [ -f ${QC_WARN_RPT}} ]
+then
+    rm ${QC_WARN_RPT}
+fi
 
 #
 #  Source the DLA library functions.
