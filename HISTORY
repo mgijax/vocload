@@ -1,9 +1,19 @@
-TAG: vocload-6-0-8-6
+TAG: vocload-6-0-8-8
 STAFF: sc
 CHANGES: TR12461
 1) emapload.sh - delete old fatal and warning reports before running
        emapload.py, we don't want old ones hanging around
 2) emapload.py - bug reporting multiple emaps root terms, see script for details
+
+TAG: vocload-6-0-8-7
+DATE: 03/16/2016
+STAFF: lec
+loadOBO.py : do not include Synonyms for obsolete terms
+
+TAG: vocload-6-0-8-6
+DATE: 03/13/2016
+STAFF: lec
+loadTerms.py/processSecondaryTerms/duplicate
 
 TAG: vocload-6-0-8-5
 TAG: vocload-6-0-8-4
