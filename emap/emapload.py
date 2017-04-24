@@ -46,6 +46,19 @@
 #
 #  History
 #
+#  04/19/2017	sc
+#	- TR12461 bug reporting multiple emaps root terms
+#	  changed this:
+#	    if len(aRootTermList) > 1 or len(sRootTermList) > 1:
+#	  to this:
+#	    if len(aRootTermList) > 1 or len(sRootTermList) > 0:
+#	  because the actual 28 emaps Root terms are not in sRootTermList
+#
+#	  This was an edge case bug that only happened when there was ONE 
+#	  extra EMAPS root term (parentless term - this happens when a child
+#	  EMAPA term is outside the TS range of ALL of its parents range
+# 	  e.g. child TS26-28 with one parent and  parent range is TS27-28
+#
 #  02/22/2016	lec
 #	- TR12223/gxd anatomy II
 #	- see ../loadTerms.py history
@@ -72,6 +85,8 @@ from emap_term_loaders import EMAPALoad, EMAPSLoad
 #
 #  CONSTANTS
 #
+debug = 0
+
 TAB = '\t'
 CRT = '\n'
 STATUS = 'current'
@@ -151,6 +166,7 @@ emapsDagFile = os.environ['EMAPS_DAG_FILE']
 log = Log.Log(0, os.environ['LOG_EMAP_TERMDAG'])
 
 passwordFileName = os.environ['PG_DBPASSWORDFILE']
+
 
 class EmapTerm(Ontology.OboTerm):
      # IS: an OboTerm
@@ -575,8 +591,8 @@ def createFiles():
     global errorCount, aRootTermList, sRootTermList, noOverlapList
     global tsDiscrepancyList, cyclesList, seenEMAPIDSet
     global annotDiscrepancyList, annotEMAPIDSet, annotDict
-    global allEMAPIDs
-
+    global allEMAPIDs, debug
+ 
     # list of EMAPA root nodes, if > 1 will report
     aRootTermList = []
   
@@ -705,10 +721,8 @@ def createFiles():
     #
     # build EMAPA/EMAPS term and dag files, checking for errors as we go
     #
-
     # t is instance of EmapTerm which extends Ontology.OBOTerm
     for t in ont.iterNodes():	# iterate through the nodes 
-
         # only consider anatomical_structure namespace
         if t.namespace != ns:
             continue
@@ -721,6 +735,12 @@ def createFiles():
 	# get the term and its ID
         term = t.name
         emapaId = t.id
+
+	# 'endochronal bone' 'EMAPA:35304 child of 'bone tissue' EMAPA:35179
+        #if emapaId == 'EMAPA:35304':
+        #    debug = 1
+        #    print 'Debugging: %s %s' % (emapaId, term)
+        #    print 'Starts at: %s Ends at: %s' % (t.starts_at, t.ends_at)
 	
 	if term == '' or emapaId == '':
 	    missingNameIdList.append('id: "%s", name: "%s" has blank attribute' % (emapaId, term))
@@ -959,12 +979,17 @@ def createFiles():
 	#
 
 	# create EMAPS term for each TS stage 
+        if debug:
+            print 'Start of creating EMAPS term'
+
 	for ts in cTSList:
 	    # we need the leading zero for the id 
 	    if int(ts) < 10:
 		tsString = '0%s' % ts
 	    else:
 		tsString = '%s' % ts    
+	    if debug:
+                print 'ts: %s' % ts
 
 	    # the term is the same as the emapa term
 	    sTerm = term  
@@ -972,15 +997,21 @@ def createFiles():
 	    # Calculate the emaps ID
 	    # EMAPA:123456 at TS01 -> EMAPS:12345601
 	    emapsId = '%s%s' % (emapaId.replace('A:', 'S:'), tsString)
+            if debug:
+                print 'emapsId: %s' % emapsId
 
 	    pidList = []
             if parentOverlapTSDict.has_key(ts):
+		if debug:
+		    print 'parentOverlapTSDict[ts]: %s' %  parentOverlapTSDict[ts]
                 pidList = parentOverlapTSDict[ts]
             else:
 		# parentless terms are root terms, save for multi-root detection
                 sRootTermList.append(emapsId)
-		continue
+		if debug:
+                    print 'adding to sRootTermList: %s' % sRootTermList
 
+		continue
 	    # Calculate the emaps default parent ID
 	    # null if its the root 
 	    if isRoot:
@@ -990,11 +1021,17 @@ def createFiles():
 		dep = pidList[0].split('|')[1]
 		defaultEmapsParent = '%s%s' % (dep.replace('A:', 'S:'), tsString)
 
+            # write to emaps term file; status, synonyms, synType same as EMAPA
+            if debug:
+                print 'writing to emapsTerm file: %s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s' % \
+                (sTerm, TAB, emapsId, TAB, STATUS, TAB, TAB, TAB, TAB, syns, \
+                TAB, synType, TAB, TAB, emapaId, TAB, ts, TAB, defaultEmapsParent, CRT)
+
 	    # write to emaps term file; status, synonyms, synType same as EMAPA
 	    fpEmapsTerm.write('%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s' % \
 		(sTerm, TAB, emapsId, TAB, STATUS, TAB, TAB, TAB, TAB, syns, \
 		TAB, synType, TAB, TAB, emapaId, TAB, ts, TAB, defaultEmapsParent, CRT)) 
-	    
+
 	    # create emaps dag file for each emaps TS overlap with parent
 	    for p in pidList: 
 		pid = p.split('|')[1]
@@ -1012,7 +1049,6 @@ def createFiles():
 		    for edge in edges:
 			fpEmapsDagDict[int(ts)].write('%s%s%s%s%s%s%s' % \
 			    (emapsId, TAB, TAB, edge, TAB, pEmapsId, CRT))
-		    
 	if errorCount:
 	    continue
 
@@ -1029,8 +1065,7 @@ def createFiles():
 	errorCount += 1
 
     # Check if dags rooted in one term
-
-    if len(aRootTermList) > 1 or len(sRootTermList) > 1:
+    if len(aRootTermList) > 1 or len(sRootTermList) > 0:
 	errorCount += 1
 
     return
@@ -1072,8 +1107,9 @@ def writeFatalSanityReport():
         fpQcRpt.write(string.join(cyclesList, CRT))
         fpQcRpt.write('%s%s' % ( CRT, CRT))
 
-    if len(sRootTermList) > 1:
+    if len(sRootTermList) > 0:
         fpQcRpt.write('Multiple EMAPS Root Nodes: %s%s' % (CRT, CRT))
+	fpQcRpt.write('EMAPS roots are EMAPS:25765 (1-28) these are in addition: %s%s' % (CRT, CRT))
 	for r in sRootTermList:
 	    fpQcRpt.write('%s%s' % (r, CRT))
         fpQcRpt.write('%s%s' % ( CRT, CRT))
