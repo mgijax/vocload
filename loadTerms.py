@@ -142,8 +142,8 @@ INSERT_TERM = '''insert into VOC_Term (_Term_key, _Vocab_key, term, abbreviation
 BCP_INSERT_TERM = '''%%d|%%d|%%s|%%s|%%s|%%d|%d|%d|%s|%s\n''' % \
 	(CREATEDBY_KEY, CREATEDBY_KEY, CDATE, CDATE)
 
-INSERT_TEXT = '''insert into VOC_Text (_Term_key, sequenceNum, note)
-    values (%d, 1, '%s')'''
+INSERT_TEXT = '''insert into VOC_Text (_Term_key, note)
+    values (%d, '%s')'''
 
 BCP_INSERT_TEXT = '''%%d|1|%%s|%s|%s\n''' % \
 	(CDATE, CDATE)
