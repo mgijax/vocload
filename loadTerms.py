@@ -145,7 +145,7 @@ BCP_INSERT_TERM = '''%%d|%%d|%%s|%%s|%%s|%%d|%d|%d|%s|%s\n''' % \
 INSERT_TEXT = '''insert into VOC_Text (_Term_key, note)
     values (%d, '%s')'''
 
-BCP_INSERT_TEXT = '''%%d|1|%%s|%s|%s\n''' % \
+BCP_INSERT_TEXT = '''%%d|%%s|%s|%s\n''' % \
 	(CDATE, CDATE)
 
 INSERT_NOTE = '''insert into MGI_Note (_Note_key, _Object_key, _MGIType_key, _NoteType_key)
