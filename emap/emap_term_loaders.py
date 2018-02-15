@@ -35,7 +35,7 @@ class EMAPALoad(TermLoad):
         """
         self.datafile = vocloadlib.readTabFile(filename,
             [ 'term', 'accID', 'status', 'abbreviation',
-            'definition', 'comment', 'synonyms', 'synonymTypes',
+            'note', 'comment', 'synonyms', 'synonymTypes',
             'otherIDs', 'start', 'end', 'parent' 
         ])
         
@@ -125,7 +125,7 @@ class EMAPSLoad(TermLoad):
         
         self.datafile = vocloadlib.readTabFile(filename,
             [ 'term', 'accID', 'status', 'abbreviation',
-            'definition', 'comment', 'synonyms', 'synonymTypes',
+            'note', 'comment', 'synonyms', 'synonymTypes',
             'otherIDs', 'emapa', 'ts', 'parent']
         )
         
@@ -208,11 +208,4 @@ class EMAPSLoad(TermLoad):
                 
         # load BCP into database
         db.bcp(bcpFileName, 'VOC_Term_EMAPS', delimiter='|')
-        
-        
-        
-
-    
-    
-    
         

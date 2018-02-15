@@ -2,7 +2,6 @@
 # Purpose: to load the input file of vocabulary terms to database tables
 #
 #   VOC_Term
-#   VOC_Text
 #   VOC_Vocab
 #   ACC_Accession
 #   MGI_NoteChunk
@@ -136,17 +135,11 @@ has_refs = 'cannot do a full load on vocab %s which has cross references'
 # templates placed here for readability of the code and
 # formatted for readability of the log file
 
-INSERT_TERM = '''insert into VOC_Term (_Term_key, _Vocab_key, term, abbreviation, sequenceNum, isObsolete)
-    values (%d, %d, '%s', '%s', %s, %d)'''
+INSERT_TERM = '''insert into VOC_Term (_Term_key, _Vocab_key, term, abbreviation, note, sequenceNum, isObsolete)
+    values (%d, %d, '%s', '%s', '%s', %s, %d)'''
 
-BCP_INSERT_TERM = '''%%d|%%d|%%s|%%s|%%s|%%d|%d|%d|%s|%s\n''' % \
+BCP_INSERT_TERM = '''%%d|%%d|%%s|%%s|%%s|%%s|%%d|%d|%d|%s|%s\n''' % \
 	(CREATEDBY_KEY, CREATEDBY_KEY, CDATE, CDATE)
-
-INSERT_TEXT = '''insert into VOC_Text (_Term_key, note)
-    values (%d, '%s')'''
-
-BCP_INSERT_TEXT = '''%%d|%%s|%s|%s\n''' % \
-	(CDATE, CDATE)
 
 INSERT_NOTE = '''insert into MGI_Note (_Note_key, _Object_key, _MGIType_key, _NoteType_key)
     values (%d, %d, %s, %s)'''
@@ -179,8 +172,6 @@ BCP_INSERT_ACCESSION_NUMPART = '''%%d|%%s|%%s|%%s|%%d|%%d|%%d|%%d|%%d|%d|%d|%s|%
 # note : using 'delete' will fire triggers; truncate will not
 #
 
-DELETE_TEXT = '''delete from VOC_Text where _Term_key = %d'''
-
 DELETE_NOTE = '''delete from MGI_Note where _Object_key = %d and _NoteType_key = %s'''
 
 DELETE_ALL_SYNONYMS ='''delete from MGI_Synonym where _Object_key = %d and _MGIType_key = %d'''
@@ -198,6 +189,11 @@ AND t._Vocab_key = 125
 
 UPDATE_TERM = '''update VOC_Term 
 	set term = '%s', modification_date = now(), _ModifiedBy_key = 1001
+	where _Term_key = %d '''
+
+# note %s : "note = 'xxxx'" OR "note = null" (no quotes)
+UPDATE_TERMNOTE = '''update VOC_Term 
+	set note = %s, modification_date = now(), _ModifiedBy_key = 1001
 	where _Term_key = %d '''
 
 UPDATE_STATUS = '''update VOC_Term 
@@ -356,11 +352,11 @@ class TermLoad:
         if self.useSynonymType:
             self.datafile = vocloadlib.readTabFile(filename,
                 ['term', 'accID', 'status', 'abbreviation',
-                'definition', 'comment', 'synonyms', 'synonymTypes', 'otherIDs'])
+                'note', 'comment', 'synonyms', 'synonymTypes', 'otherIDs'])
         else:
             self.datafile = vocloadlib.readTabFile(filename,
                 ['term', 'accID', 'status', 'abbreviation',
-                'definition', 'comment', 'synonyms', 'otherIDs'])
+                'note', 'comment', 'synonyms', 'otherIDs'])
 
 
 
@@ -418,14 +414,12 @@ class TermLoad:
         # file has been created
 
         self.loadTermBCP      = 0
-        self.loadTextBCP      = 0
         self.loadNoteBCP      = 0
         self.loadNoteChunkBCP = 0
         self.loadSynonymBCP   = 0
         self.loadAccessionBCP = 0
             
         self.termTermBCPFileName      = os.environ['TERM_TERM_BCP_FILE']
-        self.termTextBCPFileName      = os.environ['TERM_TEXT_BCP_FILE']
         self.termNoteBCPFileName      = os.environ['TERM_NOTE_BCP_FILE']
         self.termNoteChunkBCPFileName = os.environ['TERM_NOTECHUNK_BCP_FILE']
         self.termSynonymBCPFileName   = os.environ['TERM_SYNONYM_BCP_FILE']
@@ -435,7 +429,6 @@ class TermLoad:
 	# open files for write
 	#
         self.termTermBCPFile      = open(self.termTermBCPFileName, 'w')
-        self.termTextBCPFile      = open(self.termTextBCPFileName, 'w')
         self.termNoteBCPFile      = open(self.termNoteBCPFileName, 'w')
         self.termNoteChunkBCPFile = open(self.termNoteChunkBCPFileName, 'w')
         self.termSynonymBCPFile   = open(self.termSynonymBCPFileName, 'w')
@@ -493,7 +486,6 @@ class TermLoad:
         # Throws:  propagates all exceptions closing files
 
         self.termTermBCPFile.close()    
-        self.termTextBCPFile.close()    
         self.termNoteBCPFile.close()    
         self.termNoteChunkBCPFile.close()    
         self.termSynonymBCPFile.close() 
@@ -513,9 +505,6 @@ class TermLoad:
 
            if self.loadTermBCP:
               db.bcp(self.termTermBCPFileName, 'VOC_Term', delimiter='|')
-                                                                   
-           if self.loadTextBCP:
-              db.bcp(self.termTextBCPFileName, 'VOC_Text', delimiter='|')
                                                                    
            if self.loadNoteBCP:
               db.bcp(self.termNoteBCPFileName, 'MGI_Note', delimiter='|')
@@ -611,7 +600,7 @@ class TermLoad:
         # Returns: nothing
         # Assumes: nothing
         # Effects: adds a record to VOC_Term and records to
-        #   MGI_Synonym and VOC_Text, MGI_Note and MGI_NoteChunk as needed
+        #   MGI_Synonym, MGI_Note and MGI_NoteChunk as needed
         # Throws: propagates all exceptions
         # Notes: 'record' must contain values for the following
         #   fieldnames- term, abbreviation, status, definition,
@@ -630,6 +619,7 @@ class TermLoad:
                                        self.vocab_key,
                                        record['term'],
                                        record['abbreviation'],
+				       record['note'],
                                        vocloadlib.setNull(termSeqNum),
                                        self.getIsObsolete(record['status'])))
 
@@ -640,12 +630,10 @@ class TermLoad:
                            self.vocab_key,
                            record['term'].replace('\'','\'\''),
                            record['abbreviation'].replace('\'','\'\''),
+                           record['note'].replace('\'','\'\''),
                            termSeqNum,
                            self.getIsObsolete(record['status'])),
                            self.log)
-
-        # add records as needed to VOC_Text:
-        self.generateDefinitionSQL(record['definition'], self.max_term_key)
 
         # add records as needed to MGI_Note:
         self.generateCommentSQL(record['comment'], self.max_term_key)
@@ -713,26 +701,6 @@ class TermLoad:
                 self.addAccID(string.strip(id), associatedTermKey)
 
     	return
-
-    def generateDefinitionSQL(self, definitionRecord, termKey):
-       # Purpose: generates SQL/BCP VOC_Text table
-       # Returns: nothing
-       # Assumes: nothing
-       # Effects: adds records to VOC_Text in the database
-       # Throws: propagates any exceptions raised by vocloadlib's
-       #   nl_sqlog() function
-
-       if len(definitionRecord) == 0:
-	   return
-
-       if self.isBCPLoad:
-          self.loadTextBCP = 1
-          self.termTextBCPFile.write(BCP_INSERT_TEXT % (termKey, definitionRecord))
-
-       else: # asserts self.isIncrementalLoad() or full load with on-line sql:
-           vocloadlib.nl_sqlog(INSERT_TEXT % (termKey, definitionRecord.replace('\'','\'\'')), self.log)
-
-       return
 
     def generateCommentSQL(self, commentRecord, termKey):
        # Purpose: generates SQL/BCP for MGI_Note and MGI_NoteChunk tables
@@ -1147,7 +1115,7 @@ class TermLoad:
        #          have been annotations against the record
        # Returns: 1 - true, record has changed, or 0 - false, record has not changed
        # Assumes: Database records for the Term have been retrieved into the dbRecord structure
-       # Effects: Executes deletes/inserts into the VOC_Text table
+       # Effects: Executes upates to the term table/note
        #          Executes deletes/inserts into the MGI_Synonym table
        #          Executes updates to the term table (status and terms fields);
        #          note that, for efficiency, both the status and term fields
@@ -1164,23 +1132,17 @@ class TermLoad:
 
        #Get dbRecord in sync with file record by converting "None" to blank
 
-       dbDefinition = dbRecord[0]['notes']
+       dbDefinition = dbRecord[0]['note']
 
        if dbDefinition == None:
-          dbDefinition = ""
-
-       if (string.strip(record['definition']) != string.strip(dbDefinition)):
-
-          # can't do simple update because of 255 size limit; therefore, do a delete and insert
-	  # no longer true...this should be rewritten to use UPDATE
-
-          vocloadlib.nl_sqlog(DELETE_TEXT % termKey, self.log)
-          self.generateDefinitionSQL(record['definition'], termKey)
+          vocloadlib.nl_sqlog(UPDATE_TERMNOTE % ('null', termKey), self.log)
           recordChanged = 1
-
+       elif (string.strip(record['note']) != string.strip(dbDefinition)):
+          vocloadlib.nl_sqlog(UPDATE_TERMNOTE % ("'" + record['note'].replace("'", "''") + "'", termKey), self.log)
+          recordChanged = 1
           # Now write report record if the DB record is not null or blank
           # and the term has annotations associated with it
-          if dbRecord[0]['notes'] > 0:
+          if dbRecord[0]['note'] > 0:
              definitionDiscrepancy = 1
 
        #
@@ -1309,8 +1271,8 @@ class TermLoad:
 
              if definitionDiscrepancy:
                 msg = "Definition change for Term with annotations.\n" + \
-		    "Old Definition: %s\n" % (dbRecord[0]['notes']) + \
-		    "New Definition: %s\n" % (record['definition']) + \
+		    "Old Definition: %s\n" % (dbRecord[0]['note']) + \
+		    "New Definition: %s\n" % (record['note']) + \
 		    "Symbols: %s" % (symbols) 
                 self.writeDiscrepancyFile(record['accID'], record['term'], msg)  
 	   
