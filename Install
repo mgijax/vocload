@@ -90,14 +90,12 @@ then
     mkdir -p ${DATALOADSOUTPUT}/mgi/vocload/archiveBiotype
     mkdir -p ${DATALOADSOUTPUT}/mgi/vocload/archiveBiotype/ensembl
     mkdir -p ${DATALOADSOUTPUT}/mgi/vocload/archiveBiotype/ncbi
-    mkdir -p ${DATALOADSOUTPUT}/mgi/vocload/archiveBiotype/vega
 fi
 if [ ! -d ${DATALOADSOUTPUT}/mgi/vocload/runTimeBiotype ]
 then
     mkdir -p ${DATALOADSOUTPUT}/mgi/vocload/runTimeBiotype
     mkdir -p ${DATALOADSOUTPUT}/mgi/vocload/runTimeBiotype/ensembl
     mkdir -p ${DATALOADSOUTPUT}/mgi/vocload/runTimeBiotype/ncbi
-    mkdir -p ${DATALOADSOUTPUT}/mgi/vocload/runTimeBiotype/vega
 fi
 
 if [ ! -d ${DATALOADSOUTPUT}/mgi/vocload/archiveHPO ]

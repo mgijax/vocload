@@ -12,7 +12,7 @@
 #
 # Input:
 #
-#	see bioptype_ensembl.config, biotype_ncbi.config, biotype_vega.config
+#	see bioptype_ensembl.config, biotype_ncbi.config
 #
 # Output:
 #
