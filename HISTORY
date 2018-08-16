@@ -1,3 +1,21 @@
+TAG: vocload-6-0-13-?
+DATE:
+STAFF: lec 
+CHANGES: TR12734/GenFevah/Mouse Genome Project
+remove biotype_vega.config
+
+TAG: vocload-6-0-12-4
+DATE: 08/16/2018
+STAFF: lec
+CHANGES: TR12928/fix insert DAG_DAG bug
+
+TAG: vocload-6-0-12-3
+DATE: 07/31/2018
+STAFF: sc
+CHANGES: TR12477 - slimterm load in production
+    We missed that emapload.sh has a call to vocabbrevload
+    updated that to slimtermload
+
 TAG: vocload-6-0-12-2
 DATE: 04/25/2018
 STAFF: lec

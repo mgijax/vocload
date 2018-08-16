@@ -229,8 +229,9 @@ export EMAPA_VOCAB_KEY EMAPS_VOCAB_KEY REFS_KEY
 ###########################################################################
 
 # EMAP Slim  load lastrun file
-SLIM_LASTRUN=${DATALOADSOUTPUT}/mgi/vocabbrevload/emapslimload/input/lastrun
+SLIM_LASTRUN=${DATALOADSOUTPUT}/mgi/slimtermload/emapslimload/input/lastrun
 export SLIM_LASTRUN
+
 # the obo version expected by the load. A change of version requires load
 # changeS
 OBO_FILE_VERSION=1.2
