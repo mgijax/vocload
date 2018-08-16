@@ -183,8 +183,7 @@ date >> ${LOG_DIAG}
 echo "Running the EMAP SLIM load" | tee -a ${LOG_DIAG}
 
 rm ${SLIM_LASTRUN}
-${VOCABBREVLOAD}/bin/vaload.sh emapslimload.config
-
+${SLIMTERMLOAD}/bin/slimtermload.sh emapslimload.config
 # run postload cleanup and email logs
 shutDown
 
