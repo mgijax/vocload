@@ -1,3 +1,14 @@
+TAG: vocload-6-0-13-?
+DATE:
+STAFF: lec 
+CHANGES: TR12734/GenFevah/Mouse Genome Project
+remove biotype_vega.config
+
+TAG: vocload-6-0-12-3
+DATE: 08/16/2018
+STAFF: lec
+CHANGES: TR12928/fix insert DAG_DAG bug
+
 TAG: vocload-6-0-12-2
 DATE: 04/25/2018
 STAFF: lec

@@ -60,7 +60,7 @@ INSERT_VOCAB = '''insert into VOC_Vocab (_Vocab_key, _Refs_key, isSimple, isPriv
     '''
 
 INSERT_DAG = '''insert into DAG_DAG (_DAG_key, _Refs_key, _MGIType_key, abbreviation, name)
-    values (%d, %d, %d, %s, %s)
+    values (%d, %d, %d, '%s', '%s')
     '''
 
 INSERT_VOCABDAG = 'insert into VOC_VocabDAG (_Vocab_key, _DAG_key) values (%d, %d)'
