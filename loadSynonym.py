@@ -121,6 +121,9 @@ for synType in synTypes:
 	
 synTypesIn = ','.join([str(key) for key in synTypeKeys])
 
+#
+# delete existing synonums
+#
 db.sql('''
 	delete from MGI_Synonym
         using MGI_SynonymType st, VOC_Term t
@@ -128,6 +131,12 @@ db.sql('''
         and t._Vocab_key = %s
         and MGI_Synonym._SynonymType_key in (%s)
 	''' % (str(vocabKey), synTypesIn))
+db.commit()
+db.sql(''' select setval('mgi_synonym_seq', (select max(_Synonym_key) from MGI_Synonym)) ''', None)
+db.commit()
+#
+# end deleting existing synonyms
+#
 
 #
 # map term ID to _term_key
