@@ -119,6 +119,9 @@ db.sql('''
         and MGI_Synonym._SynonymType_key in (%s)
 	''' % (str(vocabKey), synTypesIn))
 db.commit()
+# update mgi_synonym_seq auto-sequence
+db.sql(''' select setval('mgi_synonym_seq', (select max(_Synonym_key) from MGI_Synonym)) ''', None)
+db.commit()
 #  Get the maximum synonym key currently in use.
 results = db.sql(''' select nextval('mgi_synonym_seq') as synKey ''', 'auto')
 synKey = results[0]['synKey']
