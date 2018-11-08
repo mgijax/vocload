@@ -102,28 +102,15 @@ print 'Vocab key: %d' % vocabKey
 results = db.sql('select _object_key from ACC_Accession where accID = \'' + jNumber + '\' and _MGIType_key = 1 and _LogicalDB_key = 1')
 refsKey = results[0]['_object_key']
 
-#
-#  Get the maximum synonym key currently in use.
-#
-results = db.sql(''' select nextval('mgi_synonym_seq') as synKey ''', 'auto')
-synKey = results[0]['synKey']
-
-# delete existing synonym records
-
+# Delete existing synonym records
 synTypes = set([])
 for record in synonymRecords:
 	synTypes.add(record[1])
-
 synTypeKeys = []
 for synType in synTypes:
 	typeKey = vocloadlib.getSynonymTypeKey(synType)
 	synTypeKeys.append(typeKey)
-	
 synTypesIn = ','.join([str(key) for key in synTypeKeys])
-
-#
-# delete existing synonums
-#
 db.sql('''
 	delete from MGI_Synonym
         using MGI_SynonymType st, VOC_Term t
@@ -132,11 +119,9 @@ db.sql('''
         and MGI_Synonym._SynonymType_key in (%s)
 	''' % (str(vocabKey), synTypesIn))
 db.commit()
-db.sql(''' select setval('mgi_synonym_seq', (select max(_Synonym_key) from MGI_Synonym)) ''', None)
-db.commit()
-#
-# end deleting existing synonyms
-#
+#  Get the maximum synonym key currently in use.
+results = db.sql(''' select nextval('mgi_synonym_seq') as synKey ''', 'auto')
+synKey = results[0]['synKey']
 
 #
 # map term ID to _term_key
@@ -147,7 +132,6 @@ for record in synonymRecords:
 
 termIds = list(termIds)
 termKeyMap = vocloadlib.getTermKeyMap(termIds, vocabName)
-
 
 #
 # transform synonym record into BCP row
