@@ -99,16 +99,14 @@ print 'Vocab key: %d' % vocabKey
 #
 #  Get the reference key for the J-Number.
 #
-results = db.sql('select _object_key from ACC_Accession ' + \
-	'where accID = \'' + jNumber + '\' and _MGIType_key = 1 and _LogicalDB_key = 1')
+results = db.sql('select _object_key from ACC_Accession where accID = \'' + jNumber + '\' and _MGIType_key = 1 and _LogicalDB_key = 1')
 refsKey = results[0]['_object_key']
 
 #
 #  Get the maximum synonym key currently in use.
 #
-maxKey = vocloadlib.getMax ('_Synonym_key', 'MGI_Synonym')
-
-
+results = db.sql(''' select nextval('mgi_synonym_seq') as synKey ''', 'auto')
+synKey = results[0]['synKey']
 
 # delete existing synonym records
 
@@ -145,7 +143,6 @@ termKeyMap = vocloadlib.getTermKeyMap(termIds, vocabName)
 #
 # transform synonym record into BCP row
 #
-count = maxKey + 1
 bcpRecords = []
 for record in synonymRecords:
 
@@ -161,7 +158,7 @@ for record in synonymRecords:
 	typeKey = vocloadlib.getSynonymTypeKey(type)
 
 	bcpRecords.append([
-		count,	
+		synKey,	
 		termKeyMap[termid],
 		mgiType,
 		typeKey,
@@ -172,7 +169,7 @@ for record in synonymRecords:
 		cdate,
 		cdate
 	])
-	count += 1
+	synKey += 1
 
 #
 #  Count how many synonyms are to be added.
@@ -188,7 +185,10 @@ for r in bcpRecords:
 fp.close()
 
 db.bcp(bcpFile, 'MGI_Synonym', delimiter='|')
+db.commit()
 
+# update mgi_synonym_seq auto-sequence
+db.sql(''' select setval('mgi_synonym_seq', (select max(_Synonym_key) from MGI_Synonym)) ''', None)
 db.commit()
 
 sys.exit(0)
