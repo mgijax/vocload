@@ -273,7 +273,7 @@ def parseOBOFile():
     # If the GO vocabulary is being loaded, add the parent obsolete term to
     # the Termfile and associate it to the root ID in the obsolete DAG file.
     #
-    if vocabName == 'GO' or vocabName == 'Sequence Ontology':
+    if vocabName == 'GO':
         obsoleteTerm = os.environ['OBSOLETE_TERM']
         obsoleteID = os.environ['OBSOLETE_ID']
         obsoleteDefinition = os.environ['OBSOLETE_DEFINITION']
@@ -479,10 +479,10 @@ def parseOBOFile():
 		    	validRelationshipType[re.sub('[^a-zA-Z0-9]','',relationshipType[i])] + '\t' + \
 		    	relationship[i] + '\n')
 
-            	# If it is an obsolete GO or Sequence Ontology term 
+            	# If it is an obsolete GO or term 
 	    	# and not the root ID, write it to the obsolete DAG file.
             	#
-            	if (vocabName == 'GO' or vocabName == 'Sequence Ontology') and \
+            	if (vocabName == 'GO') and \
 		    	status == 'obsolete' and termID != dagRootID:
                         #log.writeline('parseOBOFile:fpDAG[obsoleteNamespace]\n')
                 	fpDAG[obsoleteNamespace].write(termID + '\t' + '\t' + 'is-a' + '\t' + obsoleteID + '\n')
