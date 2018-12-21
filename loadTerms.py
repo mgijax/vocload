@@ -399,6 +399,10 @@ class TermLoad:
             self.log.writeline(msg)
             raise TermLoadError(msg)
 
+        # update mgi_synonym_seq auto-sequence
+        db.sql(''' select setval('mgi_synonym_seq', (select max(_Synonym_key) from MGI_Synonym)) ''', None)
+        db.commit()
+
         return
 
     def openBCPFiles(self):
@@ -544,8 +548,9 @@ class TermLoad:
 
         # look up the maximum keys for remaining items in VOC_Term and MGI_Synonym.
         self.max_term_key = vocloadlib.getMax('_Term_key', 'VOC_Term')
-        self.max_synonym_key = vocloadlib.getMax('_Synonym_key', 'MGI_Synonym')
         self.max_note_key = vocloadlib.getMax('_Note_key', 'MGI_Note')
+	results = db.sql(''' select nextval('mgi_synonym_seq') as synKey ''', 'auto')
+	self.max_synonym_key = results[0]['synKey']
 
         # if this is a simple vocabulary, provide sequence numbers for the terms.  
 	# if it isn't simple, the sequence number is null.
@@ -822,8 +827,9 @@ class TermLoad:
 
         # look up the maximum keys for remaining items in VOC_Term and MGI_Synonym.
         self.max_term_key = vocloadlib.getMax('_Term_key', 'VOC_Term')
-        self.max_synonym_key = vocloadlib.getMax('_Synonym_key', 'MGI_Synonym')
         self.max_note_key = vocloadlib.getMax('_Note_key', 'MGI_Note')
+	results = db.sql(''' select nextval('mgi_synonym_seq') as synKey ''', 'auto')
+	self.max_synonym_key = results[0]['synKey']
 
         # if this is a simple vocabulary, we provide sequence numbers
         # for the terms.  if it isn't simple, the sequence number is
