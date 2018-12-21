@@ -1,0 +1,30 @@
+#
+# Progam:  SO.rcd
+#
+# Purpose:
+#
+#	Configuration file for SO Vocabulary load
+#	which defines the SO DAGs
+#
+# Usage:
+#
+#	Used by Python Configuration module
+#
+# History:
+#
+# 10/03/2016	lec
+#	- TR12427/Disease Ontology
+#
+
+RUNTIME_DIR = /data/loads/mgi/vocload/runTimeSO
+DATA_DIR = /data/downloads/raw.githubusercontent.com/The-Sequence-Ontology/SO-Ontologies/master
+
+# DAGs which are part of the vocabulary (for complex vocabularies)
+
+[
+        NAME = Sequence Ontology
+        NAME_SPACE = sequence
+        ABBREV = SO
+        ONTOLOGY_FILE = ${DATA_DIR}/so.obo
+        LOAD_FILE = ${RUNTIME_DIR}/dag.so
+]
