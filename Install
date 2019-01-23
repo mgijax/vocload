@@ -10,15 +10,6 @@ python -c 'import compileall; compileall.compile_dir(".")'
 #
 # Create the runtime files if they don't exist
 #
-if [ ! -d ${DATALOADSOUTPUT}/mgi/vocload/archiveMouseCyc ]
-then
-    mkdir -p ${DATALOADSOUTPUT}/mgi/vocload/archiveMouseCyc
-fi
-if [ ! -d ${DATALOADSOUTPUT}/mgi/vocload/runTimeMouseCyc ]
-then
-    mkdir -p ${DATALOADSOUTPUT}/mgi/vocload/runTimeMouseCyc
-fi
-
 if [ ! -d ${DATALOADSOUTPUT}/mgi/vocload/OMIM ]
 then
     mkdir -p ${DATALOADSOUTPUT}/mgi/vocload/OMIM
