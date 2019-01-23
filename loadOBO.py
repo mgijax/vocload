@@ -492,6 +492,10 @@ def parseOBOFile():
 	    if vocabName == 'Disease Ontology' and len(subset) > 0:
 	        fpDOmgislim.write(termID + '\t\n')
 
+#	else:
+#	    print term.getTermID()
+#	    print "isValid error"
+
         # Get the next term from the parser.
         #
         term = parser.nextTerm()

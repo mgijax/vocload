@@ -289,13 +289,15 @@ class TermLoad:
         # or performing on-line updates
         self.isBCPLoad = self.setFullModeDataLoader()
 
+	# 01/09/2019 ; fixed but in getMax() for simple vocabularies
+	# and now we can allow isSimple/incremental
         # validity checks...
         # 1. we cannot do incremental loads on simple vocabularies
         # 2. we cannot do full loads on vocabularies which are cross-
         #   referenced
 
-        if self.isSimple and mode != 'full':
-            raise TermLoadError(full_only % vocab)
+        #if self.isSimple and mode != 'full':
+        #    raise TermLoadError(full_only % vocab)
 
         if mode == 'full' and vocloadlib.anyTermsCrossReferenced(self.vocab_key):
                 raise TermLoadError(has_refs % vocab)
@@ -835,7 +837,7 @@ class TermLoad:
         # for the terms.  if it isn't simple, the sequence number is
         # null.
         if self.isSimple:
-            termSeqNum = vocloadlib.getMax('sequenceNum', 'VOC_Term where _Vocab_key = %d') % self.vocab_key
+            termSeqNum = vocloadlib.getMax('sequenceNum', 'VOC_Term where _Vocab_key = %d' % (self.vocab_key))
         else:
             termSeqNum = 'null'
 
