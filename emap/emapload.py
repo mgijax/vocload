@@ -684,6 +684,13 @@ def createFiles():
 		and a._mgitype_key = 13
 		and a._logicaldb_key = 169
 		and a.preferred = 1
+		union all
+    		select distinct a.accid
+		from GXD_HTSample s, ACC_Accession a
+		where s._emapa_key = a._object_key
+		and a._mgitype_key = 13
+		and a._logicaldb_key = 169
+		and a.preferred = 1
 		)
     		''', 'auto')
     for r in results:
@@ -707,6 +714,15 @@ def createFiles():
     		select distinct a.accid, min(ts.stage) as minStage, max(ts.stage) as maxStage
 		from GXD_ISResultStructure s, GXD_TheilerStage ts, ACC_Accession a
 		where s._emapa_term_key = a._object_key
+		and a._mgitype_key = 13
+		and a._logicaldb_key = 169
+		and a.preferred = 1
+		and s._stage_key = ts._stage_key
+		group by a.accid
+		union all
+    		select distinct a.accid, min(ts.stage) as minStage, max(ts.stage) as maxStage
+		from GXD_HTSample s, GXD_TheilerStage ts, ACC_Accession a
+		where s._emapa_key = a._object_key
 		and a._mgitype_key = 13
 		and a._logicaldb_key = 169
 		and a.preferred = 1
