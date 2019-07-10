@@ -101,7 +101,7 @@ def processSusceptibility():
 #     . report T
 #     . delete T from the DO slim set
 #
-def processSlim():
+def processMGISlim():
 
     dosanityFileName = os.environ['DO_MGI_SLIM_SANITY_FILE']
     dosanityFile = open(dosanityFileName, 'w')
@@ -109,7 +109,7 @@ def processSlim():
     DELETE_SLIM = 'delete from MGI_SetMember where _Set_key = 1048 and _SetMember_key = %s'
     SPACE = ' '
     
-    dosanityFile.write('\n\nDO slim terms that are decendents of another DO slim term\n\n')
+    dosanityFile.write('\n\nDO_MGI_slim terms that are decendents of another DO_MGI_slim term\n\n')
     dosanityFile.write('descendent_term' + 35*SPACE + 'another_slim_term\n')
     dosanityFile.write('---------------' + 35*SPACE + '-----------------\n\n')
 
@@ -136,13 +136,57 @@ def processSlim():
     return 0
 
 #
+# sanity check the DO slim terms
+#
+# if a DO slim term T is a desendant of another slim term S, then
+#     . report T
+#     . delete T from the DO slim set 
+#
+def processGXDSlim():
+
+    dosanityFileName = os.environ['DO_GXD_SLIM_SANITY_FILE']
+    dosanityFile = open(dosanityFileName, 'w')
+
+    DELETE_SLIM = 'delete from MGI_SetMember where _Set_key = 1054 and _SetMember_key = %s' 
+    SPACE = ' ' 
+    
+    dosanityFile.write('\n\nDO_GXD_slim terms that are decendents of another DO_GXD_slim term\n\n')
+    dosanityFile.write('descendent_term' + 35*SPACE + 'another_slim_term\n')
+    dosanityFile.write('---------------' + 35*SPACE + '-----------------\n\n')
+
+    results = db.sql('''
+               select tt.term as descendent_term, ss.term as another_slim_term, t._SetMember_key
+               from MGI_SetMember t, DAG_Closure dc, MGI_SetMember s, VOC_Term tt, VOC_Term ss
+               where t._Set_key = 1054
+               and t._Object_key = dc._DescendentObject_key
+               and dc._AncestorObject_key = s._Object_key
+               and s._Set_key = 1054
+               and t._Object_key != s._Object_key
+               and t._Object_key = tt._Term_key
+               and s._Object_key = ss._Term_key
+       ''', 'auto')
+
+    for r in results:
+        dosanityFile.write('%-50s %-50s\n' % (r['descendent_term'], r['another_slim_term']))
+        deleteSQL = DELETE_SLIM % (r['_SetMember_key'])
+        #dosanityFile.write(deleteSQL + '\n\n')
+        db.sql(deleteSQL, None)
+
+    dosanityFile.close()
+    db.commit()
+    return 0
+
+#
 # main
 #
 
 if processSusceptibility() != 0:
     sys.exit(1)
 
-if processSlim() != 0:
+if processMGISlim() != 0:
+    sys.exit(1)
+
+if processGXDSlim() != 0:
     sys.exit(1)
 
 sys.exit(0)

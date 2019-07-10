@@ -157,7 +157,7 @@ def initialize():
 #
 def openFiles():
     global fpOBO, fpValid, fpTerm, fpDAG
-    global fpDOmgislim
+    global fpDOmgislim, fpDOgxdslim
 
     oboFile = os.environ['OBO_FILE']
     validFile = os.environ['VALIDATION_LOG_FILE']
@@ -209,9 +209,11 @@ def openFiles():
     if vocabName == 'Disease Ontology':
         try:
             domgislimFile = os.environ['DO_MGI_SLIM_FILE']
+            dogxdslimFile = os.environ['DO_GXD_SLIM_FILE']
             fpDOmgislim = open(domgislimFile, 'w')
+            fpDOgxdslim = open(dogxdslimFile, 'w')
         except:
-            log.writeline('Cannot open DO_MGI_slim file: ' + domgislimFile)
+            log.writeline('Cannot open DO_MGI_slim/DO_GXD_slim files: ' + domgislimFile)
             exit(1)
 
 # Purpose: Close all the input and output files.
@@ -231,6 +233,7 @@ def closeFiles():
 
     try:
         fpDOmgislim.close()
+        fpDOgxdslim.close()
     except:
     	pass
 
@@ -491,6 +494,7 @@ def parseOBOFile():
 	    #
 	    if vocabName == 'Disease Ontology' and len(subset) > 0:
 	        fpDOmgislim.write(termID + '\t\n')
+	        fpDOgxdslim.write(termID + '\t\n')
 
 #	else:
 #	    print term.getTermID()
