@@ -183,7 +183,7 @@ class Parser:
 	    # For MCV this is the show/hide value of the term
 	    # For Disease Ontology, this is the DO_MGI_slim
 	    #
-	    subsetList = ['DO_MGI_slim']
+	    subsetList = ['DO_MGI_slim', 'DO_GXD_slim']
 	    if tag == 'subset':
 	        if self.vocabName == 'Disease Ontology':
 		    for s in subsetList:
