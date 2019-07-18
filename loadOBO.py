@@ -493,10 +493,11 @@ def parseOBOFile():
 	    # TR12427/Disease Ontology/subset DO_MGI_slim
 	    #
 	    if vocabName == 'Disease Ontology' and len(subset) > 0:
-	    	if subset[0] == 'DO_MGI_slim':
-	        	fpDOmgislim.write(termID + '\t\n')
-	    	if subset[0] == 'DO_GXD_slim':
-	        	fpDOgxdslim.write(termID + '\t\n')
+		for s in subset:
+	    		if s == 'DO_MGI_slim':
+	        		fpDOmgislim.write(termID + '\t\n')
+	    		if s == 'DO_GXD_slim':
+	        		fpDOgxdslim.write(termID + '\t\n')
 
 #	else:
 #	    print term.getTermID()
