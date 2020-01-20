@@ -309,12 +309,8 @@ class TermLoad:
         self.max_synonym_key = None # start of the load
 	self.max_note_key = None
 
-        if self.isBCPLoad:
-           # Need to look up this number immediately and only once for BCP
-           self.max_accession_key = vocloadlib.getMax('_Accession_key', 'ACC_Accession')
-        else:
-	   # to be filled in later for each term (because MGI IDs may be added by a trigger)
-           self.max_accession_key = None   
+        # Need to look up this number immediately and only once for BCP
+        self.max_accession_key = vocloadlib.getMax('_Accession_key', 'ACC_Accession')
 
         # **** FOR BACKWARD COMPATIBILITY ****
         # Determine if the load should expect to find a synonym type column
@@ -401,8 +397,9 @@ class TermLoad:
             self.log.writeline(msg)
             raise TermLoadError(msg)
 
-        # update mgi_synonym_seq auto-sequence
+        # update mgi_synonym_seq and voc_term_seq auto-sequence
         db.sql(''' select setval('mgi_synonym_seq', (select max(_Synonym_key) from MGI_Synonym)) ''', None)
+	db.sql(''' select setval('voc_term_seq', (select max(_Term_key) from VOC_Term)) ''', None)
         db.commit()
 
         return
@@ -549,8 +546,11 @@ class TermLoad:
         self.log.writeline('deleted all (%d) remaining terms' % count)
 
         # look up the maximum keys for remaining items in VOC_Term and MGI_Synonym.
-        self.max_term_key = vocloadlib.getMax('_Term_key', 'VOC_Term')
+	 results = db.sql(''' select nextval('voc_term_seq') as termKey ''', 'auto')
+         self.max_term_key = results[0]['termKey']
+
         self.max_note_key = vocloadlib.getMax('_Note_key', 'MGI_Note')
+
 	results = db.sql(''' select nextval('mgi_synonym_seq') as synKey ''', 'auto')
 	self.max_synonym_key = results[0]['synKey']
 
@@ -660,21 +660,12 @@ class TermLoad:
         self.generateSynonymSQL(synonyms, synonymTypes, self.max_term_key)
 
         # We can add non-MGI accession numbers to the ACC_Accession
-        # table.  For MGI accession numbers, we do not add them.
-        # (MGI accession numbers are added by a trigger when we add
-        # to VOC_Term, if the _LogicalDB_key for the vocabulary is 1)
+        # table.  We are no longer adding MGI accession IDs to terms
+	# All term accession ids from the database 1/2020
+	#
         # We assume that the 'otherIDs' come from the same logical
         # database as the primary 'accID', probably due to merges
         # occurring.
-
-        # note that we look up the maximum accession key here, as the
-        # addition to VOC_Term may have caused a trigger to add a new
-        # MGI number for the term.
-        if not self.isBCPLoad:
-           self.max_accession_key = vocloadlib.getMax('_Accession_key', 'ACC_Accession')
-
-        # add the primary ID, if there is one.  If the logical DB is
-        # non-MGI, then it is the preferred ID.
 
         if record['accID']:
             self.addAccID(record['accID'], self.max_term_key, self.logicalDBkey > 1)
@@ -828,8 +819,11 @@ class TermLoad:
         self.log.writeline(vocloadlib.timestamp('Incremental Term Load Start:'))
 
         # look up the maximum keys for remaining items in VOC_Term and MGI_Synonym.
-        self.max_term_key = vocloadlib.getMax('_Term_key', 'VOC_Term')
+	results = db.sql(''' select nextval('voc_term_seq') as termKey ''', 'auto')
+	self.max_term_key = results[0]['termKey']
+
         self.max_note_key = vocloadlib.getMax('_Note_key', 'MGI_Note')
+
 	results = db.sql(''' select nextval('mgi_synonym_seq') as synKey ''', 'auto')
 	self.max_synonym_key = results[0]['synKey']
 
