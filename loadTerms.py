@@ -546,8 +546,8 @@ class TermLoad:
         self.log.writeline('deleted all (%d) remaining terms' % count)
 
         # look up the maximum keys for remaining items in VOC_Term and MGI_Synonym.
-	 results = db.sql(''' select nextval('voc_term_seq') as termKey ''', 'auto')
-         self.max_term_key = results[0]['termKey']
+	results = db.sql(''' select nextval('voc_term_seq') as termKey ''', 'auto')
+        self.max_term_key = results[0]['termKey']
 
         self.max_note_key = vocloadlib.getMax('_Note_key', 'MGI_Note')
 
