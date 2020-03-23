@@ -93,7 +93,7 @@ import Log          # MGI-written Python libraries
 import vocloadlib
 import accessionlib
 import Set
-import html
+import voc_html
 import mgi_utils
 import db
 
@@ -454,13 +454,13 @@ class TermLoad:
         self.accDiscrepFile = open(self.accDiscrepFileName, 'w')
 
         # now write HTML header information
-        self.accDiscrepFile.write(html.getStartHTMLDocumentHTML("Curator Report"))
-        self.accDiscrepFile.write(html.getStartTableHTML())
-        self.accDiscrepFile.write(html.getStartTableRowHTML())
-        self.accDiscrepFile.write(html.getTableHeaderLabelHTML("Accession ID"))
-        self.accDiscrepFile.write(html.getTableHeaderLabelHTML("Term"))
-        self.accDiscrepFile.write(html.getTableHeaderLabelHTML("Discrepancy"))
-        self.accDiscrepFile.write(html.getEndTableRowHTML())
+        self.accDiscrepFile.write(voc_html.getStartHTMLDocumentHTML("Curator Report"))
+        self.accDiscrepFile.write(voc_html.getStartTableHTML())
+        self.accDiscrepFile.write(voc_html.getStartTableRowHTML())
+        self.accDiscrepFile.write(voc_html.getTableHeaderLabelHTML("Accession ID"))
+        self.accDiscrepFile.write(voc_html.getTableHeaderLabelHTML("Term"))
+        self.accDiscrepFile.write(voc_html.getTableHeaderLabelHTML("Discrepancy"))
+        self.accDiscrepFile.write(voc_html.getEndTableRowHTML())
 
 	return
 
@@ -473,8 +473,8 @@ class TermLoad:
         # Throws:  propagates all exceptions closing files
 
         # write html tags to end the table and html document
-        self.accDiscrepFile.write(html.getEndTableHTML())
-        self.accDiscrepFile.write(html.getEndHTMLDocumentHTML())
+        self.accDiscrepFile.write(voc_html.getEndTableHTML())
+        self.accDiscrepFile.write(voc_html.getEndHTMLDocumentHTML())
 
         # now, close the file
         self.accDiscrepFile.close()
@@ -1028,11 +1028,11 @@ class TermLoad:
         # Effects: report output
         # Throws:  propagates any exceptions raised 
 
-        self.accDiscrepFile.write(html.getStartTableRowHTML())
-        self.accDiscrepFile.write(html.getCellHTML(accID))
-        self.accDiscrepFile.write(html.getCellHTML(term))
-        self.accDiscrepFile.write(html.getCellHTML(msg))
-        self.accDiscrepFile.write(html.getEndTableRowHTML())
+        self.accDiscrepFile.write(voc_html.getStartTableRowHTML())
+        self.accDiscrepFile.write(voc_html.getCellHTML(accID))
+        self.accDiscrepFile.write(voc_html.getCellHTML(term))
+        self.accDiscrepFile.write(voc_html.getCellHTML(msg))
+        self.accDiscrepFile.write(voc_html.getEndTableRowHTML())
 
 	return
 
