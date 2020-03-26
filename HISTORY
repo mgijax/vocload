@@ -1,3 +1,10 @@
+TAG: vocload-6-0-15-1
+DATE: 03/26/2020
+STAFF: lec 
+CHANGES: 
+1) TR13273/emapa obo file: bug causing tree display issues in the pWI and feWI browsers
+emap/emapload.sh : remove certain relationships from emapa obo file before processing
+
 TAG: vocload-6-0-14-8
 TAG: vocload-6-0-14-7
 TAG: vocload-6-0-14-6

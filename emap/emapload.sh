@@ -85,6 +85,24 @@ then
 fi
 
 #
+# remove certain relationships from input file
+# TR13273
+# develops_from
+# directly_develops_from
+# develops_from_part_of
+# has_developmental_contribution_from
+#
+TEMP_FILE=${INPUT_FILE_DEFAULT}.tmp
+cat ${INPUT_FILE_DEFAULT} | sed '/relationship: develops_from/d' > ${TEMP_FILE}
+mv ${TEMP_FILE} ${INPUT_FILE_DEFAULT}
+cat ${INPUT_FILE_DEFAULT} | sed '/relationship: directly_develops_from/d' > ${TEMP_FILE}
+mv ${TEMP_FILE} ${INPUT_FILE_DEFAULT}
+cat ${INPUT_FILE_DEFAULT} | sed '/relationship: develops_from_part_of/d' > ${TEMP_FILE}
+mv ${TEMP_FILE} ${INPUT_FILE_DEFAULT}
+cat ${INPUT_FILE_DEFAULT} | sed '/relationship: has_developmental_contribution_from/d' > ${TEMP_FILE}
+mv ${TEMP_FILE} ${INPUT_FILE_DEFAULT}
+
+#
 # createArchive including OUTPUTDIR, startLog, getConfigEnv
 # sets "JOBKEY"
 preload ${OUTPUTDIR}
