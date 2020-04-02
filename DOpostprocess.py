@@ -1,4 +1,3 @@
-#!/usr/local/bin/python
 
 '''
 #
@@ -52,7 +51,7 @@ def processSusceptibility():
     # insert statement
     INSERT_ACCESSION = '''insert into ACC_Accession 
       values ((select max(_Accession_key) + 1 from ACC_Accession), 
-	   '%s', '%s', %s, 15, %s, 13, 0, 0)
+           '%s', '%s', %s, 15, %s, 13, 0, 0)
     '''
 
     doFileName = os.environ['OBO_FILE']
@@ -73,14 +72,14 @@ def processSusceptibility():
 
         elif line[:9] == omimIdValue:
             omimId = line[4:-1]
-	    if omimId == skipValue:
-	        continue
-	    foundOMIM = 1
+            if omimId == skipValue:
+                continue
+            foundOMIM = 1
 
         elif foundOMIM and line[:24] == relValue:
 
             tokens = line[25:-1].split(' ')
-	    doId = tokens[0]
+            doId = tokens[0]
 
             prefixPart, numericPart = accessionlib.split_accnum(omimId)
             objectKey = loadlib.verifyObject(doId, 13, None, None, None)
@@ -126,9 +125,9 @@ def processMGISlim():
        ''', 'auto')
 
     for r in results:
-	dosanityFile.write('%-50s %-50s\n' % (r['descendent_term'], r['another_slim_term']))
-	deleteSQL = DELETE_SLIM % (r['_SetMember_key'])
-	#dosanityFile.write(deleteSQL + '\n\n')
+        dosanityFile.write('%-50s %-50s\n' % (r['descendent_term'], r['another_slim_term']))
+        deleteSQL = DELETE_SLIM % (r['_SetMember_key'])
+        #dosanityFile.write(deleteSQL + '\n\n')
         db.sql(deleteSQL, None)
 
     dosanityFile.close()
@@ -146,4 +145,3 @@ if processMGISlim() != 0:
     sys.exit(1)
 
 sys.exit(0)
-

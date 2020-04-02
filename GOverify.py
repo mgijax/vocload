@@ -1,4 +1,3 @@
-#!/usr/local/bin/python
 
 #
 # Program: GOverify.py
@@ -73,26 +72,26 @@ try:
     errLog = open(logFile, 'w')
     config = rcdlib.RcdFile(rcdFile, rcdlib.Rcd, 'NAME')
 
-    for (key, dag) in config.items():
-	fileName = dag['ONTOLOGY_FILE']
+    for (key, dag) in list(config.items()):
+        fileName = dag['ONTOLOGY_FILE']
         fp = open(fileName, 'r')
 
         try:
             GO = GOVocab.GOVocab()
-	    GO.initializeRegExps ("GO")
+            GO.initializeRegExps ("GO")
             dag = GO.parseGOfile(fp)
             fp.close()
             del dag
         except:
             fp.close()
-            raise ParseError, fileName
+            raise ParseError(fileName)
 
-except ParseError, message:
+except ParseError as message:
     errLog.write(ParseError + message + '\n')
     sys.exit(1)
 
 except:
-    errLog.write(sys.exc_type + ': ' + sys.exc_value + '\n')
+    errLog.write(sys.exc_info()[0] + ': ' + sys.exc_info()[1] + '\n')
     sys.exit(1)
 
 errLog.write(sys.argv[0] + ' completed successfully.\n')

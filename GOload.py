@@ -1,4 +1,3 @@
-#!/usr/local/bin/python
 
 '''
 #
@@ -43,12 +42,12 @@ class GO_Wrapper (loadWrapper.LoadWrapper):
 
                 term_fp = open (os.environ['TERM_FILE'], 'w')
 
-                for (key, dag) in self.config.items():
+                for (key, dag) in list(self.config.items()):
                         self.log.writeline ('Pre-processing %s to create %s' \
                                 % (dag['ONTOLOGY_FILE'], dag['LOAD_FILE']))
 
                         govocab = GOVocab.GOVocab ()
-			govocab.initializeRegExps (os.environ['ACC_PREFIX'])
+                        govocab.initializeRegExps (os.environ['ACC_PREFIX'])
                         govocab.buildVocab (defs_file, dag['ONTOLOGY_FILE'])
 
                         dag_fp = open (dag['LOAD_FILE'], 'w')
@@ -72,10 +71,10 @@ class GO_Wrapper (loadWrapper.LoadWrapper):
                                     # obsolete or if its label is 'obsolete'.
                                     # otherwise, it's current.
 
-                                    if parent and obsolete.has_key(parent):
+                                    if parent and parent in obsolete:
                                         status = 'obsolete'
                                         obsolete[childID] = 1
-				    elif string.find(child.getLabel(), 'obsolete') >= 0:
+                                    elif str.find(child.getLabel(), 'obsolete') >= 0:
                                         status = 'obsolete'
                                         obsolete[childID] = 1
                                     elif child.getLabel() == 'obsolete':
@@ -84,7 +83,7 @@ class GO_Wrapper (loadWrapper.LoadWrapper):
                                     else:
                                         status = 'current'
 
-                                    if not done.has_key (childID):
+                                    if childID not in done:
                                         term_fp.write (loadWrapper.TERM_LINE \
                                             % (child.getLabel(),
                                                 childID,
@@ -92,11 +91,11 @@ class GO_Wrapper (loadWrapper.LoadWrapper):
                                                 '',             # abbrev
                                                 child.getDefinition(),
                                                 child.getComment(),
-                                                string.join (
+                                                str.join (
                                                         child.getSynonyms(),
                                                         '|'),
                                                 #'' ))
-                                                string.join (
+                                                str.join (
                                                         child.getSecondaryGOIDs(), 
                                                         '|' ))) # 2ndary IDs
                                         done[childID] = 1
@@ -129,4 +128,3 @@ if __name__ == '__main__':
         wrapper.go()
 
         db.commit()
-

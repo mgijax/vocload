@@ -1,4 +1,3 @@
-# Name: GONode.py
 # Purpose: representation of a node in the Gene Ontology
 #
 # History

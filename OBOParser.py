@@ -1,4 +1,3 @@
-import sys
 import os
 import re
 
@@ -23,7 +22,7 @@ class Parser:
     def __init__(self, fpOBO, log):
         self.fpOBO = fpOBO
         self.log = log	# for debugging only
-	self.vocabName = os.environ['VOCAB_NAME']
+        self.vocabName = os.environ['VOCAB_NAME']
 
         # Create the head an term objects.
         #
@@ -135,13 +134,13 @@ class Parser:
                 self.term.addAltID (re.split (' ', self.line, 1)[1].strip())
 
             # Save an alternate ID using xref.
-	    # hard-coded list of xref to be loaded from Disease Ontology
-	    xrefList = ['OMIM:', 'EFO:', 'KEGG:', 'MESH:', 'NCI:', 'ORDO:', 'HP:', 'UMLS_CUI', 'ICD10CM', 'ICD9CM']
+            # hard-coded list of xref to be loaded from Disease Ontology
+            xrefList = ['OMIM:', 'EFO:', 'KEGG:', 'MESH:', 'NCI:', 'ORDO:', 'HP:', 'UMLS_CUI', 'ICD10CM', 'ICD9CM']
             if tag == 'xref' and self.vocabName == 'Disease Ontology':
-		for x in xrefList:
-		    if self.line.find(x) >= 0:
-			xrefID = re.split (' ', self.line, 1)[1].strip()
-			xrefID = xrefID.replace('\\n', '')
+                for x in xrefList:
+                    if self.line.find(x) >= 0:
+                        xrefID = re.split (' ', self.line, 1)[1].strip()
+                        xrefID = xrefID.replace('\\n', '')
                         self.term.addAltID (xrefID)
 
             # Save an "is-a" relationship.
@@ -159,18 +158,18 @@ class Parser:
             # Save a relationship.
             #
             if tag == 'relationship':
-	        if self.vocabName == 'Disease Ontology':
-		    continue
+                if self.vocabName == 'Disease Ontology':
+                    continue
                 self.term.addRelationship (re.split (' ', self.line)[2])
                 self.term.addRelationshipType (re.split (' ', self.line)[1])
 
             # Save a synonym and its synonym type.
             #
             if tag == 'synonym':
-		self.term.addSynonym (re.split ('"', self.line)[1].rstrip())
-		synType = re.split (' ', re.split ('"', self.line)[2].lstrip())[0]
-		if self.vocabName == 'Feature Relationship' and synType == 'RELATED':
-		    # example from obo file:
+                self.term.addSynonym (re.split ('"', self.line)[1].rstrip())
+                synType = re.split (' ', re.split ('"', self.line)[2].lstrip())[0]
+                if self.vocabName == 'Feature Relationship' and synType == 'RELATED':
+                    # example from obo file:
                     # synonym: "contains" RELATED REVERSE
                     # synonym: "is in " RELATED FORWARD
 
@@ -179,18 +178,18 @@ class Parser:
 
                 self.term.addSynonymType (synType)
 
-	    # Save the subset value
-	    # For MCV this is the show/hide value of the term
-	    # For Disease Ontology, this is the DO_MGI_slim
-	    #
-	    subsetList = ['DO_MGI_slim', 'DO_GXD_slim']
-	    if tag == 'subset':
-	        if self.vocabName == 'Disease Ontology':
-		    for s in subsetList:
-		        if self.line.find(s) >= 0:
-		            self.term.addSubset(re.split (' ', self.line)[1].strip())
+            # Save the subset value
+            # For MCV this is the show/hide value of the term
+            # For Disease Ontology, this is the DO_MGI_slim
+            #
+            subsetList = ['DO_MGI_slim', 'DO_GXD_slim']
+            if tag == 'subset':
+                if self.vocabName == 'Disease Ontology':
+                    for s in subsetList:
+                        if self.line.find(s) >= 0:
+                            self.term.addSubset(re.split (' ', self.line)[1].strip())
                 else:
-		    self.term.addSubset(re.split (' ', self.line)[1])
+                    self.term.addSubset(re.split (' ', self.line)[1])
 
             # Read the next line from the OBO file.
             #

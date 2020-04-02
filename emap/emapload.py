@@ -1,4 +1,3 @@
-#!/usr/local/bin/python
 #
 #  emapload.py
 ###########################################################################
@@ -177,8 +176,8 @@ class EmapTerm(Ontology.OboTerm):
 
     def getSynonyms(self):
         synonyms = getattr(self, 'synonym', [])
-	# looks like:
-	# ['"oogonia" RELATED []', '"premeiotic germ cell" RELATED []']
+        # looks like:
+        # ['"oogonia" RELATED []', '"premeiotic germ cell" RELATED []']
         synList = []
         for s in synonyms:
             synList.append(s.split('"')[1])
@@ -196,7 +195,7 @@ def checkArgs():
     # Throws: Nothing
 
     if len(sys.argv) != 1:
-        print USAGE
+        print(USAGE)
         sys.exit(1)
 
     return
@@ -219,28 +218,28 @@ def openOutputFiles():
     try:
         fpEmapaTerm = open(emapaTermFile, 'w')
     except:
-        print 'Cannot open EMAPA term file: %s' % emapaTermFile
+        print('Cannot open EMAPA term file: %s' % emapaTermFile)
         sys.exit(1)
 
     try:
         fpEmapsTerm = open(emapsTermFile, 'w')
     except:
-        print 'Cannot open EMAPS term file: %s' % emapsTermFile
+        print('Cannot open EMAPS term file: %s' % emapsTermFile)
         sys.exit(1)
 
     try:
         fpEmapaDag = open(emapaDagFile, 'w')
     except:
-        print 'Cannot open EMAPA DAG file: %s' % emapaDagFile
+        print('Cannot open EMAPA DAG file: %s' % emapaDagFile)
         sys.exit(1)
 
     try:
-	for ts in range(1,29):
-	    tsFile = '%s.%s' % (emapsDagFile, ts)
-	    fpEmapsDagDict[ts] = globals()['fp%s' % ts] = open(tsFile, 'w')
-	    emapsDagFileDict[ts] = tsFile
+        for ts in range(1,29):
+            tsFile = '%s.%s' % (emapsDagFile, ts)
+            fpEmapsDagDict[ts] = globals()['fp%s' % ts] = open(tsFile, 'w')
+            emapsDagFileDict[ts] = tsFile
     except:
-        print 'Cannot open EMAPS DAG file: %s' % tsFile
+        print('Cannot open EMAPS DAG file: %s' % tsFile)
         sys.exit(1)
 
     return
@@ -260,11 +259,11 @@ def parseDupFile():
         fpDupFile = open(dupFile, 'r')
 
     except:
-        print 'Cannot open duplicate ID file: %s' % dupFile
+        print('Cannot open duplicate ID file: %s' % dupFile)
         sys.exit(1)
 
     for d in fpDupFile.readlines():
-	dupEMAPAIDList.append(d)
+        dupEMAPAIDList.append(d)
 
     return
 
@@ -291,9 +290,9 @@ def getInitialSanityErrors():
     invalidTSList = []
     
     try:
-	fpInvalidTS = open(invalidTSFile, 'r')
+        fpInvalidTS = open(invalidTSFile, 'r')
     except:
-        print 'Cannot open invalid TS file: %s' % invalidTSFile
+        print('Cannot open invalid TS file: %s' % invalidTSFile)
         sys.exit(1)
 
     for d in fpInvalidTS.readlines():
@@ -307,9 +306,9 @@ def getInitialSanityErrors():
     missingFieldsList = []
 
     try:
-	fpMissingFields = open(missingFieldsFile, 'r')
+        fpMissingFields = open(missingFieldsFile, 'r')
     except:
-	print 'Cannot open missing Fields file: %s' % missingFieldsFile
+        print('Cannot open missing Fields file: %s' % missingFieldsFile)
         sys.exit(1)
 
     for m in fpMissingFields.readlines():
@@ -325,7 +324,7 @@ def getInitialSanityErrors():
     try:
         fpInvalidId = open(invalidIdFile, 'r')
     except:
-        print 'Cannot open invalid Id file: %s' % invalidIdFile
+        print('Cannot open invalid Id file: %s' % invalidIdFile)
         sys.exit(1)
 
     for m in fpInvalidId.readlines():
@@ -339,13 +338,13 @@ def getInitialSanityErrors():
     minTermsList = []
 
     try:
-	fpMinTerms = open(minTermsFile, 'r')
+        fpMinTerms = open(minTermsFile, 'r')
     except:
-	print 'Cannot open minumum terms file: %s' % minTermsFile
+        print('Cannot open minumum terms file: %s' % minTermsFile)
         sys.exit(1)
 
     for t in fpMinTerms.readlines():
-	minTermsList.append(t)
+        minTermsList.append(t)
     fpMinTerms.close()
 
     #
@@ -355,13 +354,13 @@ def getInitialSanityErrors():
     undefinedParentList = []
 
     try:
-	fpUndefinedParent = open(undefinedParentFile, 'r')
+        fpUndefinedParent = open(undefinedParentFile, 'r')
     except:
-	print 'Cannot open undefined parent file: %s' % undefinedParentFile
-	sys.exit(1)
+        print('Cannot open undefined parent file: %s' % undefinedParentFile)
+        sys.exit(1)
 
     for u in fpUndefinedParent.readlines():
-	undefinedParentList .append(u)
+        undefinedParentList .append(u)
     fpUndefinedParent.close()
 
     #
@@ -373,11 +372,11 @@ def getInitialSanityErrors():
     try:
         fpAltIdPrimary = open(altIsPrimaryFile, 'r')
     except:
-        print 'Cannot open alt ids also defined as primary file: %s' % altIsPrimaryFile
+        print('Cannot open alt ids also defined as primary file: %s' % altIsPrimaryFile)
         sys.exit(1)
 
     for a in fpAltIdPrimary.readlines():
-	altIsPrimaryList.append(a)
+        altIsPrimaryList.append(a)
     fpAltIdPrimary.close()
 
     #
@@ -387,12 +386,12 @@ def getInitialSanityErrors():
     obsIsParentList = []
 
     try:
-	fpObsIsParent = open(obsIsParentFile, 'r')
+        fpObsIsParent = open(obsIsParentFile, 'r')
     except:
-	print 'Cannot open obsolete ids that are parents file: %s' % obsIsParentFile
+        print('Cannot open obsolete ids that are parents file: %s' % obsIsParentFile)
 
     for o in fpObsIsParent.readlines():
-	obsIsParentList.append(o)
+        obsIsParentList.append(o)
     fpObsIsParent.close()
 
     #
@@ -404,7 +403,7 @@ def getInitialSanityErrors():
     try:
         fpObsWithRelationship = open(obsWithRelationshipFile, 'r')
     except:
-        print 'Cannot open obsolete ids with relationships file: %s' % obsWithRelationshipFile
+        print('Cannot open obsolete ids with relationships file: %s' % obsWithRelationshipFile)
 
     for o in fpObsWithRelationship.readlines():
         obsWithRelationshipList.append(o)
@@ -417,12 +416,12 @@ def getInitialSanityErrors():
     stanzaHasTabList = []
 
     try:
-	fpStanzaHasTab = open(stanzaHasTabFile, 'r')
+        fpStanzaHasTab = open(stanzaHasTabFile, 'r')
     except:
-	print 'Cannot open Stanzas with tab file: %s' % stanzaHasTabFile
+        print('Cannot open Stanzas with tab file: %s' % stanzaHasTabFile)
 
     for i in fpStanzaHasTab.readlines():
-	stanzaHasTabList.append(i)
+        stanzaHasTabList.append(i)
     fpStanzaHasTab.close()
 
     #
@@ -434,67 +433,67 @@ def getInitialSanityErrors():
       or len(altIsPrimaryList) or len(obsIsParentList) \
       or len(obsWithRelationshipList) or len(stanzaHasTabList):
 
-	retCode = 2
+        retCode = 2
 
-	openQCFiles()
+        openQCFiles()
 
-	fpQcRpt.write('You must fix all errors in this report and run the QC script again%s' % CRT)
-	fpQcRpt.write('to find any additional errors %s%s' % (CRT, CRT))
+        fpQcRpt.write('You must fix all errors in this report and run the QC script again%s' % CRT)
+        fpQcRpt.write('to find any additional errors %s%s' % (CRT, CRT))
 
-	if len(invalidTSList):
-	    fpQcRpt.write('EMAPA IDs with invalid Theiler stages: %s%s' % (CRT, CRT))
-	    for ts in invalidTSList:
-		fpQcRpt.write('%s' % (ts))
-	    fpQcRpt.write(CRT)
+        if len(invalidTSList):
+            fpQcRpt.write('EMAPA IDs with invalid Theiler stages: %s%s' % (CRT, CRT))
+            for ts in invalidTSList:
+                fpQcRpt.write('%s' % (ts))
+            fpQcRpt.write(CRT)
 
-	if len(missingFieldsList):
-	    for msg in missingFieldsList:
-		fpQcRpt.write('%s' % (msg))
-	    fpQcRpt.write(CRT)
+        if len(missingFieldsList):
+            for msg in missingFieldsList:
+                fpQcRpt.write('%s' % (msg))
+            fpQcRpt.write(CRT)
 
-	if len(invalidIdList):
-	    fpQcRpt.write('Invalid EMAPA IDs: %s%s' % (CRT, CRT))
-	    for id in invalidIdList:
-		fpQcRpt.write('%s' % (id))
-	    fpQcRpt.write(CRT)
-	    
-	if len(minTermsList):
-	    for msg in minTermsList:
-		fpQcRpt.write('%s' % (msg))
-	    fpQcRpt.write(CRT)
+        if len(invalidIdList):
+            fpQcRpt.write('Invalid EMAPA IDs: %s%s' % (CRT, CRT))
+            for id in invalidIdList:
+                fpQcRpt.write('%s' % (id))
+            fpQcRpt.write(CRT)
+            
+        if len(minTermsList):
+            for msg in minTermsList:
+                fpQcRpt.write('%s' % (msg))
+            fpQcRpt.write(CRT)
 
-	if len(undefinedParentList):
-	    fpQcRpt.write('Undefined parent IDs: %s%s' % (CRT, CRT))
-	    for id in undefinedParentList:
-		 fpQcRpt.write('%s' % (id))
-	    fpQcRpt.write(CRT)
+        if len(undefinedParentList):
+            fpQcRpt.write('Undefined parent IDs: %s%s' % (CRT, CRT))
+            for id in undefinedParentList:
+                 fpQcRpt.write('%s' % (id))
+            fpQcRpt.write(CRT)
 
-	if len(altIsPrimaryList):
-	    fpQcRpt.write('Alt_ids that are also primary:  %s%s' % (CRT, CRT))
-	    for id in altIsPrimaryList:
-		fpQcRpt.write('%s' % (id))
-	    fpQcRpt.write(CRT)
+        if len(altIsPrimaryList):
+            fpQcRpt.write('Alt_ids that are also primary:  %s%s' % (CRT, CRT))
+            for id in altIsPrimaryList:
+                fpQcRpt.write('%s' % (id))
+            fpQcRpt.write(CRT)
 
-	if len(obsIsParentList):
-	    fpQcRpt.write('Obsolete Ids that are also parents: %s%s' % (CRT, CRT))
-	    for id in obsIsParentList:
-		fpQcRpt.write('%s' % (id))
-	    fpQcRpt.write(CRT)
+        if len(obsIsParentList):
+            fpQcRpt.write('Obsolete Ids that are also parents: %s%s' % (CRT, CRT))
+            for id in obsIsParentList:
+                fpQcRpt.write('%s' % (id))
+            fpQcRpt.write(CRT)
 
-	if len(obsWithRelationshipList):
-	    fpQcRpt.write('Obsolete Ids that have parent or TS relationships: %s%s' % (CRT, CRT))
+        if len(obsWithRelationshipList):
+            fpQcRpt.write('Obsolete Ids that have parent or TS relationships: %s%s' % (CRT, CRT))
             for id in obsWithRelationshipList:
                 fpQcRpt.write('%s' % (id))
             fpQcRpt.write(CRT)
 
-	if len(stanzaHasTabList):
-	    fpQcRpt.write('Stanzas with embedded tabs: %s%s' % (CRT, CRT))
-	    for line in stanzaHasTabList:
-		fpQcRpt.write('%s' % (line)) 
+        if len(stanzaHasTabList):
+            fpQcRpt.write('Stanzas with embedded tabs: %s%s' % (CRT, CRT))
+            for line in stanzaHasTabList:
+                fpQcRpt.write('%s' % (line)) 
 
     if retCode != 0:
-	closeQCFiles()
-	sys.exit(retCode)
+        closeQCFiles()
+        sys.exit(retCode)
 
     return
 
@@ -512,8 +511,8 @@ def closeOutputFiles():
     fpEmapaTerm.close()
     fpEmapsTerm.close()
     fpEmapaDag.close()
-    for ts in fpEmapsDagDict.keys():
-	fpEmapsDagDict[ts].close()
+    for ts in list(fpEmapsDagDict.keys()):
+        fpEmapsDagDict[ts].close()
 
     return
 
@@ -529,9 +528,9 @@ def openQCFiles():
     global fpQcRpt
 
     try:
-	fpQcRpt = open(qcRptFile, 'w')
+        fpQcRpt = open(qcRptFile, 'w')
     except:
-        print 'Cannot open qc report file: %s' % qcRptFile
+        print('Cannot open qc report file: %s' % qcRptFile)
         sys.exit(1)
 
     return
@@ -554,9 +553,9 @@ def closeQCFiles():
 # end  closeQCFiles() -------------------------------
 
 def termCleanup(t,	# a term object (OboTerm)
-		stanza	# dict whose keys are the stanza keywords,
-			#      & values are the text after the keyword
-		):
+                stanza	# dict whose keys are the stanza keywords,
+                        #      & values are the text after the keyword
+                ):
     # Purpose: Call back function that morphs starts_at/ends_at relationships
     #       into attributes
     # Returns: Nothing
@@ -568,14 +567,14 @@ def termCleanup(t,	# a term object (OboTerm)
     setattr(t, "ends_at", [])
     # check for starts_at and ends_at relationships
     for r in stanza.get("relationship", []): 
-	(reltype, relid) = r.split()
+        (reltype, relid) = r.split()
 
-	if reltype == "starts_at":
-	    #setattr(t, "starts_at", int(relid[2:]))
-	    t.starts_at.append(int(relid[2:]))
-	if reltype == "ends_at":
-	    #setattr(t, "ends_at", int(relid[2:]))	
-	    t.ends_at.append(int(relid[2:]))
+        if reltype == "starts_at":
+            #setattr(t, "starts_at", int(relid[2:]))
+            t.starts_at.append(int(relid[2:]))
+        if reltype == "ends_at":
+            #setattr(t, "ends_at", int(relid[2:]))	
+            t.ends_at.append(int(relid[2:]))
     return
 
 # end termCleanup() -------------------------------
@@ -639,100 +638,100 @@ def createFiles():
     roots = ont.getRoots( ns=ns)
     if len(roots) > 1:
         for et in roots:
-	    aRootTermList.append(et.id)
-	    errorCount += 1
+            aRootTermList.append(et.id)
+            errorCount += 1
 
     #
     # check for cycles 
     #
     cycleNodes = ont.checkCycles()
     if len(cycleNodes) > 0:
-	errorCount +=1
-	for t in cycleNodes:
-	    cyclesList.append('%s %s' % (t.id, t.name))
+        errorCount +=1
+        for t in cycleNodes:
+            cyclesList.append('%s %s' % (t.id, t.name))
 
     # 
     # create dictionary of EMAPA terms (both preferred & non-preferred)
     # will be used to check for merges
     #
     results = db.sql('''
-    	select distinct accid, _object_key 
-	from ACC_Accession
-	where _mgitype_key = 13
-	and _logicaldb_key = 169
-    	''', 'auto')
+        select distinct accid, _object_key 
+        from ACC_Accession
+        where _mgitype_key = 13
+        and _logicaldb_key = 169
+        ''', 'auto')
     for r in results:
         key = r['accid']
-	value = r['_object_key']
-	allEMAPIDs[key] = value
+        value = r['_object_key']
+        allEMAPIDs[key] = value
 
     #
     # create dictionary of existing annotations : emapa id
     #
     results = db.sql('''
-		(
-    		select distinct a.accid
-		from GXD_GelLaneStructure s, ACC_Accession a
-		where s._emapa_term_key = a._object_key
-		and a._mgitype_key = 13
-		and a._logicaldb_key = 169
-		and a.preferred = 1
-		union all
-    		select distinct a.accid
-		from GXD_ISResultStructure s, ACC_Accession a
-		where s._emapa_term_key = a._object_key
-		and a._mgitype_key = 13
-		and a._logicaldb_key = 169
-		and a.preferred = 1
-		union all
-    		select distinct a.accid
-		from GXD_HTSample s, ACC_Accession a
-		where s._emapa_key = a._object_key
-		and a._mgitype_key = 13
-		and a._logicaldb_key = 169
-		and a.preferred = 1
-		)
-    		''', 'auto')
+                (
+                select distinct a.accid
+                from GXD_GelLaneStructure s, ACC_Accession a
+                where s._emapa_term_key = a._object_key
+                and a._mgitype_key = 13
+                and a._logicaldb_key = 169
+                and a.preferred = 1
+                union all
+                select distinct a.accid
+                from GXD_ISResultStructure s, ACC_Accession a
+                where s._emapa_term_key = a._object_key
+                and a._mgitype_key = 13
+                and a._logicaldb_key = 169
+                and a.preferred = 1
+                union all
+                select distinct a.accid
+                from GXD_HTSample s, ACC_Accession a
+                where s._emapa_key = a._object_key
+                and a._mgitype_key = 13
+                and a._logicaldb_key = 169
+                and a.preferred = 1
+                )
+                ''', 'auto')
     for r in results:
-	key = r['accid']
-	annotEMAPIDSet.add(key)
+        key = r['accid']
+        annotEMAPIDSet.add(key)
 
     #
     # create dictionary of existing annotations : emapa id, min-stage, max-stage
     #
     results = db.sql('''
-		(
-    		select distinct a.accid, min(ts.stage) as minStage, max(ts.stage) as maxStage
-		from GXD_GelLaneStructure s, GXD_TheilerStage ts, ACC_Accession a
-		where s._emapa_term_key = a._object_key
-		and a._mgitype_key = 13
-		and a._logicaldb_key = 169
-		and a.preferred = 1
-		and s._stage_key = ts._stage_key
-		group by a.accid
-		union all
-    		select distinct a.accid, min(ts.stage) as minStage, max(ts.stage) as maxStage
-		from GXD_ISResultStructure s, GXD_TheilerStage ts, ACC_Accession a
-		where s._emapa_term_key = a._object_key
-		and a._mgitype_key = 13
-		and a._logicaldb_key = 169
-		and a.preferred = 1
-		and s._stage_key = ts._stage_key
-		group by a.accid
-		union all
-    		select distinct a.accid, min(ts.stage) as minStage, max(ts.stage) as maxStage
-		from GXD_HTSample s, GXD_TheilerStage ts, ACC_Accession a
-		where s._emapa_key = a._object_key
-		and a._mgitype_key = 13
-		and a._logicaldb_key = 169
-		and a.preferred = 1
-		and s._stage_key = ts._stage_key
-		group by a.accid
-		)
-    		''', 'auto')
+                (
+                select distinct a.accid, min(ts.stage) as minStage, max(ts.stage) as maxStage
+                from GXD_GelLaneStructure s, GXD_TheilerStage ts, ACC_Accession a
+                where s._emapa_term_key = a._object_key
+                and a._mgitype_key = 13
+                and a._logicaldb_key = 169
+                and a.preferred = 1
+                and s._stage_key = ts._stage_key
+                group by a.accid
+                union all
+                select distinct a.accid, min(ts.stage) as minStage, max(ts.stage) as maxStage
+                from GXD_ISResultStructure s, GXD_TheilerStage ts, ACC_Accession a
+                where s._emapa_term_key = a._object_key
+                and a._mgitype_key = 13
+                and a._logicaldb_key = 169
+                and a.preferred = 1
+                and s._stage_key = ts._stage_key
+                group by a.accid
+                union all
+                select distinct a.accid, min(ts.stage) as minStage, max(ts.stage) as maxStage
+                from GXD_HTSample s, GXD_TheilerStage ts, ACC_Accession a
+                where s._emapa_key = a._object_key
+                and a._mgitype_key = 13
+                and a._logicaldb_key = 169
+                and a.preferred = 1
+                and s._stage_key = ts._stage_key
+                group by a.accid
+                )
+                ''', 'auto')
     for r in results:
-	key = r['accid']
-	annotDict[key] = r
+        key = r['accid']
+        annotDict[key] = r
 
     #
     # build EMAPA/EMAPS term and dag files, checking for errors as we go
@@ -743,330 +742,330 @@ def createFiles():
         if t.namespace != ns:
             continue
 
-	# determine if root node, we'll use this more than once
+        # determine if root node, we'll use this more than once
         isRoot = 0
-	if ont.isRoot(t):
-	    isRoot = 1
+        if ont.isRoot(t):
+            isRoot = 1
 
-	# get the term and its ID
+        # get the term and its ID
         term = t.name
         emapaId = t.id
 
-	# 'endochronal bone' 'EMAPA:35304 child of 'bone tissue' EMAPA:35179
+        # 'endochronal bone' 'EMAPA:35304 child of 'bone tissue' EMAPA:35179
         #if emapaId == 'EMAPA:35304':
         #    debug = 1
         #    print 'Debugging: %s %s' % (emapaId, term)
         #    print 'Starts at: %s Ends at: %s' % (t.starts_at, t.ends_at)
-	
-	if term == '' or emapaId == '':
-	    missingNameIdList.append('id: "%s", name: "%s" has blank attribute' % (emapaId, term))
-	    errorCount += 1
+        
+        if term == '' or emapaId == '':
+            missingNameIdList.append('id: "%s", name: "%s" has blank attribute' % (emapaId, term))
+            errorCount += 1
 
-	# for now...continue on...even if term/emapaId is missing...?
+        # for now...continue on...even if term/emapaId is missing...?
 
-	# add to seenEMAPIDSet...
-	seenEMAPIDSet.add(emapaId)
+        # add to seenEMAPIDSet...
+        seenEMAPIDSet.add(emapaId)
 
-	#
-	# for obsolete terms...
-	#
-	if t.is_obsolete:
+        #
+        # for obsolete terms...
+        #
+        if t.is_obsolete:
 
-	    # if annotations exist, then error
-	    if annotDict.has_key(emapaId):
-	        annotDiscrepancyList.append('annotation exists for obsolete term: %s' % (emapaId))
-	        errorCount += 1
+            # if annotations exist, then error
+            if emapaId in annotDict:
+                annotDiscrepancyList.append('annotation exists for obsolete term: %s' % (emapaId))
+                errorCount += 1
 
             fpEmapaTerm.write('%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s' % \
-	        (term, TAB, emapaId, TAB, OBSTATUS, TAB, TAB, TAB, TAB, \
-		 TAB, TAB, TAB, TAB, TAB, CRT))
+                (term, TAB, emapaId, TAB, OBSTATUS, TAB, TAB, TAB, TAB, \
+                 TAB, TAB, TAB, TAB, TAB, CRT))
 
             continue
-   		 
+                 
         # get the theiler stage start and end values
         # for terms that don't have start/end
         # QC catches terms missing one or the other or multi
 
-	if t.starts_at == [] and t.ends_at == []:
-	    start = TSSTART
-	    end = TSEND
-	elif t.starts_at == []:
-	    tsDiscrepancyList.append('%s has missing starts_at' % t.id )
-	    errorCount += 1
-	elif t.ends_at == []:
-	    tsDiscrepancyList.append('%s has missing ends_at' % t.id )
-	    errorCount += 1
-	elif len(t.starts_at) > 1 and len(t.ends_at) > 1:
-	    tsDiscrepancyList.append('%s has multiple starts_at AND ends_at values' % t.id)
+        if t.starts_at == [] and t.ends_at == []:
+            start = TSSTART
+            end = TSEND
+        elif t.starts_at == []:
+            tsDiscrepancyList.append('%s has missing starts_at' % t.id )
             errorCount += 1
-	    continue
+        elif t.ends_at == []:
+            tsDiscrepancyList.append('%s has missing ends_at' % t.id )
+            errorCount += 1
+        elif len(t.starts_at) > 1 and len(t.ends_at) > 1:
+            tsDiscrepancyList.append('%s has multiple starts_at AND ends_at values' % t.id)
+            errorCount += 1
+            continue
         elif len(t.starts_at) > 1:
             tsDiscrepancyList.append('%s has multiple starts_at values' % t.id)
             errorCount += 1
-	    continue
+            continue
         elif len(t.ends_at) > 1 :
             tsDiscrepancyList.append('%s has multiple ends_at values' % t.id)
             errorCount += 1
-	    continue	
-	else:
-	    start = t.starts_at[0]
-	    end = t.ends_at[0]
-	    # check that start < end
-	    if end < start:
-		tsDiscrepancyList.append('%s ends_at < starts_at' % t.id)
-		errorCount += 1
-		continue
-	    # check  for valid TS value
-	    if start not in range(TSSTART, TSEND + 1):
-		tsDiscrepancyList.append('Invalid starts_at value %s for %s' % (start, t.id))
-		errorCount += 1
-	    if end not in range(TSSTART, TSEND + 1):
-		tsDiscrepancyList.append('Invalid ends_at value %s for %s' % (start, t.id))
-		errorCount += 1
-	
-	#
-	# if annotation exist and start/end stage conflicts, then error
-	# 	annotation/minStage is less than the new start stage
-	# 	annotation/maxStage is greater than the new end stage
-	#
-	if annotDict.has_key(emapaId):
-	    if annotDict[emapaId]['minStage'] < start:
-	       annotDiscrepancyList.append('start stage conflict: %s, %s (in mgi), %s (in obo)' \
-	           % (emapaId, annotDict[emapaId]['minStage'], start))
-	       errorCount += 1
-	    if annotDict[emapaId]['maxStage'] > end:
-	       annotDiscrepancyList.append('end stage conflict: %s, %s (in mgi), %s (in obo)' \
+            continue	
+        else:
+            start = t.starts_at[0]
+            end = t.ends_at[0]
+            # check that start < end
+            if end < start:
+                tsDiscrepancyList.append('%s ends_at < starts_at' % t.id)
+                errorCount += 1
+                continue
+            # check  for valid TS value
+            if start not in list(range(TSSTART, TSEND + 1)):
+                tsDiscrepancyList.append('Invalid starts_at value %s for %s' % (start, t.id))
+                errorCount += 1
+            if end not in list(range(TSSTART, TSEND + 1)):
+                tsDiscrepancyList.append('Invalid ends_at value %s for %s' % (start, t.id))
+                errorCount += 1
+        
+        #
+        # if annotation exist and start/end stage conflicts, then error
+        # 	annotation/minStage is less than the new start stage
+        # 	annotation/maxStage is greater than the new end stage
+        #
+        if emapaId in annotDict:
+            if annotDict[emapaId]['minStage'] < start:
+               annotDiscrepancyList.append('start stage conflict: %s, %s (in mgi), %s (in obo)' \
+                   % (emapaId, annotDict[emapaId]['minStage'], start))
+               errorCount += 1
+            if annotDict[emapaId]['maxStage'] > end:
+               annotDiscrepancyList.append('end stage conflict: %s, %s (in mgi), %s (in obo)' \
                    % (emapaId, annotDict[emapaId]['maxStage'], end))
-	       errorCount += 1
+               errorCount += 1
 
-	# get the term's alternate ids joining with '|'
-	altIdList = t.getAltIDs()
-	altIds = string.join(altIdList, '|')
+        # get the term's alternate ids joining with '|'
+        altIdList = t.getAltIDs()
+        altIds = str.join(altIdList, '|')
 
-	# if altID term object != emapaID term object, then this is a merge, report error
-	if allEMAPIDs.has_key(emapaId):
-	    for a in altIdList:
-	        if allEMAPIDs.has_key(a):
-		    if allEMAPIDs[emapaId] != allEMAPIDs[a] and annotDict.has_key(a):
-			message = 'term merge detected and annotations exist for alt_id: %s, alt_id = %s'
-		        annotDiscrepancyList.append(message % (emapaId, a))
-			errorCount += 1
+        # if altID term object != emapaID term object, then this is a merge, report error
+        if emapaId in allEMAPIDs:
+            for a in altIdList:
+                if a in allEMAPIDs:
+                    if allEMAPIDs[emapaId] != allEMAPIDs[a] and a in annotDict:
+                        message = 'term merge detected and annotations exist for alt_id: %s, alt_id = %s'
+                        annotDiscrepancyList.append(message % (emapaId, a))
+                        errorCount += 1
 
         # get the term's synonyms joining with '|'
         synList = t.getSynonyms()
-        syns = string.join(synList, '|')
+        syns = str.join(synList, '|')
         synTypeList = []
 
         # create synonym type string
         for s in range(0, len(synList)):
             synTypeList.append(SYNTYPE)
-        synType = string.join(synTypeList, '|')
+        synType = str.join(synTypeList, '|')
 
-	# create a list of the current term's TSs
-	cTSList = []
+        # create a list of the current term's TSs
+        cTSList = []
         for i in range(start, end + 1):
             cTSList.append(i)
 
-	# get parent's end edges of 't'
-	parentDict = {}
-	for parent, edge in ont.iterInEdges(t):
-		parentDict[parent] = edge
-	#
-	# Determine parent overlap
-	#
+        # get parent's end edges of 't'
+        parentDict = {}
+        for parent, edge in ont.iterInEdges(t):
+                parentDict[parent] = edge
+        #
+        # Determine parent overlap
+        #
 
-	# get list of parents for term, for sorting`
-	# [pName|pid, ...]
+        # get list of parents for term, for sorting`
+        # [pName|pid, ...]
         parentList = []
-	
-	# parents whose TS overlaps with 't'
-	# {ts:[pid1, ...], ...}
-	parentOverlapTSDict = {}
+        
+        # parents whose TS overlaps with 't'
+        # {ts:[pid1, ...], ...}
+        parentOverlapTSDict = {}
 
-	# root term has no parents - add all ts to the dictionary
-	#pList = ont.getParents(t)
-	pList = parentDict.keys()
+        # root term has no parents - add all ts to the dictionary
+        #pList = ont.getParents(t)
+        pList = list(parentDict.keys())
 
-	if len(pList) == 0:
-	    for i in range(1, 29):
-		parentOverlapTSDict[i] = ['root|']
+        if len(pList) == 0:
+            for i in range(1, 29):
+                parentOverlapTSDict[i] = ['root|']
 
-	# We want to skip this check if relationship is develops_from or attached_to
-	# iterate over the parents adding to the overlap dict
-	for p in pList:
-	    # get relationship between the node and this parent
-	    # we need to sort on the term, but we need the ID for the
+        # We want to skip this check if relationship is develops_from or attached_to
+        # iterate over the parents adding to the overlap dict
+        for p in pList:
+            # get relationship between the node and this parent
+            # we need to sort on the term, but we need the ID for the
             # defaultParent
-	    
+            
             parentList.append('%s|%s' % (p.name, p.id))
 
-	    # create a set of parent TS values to determine TS overlap
-	    # Here we assume QC of starts_at/ends_at will fail for p 
-	    # above if len > 1, so we grab the first one in the list
-	    #
-	    # we also assume that missing starts_at/ends_at will be
-	    # caught for p in earlier check
-	    pTSSet = set([])
-	    if p.starts_at == []:
-		pStart = TSSTART
-	    else:
-	 	pStart = p.starts_at[0]
+            # create a set of parent TS values to determine TS overlap
+            # Here we assume QC of starts_at/ends_at will fail for p 
+            # above if len > 1, so we grab the first one in the list
+            #
+            # we also assume that missing starts_at/ends_at will be
+            # caught for p in earlier check
+            pTSSet = set([])
+            if p.starts_at == []:
+                pStart = TSSTART
+            else:
+                pStart = p.starts_at[0]
 
-	    if p.ends_at == []:
-		pEnd = TSEND
-	    else:
-		pEnd = p.ends_at[0]
-	    for j in range(pStart, pEnd + 1):
-		pTSSet.add(j)
+            if p.ends_at == []:
+                pEnd = TSEND
+            else:
+                pEnd = p.ends_at[0]
+            for j in range(pStart, pEnd + 1):
+                pTSSet.add(j)
 
-	    # check for child/parent TS overlap
-	    hasOverlap = False
-	    if parentDict[p] == 'develops_from' or parentDict[p] == 'attached_to':
+            # check for child/parent TS overlap
+            hasOverlap = False
+            if parentDict[p] == 'develops_from' or parentDict[p] == 'attached_to':
                 hasOverlap = True # skip this QC check, child with develops_from relationship will NOT
-				  # overlap parent
-	    else:
-		for ts in cTSList:
-		    # all it takes is one overlap to be valid
-		    if ts in pTSSet:
-			hasOverlap = True
-			pid = '%s|%s' %(p.name, p.id)
-			if not parentOverlapTSDict.has_key(ts):
-			    parentOverlapTSDict[ts] = []
-			if pid  not in  parentOverlapTSDict[ts]:
-			    parentOverlapTSDict[ts].append(pid)
-		    
-	    # If hasOverlap is false we have no overlap
-	    if hasOverlap == False:
-	    	errorCount += 1
-		noOverlapList.append('%s range %s-%s not in parent %s range %s-%s' % (t.id, start, end, p.id, pStart, pEnd  ) )
+                                  # overlap parent
+            else:
+                for ts in cTSList:
+                    # all it takes is one overlap to be valid
+                    if ts in pTSSet:
+                        hasOverlap = True
+                        pid = '%s|%s' %(p.name, p.id)
+                        if ts not in parentOverlapTSDict:
+                            parentOverlapTSDict[ts] = []
+                        if pid  not in  parentOverlapTSDict[ts]:
+                            parentOverlapTSDict[ts].append(pid)
+                    
+            # If hasOverlap is false we have no overlap
+            if hasOverlap == False:
+                errorCount += 1
+                noOverlapList.append('%s range %s-%s not in parent %s range %s-%s' % (t.id, start, end, p.id, pStart, pEnd  ) )
 
-	#
-	# determine default parent, lowest alpha
-	# default value empty - this is a root
-	#
-	defaultParent = ''
+        #
+        # determine default parent, lowest alpha
+        # default value empty - this is a root
+        #
+        defaultParent = ''
 
-	# if we hava one or more parents, find the default parent
-	if (len(parentList)) > 0:
-	    # we sort to find defaultParent (alpha order),even if only one
-	    parentList.sort()
-	    
-	    # Get the first sorted ID 
-	    defaultParent = parentList[0].split('|')[1]
-	
+        # if we hava one or more parents, find the default parent
+        if (len(parentList)) > 0:
+            # we sort to find defaultParent (alpha order),even if only one
+            parentList.sort()
+            
+            # Get the first sorted ID 
+            defaultParent = parentList[0].split('|')[1]
+        
         # write out to the emapa term file
         fpEmapaTerm.write('%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s' % \
-	    (term, TAB, emapaId, TAB, STATUS, TAB, TAB, TAB, TAB, \
-		syns, TAB, synType, TAB, altIds, TAB, start, TAB, end, TAB, defaultParent, CRT))
+            (term, TAB, emapaId, TAB, STATUS, TAB, TAB, TAB, TAB, \
+                syns, TAB, synType, TAB, altIds, TAB, start, TAB, end, TAB, defaultParent, CRT))
     
-	#
-	# get the parent edges, parent is an EMAPTerm object
+        #
+        # get the parent edges, parent is an EMAPTerm object
         # edgeLabel is a string
-	#
-	
-	# root term has no edges
-	if isRoot:
-	    edge = ''
-	    pid = ''
-	    fpEmapaDag.write('%s%s%s%s%s%s%s' % (emapaId, TAB, TAB, edge, TAB, pid, CRT))
+        #
+        
+        # root term has no edges
+        if isRoot:
+            edge = ''
+            pid = ''
+            fpEmapaDag.write('%s%s%s%s%s%s%s' % (emapaId, TAB, TAB, edge, TAB, pid, CRT))
 
-	# if edges, translate to proper edge term, write out to emapa dag 
-	# file and save for later use determining emaps
+        # if edges, translate to proper edge term, write out to emapa dag 
+        # file and save for later use determining emaps
  
-	parentEdgeDict = {}
-	for (parent, edgeLabel) in ont.iterInEdges(t):
+        parentEdgeDict = {}
+        for (parent, edgeLabel) in ont.iterInEdges(t):
             # part_of -> part-of, is_a -> is-a
             edge = edgeLabel.replace('_', '-')
-	    
+            
             # get id from parent object
             pid = parent.id
 
-	    # save edges for use by EMAPS calculation
-            if not parentEdgeDict.has_key(pid):
+            # save edges for use by EMAPS calculation
+            if pid not in parentEdgeDict:
                 parentEdgeDict[pid] = []
-	    parentEdgeDict[pid].append(edge)
+            parentEdgeDict[pid].append(edge)
 
             # write out to the dag file
             fpEmapaDag.write('%s%s%s%s%s%s%s' % (emapaId, TAB, TAB, edge, TAB, pid, CRT))
-	
-	# 
-	# determine EMAPS terms and
-	# write out to the emaps term file
-	#
+        
+        # 
+        # determine EMAPS terms and
+        # write out to the emaps term file
+        #
 
-	# create EMAPS term for each TS stage 
+        # create EMAPS term for each TS stage 
         if debug:
-            print 'Start of creating EMAPS term'
+            print('Start of creating EMAPS term')
 
-	for ts in cTSList:
-	    # we need the leading zero for the id 
-	    if int(ts) < 10:
-		tsString = '0%s' % ts
-	    else:
-		tsString = '%s' % ts    
-	    if debug:
-                print 'ts: %s' % ts
-
-	    # the term is the same as the emapa term
-	    sTerm = term  
-
-	    # Calculate the emaps ID
-	    # EMAPA:123456 at TS01 -> EMAPS:12345601
-	    emapsId = '%s%s' % (emapaId.replace('A:', 'S:'), tsString)
+        for ts in cTSList:
+            # we need the leading zero for the id 
+            if int(ts) < 10:
+                tsString = '0%s' % ts
+            else:
+                tsString = '%s' % ts    
             if debug:
-                print 'emapsId: %s' % emapsId
+                print('ts: %s' % ts)
 
-	    pidList = []
-            if parentOverlapTSDict.has_key(ts):
-		if debug:
-		    print 'parentOverlapTSDict[ts]: %s' %  parentOverlapTSDict[ts]
+            # the term is the same as the emapa term
+            sTerm = term  
+
+            # Calculate the emaps ID
+            # EMAPA:123456 at TS01 -> EMAPS:12345601
+            emapsId = '%s%s' % (emapaId.replace('A:', 'S:'), tsString)
+            if debug:
+                print('emapsId: %s' % emapsId)
+
+            pidList = []
+            if ts in parentOverlapTSDict:
+                if debug:
+                    print('parentOverlapTSDict[ts]: %s' %  parentOverlapTSDict[ts])
                 pidList = parentOverlapTSDict[ts]
             else:
-		# parentless terms are root terms, save for multi-root detection
+                # parentless terms are root terms, save for multi-root detection
                 sRootTermList.append(emapsId)
-		if debug:
-                    print 'adding to sRootTermList: %s' % sRootTermList
+                if debug:
+                    print('adding to sRootTermList: %s' % sRootTermList)
 
-		continue
-	    # Calculate the emaps default parent ID
-	    # null if its the root 
-	    if isRoot:
-		defaultEmapsParent = defaultParent # empty string
-	    else:
-		pidList.sort()
-		dep = pidList[0].split('|')[1]
-		defaultEmapsParent = '%s%s' % (dep.replace('A:', 'S:'), tsString)
+                continue
+            # Calculate the emaps default parent ID
+            # null if its the root 
+            if isRoot:
+                defaultEmapsParent = defaultParent # empty string
+            else:
+                pidList.sort()
+                dep = pidList[0].split('|')[1]
+                defaultEmapsParent = '%s%s' % (dep.replace('A:', 'S:'), tsString)
 
             # write to emaps term file; status, synonyms, synType same as EMAPA
             if debug:
-                print 'writing to emapsTerm file: %s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s' % \
+                print('writing to emapsTerm file: %s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s' % \
                 (sTerm, TAB, emapsId, TAB, STATUS, TAB, TAB, TAB, TAB, syns, \
-                TAB, synType, TAB, TAB, emapaId, TAB, ts, TAB, defaultEmapsParent, CRT)
+                TAB, synType, TAB, TAB, emapaId, TAB, ts, TAB, defaultEmapsParent, CRT))
 
-	    # write to emaps term file; status, synonyms, synType same as EMAPA
-	    fpEmapsTerm.write('%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s' % \
-		(sTerm, TAB, emapsId, TAB, STATUS, TAB, TAB, TAB, TAB, syns, \
-		TAB, synType, TAB, TAB, emapaId, TAB, ts, TAB, defaultEmapsParent, CRT)) 
+            # write to emaps term file; status, synonyms, synType same as EMAPA
+            fpEmapsTerm.write('%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s' % \
+                (sTerm, TAB, emapsId, TAB, STATUS, TAB, TAB, TAB, TAB, syns, \
+                TAB, synType, TAB, TAB, emapaId, TAB, ts, TAB, defaultEmapsParent, CRT)) 
 
-	    # create emaps dag file for each emaps TS overlap with parent
-	    for p in pidList: 
-		pid = p.split('|')[1]
-		# if we have the root write out parentless/edgeless record
-	        if isRoot:
-		    pEmapsId = ''
-	  	    edge = ''
-		    fpEmapsDagDict[int(ts)].write('%s%s%s%s%s%s%s' % \
-			(emapsId, TAB, TAB, edge, TAB, pEmapsId, CRT))
+            # create emaps dag file for each emaps TS overlap with parent
+            for p in pidList: 
+                pid = p.split('|')[1]
+                # if we have the root write out parentless/edgeless record
+                if isRoot:
+                    pEmapsId = ''
+                    edge = ''
+                    fpEmapsDagDict[int(ts)].write('%s%s%s%s%s%s%s' % \
+                        (emapsId, TAB, TAB, edge, TAB, pEmapsId, CRT))
 
-		# write out edge for each parent
-		elif pid in parentEdgeDict.keys():
-		    pEmapsId = '%s%s' % (pid.replace('A:', 'S:'), tsString)
-		    edges = parentEdgeDict[pid]
-		    for edge in edges:
-			fpEmapsDagDict[int(ts)].write('%s%s%s%s%s%s%s' % \
-			    (emapsId, TAB, TAB, edge, TAB, pEmapsId, CRT))
-	if errorCount:
-	    continue
+                # write out edge for each parent
+                elif pid in list(parentEdgeDict.keys()):
+                    pEmapsId = '%s%s' % (pid.replace('A:', 'S:'), tsString)
+                    edges = parentEdgeDict[pid]
+                    for edge in edges:
+                        fpEmapsDagDict[int(ts)].write('%s%s%s%s%s%s%s' % \
+                            (emapsId, TAB, TAB, edge, TAB, pEmapsId, CRT))
+        if errorCount:
+            continue
 
     #
     # end : for t in ont.iterNodes():	# iterate through the nodes 
@@ -1078,11 +1077,11 @@ def createFiles():
     diff = annotEMAPIDSet - seenEMAPIDSet
     if len(diff) > 0:
         annotDiscrepancyList.append('terms exist in annotations but are not in obo file: %s' % (diff))
-	errorCount += 1
+        errorCount += 1
 
     # Check if dags rooted in one term
     if len(aRootTermList) > 1 or len(sRootTermList) > 0:
-	errorCount += 1
+        errorCount += 1
 
     return
 
@@ -1115,19 +1114,19 @@ def writeFatalSanityReport():
 
     if len(aRootTermList) > 1:
         fpQcRpt.write('Multiple EMAPA Root Nodes: %s%s' % (CRT, CRT))
-        fpQcRpt.write(string.join(aRootTermList, ', '))
+        fpQcRpt.write(str.join(aRootTermList, ', '))
         fpQcRpt.write('%s%s' % ( CRT, CRT))
 
     if len(cyclesList) > 0:
         fpQcRpt.write('Cycles exist between the following nodes: %s%s' % (CRT, CRT))
-        fpQcRpt.write(string.join(cyclesList, CRT))
+        fpQcRpt.write(str.join(cyclesList, CRT))
         fpQcRpt.write('%s%s' % ( CRT, CRT))
 
     if len(sRootTermList) > 0:
         fpQcRpt.write('Multiple EMAPS Root Nodes: %s%s' % (CRT, CRT))
-	fpQcRpt.write('EMAPS roots are EMAPS:25765 (1-28) these are in addition: %s%s' % (CRT, CRT))
-	for r in sRootTermList:
-	    fpQcRpt.write('%s%s' % (r, CRT))
+        fpQcRpt.write('EMAPS roots are EMAPS:25765 (1-28) these are in addition: %s%s' % (CRT, CRT))
+        for r in sRootTermList:
+            fpQcRpt.write('%s%s' % (r, CRT))
         fpQcRpt.write('%s%s' % ( CRT, CRT))
 
     if len(noOverlapList) > 0:
@@ -1172,24 +1171,24 @@ def writeWarningSanityReport():
     try:
         fpInDbNotInInput = open(inDbNotInInputFile, 'r')
     except:
-        print 'Cannot open invalid Id file: %s' % inDbNotInInputFile
+        print('Cannot open invalid Id file: %s' % inDbNotInInputFile)
         sys.exit(1)
 
     try:
-	fpWarning = open(qcWarnFile, 'w')
+        fpWarning = open(qcWarnFile, 'w')
     except:
-        print 'Cannot open Warning Sanity file: %s' % qcWarnFile
+        print('Cannot open Warning Sanity file: %s' % qcWarnFile)
         sys.exit(1)
 
     lines = fpInDbNotInInput.readlines()
 
     if len(lines):
-	print 'Non-fatal errors detected. See %s%s' % (qcWarnFile, CRT)
+        print('Non-fatal errors detected. See %s%s' % (qcWarnFile, CRT))
     else:
-	print 'No warnings detected.'
+        print('No warnings detected.')
 
     for line in lines:
-	fpWarning.write(line)
+        fpWarning.write(line)
 
     fpWarning.close()
     fpInDbNotInInput.close()
@@ -1205,15 +1204,15 @@ def runLoads():
     # Effects: terms and DAGs are loaded into a database,
     # Throws: Nothing
 
-    print 'running EMAPA term load'
+    print('running EMAPA term load')
     termload = EMAPALoad (emapaTermFile, 'incremental', emapaVocabKey, \
                           refsKey, log, passwordFileName)
     termload.go()
     
-    print 'running EMAPA dag load'
+    print('running EMAPA dag load')
     runDagLoad(emapaDagFile, 'EMAPA')
 
-    print 'running EMAPS term load'
+    print('running EMAPS term load')
     
     # reset the TermLoad environment variables
     os.environ['TERM_TERM_BCP_FILE'] = os.environ['TERM_TERM_S_BCP_FILE']
@@ -1228,11 +1227,11 @@ def runLoads():
                           refsKey, log, passwordFileName)
     termload.go()
 
-    print 'running EMAPS dag loads'
-    for ts in emapsDagFileDict.keys():
+    print('running EMAPS dag loads')
+    for ts in list(emapsDagFileDict.keys()):
         tsFile = emapsDagFileDict[ts]
 
-    	# dynamically create discrepancy, edge, node and closure file names
+        # dynamically create discrepancy, edge, node and closure file names
         # and set them in the environment
         discrepFile = os.environ['DAG_DISCREP_S_FILE']
         os.environ['DAG_DISCREP_FILE'] = discrepFile.replace('~', '%s' % ts) 

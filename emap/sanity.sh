@@ -105,6 +105,6 @@ INPUT_FILE_DEFAULT=${INPUT_FILE}
 export INPUT_FILE_DEFAULT
 
 # run sanity.py
-${VOCLOAD}/emap/sanity.py
+${PYTHON} ${VOCLOAD}/emap/sanity.py
 STAT=$?
 exit ${STAT}

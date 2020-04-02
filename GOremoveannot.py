@@ -1,4 +1,3 @@
-#!/usr/local/bin/python
 
 #
 # Program: GOremoveannot.py
@@ -87,7 +86,7 @@ def showUsage():
  
 def exit(
     status,          # numeric exit status (integer)
-    message = None   # exit message (string)
+    message = None   # exit message (str.
     ):
 
     # Purpose:
@@ -108,7 +107,7 @@ def exit(
     try:
         reportlib.finish_nonps(reportFile)
     except:
-	pass
+        pass
 
     db.useOneConnection(0)
     sys.exit(status)
@@ -153,7 +152,7 @@ def init():
             showUsage()
 
     # User must specify Server, Database, User and Password
-    password = string.strip(open(passwordFileName, 'r').readline())
+    password = str.strip(open(passwordFileName, 'r').readline())
     if server == '' or \
         database == '' or \
         user == '' or \
@@ -172,12 +171,12 @@ def init():
         diagFile = open(diagFileName, 'w')
     except:
         exit(1, 'Could not open file %s\n' % diagFileName)
-		
+                
     try:
-	reportFile = reportlib.init(reportFileName, 'Deleted:  Marker Annotations To Obsolete Terms', outputdir = os.environ['RUNTIME_DIR'])
+        reportFile = reportlib.init(reportFileName, 'Deleted:  Marker Annotations To Obsolete Terms', outputdir = os.environ['RUNTIME_DIR'])
     except:
         exit(1, 'Could not open file %s\n' % reportFileName)
-		
+                
     # Log all SQL
     db.set_sqlLogFunction(db.sqlLogAll)
 
@@ -199,11 +198,11 @@ def process():
     # Throws: nothing
 
     db.sql('select a.accID, a._Object_key, t.term ' + \
-	'into temp obsolete ' + \
-	'from VOC_Term_ACC_View a, VOC_Term t ' + \
-	'where t._Vocab_key = 4 ' + \
-	'and t.isObsolete = 1 ' + \
-	'and t._Term_key = a._Object_key', None)
+        'into temp obsolete ' + \
+        'from VOC_Term_ACC_View a, VOC_Term t ' + \
+        'where t._Vocab_key = 4 ' + \
+        'and t.isObsolete = 1 ' + \
+        'and t._Term_key = a._Object_key', None)
 
     db.sql('create index idx_key on obsolete(_Object_key)', None)
 
@@ -214,18 +213,18 @@ def process():
         'and a._Annot_key = e._Annot_key ' + \
         'and e._Refs_key in (59154,61933,73199,73197) ' + \
         'and a._Object_key = m._Marker_key ' + \
-	'and a._Object_key = ma._Object_key ' + \
-	'and ma._MGIType_key = 2 ' + \
-	'and ma._LogicalDB_key = 1 ' + \
-	'and ma.prefixPart = \'MGI:\' ' + \
-	'and ma.preferred = 1', 'auto')
+        'and a._Object_key = ma._Object_key ' + \
+        'and ma._MGIType_key = 2 ' + \
+        'and ma._LogicalDB_key = 1 ' + \
+        'and ma.prefixPart = \'MGI:\' ' + \
+        'and ma.preferred = 1', 'auto')
 
     for r in results:
-	reportFile.write(r['accID'] + TAB + \
-	    r['symbol'] + TAB + \
-	    r['name'] + TAB + \
-	    r['goid'] + TAB + \
-	    r['term'] + CRT)
+        reportFile.write(r['accID'] + TAB + \
+            r['symbol'] + TAB + \
+            r['name'] + TAB + \
+            r['goid'] + TAB + \
+            r['term'] + CRT)
 
     db.sql('delete from VOC_Evidence ' + \
         'using obsolete o, VOC_Annot a ' + \
@@ -235,7 +234,7 @@ def process():
         'and VOC_Evidence._Refs_key in (59154,61933,73199,73197)', None)
 
     db.sql('delete from VOC_Annot a ' + \
-	'where _AnnotType_key = 1000 and not exists (select 1 from VOC_Evidence e where a._Annot_key = e._Annot_key)', None)
+        'where _AnnotType_key = 1000 and not exists (select 1 from VOC_Evidence e where a._Annot_key = e._Annot_key)', None)
 
 
     db.commit()

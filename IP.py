@@ -1,4 +1,3 @@
-#!/usr/local/bin/python
 
 '''
 #
@@ -51,10 +50,9 @@ outFileName = os.environ['DATA_FILE']
 
 inFile = open(inFileName, 'r')
 outFile = open(outFileName, 'w')
-		
+                
 for line in inFile.readlines():
 
-	accID = line[:9]
-	term = line[10:-1]
-	outFile.write(term + DELIM + accID + DELIM + status + DELIM + DELIM + DELIM + DELIM + DELIM + CRT)
-
+        accID = line[:9]
+        term = line[10:-1]
+        outFile.write(term + DELIM + accID + DELIM + status + DELIM + DELIM + DELIM + DELIM + DELIM + CRT)

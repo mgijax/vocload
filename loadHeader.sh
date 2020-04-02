@@ -76,7 +76,7 @@ echo "Start header file processing: ${HEADER_FILE}" >> ${FULL_LOG_FILE}
 #  Call the Python script.
 #
 echo "Start loadHeader.py" >> ${FULL_LOG_FILE}
-loadHeader.py ${HEADER_FILE} ${HEADER_ANNOT_TYPE_KEY} >> ${FULL_LOG_FILE}
+${PYTHON} loadHeader.py ${HEADER_FILE} ${HEADER_ANNOT_TYPE_KEY} >> ${FULL_LOG_FILE}
 echo "End loadHeader.py" >> ${FULL_LOG_FILE}
 
 echo "End header file processing" >> ${FULL_LOG_FILE}

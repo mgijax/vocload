@@ -71,7 +71,7 @@ echo "Start topological sort ordering" >> ${FULL_LOG_FILE}
 #  Call the Python script.
 #
 echo "Start loadTopSort.py" >> ${FULL_LOG_FILE}
-loadTopSort.py >> ${FULL_LOG_FILE}
+${PYTHON} loadTopSort.py >> ${FULL_LOG_FILE}
 echo "End loadTopSort.py" >> ${FULL_LOG_FILE}
 
 echo "End topological sort ordering" >> ${FULL_LOG_FILE}

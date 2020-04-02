@@ -1,4 +1,3 @@
-#!/usr/local/bin/python
 #
 #  loadTopSort.py
 ###########################################################################
@@ -71,7 +70,7 @@ database = os.environ['DBNAME']
 username = os.environ['DBUSER']
 passwordFileName = os.environ['DBPASSWORDFILE']
 fp = open(passwordFileName, 'r')
-password = string.strip(fp.readline())
+password = str.strip(fp.readline())
 fp.close()
 vocloadlib.setupSql (server, database, username, password)
 dagSortBCPFile = os.environ['VOC_DAG_SORT_BCP_FILE']
@@ -142,13 +141,13 @@ def initialize():
 
     results = db.sql('''
         select _dag_key from voc_vocabdag vd 
-	where vd._vocab_key=%s
+        where vd._vocab_key=%s
     ''' % vocabKey)
 
     dagKey = results[0]['_dag_key']
 
-    print 'Vocab key: %d' % vocabKey
-    print 'DAG key: %d' % dagKey
+    print('Vocab key: %d' % vocabKey)
+    print('DAG key: %d' % dagKey)
 
     #  Get the root key for the DAG.
     #
@@ -160,7 +159,7 @@ def initialize():
                                        'where n._Node_key = e._Child_key)')
     rootKey = results[0]['_Node_key']
 
-    print 'Root key: %d' % rootKey
+    print('Root key: %d' % rootKey)
 
     return
 
@@ -188,7 +187,7 @@ def buildDAG ():
 
     results = db.sql(cmds)
 
-    print 'Nodes: %d' % len(results[1])
+    print('Nodes: %d' % len(results[1]))
 
     #  Get all the parent/child node pairs that share an edge.
     #
@@ -206,7 +205,7 @@ def buildDAG ():
 
     results = db.sql(cmds)
 
-    print 'Edges: %d' % len(results[0])
+    print('Edges: %d' % len(results[0]))
 
     #  Initialize a DAG object.
     #
@@ -250,7 +249,7 @@ def sortNode (node):
     #  skip it.
     #
     nodeKey = node.getId()
-    if not visitedNodes.has_key(nodeKey):
+    if nodeKey not in visitedNodes:
         sequenceNum = sequenceNum + 1
         fpBCP.write('%d|%d\n' % (node.getTermKey(),sequenceNum))
         visitedNodes[nodeKey] = sequenceNum
@@ -309,20 +308,20 @@ def loadBCPFile(bcpFileName):
     db.sql('''create table %s (_term_key int, sequencenum int)''' % tempTable)
 
     try:
-	# import term sort data
+        # import term sort data
         db.bcp(bcpFileName, tempTable, delimiter='|')
 
-	db.sql('''create index %s_idx_term_key on %s (_term_key)''' % (tempTable, tempTable))
+        db.sql('''create index %s_idx_term_key on %s (_term_key)''' % (tempTable, tempTable))
 
-	# now update voc_term using this imported data
-	db.sql('''update VOC_Term
-	    set sequenceNum = seq.sequenceNum
-	    from VOC_Vocab v,
-		 %s seq
-	    where VOC_Term._Term_key = seq._Term_key and
-		  VOC_Term._Vocab_key = v._Vocab_key and
-		  v.name = '%s'
-	''' % (tempTable, vocabName))
+        # now update voc_term using this imported data
+        db.sql('''update VOC_Term
+            set sequenceNum = seq.sequenceNum
+            from VOC_Vocab v,
+                 %s seq
+            where VOC_Term._Term_key = seq._Term_key and
+                  VOC_Term._Vocab_key = v._Vocab_key and
+                  v.name = '%s'
+        ''' % (tempTable, vocabName))
     finally:
         # ensure table is removed when we are finished
         db.sql('''drop table %s''' % tempTable)
@@ -332,21 +331,21 @@ def loadBCPFile(bcpFileName):
 #  MAIN
 #
 
-print 'Perform initialization'
+print('Perform initialization')
 initialize()
 
-print 'Build the DAG'
+print('Build the DAG')
 buildDAG()
 
 node = dag.findNode(rootKey)
 #print 'Root term: %s' % node.getLabel()
 
-print 'Apply topological sort order to the DAG'
+print('Apply topological sort order to the DAG')
 sortNode(node)
 
 finalize()
 
-print 'import term sequencenum into voc_term'
+print('import term sequencenum into voc_term')
 loadBCPFile(dagSortBCPFile)
 
 db.commit()

@@ -138,7 +138,7 @@ INPUT_FILE_DEFAULT=${INPUT_FILE}
 export INPUT_FILE_DEFAULT
 
 # run emapload.py in sanity check only mode (LIVE_RUN = 0)
-${VOCLOAD}/emap/emapload.py
+${PYTHON} ${VOCLOAD}/emap/emapload.py
 if [ $? -ne 0 ]
 then
     FILE_ERROR=1

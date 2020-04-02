@@ -1,4 +1,3 @@
-#!/usr/local/bin/python
 
 #
 # Program: simpleLoad.py
@@ -58,39 +57,38 @@ import loadWrapper
 import db
 
 class SimpleVoc_Wrapper (loadWrapper.LoadWrapper):
-	def preProcess (self):
-		datafile = vocloadlib.readTabFile (self.inputFile,
-			[ 'term', 'id', 'status', 'abbrev', 'definition' , 'comment', 'synonyms', 'secondaryids' ])
+        def preProcess (self):
+                datafile = vocloadlib.readTabFile (self.inputFile,
+                        [ 'term', 'id', 'status', 'abbrev', 'definition' , 'comment', 'synonyms', 'secondaryids' ])
 
-		self.loadfile = os.environ['TERM_FILE']
-		fp = open (self.loadfile, 'w')
+                self.loadfile = os.environ['TERM_FILE']
+                fp = open (self.loadfile, 'w')
 
-		for row in datafile:
-			fp.write (loadWrapper.TERM_LINE % (
-				row['term'],
-				row['id'],
-				row['status'],
-				row['abbrev'],
-				row['definition'],
-				row['comment'],
-				row['synonyms'],
-				row['secondaryids']
-			        ))	
-		fp.close()
-		return
+                for row in datafile:
+                        fp.write (loadWrapper.TERM_LINE % (
+                                row['term'],
+                                row['id'],
+                                row['status'],
+                                row['abbrev'],
+                                row['definition'],
+                                row['comment'],
+                                row['synonyms'],
+                                row['secondaryids']
+                                ))	
+                fp.close()
+                return
 
-	def postProcess (self):
-		os.remove (self.loadfile)
-		return
+        def postProcess (self):
+                os.remove (self.loadfile)
+                return
 
-	def setID (self):
-		self.name = os.environ['VOCAB_NAME']
-		return
+        def setID (self):
+                self.name = os.environ['VOCAB_NAME']
+                return
 
 if __name__ == '__main__':
 
-	wrapper = SimpleVoc_Wrapper (sys.argv[1:])
-	wrapper.go()
+        wrapper = SimpleVoc_Wrapper (sys.argv[1:])
+        wrapper.go()
 
         db.commit()
-

@@ -1,4 +1,3 @@
-#!/usr/local/bin/python
 
 '''
 #
@@ -90,12 +89,12 @@ def cacheExistingIds():
     global omimMGI
 
     results = db.sql('''
-	select a.accID, t.term
-	from ACC_Accession a, VOC_Term t
-	where a._LogicalDB_key = %s
-	and a._MGIType_key = 13
-	and a._Object_key = t._Term_key
-	''' % (os.environ['LOGICALDB_KEY']), 'auto')
+        select a.accID, t.term
+        from ACC_Accession a, VOC_Term t
+        where a._LogicalDB_key = %s
+        and a._MGIType_key = 13
+        and a._Object_key = t._Term_key
+        ''' % (os.environ['LOGICALDB_KEY']), 'auto')
     for r in results:
         omimMGI[r['accID']] = r['term']
 
@@ -136,20 +135,20 @@ def cacheTranslations():
 
     transTermFile = open(transTermFileName, 'r')
     for line in transTermFile.readlines():
-	tokens = string.split(line[:-1], '\t')
-	termType = tokens[0]
-	mim = 'OMIM:' + tokens[1]
-	mimTerm = tokens[2]
-	mgiTerm = tokens[3]
-	mimTermToMGI[termType + mim + mimTerm] = mgiTerm
+        tokens = str.split(line[:-1], '\t')
+        termType = tokens[0]
+        mim = 'OMIM:' + tokens[1]
+        mimTerm = tokens[2]
+        mgiTerm = tokens[3]
+        mimTermToMGI[termType + mim + mimTerm] = mgiTerm
     transTermFile.close()
 
     transWordFile = open(transWordFileName, 'r')
     for line in transWordFile.readlines():
-	tokens = string.split(line[:-1], '\t')
-	mimWord = tokens[0]
-	mgiWord = tokens[1]
-	mimWordToMGI[mimWord] = mgiWord
+        tokens = str.split(line[:-1], '\t')
+        mimWord = tokens[0]
+        mgiWord = tokens[1]
+        mimWordToMGI[mimWord] = mgiWord
     transWordFile.close()
 
 def cacheExcluded():
@@ -167,18 +166,18 @@ def cacheExcluded():
     line = excludedFile.readline()
     while line:
         line = line[:-1]
-	tokens = string.split(line, '\t')
-	id = 'OMIM:' + tokens[0]
-	excludedIds.append(id)
+        tokens = str.split(line, '\t')
+        id = 'OMIM:' + tokens[0]
+        excludedIds.append(id)
         line = excludedFile.readline()
     excludedFile.close()
 
 def convertTerm(mim, term):
     #
     # Purpose: convert OMIM term to MGI-case
-    # Parameter: mim, the OMIM id (string)
-    # Parameter: term, the OMIM term (string)
-    # Returns: the converted term (string)
+    # Parameter: mim, the OMIM id (str.
+    # Parameter: term, the OMIM term (str.
+    # Returns: the converted term (str.
     # Assumes:
     # Effects: 
     # Throws:
@@ -189,12 +188,12 @@ def convertTerm(mim, term):
     #
 
     translationKey = TERMTYPE + mim + term
-    if mimTermToMGI.has_key(translationKey):
-	newTerm = mimTermToMGI[translationKey]
-	return newTerm
+    if translationKey in mimTermToMGI:
+        newTerm = mimTermToMGI[translationKey]
+        return newTerm
 
     # capitialize all words
-    newTerm = string.capwords(term)
+    newTerm = str.capwords(term)
 
     #
     # capitalize any word after certain punctuation ("--", "-", "/")
@@ -204,60 +203,60 @@ def convertTerm(mim, term):
     capNextTerm = 0
     for i in range(len(newTerm)):
 
-	if i == 0 or capNextTerm:
-	    newnewTerm = newnewTerm + string.capitalize(newTerm[i])
-	    capNextTerm = 0
+        if i == 0 or capNextTerm:
+            newnewTerm = newnewTerm + str.capitalize(newTerm[i])
+            capNextTerm = 0
 
-	# double-dash
+        # double-dash
 
-	elif newTerm[i] == '-' and newTerm[i+1] == '-':
-	    newnewTerm = newnewTerm + newTerm[i]
+        elif newTerm[i] == '-' and newTerm[i+1] == '-':
+            newnewTerm = newnewTerm + newTerm[i]
 
-	# capitalize the word after any of these punctuation...
+        # capitalize the word after any of these punctuation...
 
-	elif newTerm[i] in ["-", "/", "@"]:
-	    newnewTerm = newnewTerm + newTerm[i]
-	    capNextTerm = 1
+        elif newTerm[i] in ["-", "/", "@"]:
+            newnewTerm = newnewTerm + newTerm[i]
+            capNextTerm = 1
 
         else:
-	    newnewTerm = newnewTerm + newTerm[i]
-	    
+            newnewTerm = newnewTerm + newTerm[i]
+            
     newTerm = newnewTerm
 
     #
     # substitute words in the mimWordToMGI dictionary
     #
 
-    tokens = string.split(newTerm, ' ')
+    tokens = str.split(newTerm, ' ')
     newTokens = []
     for t in tokens:
-        if mimWordToMGI.has_key(t):
+        if t in mimWordToMGI:
             newTokens.append(mimWordToMGI[t])
-	else:
-	    newTokens.append(t)
-    newTerm = string.join(newTokens, ' ')
+        else:
+            newTokens.append(t)
+    newTerm = str.join(newTokens, ' ')
 
     # fully capitilize any word after the ; because this is the human gene
 
-    tokens = string.split(newTerm, '; ')
+    tokens = str.split(newTerm, '; ')
     newTokens = []
     newTokens.append(tokens[0])
     for t in tokens[1:]:
-	newTokens.append(string.upper(t))
-    newTerm = string.join(newTokens, '; ')
+        newTokens.append(str.upper(t))
+    newTerm = str.join(newTokens, '; ')
 
     #
     # get rid of the @ character
     #
-    newTerm = string.replace(newTerm, '@', '')
+    newTerm = str.replace(newTerm, '@', '')
 
     return newTerm
 
 def writeOMIM(term, mim, synonyms):
     #
     # Purpose: writes OMIM term to MGI-format file
-    # Parameter: term, the OMIM Term (string)
-    # Parameter: mim, the OMIM ID (string)
+    # Parameter: term, the OMIM Term (str.
+    # Parameter: mim, the OMIM ID (str.
     # Parameter: synonyms, the list of synonyms for the OMIM Term (list)
     # Returns:
     # Assumes:
@@ -271,9 +270,9 @@ def writeOMIM(term, mim, synonyms):
     outFile.write(CRT)
 
     for s in synonyms:
-	s = string.strip(s)
-	if len(s) > 0:
-	    synFile.write(mim + DELIM + synonymType + DELIM + convertTerm(mim, s) + CRT)
+        s = str.strip(s)
+        if len(s) > 0:
+            synFile.write(mim + DELIM + synonymType + DELIM + convertTerm(mim, s) + CRT)
 
     # cache the new OMIM ID/Term
 
@@ -310,91 +309,91 @@ def processOMIM():
 
         # this means we've found a new term
 
-        if string.find(line, '*FIELD* NO') == 0:
+        if str.find(line, '*FIELD* NO') == 0:
 
-	    # print previous term
-	    if len(term) > 0:
-	        writeOMIM(term, mim, synonyms)
+            # print previous term
+            if len(term) > 0:
+                writeOMIM(term, mim, synonyms)
 
             line = inFile.readline()
-	    mim = 'OMIM:' + string.strip(line)
-	    term = ''
-	    synonym = ''
-	    potentialsynonyms = []
-	    synonyms = []
-	    isGeneOnly = 0
+            mim = 'OMIM:' + str.strip(line)
+            term = ''
+            synonym = ''
+            potentialsynonyms = []
+            synonyms = []
+            isGeneOnly = 0
 
         # the term itself
 
-        elif string.find(line, '*FIELD* TI') == 0:
+        elif str.find(line, '*FIELD* TI') == 0:
 
-	    # the next line has the data
-
-            line = inFile.readline()
-	    tokens = string.split(line[:-1], ' ')
-
-	    # we're only interested in disease terms
-	    # exclude all other entries
-
-	    if tokens[0][0] in ['*', '^']:
-		isGeneOnly = 1
-	        continue
-
-	    # if the term is in our excluded file, we don't want it
-
-	    if mim in excludedIds:
-		continue
-
-	    # if the term has been removed, we don't want it
-            if string.find(line, ' REMOVED FROM DATABASE') > 0:
-		continue
-
-	    # the first token is a repeat of the MIM id, so ignore it
-
-	    term = term + string.join(tokens[1:], ' ')
-
-	    # keep reading until the next field indicator or ; or ;; or an INCLUDE is found, 
-	    # signifying the synonyms section
+            # the next line has the data
 
             line = inFile.readline()
-	    line = line[:-1]
+            tokens = str.split(line[:-1], ' ')
 
-	    while string.find(term, ';') < 0 \
-	    		and string.find(line, ';;') < 0 \
-			and string.find(line, '*FIELD* TX') < 0 \
-			and string.find(line, '*FIELD* MN') < 0 \
-			and string.find(line, 'INCLUDED') < 0:
+            # we're only interested in disease terms
+            # exclude all other entries
 
-	        term = term + ' ' + line
+            if tokens[0][0] in ['*', '^']:
+                isGeneOnly = 1
+                continue
+
+            # if the term is in our excluded file, we don't want it
+
+            if mim in excludedIds:
+                continue
+
+            # if the term has been removed, we don't want it
+            if str.find(line, ' REMOVED FROM DATABASE') > 0:
+                continue
+
+            # the first token is a repeat of the MIM id, so ignore it
+
+            term = term + str.join(tokens[1:], ' ')
+
+            # keep reading until the next field indicator or ; or ;; or an INCLUDE is found, 
+            # signifying the synonyms section
+
+            line = inFile.readline()
+            line = line[:-1]
+
+            while str.find(term, ';') < 0 \
+                        and str.find(line, ';;') < 0 \
+                        and str.find(line, '*FIELD* TX') < 0 \
+                        and str.find(line, '*FIELD* MN') < 0 \
+                        and str.find(line, 'INCLUDED') < 0:
+
+                term = term + ' ' + line
                 line = inFile.readline()
-	        line = line[:-1]
+                line = line[:-1]
 
-	    #
-	    # read all potential synonyms into one string, then split on ;;
-	    # exclude any strings that contain "INCLUDE".
-	    #
+            #
+            # read all potential synonyms into one str. then split on ;;
+            # exclude any str. that contain "INCLUDE".
+            #
 
-	    while string.find(line, '*FIELD* TX') < 0 and string.find(line, '*FIELD* MN') < 0:
-		synonym = synonym + line + ' '
+            while str.find(line, '*FIELD* TX') < 0 and str.find(line, '*FIELD* MN') < 0:
+                synonym = synonym + line + ' '
                 line = inFile.readline()
-	        line = line[:-1]
+                line = line[:-1]
 
-	    if len(synonym) > 0:
-                potentialsynonyms = string.split(synonym, ';;')
-		for s in potentialsynonyms:
-	            if string.find(s, 'INCLUDED') < 0:
-			synonyms.append(s)
+            if len(synonym) > 0:
+                potentialsynonyms = str.split(synonym, ';;')
+                for s in potentialsynonyms:
+                    if str.find(s, 'INCLUDED') < 0:
+                        synonyms.append(s)
 
-	#
-	# TR12540/Disease Ontology
-	# comment out; on demand only; needs to be migrated from OMIM annotations to DO annotations
-	#
-	# if not gene-only
-	# and the field 'ANIMAL MODEL' exists
-	# and the OMIM term has no MGI annotations,
-	# then save the animal model information for displaying in the animalModelFile report
+        #
+        # TR12540/Disease Ontology
+        # comment out; on demand only; needs to be migrated from OMIM annotations to DO annotations
+        #
+        # if not gene-only
+        # and the field 'ANIMAL MODEL' exists
+        # and the OMIM term has no MGI annotations,
+        # then save the animal model information for displaying in the animalModelFile report
 
-#	if isGeneOnly == 0 and string.find(line, 'ANIMAL MODEL') == 0 \
+#	if isGeneOnly == 0 and str.find(line, 'ANIMAL MODEL') == 0 \
 #		and len(line) == 12 and mim not in annotIds:
 #
 #                line = inFile.readline()
@@ -415,8 +414,8 @@ def processOMIM():
     #   those in omimMGI but not in omimNew
     #
 
-    for m in omimMGI.keys():
-        if not omimNew.has_key(m):
+    for m in list(omimMGI.keys()):
+        if m not in omimNew:
             outFile.write(omimMGI[m] + DELIM + m + DELIM + obsoleteStatus + DELIM + DELIM + DELIM + DELIM + DELIM + CRT)
 
 #

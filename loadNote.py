@@ -1,4 +1,3 @@
-#!/usr/local/bin/python
 #
 #  loadNote.py
 ###########################################################################
@@ -53,7 +52,7 @@ database = os.environ['DBNAME']
 username = os.environ['DBUSER']
 passwordFileName = os.environ['DBPASSWORDFILE']
 fp = open(passwordFileName, 'r')
-password = string.strip(fp.readline())
+password = str.strip(fp.readline())
 fp.close()
 vocloadlib.setupSql (server, database, username, password)
 
@@ -71,7 +70,7 @@ cdate = mgi_utils.date("%m/%d/%Y")
 # in format  ID\ttype\tsynonym
 noteFile = sys.argv[1]
 
-print "loading note file %s" % noteFile
+print("loading note file %s" % noteFile)
 noteRecords = []
 fp = open(noteFile, 'r')
 for line in fp.readlines():
@@ -90,7 +89,7 @@ vocabKey = vocloadlib.getVocabKey(vocabName)
 #
 maxKey = vocloadlib.getMax ('_Note_key', 'MGI_Note')
 
-print 'Vocab key: %d' % vocabKey
+print('Vocab key: %d' % vocabKey)
 
 # delete existing note records
 noteTypes = set([])
@@ -106,12 +105,12 @@ noteTypesIn = ','.join([str(key) for key in noteTypeKeys])
 
 
 db.sql('''
-	delete from MGI_Note 
+        delete from MGI_Note 
         using MGI_NoteType nt, VOC_Term t 
         where MGI_Note._Object_key = t._Term_key 
-	and t._Vocab_key = %s
+        and t._Vocab_key = %s
         and MGI_Note._NoteType_key in (%s)
-	''' % (str(vocabKey), noteTypesIn))
+        ''' % (str(vocabKey), noteTypesIn))
 
 #
 # map term ID to _term_key
@@ -154,26 +153,26 @@ for record in noteRecords:
                 cdate
         ])
 
-	# NOTE (kstone): previous version of this load
-	# 	always assumed only one note chunk.
-	#	You can split the chunks here if needed in the future.
+        # NOTE (kstone): previous version of this load
+        # 	always assumed only one note chunk.
+        #	You can split the chunks here if needed in the future.
         noteChunkBcpRecords.append([
                 count,
-		1,
-		note,
+                1,
+                note,
                 userKey,
                 userKey,
                 cdate,
                 cdate
         ])
-	
+        
 
         count += 1
 
 #
 #  Count how many notes are to be added.
 #
-print 'Number of notes to add: %d' % len(noteBcpRecords)
+print('Number of notes to add: %d' % len(noteBcpRecords))
 
 #
 #  Add the records to the MGI_Note + MGI_NoteChunk tables.

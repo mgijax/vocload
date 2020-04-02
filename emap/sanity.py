@@ -1,4 +1,3 @@
-#!/usr/local/bin/python
 #
 #  sanity.py
 ###########################################################################
@@ -76,7 +75,7 @@ USAGE = 'sanity.py'
 # The obo version expected by the load 
 expectedVersion = os.environ['OBO_FILE_VERSION']
 
-# 1 if we have found the string 'format-version'
+# 1 if we have found the str.'format-version'
 foundVersion = 0
 
 # valid Theiler Stages
@@ -132,7 +131,7 @@ obsWithRelationshipList = []
 # the list of all valid Theiler Stages
 validTSList = []
 for ts in range(TSSTART, TSEND + 1):
-	validTSList.append(ts)
+        validTSList.append(ts)
 
 def checkArgs ():
     # Purpose: Validate the arguments to the script.
@@ -142,7 +141,7 @@ def checkArgs ():
     # Throws: Nothing
 
     if len(sys.argv) != 1:
-        print USAGE
+        print(USAGE)
         sys.exit(1)
 
     return
@@ -160,72 +159,72 @@ def openFiles ():
     try:
         fpInvalidTS = open(invalidTSFile, 'w')
     except:
-        print 'Preprocess cannot open invalid TS file: %s' % invalidTSFile
+        print('Preprocess cannot open invalid TS file: %s' % invalidTSFile)
         sys.exit(1)
 
     try:
         fpMissingField = open(missingFieldFile, 'w')
     except:
-        print 'Preprocess cannot open missing field file: %s' % missingFieldFile
+        print('Preprocess cannot open missing field file: %s' % missingFieldFile)
         sys.exit(1)
 
     try:
         fpInvalidId = open(invalidIdFile, 'w')
     except:
-        print 'Preprocess cannot open invalid id file: %s' % invalidIdFile
+        print('Preprocess cannot open invalid id file: %s' % invalidIdFile)
         sys.exit(1)
 
     try:
         fpMinTerms = open(minTermsFile, 'w')
     except:
-        print 'Preprocess cannot open minimum term file: %s' % minTermsFile
+        print('Preprocess cannot open minimum term file: %s' % minTermsFile)
         sys.exit(1)
 
     try:
-	fpObo = open(oboFile, 'r')
+        fpObo = open(oboFile, 'r')
     except:
-	print 'Preprocess cannot open obo file: %s' % oboFile
-	sys.exit(1)
+        print('Preprocess cannot open obo file: %s' % oboFile)
+        sys.exit(1)
 
     try:
-	fpUndefinedParent = open(undefinedParentFile, 'w')
+        fpUndefinedParent = open(undefinedParentFile, 'w')
     except:
-	print 'Preprocess cannot open undefined parent file: %s' % \
-	    undefinedParentFile
-	sys.exit(1)
+        print('Preprocess cannot open undefined parent file: %s' % \
+            undefinedParentFile)
+        sys.exit(1)
 
     try:
         fpAltIsPrimary	 = open(altIsPrimaryFile, 'w')
     except:
-        print 'Preprocess cannot open alt id is primary file: %s' % \
-	    altIsPrimaryFile
+        print('Preprocess cannot open alt id is primary file: %s' % \
+            altIsPrimaryFile)
         sys.exit(1)
 
     try:
         fpObsIsParent   = open(obsIsParentFile, 'w')
     except:
-        print 'Preprocess cannot open obsolete is parent file: %s' % \
-	    obsIsParentFile
+        print('Preprocess cannot open obsolete is parent file: %s' % \
+            obsIsParentFile)
         sys.exit(1)
 
     try:
         fpObsWithRelationship   = open(obsWithRelationshipFile, 'w')
     except:
-        print 'Preprocess cannot open obsolete with relationship file: %s' % \
-	    obsWithRelationshipFile
+        print('Preprocess cannot open obsolete with relationship file: %s' % \
+            obsWithRelationshipFile)
         sys.exit(1)
 
     try:
         fpInDbNotInInput = open(inDbNotInInputFile, 'w')
     except:
-        print 'Preprocess cannot open obsolete with relationship file: %s' % \
-            inDbNotInInputFile
+        print('Preprocess cannot open obsolete with relationship file: %s' % \
+            inDbNotInInputFile)
         sys.exit(1)
     try:
         fpStanzaHasTab = open(stanzaHasTabFile, 'w')
     except:
-        print 'Preprocess cannot open stanza with tab file: %s' % \
-            stanzaHasTabFile
+        print('Preprocess cannot open stanza with tab file: %s' % \
+            stanzaHasTabFile)
         sys.exit(1)
 
     return
@@ -258,13 +257,13 @@ def getDbTermIds():
     global dbTermIdDict
 
     results = db.sql('''select a.accId, t.term
-	from ACC_Accession a, VOC_Term t
-	where a._LogicalDB_key = 169
-	and a._MGIType_key = 13
-	and a._Object_key = t._Term_key''', 'auto')
+        from ACC_Accession a, VOC_Term t
+        where a._LogicalDB_key = 169
+        and a._MGIType_key = 13
+        and a._Object_key = t._Term_key''', 'auto')
 
     for r in results:
-	dbTermIdDict[r['accId']] = r['term']
+        dbTermIdDict[r['accId']] = r['term']
 
     return
 def doSanityChecks( ):
@@ -295,47 +294,47 @@ def doSanityChecks( ):
     # parse the obo file into a data structure
     #
     for line in fpObo.readlines():
-	# we use this to find lines with tabs
-	lineNoCRT = string.strip(line, CRT)
+        # we use this to find lines with tabs
+        lineNoCRT = str.strip(line, CRT)
 
-	# we use this to evaluate the stanza attributes
-	lineStripped = string.strip(line)
+        # we use this to evaluate the stanza attributes
+        lineStripped = str.strip(line)
 
-	if string.find(lineStripped, 'format-version') != -1:
-	    foundVersion = 1
-	    lineList = string.split(lineStripped, ':')
-	    version = string.strip(lineList[1])
+        if str.find(lineStripped, 'format-version') != -1:
+            foundVersion = 1
+            lineList = str.split(lineStripped, ':')
+            version = str.strip(lineList[1])
 
-	    # exit if the version is not the one we expect
-	    if version != expectedVersion:
-		closeFiles()
-		sys.exit(2)
+            # exit if the version is not the one we expect
+            if version != expectedVersion:
+                closeFiles()
+                sys.exit(2)
 
-	if lineStripped == '[Term]':
-	    foundStanza = 1
-	    inStanza = 1
-	    continue
-	if lineStripped == '':
-	    inStanza = 0
-	if foundStanza == 1:
-	    # if we're within a stanza store the field name and its value
-	    # in the currentStanzaDict
-	    if inStanza == 1:
-		i = string.find(lineStripped, ':')
-		tabIndex = string.find(lineNoCRT, TAB)
-		if tabIndex > -1:
-		    if not currentStanzaDict.has_key('tab'):
-			currentStanzaDict['tab'] = []
-		    currentStanzaDict['tab'].append(lineNoCRT)
-		fieldName = lineStripped[0:i]
-		value = lineStripped[i+1:].strip()
-		if fieldName not in currentStanzaDict.keys():
-		    currentStanzaDict[fieldName] = []
-		currentStanzaDict[fieldName].append(value)
-	    else: # add the current stanza to the dict of all obo stanzas
-		allStanzasDict[keyCtr] = currentStanzaDict
-		currentStanzaDict = {}
-		keyCtr += 1
+        if lineStripped == '[Term]':
+            foundStanza = 1
+            inStanza = 1
+            continue
+        if lineStripped == '':
+            inStanza = 0
+        if foundStanza == 1:
+            # if we're within a stanza store the field name and its value
+            # in the currentStanzaDict
+            if inStanza == 1:
+                i = str.find(lineStripped, ':')
+                tabIndex = str.find(lineNoCRT, TAB)
+                if tabIndex > -1:
+                    if 'tab' not in currentStanzaDict:
+                        currentStanzaDict['tab'] = []
+                    currentStanzaDict['tab'].append(lineNoCRT)
+                fieldName = lineStripped[0:i]
+                value = lineStripped[i+1:].strip()
+                if fieldName not in list(currentStanzaDict.keys()):
+                    currentStanzaDict[fieldName] = []
+                currentStanzaDict[fieldName].append(value)
+            else: # add the current stanza to the dict of all obo stanzas
+                allStanzasDict[keyCtr] = currentStanzaDict
+                currentStanzaDict = {}
+                keyCtr += 1
 
     #
     # iterate through all the stanzas in the obo stanza data structure
@@ -343,130 +342,130 @@ def doSanityChecks( ):
 
     # current count of anatomical structure stanzas looked at in allStanzasDict
     stanzaCtr = 0
-    for s in allStanzasDict.keys():
-	currentStanzaDict = allStanzasDict[s]
+    for s in list(allStanzasDict.keys()):
+        currentStanzaDict = allStanzasDict[s]
 
-	# skip the stanza if not in the anatomical structure namespace
-	if currentStanzaDict.has_key('namespace') and \
-	        currentStanzaDict['namespace'][0] == 'anatomical_structure':
-	    stanzaCtr += 1
+        # skip the stanza if not in the anatomical structure namespace
+        if 'namespace' in currentStanzaDict and \
+                currentStanzaDict['namespace'][0] == 'anatomical_structure':
+            stanzaCtr += 1
 
-	    # check for existence of id and name field
-	    # and existence of id and name value
-	    hasId = currentStanzaDict.has_key('id')
-	    hasName = currentStanzaDict.has_key('name')
-	    hasIdValue = 1
-	    hasNameValue = 1
-	    if hasId and currentStanzaDict['id'] == ['']:
-		hasIdValue = 0
-	    if hasName and currentStanzaDict['name'] == ['']:
-		hasNameValue = 0
-	    msg = ''
-	    if not hasId or not hasName or not hasIdValue or not hasNameValue:
-	 	if not hasId:
-		    msg = 'Stanza missing id field:%s' % CRT
-		elif not hasName:
-		     msg = 'Stanza missing name field:%s' % CRT
-		elif not hasIdValue:
-		    msg = 'Stanza missing id value:%s' % CRT
-		elif not hasNameValue:
-		    msg = 'Stanza missing name value%s' % CRT
-		fpMissingField.write(msg)
-		for key in currentStanzaDict.keys():
-		    fpMissingField.write('%s:%s%s' % \
-			(key, currentStanzaDict[key], CRT))
-		fpMissingField.write(CRT)
+            # check for existence of id and name field
+            # and existence of id and name value
+            hasId = 'id' in currentStanzaDict
+            hasName = 'name' in currentStanzaDict
+            hasIdValue = 1
+            hasNameValue = 1
+            if hasId and currentStanzaDict['id'] == ['']:
+                hasIdValue = 0
+            if hasName and currentStanzaDict['name'] == ['']:
+                hasNameValue = 0
+            msg = ''
+            if not hasId or not hasName or not hasIdValue or not hasNameValue:
+                if not hasId:
+                    msg = 'Stanza missing id field:%s' % CRT
+                elif not hasName:
+                     msg = 'Stanza missing name field:%s' % CRT
+                elif not hasIdValue:
+                    msg = 'Stanza missing id value:%s' % CRT
+                elif not hasNameValue:
+                    msg = 'Stanza missing name value%s' % CRT
+                fpMissingField.write(msg)
+                for key in list(currentStanzaDict.keys()):
+                    fpMissingField.write('%s:%s%s' % \
+                        (key, currentStanzaDict[key], CRT))
+                fpMissingField.write(CRT)
 
-	    # check for proper EMAPA id format
-	    id = ''
-	    if hasId:
-		id = currentStanzaDict['id'][0]
-		termIdList.append(id)
-		# check for missing ':', bad prefix (EMAPA), bad suffix
-		# (5 integers)
-		missingColon = 0
-		badPrefix = 0
-		badSuffix = 0
+            # check for proper EMAPA id format
+            id = ''
+            if hasId:
+                id = currentStanzaDict['id'][0]
+                termIdList.append(id)
+                # check for missing ':', bad prefix (EMAPA), bad suffix
+                # (5 integers)
+                missingColon = 0
+                badPrefix = 0
+                badSuffix = 0
 
-		i = string.find(id, ':')
-		if i == -1:
-		    missingColon = 1
-		else:    
-		    prefix = id[0:i]
-		    if prefix != 'EMAPA':
-			badPrefix = 1
-		    suffix = id[i+1:].strip()
-		    try:
-			x = int(suffix)
-		    except:
-			badSuffix = 1
-		    if len(suffix) != 5 and suffix != '0':
-			badSuffix = 1
-		# blank id is reported elsewhere
-		if (missingColon or badPrefix or badSuffix) and id != '':
-		    fpInvalidId.write('%s%s' % (id, CRT))
-	    
+                i = str.find(id, ':')
+                if i == -1:
+                    missingColon = 1
+                else:    
+                    prefix = id[0:i]
+                    if prefix != 'EMAPA':
+                        badPrefix = 1
+                    suffix = id[i+1:].strip()
+                    try:
+                        x = int(suffix)
+                    except:
+                        badSuffix = 1
+                    if len(suffix) != 5 and suffix != '0':
+                        badSuffix = 1
+                # blank id is reported elsewhere
+                if (missingColon or badPrefix or badSuffix) and id != '':
+                    fpInvalidId.write('%s%s' % (id, CRT))
+            
             # check for existence of tab
-            if currentStanzaDict.has_key('tab'):
-		linesWithTabList = currentStanzaDict['tab']
-		# get some info to report if TAB found. Use id if
-		# it exists, otherwise name - default is empty string
-		label = ''
-		if hasId:
-		    label = currentStanzaDict['id'][0]
-		elif hasName:
-		    label = currentStanzaDict['name'][0]
-		for entry in linesWithTabList:
-		    fpStanzaHasTab.write("%s has tab on line: '%s'%s" % (label, entry, CRT))
-	    # look at all 'relationship' fields
-	    if currentStanzaDict.has_key('relationship'):
-		rList = currentStanzaDict['relationship']
-		for r in rList:
-		    # check for valid Theiler stage value
-		    if string.find(r, 'starts_at') != -1 or \
-			    string.find(r, 'ends_at') != -1:
-			# e.g. 'ends_at TS01' - ts='01'
-			ts = string.split(r)[1][2:]
-			# if 'starts_at TS' - ts=''
-			if ts != '':
-			    ts = int(ts)
+            if 'tab' in currentStanzaDict:
+                linesWithTabList = currentStanzaDict['tab']
+                # get some info to report if TAB found. Use id if
+                # it exists, otherwise name - default is empty string
+                label = ''
+                if hasId:
+                    label = currentStanzaDict['id'][0]
+                elif hasName:
+                    label = currentStanzaDict['name'][0]
+                for entry in linesWithTabList:
+                    fpStanzaHasTab.write("%s has tab on line: '%s'%s" % (label, entry, CRT))
+            # look at all 'relationship' fields
+            if 'relationship' in currentStanzaDict:
+                rList = currentStanzaDict['relationship']
+                for r in rList:
+                    # check for valid Theiler stage value
+                    if str.find(r, 'starts_at') != -1 or \
+                            str.find(r, 'ends_at') != -1:
+                        # e.g. 'ends_at TS01' - ts='01'
+                        ts = str.split(r)[1][2:]
+                        # if 'starts_at TS' - ts=''
+                        if ts != '':
+                            ts = int(ts)
 
-			# get some info to report if TS is invalid, use id if
-			# it exists, otherwise name - default is empty string
-			label = ''
-			if hasId:
-			    label = currentStanzaDict['id'][0]
-			elif hasName:
-			    label = currentStanzaDict['name'][0]
-			if ts not in validTSList:
-			    fpInvalidTS.write('%s: %s%s' % (label, ts, CRT))
-		    # add to list of pids for undefined undefined parent check
-	   	    # e.g. 'part_of EMAPA:25765' 
-		    elif string.find(r, 'is_a') != -1 or \
-			    string.find(r, 'part_of') != -1:
-			parentIdList.append(string.strip(string.split(r)[1]))
+                        # get some info to report if TS is invalid, use id if
+                        # it exists, otherwise name - default is empty string
+                        label = ''
+                        if hasId:
+                            label = currentStanzaDict['id'][0]
+                        elif hasName:
+                            label = currentStanzaDict['name'][0]
+                        if ts not in validTSList:
+                            fpInvalidTS.write('%s: %s%s' % (label, ts, CRT))
+                    # add to list of pids for undefined undefined parent check
+                    # e.g. 'part_of EMAPA:25765' 
+                    elif str.find(r, 'is_a') != -1 or \
+                            str.find(r, 'part_of') != -1:
+                        parentIdList.append(str.strip(str.split(r)[1]))
 
-	    # look for alt_id's
-	    if currentStanzaDict.has_key('alt_id'):
-		aList = currentStanzaDict['alt_id']
-		for a in aList:
-		    altIdList.append(a)
+            # look for alt_id's
+            if 'alt_id' in currentStanzaDict:
+                aList = currentStanzaDict['alt_id']
+                for a in aList:
+                    altIdList.append(a)
 
-	    # look for obsolete ids
-	    if currentStanzaDict.has_key('is_obsolete'):
-		obsoleteIdList.append(id)
-		if currentStanzaDict.has_key('relationship'):
-		    obsWithRelationshipList.append(id)
-		
+            # look for obsolete ids
+            if 'is_obsolete' in currentStanzaDict:
+                obsoleteIdList.append(id)
+                if 'relationship' in currentStanzaDict:
+                    obsWithRelationshipList.append(id)
+                
     # report if number of anatomical dictionary stanzas in obo file is less than
     # the configured minimum value
     if stanzaCtr < MINTERMS:
-	fpMinTerms.write('%sWARNING: %s contains %s terms which is fewer than the minimum allowed %s terms%s%s' % (CRT, oboFile, stanzaCtr, MINTERMS, CRT, CRT))
+        fpMinTerms.write('%sWARNING: %s contains %s terms which is fewer than the minimum allowed %s terms%s%s' % (CRT, oboFile, stanzaCtr, MINTERMS, CRT, CRT))
 
     # exit if the 'format-version' field not present in the obo file
     if foundVersion == 0:
-	closeFiles()
-	sys.exit(2)
+        closeFiles()
+        sys.exit(2)
 
     # check for undefined parents
     termIdSet = set(termIdList)
@@ -474,24 +473,24 @@ def doSanityChecks( ):
     undefinedSet = parentIdSet.difference(termIdSet)
 
     if len(undefinedSet):
-	for u in undefinedSet:
-	     fpUndefinedParent.write('%s%s' % (u, CRT))
+        for u in undefinedSet:
+             fpUndefinedParent.write('%s%s' % (u, CRT))
 
     # check for alt_id's that are also primary
     altIsPrimarySet = termIdSet.intersection(set(altIdList))
     if len(altIsPrimarySet):
-	for a in altIsPrimarySet:
-	    fpAltIsPrimary.write('%s%s' % (a, CRT))
+        for a in altIsPrimarySet:
+            fpAltIsPrimary.write('%s%s' % (a, CRT))
 
     # check for obsolete IDs that are parents of primary terms
     obsIsParentSet = parentIdSet.intersection(set(obsoleteIdList))
     
     if len(obsIsParentSet):
-	for o in obsIsParentSet:
-	    fpObsIsParent.write('%s%s' % (o, CRT))
+        for o in obsIsParentSet:
+            fpObsIsParent.write('%s%s' % (o, CRT))
     if len(obsWithRelationshipList):
-	for o in obsWithRelationshipList:
-	    fpObsWithRelationship.write('%s%s' % (o, CRT))
+        for o in obsWithRelationshipList:
+            fpObsWithRelationship.write('%s%s' % (o, CRT))
 
     # check for ids in the database, but not in the input file
     # also check alt Ids in the input file
@@ -500,16 +499,16 @@ def doSanityChecks( ):
     inDbNotInFileSet = inDbSet.difference(inFileSet)
     numNotInFile = len(inDbNotInFileSet)
     if numNotInFile:
-	fpInDbNotInInput.write('EMAPA IDs in the database and not in the input file%s%s' % (CRT, CRT))
-	for id in inDbNotInFileSet:
-	    term = dbTermIdDict[id]
-	    entry = '%s%s%s' % (id, TAB, term)
-	    fpInDbNotInInput.write(entry + CRT)
+        fpInDbNotInInput.write('EMAPA IDs in the database and not in the input file%s%s' % (CRT, CRT))
+        for id in inDbNotInFileSet:
+            term = dbTermIdDict[id]
+            entry = '%s%s%s' % (id, TAB, term)
+            fpInDbNotInInput.write(entry + CRT)
 
     # Report, on the command line, the number of terms in the obo file as a
     # convenience to the curator running the sanity checks
-    print '%sThere are %s Anatomical Structure terms in %s%s' % \
-	(CRT, stanzaCtr, oboFile, CRT)
+    print('%sThere are %s Anatomical Structure terms in %s%s' % \
+        (CRT, stanzaCtr, oboFile, CRT))
 
 #####################
 #
@@ -523,4 +522,3 @@ doSanityChecks()
 closeFiles()
 
 sys.exit(0)
-

@@ -1,4 +1,3 @@
-#!/usr/local/bin/python
 #
 #  loadSynonym.py
 ###########################################################################
@@ -61,7 +60,7 @@ database = os.environ['DBNAME']
 username = os.environ['DBUSER']
 passwordFileName = os.environ['DBPASSWORDFILE']
 fp = open(passwordFileName, 'r')
-password = string.strip(fp.readline())
+password = str.strip(fp.readline())
 fp.close()
 vocloadlib.setupSql (server, database, username, password)
 
@@ -80,21 +79,21 @@ cdate = mgi_utils.date("%m/%d/%Y")
 # in format  ID\ttype\tsynonym
 synonymFile = sys.argv[1]
 
-print "loading synonym file %s" % synonymFile
+print("loading synonym file %s" % synonymFile)
 synonymRecords = []
 fp = open(synonymFile, 'r')
 for line in fp.readlines():
-	line = line.strip()
-	if line:
-		synonymRecords.append(line.split('\t'))
+        line = line.strip()
+        if line:
+                synonymRecords.append(line.split('\t'))
 fp.close()
 
 #
 #  Get the vocabulary key for the current vocabulary.
 #
 vocabKey = vocloadlib.getVocabKey (vocabName)
-print "vocab name = %s" % vocabName
-print 'Vocab key: %d' % vocabKey
+print("vocab name = %s" % vocabName)
+print('Vocab key: %d' % vocabKey)
 
 #
 #  Get the reference key for the J-Number.
@@ -105,19 +104,19 @@ refsKey = results[0]['_object_key']
 # Delete existing synonym records
 synTypes = set([])
 for record in synonymRecords:
-	synTypes.add(record[1])
+        synTypes.add(record[1])
 synTypeKeys = []
 for synType in synTypes:
-	typeKey = vocloadlib.getSynonymTypeKey(synType)
-	synTypeKeys.append(typeKey)
+        typeKey = vocloadlib.getSynonymTypeKey(synType)
+        synTypeKeys.append(typeKey)
 synTypesIn = ','.join([str(key) for key in synTypeKeys])
 db.sql('''
-	delete from MGI_Synonym
+        delete from MGI_Synonym
         using MGI_SynonymType st, VOC_Term t
         where MGI_Synonym._Object_key = t._Term_key
         and t._Vocab_key = %s
         and MGI_Synonym._SynonymType_key in (%s)
-	''' % (str(vocabKey), synTypesIn))
+        ''' % (str(vocabKey), synTypesIn))
 db.commit()
 #  Get the maximum synonym key currently in use.
 results = db.sql(''' select nextval('mgi_synonym_seq') as synKey ''', 'auto')
@@ -128,7 +127,7 @@ synKey = results[0]['synKey']
 #
 termIds = set([])
 for record in synonymRecords:
-	termIds.add(record[0])
+        termIds.add(record[0])
 
 termIds = list(termIds)
 termKeyMap = vocloadlib.getTermKeyMap(termIds, vocabName)
@@ -139,42 +138,42 @@ termKeyMap = vocloadlib.getTermKeyMap(termIds, vocabName)
 bcpRecords = []
 for record in synonymRecords:
 
-	termid = record[0]
-	type = record[1]
-	synonym = record[2]
+        termid = record[0]
+        type = record[1]
+        synonym = record[2]
 
-	# skip any error rows
-	if termid not in termKeyMap:
-		continue
+        # skip any error rows
+        if termid not in termKeyMap:
+                continue
 
 
-	typeKey = vocloadlib.getSynonymTypeKey(type)
+        typeKey = vocloadlib.getSynonymTypeKey(type)
 
-	bcpRecords.append([
-		synKey,	
-		termKeyMap[termid],
-		mgiType,
-		typeKey,
-		refsKey,
-		synonym,
-		userKey,
-		userKey,
-		cdate,
-		cdate
-	])
-	synKey += 1
+        bcpRecords.append([
+                synKey,	
+                termKeyMap[termid],
+                mgiType,
+                typeKey,
+                refsKey,
+                synonym,
+                userKey,
+                userKey,
+                cdate,
+                cdate
+        ])
+        synKey += 1
 
 #
 #  Count how many synonyms are to be added.
 #
-print 'Number of synonyms to add: %d' % len(bcpRecords)
+print('Number of synonyms to add: %d' % len(bcpRecords))
 
 #
 #  Add the records to the MGI_Synonym table.
 #
 fp = open(bcpFile, 'w')
 for r in bcpRecords:
-	fp.write('%s\n' % '|'.join([str(c) for c in r]))
+        fp.write('%s\n' % '|'.join([str(c) for c in r]))
 fp.close()
 
 db.bcp(bcpFile, 'MGI_Synonym', delimiter='|')
@@ -185,4 +184,3 @@ db.sql(''' select setval('mgi_synonym_seq', (select max(_Synonym_key) from MGI_S
 db.commit()
 
 sys.exit(0)
-

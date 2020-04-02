@@ -1,4 +1,3 @@
-#!/usr/local/bin/python
 #
 #  loadHeader.py
 ###########################################################################
@@ -55,7 +54,7 @@ database = os.environ['DBNAME']
 username = os.environ['DBUSER']
 passwordFileName = os.environ['DBPASSWORDFILE']
 fp = open(passwordFileName, 'r')
-password = string.strip(fp.readline())
+password = str.strip(fp.readline())
 fp.close()
 vocloadlib.setupSql (server, database, username, password)
 
@@ -76,9 +75,9 @@ mgiType = os.environ['MGITYPE']
 headerFile = sys.argv[1]
 headerAnnotTypeKey = None
 if len(sys.argv) < 2:
-	headerAnnotTypeKey = sys.argv[2]
+        headerAnnotTypeKey = sys.argv[2]
 
-print "loading header file %s" % headerFile
+print("loading header file %s" % headerFile)
 headerRecords = set([])
 fp = open(headerFile, 'r')
 for line in fp.readlines():
@@ -105,40 +104,40 @@ dagKey = results[0]['_dag_key']
 #  Get the label key for a "Header" label.
 #
 results = db.sql('''
-	select _label_key
+        select _label_key
         from DAG_Label 
         where label = 'Header'
-	''')
+        ''')
 
 labelKey = results[0]['_label_key']
 
-print 'Vocab key: %d' % vocabKey
-print 'DAG key: %d' % dagKey
-print 'Label key: %d' % labelKey
+print('Vocab key: %d' % vocabKey)
+print('DAG key: %d' % dagKey)
+print('Label key: %d' % labelKey)
 
 tempTable = "tmp_voc_header"
 db.sql('''
-	select distinct a.accID into temp %s 
-	from ACC_Accession a 
-	where a._MGIType_key = 13 
-		and accID in ('%s')
-	''' % (tempTable, '\',\''.join(headerIDs)))
+        select distinct a.accID into temp %s 
+        from ACC_Accession a 
+        where a._MGIType_key = 13 
+                and accID in ('%s')
+        ''' % (tempTable, '\',\''.join(headerIDs)))
 
 #
 #  Find all the DAG nodes for the accession IDs in the VOC_Header table
 #  and save them in a temp table.
 #
 db.sql('''
-	select n._Node_key 
-	into temp Nodes 
-	from %s h, ACC_Accession a, VOC_Term t, DAG_Node n 
-	where h.accID = a.accID
-		and a._MGIType_key = %s
-		and a._Object_key = t._Term_key
-		and t._Vocab_key = %s
-		and t._Term_key = n._Object_key
-		and n._DAG_key = %s
-	''' % (tempTable, str(mgiType), str(vocabKey), str(dagKey)))
+        select n._Node_key 
+        into temp Nodes 
+        from %s h, ACC_Accession a, VOC_Term t, DAG_Node n 
+        where h.accID = a.accID
+                and a._MGIType_key = %s
+                and a._Object_key = t._Term_key
+                and t._Vocab_key = %s
+                and t._Term_key = n._Object_key
+                and n._DAG_key = %s
+        ''' % (tempTable, str(mgiType), str(vocabKey), str(dagKey)))
 
 db.sql('create index idx1 on Nodes(_Node_key)')
 
@@ -147,32 +146,32 @@ db.sql('create index idx1 on Nodes(_Node_key)')
 #  for a header label.
 #
 db.sql('''
-	update DAG_Node 
+        update DAG_Node 
             set _Label_key = %s
             from Nodes t 
             where DAG_Node._Node_key = t._Node_key
-	''' % (str(labelKey)))
+        ''' % (str(labelKey)))
 
 db.sql('''
-	update DAG_Closure 
+        update DAG_Closure 
             set _AncestorLabel_key = %s
             from Nodes t 
             where DAG_Closure._Ancestor_key = t._Node_key
-	''' % (str(labelKey)))
+        ''' % (str(labelKey)))
 
 db.sql('''
-	update DAG_Closure 
+        update DAG_Closure 
             set _DescendentLabel_key = %s
             from  Nodes t 
             where DAG_Closure._Descendent_key = t._Node_key
-	''' % (str(labelKey)))
+        ''' % (str(labelKey)))
 
 results = db.sql('select count(*) as cnt from Nodes')
-print 'Number of header nodes identified: %d' % results[0]['cnt']
+print('Number of header nodes identified: %d' % results[0]['cnt'])
 
 if headerAnnotTypeKey:
-	procName = 'VOC_processAnnotHeaderAll'
-	db.sql('''select %s(%s);''' % (procName, headerAnnotTypeKey))
+        procName = 'VOC_processAnnotHeaderAll'
+        db.sql('''select %s(%s);''' % (procName, headerAnnotTypeKey))
 
 db.commit()
 sys.exit(0)

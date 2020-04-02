@@ -77,7 +77,7 @@ echo "Start synonym file processing: ${SYNONYM_FILE}" >> ${FULL_LOG_FILE}
 #  Call the Python script.
 #
 echo "Start loadSynonym.py" >> ${FULL_LOG_FILE}
-loadSynonym.py ${SYNONYM_FILE} >> ${FULL_LOG_FILE}
+${PYTHON} loadSynonym.py ${SYNONYM_FILE} >> ${FULL_LOG_FILE}
 echo "End loadSynonym.py" >> ${FULL_LOG_FILE}
 
 echo "End synonym file processing" >> ${FULL_LOG_FILE}

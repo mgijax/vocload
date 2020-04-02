@@ -1,4 +1,3 @@
-# Name: GOVocab.py
 # Purpose: GO vocabulary class
 #
 # History
@@ -46,7 +45,7 @@
 #
 #
 
-import os, string, re, regex
+import os, str. re, regex
 import DAG, Vocab, GONode
 
 # Globals
@@ -145,23 +144,23 @@ class GOVocab(Vocab.Vocab):
     """
 
     definitions = { }		# cache of definition files loaded so far...
-				#	filename -> result of self.getDefs()
+                                #	filename -> result of self.getDefs()
 
     comments = { }		# cache of comments files loaded so far...
-				#	filename -> result of self.getDefs()
+                                #	filename -> result of self.getDefs()
 
     def initializeRegExps(self, accPrefix):
-	"""
-	#
-	# Requires:
-	#	accPrefix: string, accession id prefix (example:  "GO", "MP"
-	# Effects:
-	#	initializes regular expressions
-	# Modifies:
-	#	GO_re, syn_re
-	# Returns:
-	# Exceptions:
-	"""
+        """
+        #
+        # Requires:
+        #	accPrefix: str. accession id prefix (example:  "GO", "MP"
+        # Effects:
+        #	initializes regular expressions
+        # Modifies:
+        #	GO_re, syn_re
+        # Returns:
+        # Exceptions:
+        """
 
         global GO_re, syn_re
 
@@ -172,105 +171,105 @@ class GOVocab(Vocab.Vocab):
         syn_re = regex.compile('synonym:\([^;<%\n]+\)')
 
     def getDefs(self, inFile):
-	"""
+        """
         #      Private
         #
-	#  Requires:
-	#    inFile: file handle (GO definitions file)
-	#  Effects:
-	#    Creates a dictionary of definitions keyed by GO id
-	#    Creates a dictionary of comments keyed by GO id
-	#  Modifies:
-	#  Returns:
-	#    defs: dictionary
-	#    cmts: dictionary
-	#  Exceptions:
-	"""
+        #  Requires:
+        #    inFile: file handle (GO definitions file)
+        #  Effects:
+        #    Creates a dictionary of definitions keyed by GO id
+        #    Creates a dictionary of comments keyed by GO id
+        #  Modifies:
+        #  Returns:
+        #    defs: dictionary
+        #    cmts: dictionary
+        #  Exceptions:
+        """
 
-	# field tokens we're interested in grabbing
+        # field tokens we're interested in grabbing
 
         ID_TAG = 'goid: '
         DEF_TAG = 'definition: '
         CMT_TAG = 'comment: '
 
-	defs = {}
-	cmts = {}
+        defs = {}
+        cmts = {}
 
         for line in inFile.readlines():
 
-		token = string.strip(line)
+                token = str.strip(line)
 
                 if token == '!' or len(token) == 0:
                     continue
 
-                if string.find(token, ID_TAG) != -1:
-                    goID = token[string.index(token, ID_TAG) + len(ID_TAG):]
+                if str.find(token, ID_TAG) != -1:
+                    goID = token[str.index(token, ID_TAG) + len(ID_TAG):]
 
-                if string.find(token, DEF_TAG) != -1:
-                    definition = token[string.index(token, DEF_TAG) + len(DEF_TAG):]
-		    defs[goID] = definition
+                if str.find(token, DEF_TAG) != -1:
+                    definition = token[str.index(token, DEF_TAG) + len(DEF_TAG):]
+                    defs[goID] = definition
 
-                if string.find(token, CMT_TAG) != -1:
-                    comment = token[string.index(token, CMT_TAG) + len(CMT_TAG):]
-		    cmts[goID] = comment
+                if str.find(token, CMT_TAG) != -1:
+                    comment = token[str.index(token, CMT_TAG) + len(CMT_TAG):]
+                    cmts[goID] = comment
 
-	return defs, cmts
+        return defs, cmts
 
     def parseGOline(self, line):
-	"""
+        """
         #      Private
         #
-	#  Requires:
-	#    line: string
-	#  Effects:
-	#    Parses line to determine indentation level, finds the term,
-	#    GO id, relationship to parent, and synonyms (if any)
-	#  Modifies:
-	#  Returns:
-	#    level: integer - depth in tree
-	#    goid: string
-	#    name: string (GO term)
-	#    edgeType: string
-	#    syns: list of strings
-	#  Exceptions:
-	"""
-	
+        #  Requires:
+        #    line: string
+        #  Effects:
+        #    Parses line to determine indentation level, finds the term,
+        #    GO id, relationship to parent, and synonyms (if any)
+        #  Modifies:
+        #  Returns:
+        #    level: integer - depth in tree
+        #    goid: string
+        #    name: str.(GO term)
+        #    edgeType: string
+        #    syns: list of str.
+        #  Exceptions:
+        """
+        
         if len(line) == 0 or line[0] == "!":
             return
 
-	# get tree depth and relationship
-	level = 0
-	edgeType = ''
-	while level < len(line):
+        # get tree depth and relationship
+        level = 0
+        edgeType = ''
+        while level < len(line):
             if line[level] != ' ':
                 edgeType = line[level]
                 break
             level = level + 1
-	else:
+        else:
             return
-	
-	# get id and term
-	index = GO_re.search( line )
-	if index == -1:
+        
+        # get id and term
+        index = GO_re.search( line )
+        if index == -1:
             return
-	goid = GO_re.group(1)
+        goid = GO_re.group(1)
 
         secondaryGOIDs = self.getSecondaryGOIDs ( line, goid, index )
 
-	name = string.strip( line[level+1 : index])
+        name = str.strip( line[level+1 : index])
 
-	# get synonyms
-	syns = []
-	while 1:
+        # get synonyms
+        syns = []
+        while 1:
             index = syn_re.search(line)
             if index == -1:
                 break
-            syn = string.strip(syn_re.group(1))
+            syn = str.strip(syn_re.group(1))
             syns.append(syn)
             start = index + 1
             line = line[start:]
-		
-	return (level, goid, name, edgeType, syns, secondaryGOIDs)
+                
+        return (level, goid, name, edgeType, syns, secondaryGOIDs)
     
     def getSecondaryGOIDs ( self, inLine, goid, index ):
         """
@@ -292,7 +291,7 @@ class GOVocab(Vocab.Vocab):
         # start at position 2 rather than 0 to bypass leading ", "
         # (e.g., ", GO:123456)
         if  len ( searchSection[2:] ) > 0:
-           return string.split ( searchSection[2:], ", " )
+           return str.split ( searchSection[2:], ", " )
         else:
            return []
         
@@ -318,38 +317,38 @@ class GOVocab(Vocab.Vocab):
              i = i + 1
           inLine = inLine[0:i]
        return inLine
-	
+        
     def parseGOfile(self, ifd):
-	"""
+        """
         #      Private
         #
-	#  Requires:
-	#    ifd: file handle
-	#  Effects:
-	#    Instantiates a DAG object and populates it with nodes and
-	#    edges derived from the flat file parse
-	#  Modifies:
-	#  Returns:
-	#    GO: DAG object
-	#  Exceptions:
-	#    INDENTERROR
-	"""
+        #  Requires:
+        #    ifd: file handle
+        #  Effects:
+        #    Instantiates a DAG object and populates it with nodes and
+        #    edges derived from the flat file parse
+        #  Modifies:
+        #  Returns:
+        #    GO: DAG object
+        #  Exceptions:
+        #    INDENTERROR
+        """
 
-	GO = DAG.DAG()
+        GO = DAG.DAG()
 
-	nodeStack = Stack()
+        nodeStack = Stack()
 
-	firstNode = 1
-	lastLevel = -1
+        firstNode = 1
+        lastLevel = -1
 
-	line = ifd.readline()
-	while line:
+        line = ifd.readline()
+        while line:
             # tcw 20010820 - Strip out any backslashes in the 
             # ontology files (Stanford currently puts these slashes 
             # in the file to escape characters commas and other 
             # special characters
             line = re.sub ( "\\\\", "",line )
-	    print line
+            print line
             xxx = self.parseGOline(line)
             if not xxx:
                 line = ifd.readline()
@@ -383,47 +382,47 @@ class GOVocab(Vocab.Vocab):
 
             line = ifd.readline()
 
-	return GO
+        return GO
 
 
     def buildVocab (self, defs_file, dag_file):
-	# build this GOVocab using the specified definitions file and dag file
+        # build this GOVocab using the specified definitions file and dag file
 
-	self.etypes = ['%', '<' ]
+        self.etypes = ['%', '<' ]
 
-	# if we don't already have this definitions file in the cache, then add it:
+        # if we don't already have this definitions file in the cache, then add it:
 
-	if not self.definitions.has_key (defs_file):
+        if not self.definitions.has_key (defs_file):
 
-		defFile = open (defs_file, 'r')
-		self.definitions[defs_file], self.comments[defs_file] = self.getDefs (defFile)
-		defFile.close()
+                defFile = open (defs_file, 'r')
+                self.definitions[defs_file], self.comments[defs_file] = self.getDefs (defFile)
+                defFile.close()
 
-	defs = self.definitions[defs_file]	# use cached result
-	cmts = self.comments[defs_file]		# use cached result
+        defs = self.definitions[defs_file]	# use cached result
+        cmts = self.comments[defs_file]		# use cached result
 
-	fh = open (dag_file, 'r')
-	self.graph = self.parseGOfile(fh)
-	fh.close()
+        fh = open (dag_file, 'r')
+        self.graph = self.parseGOfile(fh)
+        fh.close()
 
-	to_do = [ (self.graph.getRoot(), '') ]		# edge type irrelevant
+        to_do = [ (self.graph.getRoot(), '') ]		# edge type irrelevant
 
-	while to_do:
-		node, edge_type = to_do[0]
-		id = node.getId()
-		del to_do[0]
+        while to_do:
+                node, edge_type = to_do[0]
+                id = node.getId()
+                del to_do[0]
 
-		if defs.has_key(id):
-			node.setDefinition (defs[id])
+                if defs.has_key(id):
+                        node.setDefinition (defs[id])
 
-		if cmts.has_key(id):
-			node.setComment (cmts[id])
+                if cmts.has_key(id):
+                        node.setComment (cmts[id])
 
-		to_do = to_do + self.graph.getChildrenOf (node)
-	return
+                to_do = to_do + self.graph.getChildrenOf (node)
+        return
 
     def getRoot (self):
-	return self.graph.getRoot()
+        return self.graph.getRoot()
 
 #
 # Warranty Disclaimer and Copyright Notice

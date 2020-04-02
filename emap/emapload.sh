@@ -133,7 +133,7 @@ fi
 echo "" >> ${LOG_DIAG}
 date >> ${LOG_DIAG}
 echo "Run emapload.py"  | tee -a ${LOG_DIAG}
-${VOCLOAD}/emap/emapload.py  
+${PYTHON} ${VOCLOAD}/emap/emapload.py  
 STAT=$?
 if [ ${STAT} = 2 ]
 then

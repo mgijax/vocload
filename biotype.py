@@ -1,4 +1,3 @@
-#!/usr/local/bin/python
 
 '''
 #
@@ -48,14 +47,13 @@ outFileName = os.environ['DATA_FILE']
 
 inFile = open(inFileName, 'r')
 outFile = open(outFileName, 'w')
-		
+                
 for line in inFile.readlines():
 
-	tokens = line[:-1].split(DELIM)
+        tokens = line[:-1].split(DELIM)
 
-	try:
-		term = tokens[1]
-		outFile.write(term + DELIM + DELIM + status + DELIM + DELIM + DELIM + DELIM + DELIM + CRT)
-	except:
-		pass
-
+        try:
+                term = tokens[1]
+                outFile.write(term + DELIM + DELIM + status + DELIM + DELIM + DELIM + DELIM + DELIM + CRT)
+        except:
+                pass

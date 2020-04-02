@@ -1,4 +1,3 @@
-#!/usr/local/bin/python
 
 #
 # Program: loadVOC.py
@@ -77,7 +76,7 @@ class VOCLoad:
 
     def __init__ (self,
         config,     # RcdFile for info about dags
-        mode,       # string; do a 'full' or 'incremental' load?
+        mode,       # str. do a 'full' or 'incremental' load?
         log     # Log.Log object; where to do logging
         ):
         # Purpose: constructor
@@ -98,24 +97,24 @@ class VOCLoad:
         if mode in [ 'full', 'incremental' ]:
             self.mode = mode
         else:
-            raise error, unknown_mode % mode
+            raise error(unknown_mode % mode)
 
-	self.server = os.environ['DBSERVER']
-	self.database = os.environ['DBNAME']
-	self.username = os.environ['DBUSER']
-	self.passwordFileName = os.environ['DBPASSWORDFILE']
-	self.passwordFile = open ( self.passwordFileName, 'r' )
-	self.password = string.strip ( self.passwordFile.readline() )
+        self.server = os.environ['DBSERVER']
+        self.database = os.environ['DBNAME']
+        self.username = os.environ['DBUSER']
+        self.passwordFileName = os.environ['DBPASSWORDFILE']
+        self.passwordFile = open ( self.passwordFileName, 'r' )
+        self.password = str.strip ( self.passwordFile.readline() )
 
-	vocloadlib.setupSql (self.server, self.database, self.username, self.password)
-	# confirm the sql setup worked by doing simple query
-	db.sql ('select count(1) from VOC_Vocab')
+        vocloadlib.setupSql (self.server, self.database, self.username, self.password)
+        # confirm the sql setup worked by doing simple query
+        db.sql ('select count(1) from VOC_Vocab')
 
         self.vocab_name = os.environ['VOCAB_NAME']
-        self.isSimple = string.atoi(os.environ['IS_SIMPLE'])
-        self.isPrivate = string.atoi(os.environ['IS_PRIVATE'])
-        self.logicalDBkey = string.atoi(os.environ['LOGICALDB_KEY'])
-        self.mgitype_key = string.atoi(os.environ['MGITYPE'])
+        self.isSimple = str.atoi(os.environ['IS_SIMPLE'])
+        self.isPrivate = str.atoi(os.environ['IS_PRIVATE'])
+        self.logicalDBkey = str.atoi(os.environ['LOGICALDB_KEY'])
+        self.mgitype_key = str.atoi(os.environ['MGITYPE'])
 
         vocloadlib.setVocabMGITypeKey (self.mgitype_key)
 
@@ -123,11 +122,11 @@ class VOCLoad:
             '''select _Vocab_key, isSimple
                 from VOC_Vocab
                 where name = '%s' 
-	    ''' % self.vocab_name)
+            ''' % self.vocab_name)
         if len(results) > 0:
             self.vocab_key = results[0]['_Vocab_key']
             if results[0]['isSimple'] != self.isSimple:
-                raise error, bad_simple % self.vocab_key
+                raise error(bad_simple % self.vocab_key)
         else:
             self.vocab_key = None
 
@@ -136,9 +135,9 @@ class VOCLoad:
         result = db.sql ('''select _Refs_key
                     from BIB_View
                     where jnumID = '%s' 
-		    ''' % self.jnum)
+                    ''' % self.jnum)
         if len(result) == 0:
-            raise error, unknown_jnum % self.jnum
+            raise error(unknown_jnum % self.jnum)
         self.refs_key = result[0]['_Refs_key']
         return
 
@@ -153,7 +152,7 @@ class VOCLoad:
              self.goFull()
          else:
              self.goIncremental()
-	 vocloadlib.unsetupSql()
+         vocloadlib.unsetupSql()
          return
 
     def goFull (self):
@@ -176,16 +175,16 @@ class VOCLoad:
             dags = db.sql ('''select _DAG_key
                         from VOC_VocabDAG
                         where _Vocab_key = %d
-			''' % self.vocab_key)
+                        ''' % self.vocab_key)
             for dag in dags:
                 vocloadlib.nl_sqlog ( 'delete from DAG_DAG where _DAG_key = %d' % dag['_DAG_key'], self.log )
 
             vocloadlib.deleteVocabTerms (self.vocab_key, self.log)
 
-	    # don't delete the master VOC_Vocab record; a simple vocab may be used 
-	    # in an VOC_AnnotType record.  for example, InterPro; the annotations get deleted;
-	    # the vocabulary gets a full reload; the annotations get re-added;
-	    # but the Annotation Type record still needs to exist.
+            # don't delete the master VOC_Vocab record; a simple vocab may be used 
+            # in an VOC_AnnotType record.  for example, InterPro; the annotations get deleted;
+            # the vocabulary gets a full reload; the annotations get re-added;
+            # but the Annotation Type record still needs to exist.
 
 #            vocloadlib.nl_sqlog ('''delete from VOC_Vocab
 #                    where _Vocab_key = %d''' % \
@@ -213,11 +212,11 @@ class VOCLoad:
             result = db.sql ('select max(_DAG_key) as maxkey from DAG_DAG')
             dag_key = max (0, result[0]['maxkey']) + 1
 
-            for (key, dag) in self.config.items():
+            for (key, dag) in list(self.config.items()):
 
                 #insert into DAG_DAG table
                 vocloadlib.nl_sqlog (INSERT_DAG % (dag_key, self.refs_key, self.mgitype_key, 
-			dag['ABBREV'], dag['NAME']), self.log)
+                        dag['ABBREV'], dag['NAME']), self.log)
 
                 #insert into VOC_VocabDag table
                 vocloadlib.nl_sqlog (INSERT_VOCABDAG % (self.vocab_key, dag_key), self.log)
@@ -226,7 +225,7 @@ class VOCLoad:
                 dag_key = dag_key + 1
 
         if not self.isSimple:
-            for (key, dag) in self.config.items():
+            for (key, dag) in list(self.config.items()):
                 dagload = loadDAG.DAGLoad (dag['LOAD_FILE'], self.mode, dag['NAME'], self.log, self.passwordFileName )
                 dagload.go()
 
@@ -248,7 +247,7 @@ class VOCLoad:
             'Incremental VOC Load Start:'))
 
         if not self.vocab_key:
-            raise error, unknown_vocab % self.vocab_name
+            raise error(unknown_vocab % self.vocab_name)
 
         # Now load the terms
         termload = loadTerms.TermLoad (self.termfile, self.mode,
@@ -257,7 +256,7 @@ class VOCLoad:
 
         # load DAGs
         if not self.isSimple:
-            for (key, dag) in self.config.items():
+            for (key, dag) in list(self.config.items()):
                 dagload = loadDAG.DAGLoad (dag['LOAD_FILE'],
                     self.mode, dag['NAME'], self.log, self.passwordFileName )
                 dagload.go()
@@ -272,7 +271,7 @@ class VOCLoad:
 # needs to be rewritten:
 
 if __name__ == '__main__':
-    print "not currently runnable from the command-line"
+    print("not currently runnable from the command-line")
 
 #   import rcdlib
 #   import Log

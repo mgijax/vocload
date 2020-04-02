@@ -1,4 +1,3 @@
-import sys
 import os
 import re
 
@@ -38,7 +37,7 @@ class Term:
         self.relationshipType = []
         self.synonym = []
         self.synonymType = []
-	self.subset = []
+        self.subset = []
 
 
     # The following methods are used to set/get the attributes of the
@@ -112,12 +111,12 @@ class Term:
         return self.synonymType
     
     def addSubset (self, subset):
-	self.subset.append(subset)
+        self.subset.append(subset)
 
     def getSubset (self):
-	return self.subset
+        return self.subset
 
-    # Purpose: Return all the attributes as one string (for debugging).
+    # Purpose: Return all the attributes as one str.(for debugging).
     # Returns: String of all objects.
     # Assumes: Nothing
     # Effects: Nothing
@@ -135,4 +134,4 @@ class Term:
                '|relationshipType=' + ','.join(self.relationshipType) + \
                '|synonym=' + ','.join(self.synonym) + \
                '|synonymType=' + ','.join(self.synonymType) + \
-	       '|subset=' + ','.join(self.subset) + '|'
+               '|subset=' + ','.join(self.subset) + '|'

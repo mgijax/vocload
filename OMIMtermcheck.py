@@ -1,4 +1,3 @@
-#!/usr/local/bin/python
 
 #
 # Program: OMIMtermreport.py
@@ -67,21 +66,21 @@ def report1():
            ''')
 
     fp.write(CRT)
-    fp.write(string.ljust('MGI OMIM ID', 15) + TAB)
-    fp.write(string.ljust('MGI OMIM term', 65) + TAB)
-    fp.write(string.ljust('OMIM.tab term', 65) + CRT*2)
+    fp.write(str.ljust('MGI OMIM ID', 15) + TAB)
+    fp.write(str.ljust('MGI OMIM term', 65) + TAB)
+    fp.write(str.ljust('OMIM.tab term', 65) + CRT*2)
 
     for t in mgiTerms:
-        if omimTerms.has_key(t):
-	    mTerm = mgiTerms[t]
-	    oTerm = omimTerms[t][0]
+        if t in omimTerms:
+            mTerm = mgiTerms[t]
+            oTerm = omimTerms[t][0]
 
-	    # only print if the terms are not equal
+            # only print if the terms are not equal
 
-	    if mTerm != oTerm:
-	        fp.write(string.ljust(t, 15) + TAB)
-	        fp.write(string.ljust(mTerm, 65) + TAB)
-	        fp.write(string.ljust(oTerm, 65) + CRT)
+            if mTerm != oTerm:
+                fp.write(str.ljust(t, 15) + TAB)
+                fp.write(str.ljust(mTerm, 65) + TAB)
+                fp.write(str.ljust(oTerm, 65) + CRT)
 
     fp.write(CRT*2)
 
@@ -90,12 +89,12 @@ def report2():
     fp.write('A report of new OMIM.tab terms added since the last load:\n\n')
 
     for t in omimTerms:
-        if not mgiTerms.has_key(t):
-	    oTerm = omimTerms[t][0]
-	    oStatus = omimTerms[t][1]
-	    if oTerm in excludeTerms:
-	        oStatus = 'excluded'
-	    fp.write(t + TAB + string.ljust(oTerm, 65) + TAB + string.ljust(oStatus, 15) + CRT)
+        if t not in mgiTerms:
+            oTerm = omimTerms[t][0]
+            oStatus = omimTerms[t][1]
+            if oTerm in excludeTerms:
+                oStatus = 'excluded'
+            fp.write(t + TAB + str.ljust(oTerm, 65) + TAB + str.ljust(oStatus, 15) + CRT)
 
     fp.write(CRT*2)
 
@@ -105,18 +104,18 @@ def init():
 
     # grab the new OMIM terms
     for line in inFile.readlines():
-        tokens = string.split(line[:-1], '\t')
+        tokens = str.split(line[:-1], '\t')
         term = tokens[0]
         id = tokens[1]
-	status = tokens[2]
+        status = tokens[2]
         omimTerms[id] = (term, status)
 
     inFile.close()
 
     for line in excludeFile.readlines():
-        tokens = string.split(line[:-1], '\t')
+        tokens = str.split(line[:-1], '\t')
         term = tokens[0]
-	excludeTerms.append(term)
+        excludeTerms.append(term)
     excludeFile.close()
 
     # grab the existing OMIM terms in MGI
@@ -154,4 +153,3 @@ init()
 report1()
 report2()
 reportlib.finish_nonps(fp)	# non-postscript file
-
