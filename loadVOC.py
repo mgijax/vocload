@@ -110,10 +110,6 @@ class VOCLoad:
         db.sql ('select count(1) from VOC_Vocab')
 
         self.vocab_name = os.environ['VOCAB_NAME']
-        #self.isSimple = str.atoi(os.environ['IS_SIMPLE'])
-        #self.isPrivate = str.atoi(os.environ['IS_PRIVATE'])
-        #self.logicalDBkey = str.atoi(os.environ['LOGICALDB_KEY'])
-        #self.mgitype_key = str.atoi(os.environ['MGITYPE'])
         self.isSimple = int(os.environ['IS_SIMPLE'])
         self.isPrivate = int(os.environ['IS_PRIVATE'])
         self.logicalDBkey = int(os.environ['LOGICALDB_KEY'])

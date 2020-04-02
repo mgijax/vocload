@@ -61,7 +61,6 @@
 
 import sys
 import os
-import string
 import Set
 import db
 

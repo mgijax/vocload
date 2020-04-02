@@ -1410,7 +1410,7 @@ if __name__ == '__main__':
     [server, database, username, password] = args[:4]
     [vocab_key, refs_key, input_file] = args[4:]
 
-    vocab_key = str.atoi(vocab_key)
+    vocab_key = int(vocab_key)
 
     noload = 0
 

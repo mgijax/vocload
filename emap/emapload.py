@@ -72,7 +72,6 @@ import os
 # adjust the path so that it will find the loadTerms.py one directory up
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
-import string
 import Set 
 import Ontology
 import loadDAG
