@@ -2,7 +2,6 @@
 import sys
 import os
 import db
-import string
 
 USAGE = '''Usage: %s <file> <vocab> <J#> <ldb> <user> <pwd> <server> <db>
         <file>   : name of input file

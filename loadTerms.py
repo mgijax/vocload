@@ -84,7 +84,6 @@
 
 import sys
 import types
-import string
 import getopt
 import os
 

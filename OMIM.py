@@ -54,7 +54,6 @@
 
 import sys
 import os
-import string
 import db
 import reportlib
 

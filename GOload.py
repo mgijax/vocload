@@ -15,7 +15,6 @@
 
 import sys
 import os
-import string
 import vocloadlib
 import loadWrapper
 import GOVocab

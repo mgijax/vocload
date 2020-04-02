@@ -52,7 +52,6 @@
 
 import sys
 import os
-import string
 import getopt
 import mgi_utils
 import reportlib

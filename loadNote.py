@@ -40,7 +40,6 @@
 ###########################################################################
 
 import sys 
-import string
 import os
 import vocloadlib
 import mgi_utils
