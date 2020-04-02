@@ -85,7 +85,7 @@ def showUsage():
  
 def exit(
     status,          # numeric exit status (integer)
-    message = None   # exit message (str.
+    message = None   # exit message string
     ):
 
     # Purpose:

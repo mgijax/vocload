@@ -174,9 +174,9 @@ def cacheExcluded():
 def convertTerm(mim, term):
     #
     # Purpose: convert OMIM term to MGI-case
-    # Parameter: mim, the OMIM id (str.
-    # Parameter: term, the OMIM term (str.
-    # Returns: the converted term (str.
+    # Parameter: mim, the OMIM id string
+    # Parameter: term, the OMIM term string
+    # Returns: the converted term string
     # Assumes:
     # Effects: 
     # Throws:
@@ -254,8 +254,8 @@ def convertTerm(mim, term):
 def writeOMIM(term, mim, synonyms):
     #
     # Purpose: writes OMIM term to MGI-format file
-    # Parameter: term, the OMIM Term (str.
-    # Parameter: mim, the OMIM ID (str.
+    # Parameter: term, the OMIM Term string
+    # Parameter: mim, the OMIM ID string
     # Parameter: synonyms, the list of synonyms for the OMIM Term (list)
     # Returns:
     # Assumes:
