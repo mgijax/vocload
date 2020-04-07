@@ -326,7 +326,10 @@ def parseOBOFile():
         name = term.getName()
         namespace = term.getNamespace()
         comment = term.getComment()
+
         definition = term.getDefinition()
+        definition = ascii(definition)
+
         obsolete = term.getObsolete()
         altID = term.getAltID()
         relationship = term.getRelationship()
@@ -499,8 +502,8 @@ def parseOBOFile():
                                 fpDOgxdslim.write(termID + '\t\n')
 
 #	else:
-#	    print term.getTermID()
-#	    print "isValid error"
+#	    print(term.getTermID())
+#	    print("isValid error")
 
         # Get the next term from the parser.
         #

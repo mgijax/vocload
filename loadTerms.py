@@ -1142,7 +1142,7 @@ class TermLoad:
           recordChanged = 1
           # Now write report record if the DB record is not null or blank
           # and the term has annotations associated with it
-          if dbRecord[0]['note'] > 0:
+          if dbRecord[0]['note'] is not None:
              definitionDiscrepancy = 1
 
        #
@@ -1169,7 +1169,7 @@ class TermLoad:
 
           # Now write report record if the DB record is not null or blank
           # and the term has annotations associated with it
-          if dbRecord[0]['comments'] > 0:
+          if dbRecord[0]['comments'] is not None:
              commentDiscrepancy = 1
 
        #
