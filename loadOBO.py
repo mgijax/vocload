@@ -327,6 +327,7 @@ def parseOBOFile():
         namespace = term.getNamespace()
         comment = term.getComment()
 
+        # TR13204/python 3; add ascii translation
         definition = term.getDefinition()
         definition = ascii(definition)
 
