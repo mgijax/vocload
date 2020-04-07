@@ -516,6 +516,8 @@ def parseOBOFile():
 
 # Get the options that were passed to the script.
 #
+print('starting loadOBO.py')
+
 try:
     options, args = getopt.getopt(sys.argv[1:], 'nfil:')
 except:
@@ -553,19 +555,23 @@ if not log:
 
 # Create a configuration object from the RCD file.
 #
+print('rcdlib.RcdFile()')
 config = rcdlib.RcdFile (rcdFile, rcdlib.Rcd, 'NAME')
 
 # Perform initialization tasks.
 #
+print('initialize')
 initialize()
 
 # Parse the OBO input file.
 #
+print('parseOBOFile()')
 if parseOBOFile() != 0:
     exit(1)
 
 # Invoke the loadVOC module to load the terms and build the DAG(s).
 #
+print('loadVOC.VOCLoad()')
 vocload = loadVOC.VOCLoad(config, mode, log)
 vocload.go()
 
