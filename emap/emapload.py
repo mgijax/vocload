@@ -165,7 +165,6 @@ log = Log.Log(0, os.environ['LOG_EMAP_TERMDAG'])
 
 passwordFileName = os.environ['PG_DBPASSWORDFILE']
 
-
 class EmapTerm(Ontology.OboTerm):
      # IS: an OboTerm
      # HAS: methods to return synonyms and alt IDs
@@ -631,7 +630,7 @@ def createFiles():
     #
     # remove root node EMAPA:0
     #
-    ont.removeTerm('EMAPA:0')
+    ont.removeTerm(ont.getTerm('EMAPA:0'))
 
     # now check for single root
     roots = ont.getRoots( ns=ns)
@@ -839,7 +838,7 @@ def createFiles():
 
         # get the term's alternate ids joining with '|'
         altIdList = t.getAltIDs()
-        altIds = str.join(altIdList, '|')
+        altIds = str.join('|', altIdList)
 
         # if altID term object != emapaID term object, then this is a merge, report error
         if emapaId in allEMAPIDs:
@@ -852,13 +851,13 @@ def createFiles():
 
         # get the term's synonyms joining with '|'
         synList = t.getSynonyms()
-        syns = str.join(synList, '|')
+        syns = str.join('|', synList)
         synTypeList = []
 
         # create synonym type string
         for s in range(0, len(synList)):
             synTypeList.append(SYNTYPE)
-        synType = str.join(synTypeList, '|')
+        synType = str.join('|', synTypeList)
 
         # create a list of the current term's TSs
         cTSList = []

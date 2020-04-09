@@ -260,7 +260,7 @@ class TermLoad:
 
         # find vocab key and name (propagate vocloadlib.error if invalid)
 
-        if type(vocab) == bytes:
+        if type(vocab) == str:
             self.vocab_name = vocab
             self.vocab_key = vocloadlib.getVocabKey(vocab)
         else:
