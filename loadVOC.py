@@ -179,16 +179,6 @@ class VOCLoad:
                 vocloadlib.nl_sqlog ( 'delete from DAG_DAG where _DAG_key = %d' % dag['_DAG_key'], self.log )
 
             vocloadlib.deleteVocabTerms (self.vocab_key, self.log)
-
-            # don't delete the master VOC_Vocab record; a simple vocab may be used 
-            # in an VOC_AnnotType record.  for example, InterPro; the annotations get deleted;
-            # the vocabulary gets a full reload; the annotations get re-added;
-            # but the Annotation Type record still needs to exist.
-
-#            vocloadlib.nl_sqlog ('''delete from VOC_Vocab
-#                    where _Vocab_key = %d''' % \
-#                    self.vocab_key,
-#                self.log)
         else:
             #insert into VOC_Vocab table only if a record does not already exist
 
