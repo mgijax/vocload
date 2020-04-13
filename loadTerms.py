@@ -709,6 +709,7 @@ class TermLoad:
            return
 
        self.max_note_key = self.max_note_key + 1
+       commentRecord = ''.join([i if ord(i) < 128 else ' ' for i in commentRecord])
 
        if self.isBCPLoad:
            self.loadNoteBCP = 1
@@ -724,12 +725,10 @@ class TermLoad:
 
        if self.isBCPLoad:
            self.loadNoteChunkBCP = 1
-           self.termNoteChunkBCPFile.write(BCP_INSERT_NOTECHUNK % \
-                (self.max_note_key, commentRecord))
+           self.termNoteChunkBCPFile.write(BCP_INSERT_NOTECHUNK % (self.max_note_key, commentRecord))
 
        else: # asserts self.isIncrementalLoad() or full load with on-line sql:
-           vocloadlib.nl_sqlog(INSERT_NOTECHUNK % \
-                (self.max_note_key, commentRecord.replace('\'','\'\'')), self.log)
+           vocloadlib.nl_sqlog(INSERT_NOTECHUNK % (self.max_note_key, commentRecord.replace('\'','\'\'')), self.log)
 
        return
 
