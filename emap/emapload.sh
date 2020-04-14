@@ -167,7 +167,7 @@ fi
 echo ${LOGDIR}
 echo ${OUTPUTDIR}
 case `whoami` in
-    mgiadmin sc)
+    mgiadmin)
 	chmod 775 ${LOGDIR}/*
         chgrp mgi ${LOGDIR}/*
         chmod 775 ${OUTPUTDIR}/*
