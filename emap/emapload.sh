@@ -167,13 +167,15 @@ fi
 echo ${LOGDIR}
 echo ${OUTPUTDIR}
 case `whoami` in
-    mgiadmin)
+    mgiadmin sc)
 	chmod 775 ${LOGDIR}/*
         chgrp mgi ${LOGDIR}/*
         chmod 775 ${OUTPUTDIR}/*
         chgrp mgi ${OUTPUTDIR}/*
         chmod 775 ${RPTDIR}/*
         chgrp mgi ${RPTDIR}/*
+        chmod 664 ${INPUT_FILE_DEFAULT}
+        chgrp mgi ${INPUT_FILE_DEFAULT}
         ;;
 esac
 

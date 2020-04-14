@@ -1,3 +1,9 @@
+TAG: vocload-6-0-15-2
+DATE: 04/14/2020
+STAFF: sc
+CHANGES: chgrp mgi input file after removing terms from tag below
+    so Terry may publish new file
+
 TAG: vocload-6-0-15-1
 DATE: 03/26/2020
 STAFF: lec 
