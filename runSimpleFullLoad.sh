@@ -23,7 +23,7 @@ export RCD_FILE
 LOAD_PROGRAM=simpleLoad.py
 export LOAD_PROGRAM
 
-cd `dirname $0`
+cd ${VOCLOAD}
 . ${VOCLOAD}/VOClib.config
 
 setUp $1 load full
