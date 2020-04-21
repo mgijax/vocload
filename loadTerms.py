@@ -1312,7 +1312,7 @@ class TermLoad:
                         self.mgitype_key,
                         synonymTypeKey,
                         self.refs_key,
-                        fileSynonyms[i]))
+                        ascii(fileSynonyms[i])))
 
              else: # asserts self.isIncrementalLoad() or full load with on-line sql:
                 vocloadlib.nl_sqlog(INSERT_SYNONYM % \
@@ -1321,7 +1321,7 @@ class TermLoad:
                         self.mgitype_key,
                         synonymTypeKey,
                         self.refs_key,
-                        fileSynonyms[i].replace('\'','\'\'')), self.log)
+                        ascii(fileSynonyms[i].replace('\'','\'\''))), self.log)
 
        return
 
