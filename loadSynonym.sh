@@ -65,9 +65,8 @@ SYNONYM_FILE=$2
 #
 #  Source the configuration files to establish the environment.
 #
-cd `dirname $0`
-. ${LOAD_CONFIG}
-. ./Configuration
+. ${VOCLOAD}/${LOAD_CONFIG}
+. ${VOCLOAD}/Configuration
 
 echo "**************************************************" >> ${FULL_LOG_FILE}
 echo "Start synonym file processing: ${SYNONYM_FILE}" >> ${FULL_LOG_FILE}
@@ -77,7 +76,7 @@ echo "Start synonym file processing: ${SYNONYM_FILE}" >> ${FULL_LOG_FILE}
 #  Call the Python script.
 #
 echo "Start loadSynonym.py" >> ${FULL_LOG_FILE}
-${PYTHON} loadSynonym.py ${SYNONYM_FILE} >> ${FULL_LOG_FILE}
+${PYTHON} ${VOCLOAD}/loadSynonym.py ${SYNONYM_FILE} >> ${FULL_LOG_FILE}
 echo "End loadSynonym.py" >> ${FULL_LOG_FILE}
 
 echo "End synonym file processing" >> ${FULL_LOG_FILE}

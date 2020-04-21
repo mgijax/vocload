@@ -1,5 +1,3 @@
-
-'''
 #
 # Purpose:
 #
@@ -50,10 +48,10 @@
 # lec	04/13/2005
 #	- TR 3853, OMIM
 #
-'''
 
 import sys
 import os
+import string
 import db
 import reportlib
 
@@ -192,7 +190,7 @@ def convertTerm(mim, term):
         return newTerm
 
     # capitialize all words
-    newTerm = str.capwords(term)
+    newTerm = string.capwords(term)
 
     #
     # capitalize any word after certain punctuation ("--", "-", "/")
@@ -233,7 +231,7 @@ def convertTerm(mim, term):
             newTokens.append(mimWordToMGI[t])
         else:
             newTokens.append(t)
-    newTerm = str.join(newTokens, ' ')
+    newTerm = str.join(' ', newTokens)
 
     # fully capitilize any word after the ; because this is the human gene
 
@@ -242,7 +240,7 @@ def convertTerm(mim, term):
     newTokens.append(tokens[0])
     for t in tokens[1:]:
         newTokens.append(str.upper(t))
-    newTerm = str.join(newTokens, '; ')
+    newTerm = str.join('; ', newTokens)
 
     #
     # get rid of the @ character
@@ -349,7 +347,7 @@ def processOMIM():
 
             # the first token is a repeat of the MIM id, so ignore it
 
-            term = term + str.join(tokens[1:], ' ')
+            term = term + str.join(' ', tokens[1:])
 
             # keep reading until the next field indicator or ; or ;; or an INCLUDE is found, 
             # signifying the synonyms section
