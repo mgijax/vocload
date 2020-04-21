@@ -21,7 +21,7 @@ LOAD_PROGRAM="GOload.py"
 export LOAD_PROGRAM
 
 cd `dirname $0`
-. VOClib.config
+. ${VOCLOAD}/VOClib.config
 
 setUp $1 noload full
 executePrograms ${LOAD_PROGRAM}

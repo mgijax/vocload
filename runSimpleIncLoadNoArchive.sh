@@ -24,7 +24,7 @@ LOAD_PROGRAM=simpleLoad.py
 export LOAD_PROGRAM
 
 cd `dirname $0`
-. VOClib.config
+. ${VOCLOAD}/VOClib.config
 
 setUp $1 load incremental
 executePrograms ${LOAD_PROGRAM}
