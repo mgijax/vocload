@@ -564,8 +564,6 @@ class TermLoad:
 
         for record in self.datafile:
 
-            record['term'] = ascii(record['term'])
-
             if record['accID'] != DAG_ROOT_ID:
                # Check for duplication on the primary term
                duplicate = self.checkForDuplication(record['accID'], record['term'], \
@@ -853,8 +851,6 @@ class TermLoad:
         recordSet = vocloadlib.getTerms(self.vocab_key)
 
         for record in self.datafile:
-
-            record['term'] = ascii(record['term'])
 
             # Cross reference input file records to database records
             # Check for duplication on the primary term - primary accIDs
