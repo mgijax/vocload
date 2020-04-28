@@ -328,7 +328,6 @@ def parseOBOFile():
         comment = term.getComment()
 
         definition = term.getDefinition()
-        definition = definition
 
         obsolete = term.getObsolete()
         altID = term.getAltID()

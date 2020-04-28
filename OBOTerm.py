@@ -66,13 +66,13 @@ class Term:
         self.comment = comment
 
     def getComment (self):
-        return self.comment
+        return ''.join([i if ord(i) < 128 else ' ' for i in self.comment])
 
     def setDefinition (self, definition):
         self.definition = definition
 
     def getDefinition (self):
-        return self.definition
+        return ''.join([i if ord(i) < 128 else ' ' for i in self.definition])
 
     def setObsolete (self, obsolete):
         self.obsolete = obsolete
