@@ -369,7 +369,7 @@ class GOVocab(Vocab.Vocab):
                 firstNode = 0
             elif level > lastLevel:
                 if level > (lastLevel+1):
-                    raise "INDENTERROR", line
+                    raise "INDENTERROR"
                 GO.addEdge(nodeStack.peek(), node, edgeType)
             else:
                 diff = lastLevel - level
