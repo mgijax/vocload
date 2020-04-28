@@ -165,7 +165,7 @@ def openFiles():
     # Open the OBO input file.
     #
     try:
-        fpOBO = open(oboFile, 'r')
+        fpOBO = open(oboFile, 'r', encoding='utf-8')
     except:
         log.writeline('Cannot open OBO file: ' + oboFile)
         exit(1)
