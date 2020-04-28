@@ -348,7 +348,6 @@ class GOVocab(Vocab.Vocab):
             # in the file to escape characters commas and other 
             # special characters
             line = re.sub ( "\\\\", "",line )
-            print line
             xxx = self.parseGOline(line)
             if not xxx:
                 line = ifd.readline()
