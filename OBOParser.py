@@ -141,6 +141,7 @@ class Parser:
                     if self.line.find(x) >= 0:
                         xrefID = re.split (' ', self.line, 1)[1].strip()
                         xrefID = xrefID.replace('\\n', '')
+                        xrefID = re.split ('{', xrefID, 1)[0].strip()
                         self.term.addAltID (xrefID)
 
             # Save an "is-a" relationship.

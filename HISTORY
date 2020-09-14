@@ -1,4 +1,9 @@
-TAG: vocload-6-0-16-2
+TAG: vocload-6-0-16-3
+DATE: 09/14/2020
+STAFF: lec
+CHANGES: TR13339/DO/exclude "{http:xxx}" from xref
+
+TA: vocload-6-0-16-2
 DATE: 09/14/2020
 STAFF: lec
 CHANGES: TR12571/MP.config/change _notetype_key = 1000
