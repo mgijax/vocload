@@ -755,7 +755,7 @@ class TermLoad:
 
         #
         # TR12427/Disease Ontology
-        # pull in tag 'xref'; attach same as 'alt_id'
+        # pull in tag 'xref'
         # but use a different logicalDB based on the accession id prefix (minus the ending ":")
         # for now, just do this for 'Disease Ontology'
         #

@@ -129,8 +129,8 @@ class Parser:
                     self.term.setObsolete (0)
 
             # Save an alternate ID.
-            #
-            if tag == 'alt_id':
+            # per TR13072/do not attach alt_id for Disease Ontology
+            if tag == 'alt_id' and self.vocabName != 'Disease Ontology':
                 self.term.addAltID (re.split (' ', self.line, 1)[1].strip())
 
             # Save an alternate ID using xref.
