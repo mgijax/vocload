@@ -1,9 +1,10 @@
+TAG: vocload-6-0-16-7
 TAG: vocload-6-0-16-6
 TAG: vocload-6-0-16-5
 DATE: 09/28/2020
 STAFF: lec
 CHANGES: 
-added OMIMpost.sh/call OMIMtermcheck.py to OMIMpost.sh
+fix OMIM.config/copy OMIMtermcheck to archive
 
 TAG: vocload-6-0-16-4
 DATE: 09/23/2020
