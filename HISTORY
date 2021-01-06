@@ -1,3 +1,8 @@
+TAG: vocload-6-0-16-8
+DATE: 01/06/2021
+STAFF: dbm
+CHANGES: Configuration.default - Added LOG_SQL setting
+
 TAG: vocload-6-0-16-7
 TAG: vocload-6-0-16-6
 TAG: vocload-6-0-16-5
