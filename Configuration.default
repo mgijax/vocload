@@ -33,6 +33,9 @@ fi
 
 . ${MGICONFIG}/master.config.sh
 
+LOG_SQL=False   # True/False: should SQL be written to log.txt
+export LOG_SQL
+
 MGITYPE=13	# ACC_MGIType._MGIType_key for Vocabulary
 export MGITYPE
 
