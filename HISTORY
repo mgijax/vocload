@@ -1,3 +1,8 @@
+TAG: vocload-6-0-16-9
+DATE: 02/15/2021
+STAFF: dbm
+CHANGES: TR13414: loadTerms.py - no quotes around synonyms in the bcp file
+
 TAG: vocload-6-0-16-8
 DATE: 01/06/2021
 STAFF: dbm
