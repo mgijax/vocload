@@ -1303,10 +1303,9 @@ class TermLoad:
 
              self.max_synonym_key = self.max_synonym_key + 1
              synonymTypeKey = vocloadlib.getSynonymTypeKey(fileSynonymTypes[i])
-             synonym = ascii(fileSynonyms[i])
-             synonym = synonym.replace('\'','\'\'')
 
              if self.isBCPLoad:
+                synonym = fileSynonyms[i]
                 self.loadSynonymBCP = 1
                 self.termSynonymBCPFile.write(BCP_INSERT_SYNONYM % \
                        (self.max_synonym_key,
@@ -1317,6 +1316,8 @@ class TermLoad:
                         synonym))
 
              else: # asserts self.isIncrementalLoad() or full load with on-line sql:
+                synonym = ascii(fileSynonyms[i])
+                synonym = synonym.replace('\'','\'\'')
                 vocloadlib.nl_sqlog(INSERT_SYNONYM % \
                        (self.max_synonym_key,
                         termKey,
