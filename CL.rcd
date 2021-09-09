@@ -16,11 +16,12 @@
 #	- TR11752/new
 #
 
-RUNTIME_DIR = /data/loads/mgi/vocload/runTimeCL
-
+RUNTIME_DIR = /data/loads/sc/mgi/vocload/runTimeCL
+DATA_DIR="/data/downloads/purl.obolibrary.org/obo/cl"
 [
         NAME = Cell Ontology
         NAME_SPACE = cell
-        ONTOLOGY_FILE = ${RUNTIME_DIR}/cl.obo
+        ABBREV = CL
+        ONTOLOGY_FILE = ${DATA_DIR}/cl-basic.obo
         LOAD_FILE = ${RUNTIME_DIR}/dag.cell
 ]
