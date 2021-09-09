@@ -252,11 +252,11 @@ def parseOBOFile():
     dagRootID = os.environ['DAG_ROOT_ID']
     # default node label
     dag_child_label = ''
-
+    
     # Open the input and output files.
     #
     openFiles()
-
+    log.write('vocab name: %s dagRootID: %s\n' % (vocabName, dagRootID))
     # If there is a root ID for the vocabulary, write it to each DAG file.
     # Even though the root term may be defined in the OBO input file, it
     # will not have any relationships defined, so it would not get added
@@ -302,12 +302,12 @@ def parseOBOFile():
     header = parser.getHeader()
     version = header.getVersion()
     defaultNamespace = header.getDefaultNamespace()
-
+    log.write('version: %s defaultNamespace: %s' % (version, defaultNamespace)) 
     # If the OBO input file does not have the expected version number,
     # write a validation message and terminate the load.
     #
     if version != expectedVersion:
-        log.writeline('Invalid OBO format version: ' + version + \
+        fpValid.writeline('Invalid OBO format version: ' + version + \
                       ' (Expected: ' + expectedVersion + ')')
         closeFiles()
         return 1
@@ -337,7 +337,7 @@ def parseOBOFile():
         synonymType = term.getSynonymType()
         subset = term.getSubset()
         isValid = 1
-
+        log.write('%s %s %s %s \n' % (termID, name, relationship, relationshipType))
         if termID == dagRootID and vocabName == 'Feature Relationship':
             # skip this term
             term = parser.nextTerm()
@@ -391,11 +391,11 @@ def parseOBOFile():
         # "is_a" vs "is-a".
         #
         if vocabName not in ('Cell Ontology'):
-                for r in relationshipType:
-                        label = re.sub('[^a-zA-Z0-9]','',r)
-                        if label not in validRelationshipType:
-                                fpValid.write('(' + termID + ') Invalid relationship type: ' + r + '\n')
-                                isValid = 0
+            for r in relationshipType:
+                    label = re.sub('[^a-zA-Z0-9]','',r)
+                    if label not in validRelationshipType:
+                            fpValid.write('(' + termID + ') Invalid relationship type: ' + r + '\n')
+                            isValid = 0
 
         # Validate the synonym type(s).
         #
@@ -464,32 +464,37 @@ def parseOBOFile():
             #log.writeline('parseOBOFile:namespace:' + str(namespace) + '\n')
             #log.writeline('parseOBOFile:dagRootID:' + str(dagRootID) + '\n')
 
-            if vocabName not in ('Cell Ontology'):
-                if name == namespace and dagRootID:
-                        if vocabName == 'Feature Relationship':
-                                fpDAG[namespace].write(termID + '\t' + '\t' + '\t' +'\n')
-                                term = parser.nextTerm()
-                                continue
-                        else:
-                                #log.writeline('parseOBOFile:fpDAG:1\n')
-                                fpDAG[namespace].write(termID + '\t' + '\t' + 'is-a' + '\t' + dagRootID + '\n')
+            #if vocabName not in ('Cell Ontology'):
+            if name == namespace and dagRootID:
+                    if vocabName == 'Feature Relationship':
+                            fpDAG[namespace].write(termID + '\t' + '\t' + '\t' +'\n')
+                            term = parser.nextTerm()
+                            continue
+                    else:
+                            #log.writeline('parseOBOFile:fpDAG:1\n')
+                            fpDAG[namespace].write(termID + '\t' + '\t' + 'is-a' + '\t' + dagRootID + '\n')
 
-                # Write to the DAG file.
-                #log.writeline('parseOBOFile:relationships:' + str(len(relationship)) + '\n')
-                for i in range(len(relationship)):
-                        #log.writeline('parseOBOFile:fpDAG:2\n')
+            # Write to the DAG file.
+            #log.writeline('parseOBOFile:relationships:' + str(len(relationship)) + '\n')
+            for i in range(len(relationship)):
+                    #log.writeline('parseOBOFile:fpDAG:2\n')
+                    writeToDag = 1
+                    if vocabName == 'Cell Ontology' and relationshipType[i] == 'develops_from':
+                        writeToDag = 0
+                    log.write('relationship type: %s writeToDag: %s\n' % (relationshipType[i], writeToDag))
+                    if writeToDag:
                         fpDAG[namespace].write(termID + '\t' + \
                         dag_child_label + '\t' + \
                         validRelationshipType[re.sub('[^a-zA-Z0-9]','',relationshipType[i])] + '\t' + \
                         relationship[i] + '\n')
 
-                # If it is an obsolete GO or term 
-                # and not the root ID, write it to the obsolete DAG file.
-                #
-                if (vocabName == 'GO') and \
-                        status == 'obsolete' and termID != dagRootID:
-                        #log.writeline('parseOBOFile:fpDAG[obsoleteNamespace]\n')
-                        fpDAG[obsoleteNamespace].write(termID + '\t' + '\t' + 'is-a' + '\t' + obsoleteID + '\n')
+            # If it is an obsolete GO or term 
+            # and not the root ID, write it to the obsolete DAG file.
+            #
+            if (vocabName == 'GO') and \
+                    status == 'obsolete' and termID != dagRootID:
+                    #log.writeline('parseOBOFile:fpDAG[obsoleteNamespace]\n')
+                    fpDAG[obsoleteNamespace].write(termID + '\t' + '\t' + 'is-a' + '\t' + obsoleteID + '\n')
             #
             # TR12427/Disease Ontology/subset DO_MGI_slim
             #
