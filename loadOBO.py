@@ -337,7 +337,7 @@ def parseOBOFile():
         synonymType = term.getSynonymType()
         subset = term.getSubset()
         isValid = 1
-        log.write('%s %s %s %s \n' % (termID, name, relationship, relationshipType))
+        log.write('\ntermID:%s name:%s relationship:%s type:%s \n' % (termID, name, relationship, relationshipType))
         if termID == dagRootID and vocabName == 'Feature Relationship':
             # skip this term
             term = parser.nextTerm()
@@ -460,25 +460,27 @@ def parseOBOFile():
             # root ID, write a record to the DAG file that relates this
             # term to the root ID.
             #
-            #log.writeline('parseOBOFile:term:' + str(termID) + '\n')
-            #log.writeline('parseOBOFile:namespace:' + str(namespace) + '\n')
-            #log.writeline('parseOBOFile:dagRootID:' + str(dagRootID) + '\n')
+            log.writeline('parseOBOFile:name:' + str(name) + '\n')
+            log.writeline('parseOBOFile:term:' + str(termID) + '\n')
+            log.writeline('parseOBOFile:namespace:' + str(namespace) + '\n')
+            log.writeline('parseOBOFile:dagRootID:' + str(dagRootID) + '\n')
 
-            #if vocabName not in ('Cell Ontology'):
+            writeToDag = 1
             if name == namespace and dagRootID:
-                    if vocabName == 'Feature Relationship':
+                    if vocabName == 'Feature Relationship' or vocabName == 'Cell Ontology':
                             fpDAG[namespace].write(termID + '\t' + '\t' + '\t' +'\n')
                             term = parser.nextTerm()
                             continue
                     else:
-                            #log.writeline('parseOBOFile:fpDAG:1\n')
+                            log.writeline('parseOBOFile:fpDAG:1\n')
+                            log.writeline('termID:' + termID + ' dagRootID: '  + dagRootID)
                             fpDAG[namespace].write(termID + '\t' + '\t' + 'is-a' + '\t' + dagRootID + '\n')
-
+                            writeToDag = 0
             # Write to the DAG file.
-            #log.writeline('parseOBOFile:relationships:' + str(len(relationship)) + '\n')
+            log.writeline('parseOBOFile:relationships:' + str(len(relationship)) + '\n')
             for i in range(len(relationship)):
-                    #log.writeline('parseOBOFile:fpDAG:2\n')
-                    writeToDag = 1
+                    log.writeline('parseOBOFile:fpDAG:2\n')
+                    #writeToDag = 1
                     if vocabName == 'Cell Ontology' and relationshipType[i] == 'develops_from':
                         writeToDag = 0
                     log.write('relationship type: %s writeToDag: %s\n' % (relationshipType[i], writeToDag))
@@ -493,7 +495,6 @@ def parseOBOFile():
             #
             if (vocabName == 'GO') and \
                     status == 'obsolete' and termID != dagRootID:
-                    #log.writeline('parseOBOFile:fpDAG[obsoleteNamespace]\n')
                     fpDAG[obsoleteNamespace].write(termID + '\t' + '\t' + 'is-a' + '\t' + obsoleteID + '\n')
             #
             # TR12427/Disease Ontology/subset DO_MGI_slim
