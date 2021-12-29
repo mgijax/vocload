@@ -390,6 +390,7 @@ def parseOBOFile():
         # the database.  This will allow a match on relationship types such
         # "is_a" vs "is-a".
         #
+        # sc - this assumes if one type is invalid, they all are - this is not the case for cell type
         if vocabName not in ('Cell Ontology'):
             for r in relationshipType:
                     label = re.sub('[^a-zA-Z0-9]','',r)
@@ -480,8 +481,8 @@ def parseOBOFile():
             log.writeline('parseOBOFile:relationships:' + str(len(relationship)) + '\n')
             for i in range(len(relationship)):
                     log.writeline('parseOBOFile:fpDAG:2\n')
-                    #writeToDag = 1
-                    if vocabName == 'Cell Ontology' and relationshipType[i] == 'develops_from':
+                    # The only relationship for cell type we load: is-a
+                    if vocabName == 'Cell Ontology' and relationshipType[i] != 'is-a':
                         writeToDag = 0
                     log.write('relationship type: %s writeToDag: %s\n' % (relationshipType[i], writeToDag))
                     if writeToDag:
