@@ -3,7 +3,7 @@
 #   VOC_Term
 #   VOC_Vocab
 #   ACC_Accession
-#   MGI_NoteChunk
+#   MGI_Note
 #   MGI_Synonym
 #
 # System Requirements Satisfied by This Program:
@@ -139,16 +139,10 @@ INSERT_TERM = '''insert into VOC_Term (_Term_key, _Vocab_key, term, abbreviation
 BCP_INSERT_TERM = '''%%d|%%d|%%s|%%s|%%s|%%s|%%d|%d|%d|%s|%s\n''' % \
         (CREATEDBY_KEY, CREATEDBY_KEY, CDATE, CDATE)
 
-INSERT_NOTE = '''insert into MGI_Note (_Note_key, _Object_key, _MGIType_key, _NoteType_key)
-    values (%d, %d, %s, %s)'''
+INSERT_NOTE = '''insert into MGI_Note (_Note_key, _Object_key, _MGIType_key, _NoteType_key, note)
+    values (%d, %d, %s, %s '%s')'''
 
-BCP_INSERT_NOTE = '''%%d|%%d|%%s|%%s|%d|%d|%s|%s\n''' % \
-        (CREATEDBY_KEY, CREATEDBY_KEY, CDATE, CDATE)
-
-INSERT_NOTECHUNK = '''insert into MGI_NoteChunk (_Note_key, sequenceNum, note)
-    values (%d, 1, '%s')'''
-
-BCP_INSERT_NOTECHUNK = '''%%d|1|%%s|%d|%d|%s|%s\n''' % \
+BCP_INSERT_NOTE = '''%%d|%%d|%%s|%%s|%%s|%d|%d|%s|%s\n''' % \
         (CREATEDBY_KEY, CREATEDBY_KEY, CDATE, CDATE)
 
 INSERT_SYNONYM ='''insert into MGI_Synonym (_Synonym_key, _Object_key, _MGIType_key, _SynonymType_key, _Refs_key, synonym)
@@ -398,6 +392,7 @@ class TermLoad:
         # update mgi_synonym_seq and voc_term_seq auto-sequence
         db.sql(''' select setval('mgi_synonym_seq', (select max(_Synonym_key) from MGI_Synonym)) ''', None)
         db.sql(''' select setval('voc_term_seq', (select max(_Term_key) from VOC_Term)) ''', None)
+        db.sql(''' select setval('mgi_note_seq', (select max(_Note_key) from MGI_Note)) ''', None)
         db.commit()
 
         return
@@ -416,13 +411,11 @@ class TermLoad:
 
         self.loadTermBCP      = 0
         self.loadNoteBCP      = 0
-        self.loadNoteChunkBCP = 0
         self.loadSynonymBCP   = 0
         self.loadAccessionBCP = 0
             
         self.termTermBCPFileName      = os.environ['TERM_TERM_BCP_FILE']
         self.termNoteBCPFileName      = os.environ['TERM_NOTE_BCP_FILE']
-        self.termNoteChunkBCPFileName = os.environ['TERM_NOTECHUNK_BCP_FILE']
         self.termSynonymBCPFileName   = os.environ['TERM_SYNONYM_BCP_FILE']
         self.accAccessionBCPFileName  = os.environ['ACCESSION_BCP_FILE']
 
@@ -431,7 +424,6 @@ class TermLoad:
         #
         self.termTermBCPFile      = open(self.termTermBCPFileName, 'w')
         self.termNoteBCPFile      = open(self.termNoteBCPFileName, 'w')
-        self.termNoteChunkBCPFile = open(self.termNoteChunkBCPFileName, 'w')
         self.termSynonymBCPFile   = open(self.termSynonymBCPFileName, 'w')
         self.accAccessionBCPFile  = open(self.accAccessionBCPFileName, 'w')
 
@@ -488,7 +480,6 @@ class TermLoad:
 
         self.termTermBCPFile.close()    
         self.termNoteBCPFile.close()    
-        self.termNoteChunkBCPFile.close()    
         self.termSynonymBCPFile.close() 
         self.accAccessionBCPFile.close() 
 
@@ -509,9 +500,6 @@ class TermLoad:
                                                                    
            if self.loadNoteBCP:
               db.bcp(self.termNoteBCPFileName, 'MGI_Note', delimiter='|')
-                                                                   
-           if self.loadNoteChunkBCP:
-              db.bcp(self.termNoteChunkBCPFileName, 'MGI_NoteChunk', delimiter='|')
                                                                    
            if self.loadSynonymBCP:                                 
               db.bcp(self.termSynonymBCPFileName, 'MGI_Synonym', delimiter='|')
@@ -547,7 +535,8 @@ class TermLoad:
         results = db.sql(''' select nextval('voc_term_seq') as termKey ''', 'auto')
         self.max_term_key = results[0]['termKey']
 
-        self.max_note_key = vocloadlib.getMax('_Note_key', 'MGI_Note')
+        results = db.sql(''' select nextval('mgi_note_seq') as noteKey ''', 'auto')
+        self.max_note_key = results[0]['noteKey']
 
         results = db.sql(''' select nextval('mgi_synonym_seq') as synKey ''', 'auto')
         self.max_synonym_key = results[0]['synKey']
@@ -605,7 +594,7 @@ class TermLoad:
         # Returns: nothing
         # Assumes: nothing
         # Effects: adds a record to VOC_Term and records to
-        #   MGI_Synonym, MGI_Note and MGI_NoteChunk as needed
+        #   MGI_Synonym, MGI_Note needed
         # Throws: propagates all exceptions
         # Notes: 'record' must contain values for the following
         #   fieldnames- term, abbreviation, status, definition,
@@ -699,10 +688,10 @@ class TermLoad:
         return
 
     def generateCommentSQL(self, commentRecord, termKey):
-       # Purpose: generates SQL/BCP for MGI_Note and MGI_NoteChunk tables
+       # Purpose: generates SQL/BCP for MGI_Note table
        # Returns: nothing
        # Assumes: nothing
-       # Effects: adds records to MGI_Note, MGI_NoteChunk in the database
+       # Effects: adds records to MGI_Note in the database
        # Throws: propagates any exceptions raised by vocloadlib's nl_sqlog() function
 
        if len(commentRecord) == 0:
@@ -714,21 +703,15 @@ class TermLoad:
        if self.isBCPLoad:
            self.loadNoteBCP = 1
            self.termNoteBCPFile.write(BCP_INSERT_NOTE % (self.max_note_key, 
-               termKey, os.environ['MGITYPE'], os.environ['VOCAB_COMMENT_KEY']))
+               termKey, os.environ['MGITYPE'], os.environ['VOCAB_COMMENT_KEY'], commentRecord))
        else:
            vocloadlib.nl_sqlog(INSERT_NOTE % \
                       (self.max_note_key, 
                        termKey, 
                        os.environ['MGITYPE'], 
-                       os.environ['VOCAB_COMMENT_KEY']), 
+                       os.environ['VOCAB_COMMENT_KEY'], 
+                       commentRecord.replace('\'','\'\'')),
                        self.log)
-
-       if self.isBCPLoad:
-           self.loadNoteChunkBCP = 1
-           self.termNoteChunkBCPFile.write(BCP_INSERT_NOTECHUNK % (self.max_note_key, commentRecord))
-
-       else: # asserts self.isIncrementalLoad() or full load with on-line sql:
-           vocloadlib.nl_sqlog(INSERT_NOTECHUNK % (self.max_note_key, commentRecord.replace('\'','\'\'')), self.log)
 
        return
 

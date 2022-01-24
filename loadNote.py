@@ -60,7 +60,6 @@ vocabName = os.environ['VOCAB_NAME']
 mgiType = os.environ['MGITYPE']
 userKey = os.environ['USER_KEY']
 noteBcpFile = os.environ['TERM_NOTE_BCP_FILE']
-noteChunkBcpFile = os.environ['TERM_NOTECHUNK_BCP_FILE']
 bcpErrorFile = os.environ['BCP_ERROR_FILE']
 bcpLogFile = os.environ['BCP_LOG_FILE']
 cdate = mgi_utils.date("%m/%d/%Y")
@@ -86,7 +85,8 @@ vocabKey = vocloadlib.getVocabKey(vocabName)
 #
 #  Get the maximum note key currently in use.
 #
-maxKey = vocloadlib.getMax ('_Note_key', 'MGI_Note')
+results = db.sql(''' select nextval('mgi_note_seq') as nextKey ''', 'auto')
+maxKey = results[0]['nextKey']
 
 print('Vocab key: %d' % vocabKey)
 
@@ -127,7 +127,6 @@ termKeyMap = vocloadlib.getTermKeyMap(termIds, vocabName)
 #
 count = maxKey + 1
 noteBcpRecords = []
-noteChunkBcpRecords = []
 for record in noteRecords:
 
         termid = record[0]
@@ -138,7 +137,6 @@ for record in noteRecords:
         if termid not in termKeyMap:
                 continue
 
-
         typeKey = vocloadlib.getNoteTypeKey(type)
 
         noteBcpRecords.append([
@@ -146,25 +144,12 @@ for record in noteRecords:
                 termKeyMap[termid],
                 mgiType,
                 typeKey,
-                userKey,
-                userKey,
-                cdate,
-                cdate
-        ])
-
-        # NOTE (kstone): previous version of this load
-        # 	always assumed only one note chunk.
-        #	You can split the chunks here if needed in the future.
-        noteChunkBcpRecords.append([
-                count,
-                1,
                 note,
                 userKey,
                 userKey,
                 cdate,
                 cdate
         ])
-        
 
         count += 1
 
@@ -174,21 +159,17 @@ for record in noteRecords:
 print('Number of notes to add: %d' % len(noteBcpRecords))
 
 #
-#  Add the records to the MGI_Note + MGI_NoteChunk tables.
+#  Add the records to the MGI_Note table.
 #
 fp = open(noteBcpFile, 'w')
 for r in noteBcpRecords:
         fp.write('%s\n' % '|'.join([str(c) for c in r]))
 fp.close()
 
-fp = open(noteChunkBcpFile, 'w')
-for r in noteChunkBcpRecords:
-        fp.write('%s\n' % '|'.join([str(c) for c in r]))
-fp.close()
-
 db.bcp(noteBcpFile, 'MGI_Note', delimiter='|')
-db.bcp(noteChunkBcpFile, 'MGI_NoteChunk', delimiter='|')
+db.commit()
 
+db.sql(''' select setval('mgi_note_seq', (select max(_Note_key) from MGI_Note)) ''', None)
 db.commit()
 
 sys.exit(0)
