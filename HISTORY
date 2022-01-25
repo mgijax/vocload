@@ -317,7 +317,7 @@ CHANGES:
 2) TR11956/OMIMtermcheck.py
 3) TR12021/OMIM/animalmodel report
 4) loadNote.py/loadTerms.py:
-change calls to MGI_NoteChunk to only create one row per note
+change calls to MGI_Note to only create one row per note
 as we no longer need to create chunks of 255 
 
 TAG: vocload-tr12223-1
@@ -360,7 +360,7 @@ CHANGES:
 2) TR11956/OMIMtermcheck.py
 3) TR12021/OMIM/animalmodel report
 4) loadNote.py/loadTerms.py:
-change calls to MGI_NoteChunk to only create one row per note
+change calls to MGI_Note to only create one row per note
 as we no longer need to create chunks
 
 TAG: vocload-tr12223-BP
