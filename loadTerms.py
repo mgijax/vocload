@@ -140,7 +140,7 @@ BCP_INSERT_TERM = '''%%d|%%d|%%s|%%s|%%s|%%s|%%d|%d|%d|%s|%s\n''' % \
         (CREATEDBY_KEY, CREATEDBY_KEY, CDATE, CDATE)
 
 INSERT_NOTE = '''insert into MGI_Note (_Note_key, _Object_key, _MGIType_key, _NoteType_key, note)
-    values (%d, %d, %s, %s '%s')'''
+    values (%d, %d, %s, %s, '%s')'''
 
 BCP_INSERT_NOTE = '''%%d|%%d|%%s|%%s|%%s|%d|%d|%s|%s\n''' % \
         (CREATEDBY_KEY, CREATEDBY_KEY, CDATE, CDATE)
