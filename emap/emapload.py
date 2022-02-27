@@ -1215,7 +1215,6 @@ def runLoads():
     # reset the TermLoad environment variables
     os.environ['TERM_TERM_BCP_FILE'] = os.environ['TERM_TERM_S_BCP_FILE']
     os.environ['TERM_NOTE_BCP_FILE'] = os.environ['TERM_NOTE_S_BCP_FILE']
-    os.environ['TERM_NOTECHUNK_BCP_FILE'] = os.environ['TERM_NOTECHUNK_S_BCP_FILE']
     os.environ['TERM_SYNONYM_BCP_FILE']  = os.environ['TERM_SYNONYM_S_BCP_FILE']
     os.environ['ACCESSION_BCP_FILE']  = os.environ['ACCESSION_S_BCP_FILE']
     os.environ['DISCREP_FILE'] = os.environ['DISCREP_S_FILE']
