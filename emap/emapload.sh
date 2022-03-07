@@ -151,6 +151,7 @@ fi
 echo "" >> ${LOG_DIAG}
 date >> ${LOG_DIAG}
 echo "Run emapload.py"  | tee -a ${LOG_DIAG}
+${PG_MGD_DBSCHEMADIR}/key/VOC_Term_drop.object
 ${PYTHON} ${VOCLOAD}/emap/emapload.py  
 STAT=$?
 if [ ${STAT} = 2 ]
@@ -159,6 +160,7 @@ then
 else
     checkStatus ${STAT} "${VOCLOAD}/emap/emapload.py"
 fi
+${PG_MGD_DBSCHEMADIR}/key/VOC_Term_create.object
 
 #
 # set permissions
