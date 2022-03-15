@@ -1,7 +1,11 @@
+TAG: vocload-6-0-18-5
 TAG: vocload-6-0-18-4
-DATE: 03/07/2022
+DATE: 03/07/2022, 03/15/2022
 STAFF: lec
 wts2-811/vocload/emap/improve deleting emaps time
+this hung up on Production, so commented out
+#${PG_MGD_DBSCHEMADIR}/key/VOC_Term_drop.object
+#${PG_MGD_DBSCHEMADIR}/key/VOC_Term_create.object
 
 TAG: vocload-6-0-18-3
 TAG: vocload-6-0-18-2
