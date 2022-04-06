@@ -566,13 +566,14 @@ def termCleanup(t,	# a term object (OboTerm)
     # check for starts_at and ends_at relationships
     for r in stanza.get("relationship", []): 
         (reltype, relid) = r.split()
+        ts = relid[2:].replace(':','')
 
         if reltype == "starts_at":
             #setattr(t, "starts_at", int(relid[2:]))
-            t.starts_at.append(int(relid[2:]))
+            t.starts_at.append(int(ts))
         if reltype == "ends_at":
             #setattr(t, "ends_at", int(relid[2:]))	
-            t.ends_at.append(int(relid[2:]))
+            t.ends_at.append(int(ts))
     return
 
 # end termCleanup() -------------------------------

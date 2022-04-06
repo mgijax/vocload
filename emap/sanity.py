@@ -427,6 +427,7 @@ def doSanityChecks( ):
                         ts = str.split(r)[1][2:]
                         # if 'starts_at TS' - ts=''
                         if ts != '':
+                            ts = ts.replace(':','')
                             ts = int(ts)
 
                         # get some info to report if TS is invalid, use id if
