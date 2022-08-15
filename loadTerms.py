@@ -1081,7 +1081,7 @@ class TermLoad:
                        # The secondary term doesn't exist, so add the term to the
                        # database and point it to the primary term
 
-                       if not sanoelf.isBCPLoad:
+                       if not self.isBCPLoad:
                           self.max_accession_key = vocloadlib.getMax('_Accession_key', 'ACC_Accession')
 
                        self.addAccID(id, associatedTermKey, 0)
