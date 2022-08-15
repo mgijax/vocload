@@ -1081,7 +1081,7 @@ class TermLoad:
                        # The secondary term doesn't exist, so add the term to the
                        # database and point it to the primary term
 
-                       if not self.isBCPLoad:
+                       if not sanoelf.isBCPLoad:
                           self.max_accession_key = vocloadlib.getMax('_Accession_key', 'ACC_Accession')
 
                        self.addAccID(id, associatedTermKey, 0)
@@ -1115,11 +1115,21 @@ class TermLoad:
        #Get dbRecord in sync with file record by converting "None" to blank
 
        dbDefinition = dbRecord[0]['note']
+       recordDefinition = record['note']
 
        if dbDefinition == None:
+           dbDefinition = ""
+       if recordDefinition == None:
+           recordDefinition = ""
+
+       #self.log.writeline('note: ' + str(dbRecord[0]['_term_key']) + ', ' + str(dbRecord[0]['note']))
+       #self.log.writeline('dbDefinition: ' + str(dbDefinition))
+       #self.log.writeline('record: ' + str(record['note']))
+
+       if recordDefinition == None:
           vocloadlib.nl_sqlog(UPDATE_TERMNOTE % ('null', termKey), self.log)
           recordChanged = 1
-       elif (str.strip(record['note']) != str.strip(dbDefinition)):
+       elif (recordDefinition != dbDefinition):
           vocloadlib.nl_sqlog(UPDATE_TERMNOTE % ("'" + record['note'].replace("'", "''") + "'", termKey), self.log)
           recordChanged = 1
           # Now write report record if the DB record is not null or blank

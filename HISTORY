@@ -1,3 +1,9 @@
+TAG: vocload-6-0-21-2
+DATE: 08/15/2022
+STAFF: lec
+wts2-444/crm-364/some Ontology definitions not being displayed (TR13003)
+loadTerm.py/processRecordChanges : bug in checking "record['note']" vs dbRecord['note']
+
 TAG: vocload-6-0-21-1
 DATE: 07/05/2022
 STAFF: lec
