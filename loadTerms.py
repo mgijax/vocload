@@ -1309,8 +1309,8 @@ class TermLoad:
                         synonym))
 
              else: # asserts self.isIncrementalLoad() or full load with on-line sql:
-                synonym = ascii(fileSynonyms[i])
-                synonym = synonym.replace('\'','\'\'')
+                synonym = fileSynonyms[i]
+                synonym = synonym.replace("'","''")
                 vocloadlib.nl_sqlog(INSERT_SYNONYM % \
                        (self.max_synonym_key,
                         termKey,
