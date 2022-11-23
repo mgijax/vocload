@@ -751,6 +751,11 @@ class TermLoad:
             else:
                 xrefs = prefixPart.split(':')
                 findLDB = xrefs[0]
+                if findLDB == 'OMIMPS':
+                    # Prepare for DOID to apply proper prefixes for OMIM Phenotype series terms
+                    # See: https://github.com/DiseaseOntology/HumanDiseaseOntology/pull/968
+                    findLDB = 'OMIM:PS'
+
             results = db.sql('''select _LogicalDB_key from ACC_LogicalDB where name = '%s' ''' % (findLDB), 'auto')
             if len(results) > 0:
                 useLogicalDBkey = results[0]['_LogicalDB_key']
