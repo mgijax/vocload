@@ -8,6 +8,21 @@
 #       The slimload also specifies which MP headers should appear in the ribbon. The slim set leaves out “phenotype not analyzed” and “normal phenotype”.
 #
 
+TAG: vocload-6-0-22-5
+DATE: 01/30/2023
+STAFF: lec
+fl2-170/add "driver_component" to RV.rcd
+
+TAG: vocload-6-0-21-4
+TAG: vocload-6-0-21-3
+TAG: vocload-6-0-21-2
+DATE: 08/15/2022
+STAFF: lec
+wts2-444/crm-364/some Ontology definitions not being displayed (TR13003)
+loadTerm.py/processRecordChanges : bug in checking "record['note']" vs dbRecord['note']
+
+TAG: vocload-6-0-21-1
+DATE: 07/05/2022
 TAG: vocload-6-0-22-1
 DATE: 08/25/2022
 STAFF: lec
