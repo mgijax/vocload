@@ -48,3 +48,10 @@ RUNTIME_DIR = /data/loads/mgi/vocload/runTimeRV
         LOAD_FILE = ${RUNTIME_DIR}/dag.i
 ]
 
+[
+        NAME = driver_component
+        NAME_SPACE = driver_component
+        ONTOLOGY_FILE = ${RUNTIME_DIR}/D.ontology
+        LOAD_FILE = ${RUNTIME_DIR}/dag.d
+]
+
