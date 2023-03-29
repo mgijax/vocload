@@ -302,7 +302,7 @@ class TermLoad:
         self.max_note_key = None
 
         # Need to look up this number immediately and only once for BCP
-        self.max_accession_key = db.sql('select max(_Accession_key) + 1 as maxKey from ACC_Accession', 'auto')[0]['maxKey']
+        self.max_accession_key = vocloadlib.getMax('_Accession_key', 'ACC_Accession')
 
         # **** FOR BACKWARD COMPATIBILITY ****
         # Determine if the load should expect to find a synonym type column
