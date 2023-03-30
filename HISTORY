@@ -8,11 +8,13 @@
 #       The slimload also specifies which MP headers should appear in the ribbon. The slim set leaves out “phenotype not analyzed” and “normal phenotype”.
 #
 
+TAG: vocload-6-0-22-11
 TAG: vocload-6-0-22-10
 DATE: 03/30/2023
 STAFF: lec
 CHANGES:
 wts2-1147/fl2-270/loadTerm.py/use VOC_deleteByVocab()
+after fixing the bib_workflow_data index; the new sp is no longer needed
 
 TAG: vocload-6-0-22-9
 TAG: vocload-6-0-22-8
