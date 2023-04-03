@@ -8,6 +8,11 @@
 #       The slimload also specifies which MP headers should appear in the ribbon. The slim set leaves out “phenotype not analyzed” and “normal phenotype”.
 #
 
+TAG: vocload-6-0-22-12
+DATE: 04/03/2023
+STAFF: dbm
+CHANGES: CLindex.html, GOindex.html: update input file link
+
 TAG: vocload-6-0-22-11
 TAG: vocload-6-0-22-10
 DATE: 03/30/2023
