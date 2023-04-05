@@ -104,9 +104,7 @@ if [ -f ${LASTRUN_FILE} ]
 then
     if test ${LASTRUN_FILE} -nt ${INPUT_FILE_DEFAULT}
     then
-
         echo "Input file has not been updated - skipping load" | tee -a ${LOG_PROC}
-        # set STAT for shutdown
         STAT=0
         echo 'shutting down'
         shutDown
