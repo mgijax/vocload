@@ -27,7 +27,7 @@ import loadlib
 # ${OBO_FILE}
 #
 # if the OMIM id has a 'omim_susceptibilty' relationship with the DO term
-# then, add OMIM id as a secondar id of the DO term
+# then, add OMIM id as a secondary id of the DO term
 #
 # example:
 #
@@ -96,7 +96,7 @@ def processSusceptibility():
 #
 # sanity check the DO slim terms
 #
-# if a DO slim term T is a desendant of another slim term S, then
+# if a DO slim term T is a descendant of another slim term S, then
 #     . report T
 #     . delete T from the DO slim set
 #
