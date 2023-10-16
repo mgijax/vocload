@@ -20,6 +20,21 @@
 # if you do not, then you will not see "/dataloads/lec/mgi/vocload/runTimeMP/dag.mp".
 #
 
+TAG: vocload-6-0-22-16
+DATE: 10/16/2023
+STAFF: lec
+wts2-1236/fl2-562/vocload/lib_py_vocload -> vocload/lib
+retire lib_py_vocload
+moved to vocload/lib
+#       new file:   lib/Log.py
+#       new file:   lib/Ontology.py
+#       new file:   lib/dbTable.py
+#       new file:   lib/loadDAG.py
+#       new file:   lib/voc_html.py
+#       new file:   lib/vocloadDAG.py
+#       new file:   lib/vocloadlib.py
+#
+
 TAG: vocload-6-0-22-15
 DATE: 10/16/2023
 STAFF: lec

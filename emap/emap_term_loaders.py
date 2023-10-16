@@ -2,13 +2,16 @@
 Classes that implement loadTerms.TermLoad
   for EMAPA and EMAPS
 """
+
 import sys 
 import os
-
-# adjust the path so that it will find the loadTerms.py one directory up
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-from loadTerms import TermLoad, CREATEDBY_KEY, CDATE
 import db
+
+vocloadpath = os.environ['VOCLOAD']
+sys.path.insert(0, vocloadpath)
+vocloadpath = os.environ['VOCLOAD'] + '/lib'
+sys.path.insert(0, vocloadpath)
+from loadTerms import TermLoad, CREATEDBY_KEY, CDATE
 import vocloadlib
 
 ###--- Constants ---###

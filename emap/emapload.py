@@ -68,15 +68,14 @@
 
 import sys 
 import os
-
-# adjust the path so that it will find the loadTerms.py one directory up
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-
 import Set 
+import db
+
+vocloadpath = os.environ['VOCLOAD'] + '/lib'
+sys.path.insert(0, vocloadpath)
 import Ontology
 import loadDAG
 import Log 
-import db
 
 from emap_term_loaders import EMAPALoad, EMAPSLoad
 
