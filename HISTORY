@@ -27,8 +27,8 @@
 # if you do not, then you will not see "/dataloads/lec/mgi/vocload/runTimeMP/dag.mp".
 #
 
-TAG: vocload-6-0-22-1?
-DATE: 10/18/2023
+TAG: vocload-6-0-22-19
+DATE: 10/17/2023
 STAFF: lec
 wts2-1236/fl2-561/vocload/improve debugging & logging
 wts2-1236/fl2-562/vocload/lib_py_vocload -> vocload/lib
