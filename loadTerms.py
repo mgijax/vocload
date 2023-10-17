@@ -249,11 +249,9 @@ class TermLoad:
             self.vocab_key = vocab
 
         # write heading to log
-        self.log.writeline('=' * 40)
-        self.log.writeline('loadTerms.py:__init__:start:')
+        self.log.writeline(vocloadlib.timestamp('loadTerms.py:__init__:start'))
 
-        # find whether this vocab is private and/or simple,
-        # and what its logical db key is
+        # find whether this vocab is private and/or simple, and what its logical db key is
         self.isPrivate = vocloadlib.isPrivate(self.vocab_key)
         self.isSimple = vocloadlib.isSimple(self.vocab_key)
         self.logicalDBkey = vocloadlib.getLogicalDBkey(self.vocab_key)
@@ -301,7 +299,7 @@ class TermLoad:
 
         # initialize and load term datafile
         self.loadDataFile(filename)
-        self.log.writeline('__init__:end:')
+        self.log.writeline(vocloadlib.timestamp('loadTerms.py:__init__:end'))
 
         return
 
@@ -336,7 +334,7 @@ class TermLoad:
        # Effects: nothing
        # Throws:  propagates any exceptions raised
 
-       self.log.writeline(vocloadlib.timestamp('setFullModeDataLoader:start:'))
+       self.log.writeline(vocloadlib.timestamp('setFullModeDataLoader:start'))
 
        fullModeDataLoader = os.environ['FULL_MODE_DATA_LOADER']
 
@@ -362,7 +360,7 @@ class TermLoad:
     def loadDataFile(self, filename):
         # Load the term datafile from filename sets self.datafile
 
-        self.log.writeline(vocloadlib.timestamp('loadDataFile():start:'))
+        self.log.writeline(vocloadlib.timestamp('loadDataFile():start'))
 
         if self.useSynonymType:
             self.datafile = vocloadlib.readTabFile(filename,
@@ -373,7 +371,7 @@ class TermLoad:
                 ['term', 'accID', 'status', 'abbreviation',
                 'note', 'comment', 'synonyms', 'otherIDs'])
 
-        self.log.writeline(vocloadlib.timestamp('loadDataFile():end:'))
+        self.log.writeline(vocloadlib.timestamp('loadDataFile():end'))
 
     def go(self):
         # Purpose: run the load
@@ -382,7 +380,7 @@ class TermLoad:
         # Effects: writes to self.log, runs the load and updates the database
         # Throws: propagates all exceptions from self.goFull() or self.goIncremental(), whichever is called
 
-        self.log.writeline(vocloadlib.timestamp('go():start:'))
+        self.log.writeline(vocloadlib.timestamp('go():start'))
 
         # open the discrepancy file(s) for writing and put in headers
         self.openDiscrepancyFiles()
@@ -415,7 +413,7 @@ class TermLoad:
         db.sql(''' select setval('mgi_note_seq', (select max(_Note_key) from MGI_Note)) ''', None)
         db.commit()
 
-        self.log.writeline(vocloadlib.timestamp('go():end:'))
+        self.log.writeline(vocloadlib.timestamp('go():end'))
 
         return
 
@@ -430,7 +428,7 @@ class TermLoad:
         #   them
         # Throws: propagates all exceptions
 
-        self.log.writeline(vocloadlib.timestamp('goFull():start:'))
+        self.log.writeline(vocloadlib.timestamp('goFull():start'))
 
         # open the bcp files if using bcp
         if self.isBCPLoad:
@@ -460,7 +458,7 @@ class TermLoad:
             termSeqNum = 'null'
 
         # each record in the data file should be added as a new term:
-        self.log.writeline(vocloadlib.timestamp('checkForDuplication:start:'))
+        self.log.writeline(vocloadlib.timestamp('checkForDuplication:start'))
         for record in self.datafile:
             if record['accID'] != DAG_ROOT_ID:
                # Check for duplication on the primary term
@@ -473,7 +471,7 @@ class TermLoad:
                termSeqNum = termSeqNum + 1
 
             self.addTerm(record, termSeqNum)
-        self.log.writeline(vocloadlib.timestamp('checkForDuplication:end:'))
+        self.log.writeline(vocloadlib.timestamp('checkForDuplication:end'))
 
         # if we're running as no-load, we need to pass the ID to key
         # mapping to vocloadlib in case the DAG load needs it
@@ -488,7 +486,7 @@ class TermLoad:
               self.closeBCPFiles()
               self.loadBCPFiles()
 
-        self.log.writeline(vocloadlib.timestamp('goFull():end:'))
+        self.log.writeline(vocloadlib.timestamp('goFull():end'))
 
         return
 
@@ -501,7 +499,7 @@ class TermLoad:
         #          changed since the last load
         # Throws: propagates all exceptions
 
-        self.log.writeline(vocloadlib.timestamp('goIncremental():start:'))
+        self.log.writeline(vocloadlib.timestamp('goIncremental():start'))
 
         # look up the maximum keys for remaining items in VOC_Term and MGI_Synonym.
         results = db.sql(''' select nextval('voc_term_seq') as termKey ''', 'auto')
@@ -530,18 +528,18 @@ class TermLoad:
                 vocloadlib.nl_sqlog(DELETE_DO_XREF, self.log)
 
         # get the existing Accession IDs/Terms from the database
-        self.log.writeline('goIncremental(): Get Accession IDs')
+        self.log.writeline(vocloadlib.timestamp('goIncremental(): get accession ids'))
         primaryTermIDs = vocloadlib.getTermIDs(self.vocab_key)
         secondaryTermIDs = vocloadlib.getSecondaryTermIDs(self.vocab_key)
 
         # get the existing terms for the database
-        self.log.writeline('goIncremental(): Get Existing Vocabulary Terms')
+        self.log.writeline(vocloadlib.timestamp('goIncremental(): get existing vocabulary terms'))
         recordSet = vocloadlib.getTerms(self.vocab_key)
 
-        self.log.writeline(vocloadlib.timestamp('crossReferenceFileToDB:start:'))
-        self.log.writeline(vocloadlib.timestamp('checkForDuplication:start:'))
-        self.log.writeline(vocloadlib.timestamp('processRecordChanges:start:'))
-        self.log.writeline(vocloadlib.timestamp('processSecondaryTerms:start:'))
+        self.log.writeline(vocloadlib.timestamp('crossReferenceFileToDB:start'))
+        self.log.writeline(vocloadlib.timestamp('checkForDuplication:start'))
+        self.log.writeline(vocloadlib.timestamp('processRecordChanges:start'))
+        self.log.writeline(vocloadlib.timestamp('processSecondaryTerms:start'))
         for record in self.datafile:
 
             # cross reference input file records to database records
@@ -583,14 +581,14 @@ class TermLoad:
                self.addTerm(record, termSeqNum)
                self.processSecondaryTerms(record, primaryTermIDs, secondaryTermIDs, self.max_term_key)
 
-        self.log.writeline(vocloadlib.timestamp('crossReferenceFileToDB:end:'))
-        self.log.writeline(vocloadlib.timestamp('checkForDuplication:end:'))
-        self.log.writeline(vocloadlib.timestamp('processRecordChanges:end:'))
-        self.log.writeline(vocloadlib.timestamp('processSecondaryTerms:end:'))
+        self.log.writeline(vocloadlib.timestamp('crossReferenceFileToDB:end'))
+        self.log.writeline(vocloadlib.timestamp('checkForDuplication:end'))
+        self.log.writeline(vocloadlib.timestamp('processRecordChanges:end'))
+        self.log.writeline(vocloadlib.timestamp('processSecondaryTerms:end'))
 
         self.checkForMissingTermsInInputFile(primaryTermIDs, secondaryTermIDs)
 
-        self.log.writeline(vocloadlib.timestamp('goIncremental():end:'))
+        self.log.writeline(vocloadlib.timestamp('goIncremental():end'))
 
         return
 
@@ -606,7 +604,7 @@ class TermLoad:
         # Effects: bcp files are open for writing
         # Throws: propagates all exceptions opening files
 
-        self.log.writeline(vocloadlib.timestamp('openBCPFiles():start:'))
+        self.log.writeline(vocloadlib.timestamp('openBCPFiles():start'))
 
         self.loadTermBCP      = 0
         self.loadNoteBCP      = 0
@@ -625,7 +623,7 @@ class TermLoad:
         self.termSynonymBCPFile   = open(self.termSynonymBCPFileName, 'w')
         self.accAccessionBCPFile  = open(self.accAccessionBCPFileName, 'w')
 
-        self.log.writeline(vocloadlib.timestamp('openBCPFiles():end:'))
+        self.log.writeline(vocloadlib.timestamp('openBCPFiles():end'))
 
         return
 
@@ -636,14 +634,14 @@ class TermLoad:
         # Effects: bcp files are closed
         # Throws:  propagates all exceptions closing files
 
-        self.log.writeline(vocloadlib.timestamp('closeBCPFiles():start:'))
+        self.log.writeline(vocloadlib.timestamp('closeBCPFiles():start'))
 
         self.termTermBCPFile.close()    
         self.termNoteBCPFile.close()    
         self.termSynonymBCPFile.close() 
         self.accAccessionBCPFile.close() 
 
-        self.log.writeline(vocloadlib.timestamp('closeBCPFiles():end:'))
+        self.log.writeline(vocloadlib.timestamp('closeBCPFiles():end'))
 
         return
 
@@ -654,7 +652,7 @@ class TermLoad:
         # Effects: database is loaded
         # Throws:  propagates all bcp exceptions
 
-        self.log.writeline(vocloadlib.timestamp('loadBCPFiles():start:'))
+        self.log.writeline(vocloadlib.timestamp('loadBCPFiles():start'))
 
         if not vocloadlib.NO_LOAD:
 
@@ -670,7 +668,7 @@ class TermLoad:
            if self.loadAccessionBCP:                               
               db.bcp(self.accAccessionBCPFileName, 'ACC_Accession', delimiter='|')
 
-        self.log.writeline(vocloadlib.timestamp('loadBCPFiles():end:'))
+        self.log.writeline(vocloadlib.timestamp('loadBCPFiles():end'))
 
         return
 
@@ -681,7 +679,7 @@ class TermLoad:
         # Effects: discrepancy files are open for writing
         # Throws:  propagates all exceptions opening files
 
-        self.log.writeline(vocloadlib.timestamp('openDiscrepancyFiles():start:'))
+        self.log.writeline(vocloadlib.timestamp('openDiscrepancyFiles():start'))
 
         # open the discrepancy file
         self.accDiscrepFileName = os.environ['DISCREP_FILE']
@@ -696,7 +694,7 @@ class TermLoad:
         self.accDiscrepFile.write(voc_html.getTableHeaderLabelHTML("Discrepancy"))
         self.accDiscrepFile.write(voc_html.getEndTableRowHTML())
 
-        self.log.writeline(vocloadlib.timestamp('openDiscrepancyFiles():end:'))
+        self.log.writeline(vocloadlib.timestamp('openDiscrepancyFiles():end'))
 
         return
 
@@ -707,7 +705,7 @@ class TermLoad:
         # Effects: discrepancy files are closed
         # Throws:  propagates all exceptions closing files
 
-        self.log.writeline(vocloadlib.timestamp('closeDiscrepancyFiles():start:'))
+        self.log.writeline(vocloadlib.timestamp('closeDiscrepancyFiles():start'))
 
         # write html tags to end the table and html document
         self.accDiscrepFile.write(voc_html.getEndTableHTML())
@@ -716,7 +714,7 @@ class TermLoad:
         # close the file
         self.accDiscrepFile.close()
 
-        self.log.writeline(vocloadlib.timestamp('closeDiscrepancyFiles():end:'))
+        self.log.writeline(vocloadlib.timestamp('closeDiscrepancyFiles():end'))
 
         return
 
@@ -728,7 +726,7 @@ class TermLoad:
         # Throws:  propagates any exceptions raised 
 
         # turn on for debugging only
-        #self.log.writeline(vocloadlib.timestamp('writeDiscrepancyFile():start:'))
+        #self.log.writeline(vocloadlib.timestamp('writeDiscrepancyFile():start'))
 
         self.accDiscrepFile.write(voc_html.getStartTableRowHTML())
         self.accDiscrepFile.write(voc_html.getCellHTML(accID))
@@ -755,7 +753,7 @@ class TermLoad:
         # Throws: propagates all exceptions
 
         # turn on for debugging only
-        #self.log.writeline(vocloadlib.timestamp('addTerm():start:'))
+        #self.log.writeline(vocloadlib.timestamp('addTerm():start'))
 
         self.max_term_key = self.max_term_key + 1
 
@@ -813,7 +811,7 @@ class TermLoad:
             self.addAccID(record['accID'], self.max_term_key, self.logicalDBkey > 1)
             self.id2key[record['accID']] = self.max_term_key
 
-        #self.log.writeline(vocloadlib.timestamp('addTerm():end:'))
+        #self.log.writeline(vocloadlib.timestamp('addTerm():end'))
 
         return
 
@@ -829,7 +827,7 @@ class TermLoad:
         # Throws: propagates any exceptions raised by vocloadlib's nl_sqlog() function
 
         # turn on for debugging only
-        #self.log.writeline(vocloadlib.timestamp('addAccID:start:'))
+        #self.log.writeline(vocloadlib.timestamp('addAccID:start'))
 
         self.max_accession_key = self.max_accession_key + 1
 
@@ -887,7 +885,7 @@ class TermLoad:
                    preferred),
                    self.log)
 
-        #self.log.writeline(vocloadlib.timestamp('addAccID:end:'))
+        #self.log.writeline(vocloadlib.timestamp('addAccID:end'))
 
         return
 
@@ -901,7 +899,7 @@ class TermLoad:
        if len(commentRecord) == 0:
            return
 
-       self.log.writeline(vocloadlib.timestamp('generateCommentSQL:start:'))
+       self.log.writeline(vocloadlib.timestamp('generateCommentSQL:start'))
 
        self.max_note_key = self.max_note_key + 1
        commentRecord = ''.join([i if ord(i) < 128 else ' ' for i in commentRecord])
@@ -919,7 +917,7 @@ class TermLoad:
                        commentRecord.replace('\'','\'\'')),
                        self.log)
 
-       self.log.writeline(vocloadlib.timestamp('generateCommentSQL:end:'))
+       self.log.writeline(vocloadlib.timestamp('generateCommentSQL:end'))
 
        return
 
@@ -931,7 +929,7 @@ class TermLoad:
        # Throws:  propagates any exceptions raised 
 
        # turn on for debugging only
-       #self.log.writeline(vocloadlib.timestamp('generateSynonymSQL:start:'))
+       #self.log.writeline(vocloadlib.timestamp('generateSynonymSQL:start'))
 
        for i in range(len(fileSynonyms)):
 
@@ -962,7 +960,7 @@ class TermLoad:
                         self.refs_key,
                         synonym), self.log)
 
-       #self.log.writeline(vocloadlib.timestamp('generateSynonymSQL:end:'))
+       #self.log.writeline(vocloadlib.timestamp('generateSynonymSQL:end'))
 
        return
 
@@ -1006,7 +1004,7 @@ class TermLoad:
         # if it is a secondary term that is also an obsolete primary term
         # it is permissible for it to appear on both lists
 
-        self.log.writeline(vocloadlib.timestamp('checkForMissingTermsInInputFile:start:'))
+        self.log.writeline(vocloadlib.timestamp('checkForMissingTermsInInputFile:start'))
 
         for accID in list(primaryTermIDs.keys()):
             [termKey, isObsolete, term, termFound] = primaryTermIDs[accID]
@@ -1018,7 +1016,7 @@ class TermLoad:
             if not termFound:
               self.writeDiscrepancyFile(accID, term, TERM_MISSING_FROM_INPUT_FILE)
 
-        self.log.writeline(vocloadlib.timestamp('checkForMissingTermsInInputFile:end:'))
+        self.log.writeline(vocloadlib.timestamp('checkForMissingTermsInInputFile:end'))
 
         return
 
