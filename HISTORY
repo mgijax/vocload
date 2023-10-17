@@ -7,6 +7,13 @@
 #  • the mpslimload is used for on ribbons on the gene page (http://www.informatics.jax.org/marker/MGI:105043)
 #  The slimload also specifies which MP headers should appear in the ribbon. The slim set leaves out “phenotype not analyzed” and “normal phenotype”.
 #
+#  OMIMinputs folder
+#       whenever a new tag is made, it would be good to copy them so we have a copy:
+#       cd OMIMinputs
+#       scp bhmgiapp01:/data/loads/mgi/vocload/OMIM/OMIM.special .
+#       scp bhmgiapp01:/data/loads/mgi/vocload/OMIM/OMIM.synonym .
+#       scp bhmgiapp01:/data/loads/mgi/vocload/OMIM/OMIM.translation .
+#       scp bhmgiapp01:/data/loads/mgi/vocload/OMIM/OMIM.exclude .
 #
 # Regarding the *.rcd files
 # The lib_py_misc/rcdlib does not handle variables in the rcd files
