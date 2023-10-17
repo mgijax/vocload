@@ -727,7 +727,8 @@ class TermLoad:
         # Effects: report output
         # Throws:  propagates any exceptions raised 
 
-        self.log.writeline(vocloadlib.timestamp('writeDiscrepancyFile():start:'))
+        # turn on for debugging only
+        #self.log.writeline(vocloadlib.timestamp('writeDiscrepancyFile():start:'))
 
         self.accDiscrepFile.write(voc_html.getStartTableRowHTML())
         self.accDiscrepFile.write(voc_html.getCellHTML(accID))
@@ -735,7 +736,7 @@ class TermLoad:
         self.accDiscrepFile.write(voc_html.getCellHTML(msg))
         self.accDiscrepFile.write(voc_html.getEndTableRowHTML())
 
-        self.log.writeline(vocloadlib.timestamp('writeDiscrepancyFile():end'))
+        #self.log.writeline(vocloadlib.timestamp('writeDiscrepancyFile():end'))
 
         return
 
@@ -745,8 +746,7 @@ class TermLoad:
 
     def addTerm(self,
         record,     # dictionary of fieldname -> value pairs
-        termSeqNum  # integer sequence number for a simple vocab's
-                    # term, or the str.'null' for complex vocabularies
+        termSeqNum  # integer sequence number for a simple vocab's term, or the str.'null' for complex vocabularies
         ):
         # Purpose: add info for the term in 'record' to the database with the given sequence number
         # Returns: nothing
@@ -754,7 +754,8 @@ class TermLoad:
         # Effects: adds a record to VOC_Term and records to ACC_Accession, MGI_Synonym, MGI_Note needed
         # Throws: propagates all exceptions
 
-        self.log.writeline(vocloadlib.timestamp('addTerm():start:'))
+        # turn on for debugging only
+        #self.log.writeline(vocloadlib.timestamp('addTerm():start:'))
 
         self.max_term_key = self.max_term_key + 1
 
@@ -812,7 +813,7 @@ class TermLoad:
             self.addAccID(record['accID'], self.max_term_key, self.logicalDBkey > 1)
             self.id2key[record['accID']] = self.max_term_key
 
-        self.log.writeline(vocloadlib.timestamp('addTerm():end:'))
+        #self.log.writeline(vocloadlib.timestamp('addTerm():end:'))
 
         return
 
@@ -827,7 +828,8 @@ class TermLoad:
         # Effects: adds a record to ACC_Accession in the database
         # Throws: propagates any exceptions raised by vocloadlib's nl_sqlog() function
 
-        self.log.writeline(vocloadlib.timestamp('addAccID:start:'))
+        # turn on for debugging only
+        #self.log.writeline(vocloadlib.timestamp('addAccID:start:'))
 
         self.max_accession_key = self.max_accession_key + 1
 
@@ -885,7 +887,7 @@ class TermLoad:
                    preferred),
                    self.log)
 
-        self.log.writeline(vocloadlib.timestamp('addAccID:end:'))
+        #self.log.writeline(vocloadlib.timestamp('addAccID:end:'))
 
         return
 
