@@ -7,7 +7,7 @@ import sys
 import os
 import db
 
-vocloadpath = os.environ['VOCLOAD']
+vocloadpath = os.environ['VOCLOAD'] + '/bin'
 sys.path.insert(0, vocloadpath)
 vocloadpath = os.environ['VOCLOAD'] + '/lib'
 sys.path.insert(0, vocloadpath)
