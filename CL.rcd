@@ -3,20 +3,9 @@
 #
 # Purpose:
 #
-#	Configuration file for CL Vocabulary load
-#	which defines the CL DAGs
-#
-# Usage:
-#
-#	Used by Python Configuration module
-#
-# History:
-#
-#	09/02/2015	lec
-#	- TR11752/new
+#	Configuration file for CL Vocabulary load which defines the CL DAGs
 #
 
-#RUNTIME_DIR = /data/loads/sc/mgi/vocload/runTimeCL
 RUNTIME_DIR = /data/loads/mgi/vocload/runTimeCL
 DATA_DIR="/data/downloads/purl.obolibrary.org/obo/cl"
 [

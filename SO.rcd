@@ -3,17 +3,7 @@
 #
 # Purpose:
 #
-#	Configuration file for SO Vocabulary load
-#	which defines the SO DAGs
-#
-# Usage:
-#
-#	Used by Python Configuration module
-#
-# History:
-#
-# 10/03/2016	lec
-#	- TR12427/Disease Ontology
+#	Configuration file for SO Vocabulary load which defines the SO DAGs
 #
 
 RUNTIME_DIR = /data/loads/mgi/vocload/runTimeSO

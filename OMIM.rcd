@@ -5,14 +5,5 @@
 #
 #	Configuration file for OMIM Vocabulary load
 #
-# Usage:
-#
-#	Used by Python Configuration module
-#
-# History:
-#
-#	03/25/2003	lec
-#	- moved simple vocab variables to OMIM.config
-#
 
 RUNTIME_DIR = OMIM

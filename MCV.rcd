@@ -3,17 +3,7 @@
 #
 # Purpose:
 #
-#	Configuration file for Marker Type Ontology Vocabulary load
-#	which defines the MCV DAG
-#
-# Usage:
-#
-#	Used by Python Configuration module
-#
-# History:
-#
-#	04/16/2010	sc
-#	- new
+#	Configuration file for Marker Type Ontology Vocabulary load which defines the MCV DAG
 #
 
 RUNTIME_DIR = /data/loads/mgi/vocload/runTimeMCV

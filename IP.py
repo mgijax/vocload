@@ -1,5 +1,3 @@
-
-'''
 #
 # Purpose:
 #
@@ -26,19 +24,9 @@
 #	7. Synonyms (none)
 #	8. Seconrdary IDs (none)
 #
-# Processing:
-#
-# History:
-#
-# lec	03/25/2003
-#	- created
-#
-'''
 
 import sys
 import os
-
-#globals
 
 DELIM = '\t'
 CRT = '\n'
@@ -51,7 +39,6 @@ inFile = open(inFileName, 'r')
 outFile = open(outFileName, 'w')
                 
 for line in inFile.readlines():
-
         accID = line[:9]
         term = line[10:-1]
         outFile.write(term + DELIM + accID + DELIM + status + DELIM + DELIM + DELIM + DELIM + DELIM + CRT)

@@ -3,17 +3,7 @@
 #
 # Purpose:
 #
-#	Configuration file for Feature Relationship Vocabulary load
-#	which defines the Feature Relationship DAGs
-#
-# Usage:
-#
-#	Used by Python Configuration module
-#
-# History:
-#
-#	03/03/2014	sc
-#	- new
+#	Configuration file for Feature Relationship Vocabulary load which defines the Feature Relationship DAGs
 #
 
 RUNTIME_DIR = /data/loads/mgi/vocload/runTimeRV

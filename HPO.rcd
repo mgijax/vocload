@@ -3,17 +3,8 @@
 #
 # Purpose:
 #
-#	Configuration file for HPO Vocabulary load
-#	which defines the HPO DAGs
+#	Configuration file for HPO Vocabulary load which defines the HPO DAGs
 #
-# Usage:
-#
-#	Used by Python Configuration module
-#
-# History:
-#
-#	03/04/2016	sc
-#	- new
 
 RUNTIME_DIR = /data/loads/mgi/vocload/runTimeHPO
 

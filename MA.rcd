@@ -3,17 +3,7 @@
 #
 # Purpose:
 #
-#	Configuration file for MA Vocabulary load
-#	which defines the MA DAGs
-#
-# Usage:
-#
-#	Used by Python Configuration module
-#
-# History:
-#
-#	03/25/2003	lec
-#	- moved simple vocab variables to MA.config
+#	Configuration file for MA Vocabulary load which defines the MA DAGs
 #
 
 RUNTIME_DIR = /data/loads/mgi/vocload/runTimeMA

@@ -3,21 +3,11 @@
 #
 # Purpose:
 #
-#	Configuration file for GO Vocabulary load
-#	which defines the GO DAGs
-#
-# Usage:
-#
-#	Used by Python Configuration module
-#
-# History:
-#
-#	03/25/2003	lec
-#	- moved simple vocab variables to GO.config
+#	Configuration file for GO Vocabulary load which defines the GO DAGs
 #
 
 RUNTIME_DIR = /data/loads/mgi/vocload/runTimeGO
-DATA_DIR = /data/downloads/purl.obolibrary.org/obo/go/data/downloads/purl.obolibrary.org/obo/go
+DATA_DIR = /data/downloads/purl.obolibrary.org/obo/go/snapshot
 
 [
         NAME = Molecular Function
