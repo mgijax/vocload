@@ -216,7 +216,7 @@ def timestamp (
     # Effects: nothing
     # Throws: nothing
 
-    return '%s %s' % (label, time.strftime ("%m/%d/%Y %H:%M:%S", time.localtime (time.time())))
+    return '%s: %s' % (time.strftime ("%m/%d/%Y %H:%M:%S", time.localtime (time.time())), label)
 
 def getDagName (
     dag     # integer; corresponds to DAG_DAG._DAG_key

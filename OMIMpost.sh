@@ -14,8 +14,7 @@
 
 . ${VOCLOAD}/OMIM.config
 
-cd ${VOCLOAD}
-
+cd ${VOCLOAD}/bin
 ${PYTHON} OMIMtermcheck.py
 STAT=$?
 if [ ${STAT} -ne 0 ]

@@ -72,7 +72,7 @@ echo "Start note file processing: ${NOTE_FILE}" >> ${FULL_LOG_FILE}
 #  Call the Python script.
 #
 echo "Start loadNote.py" >> ${FULL_LOG_FILE}
-${PYTHON} loadNote.py ${NOTE_FILE} >> ${FULL_LOG_FILE}
+${PYTHON} ${VOCLOAD}/bin/loadNote.py ${NOTE_FILE} >> ${FULL_LOG_FILE}
 echo "End loadNote.py" >> ${FULL_LOG_FILE}
 
 echo "End note file processing" >> ${FULL_LOG_FILE}
