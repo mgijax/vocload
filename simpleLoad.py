@@ -1,4 +1,3 @@
-
 #
 # Program: simpleLoad.py
 #
@@ -52,9 +51,15 @@
 
 import sys
 import os
-import vocloadlib
-import loadWrapper
 import db
+
+# in vocload/bin
+import loadWrapper
+
+# in vocload/lib
+vocloadpath = os.environ['VOCLOAD'] + '/lib'
+sys.path.insert(0, vocloadpath)
+import vocloadlib
 
 class SimpleVoc_Wrapper (loadWrapper.LoadWrapper):
         def preProcess (self):

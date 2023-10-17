@@ -1,5 +1,3 @@
-
-'''
 #
 # Purpose:
 #
@@ -30,7 +28,6 @@
 #
 # History:
 #
-'''
 
 import sys
 import os

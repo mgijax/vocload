@@ -1,4 +1,3 @@
-
 #
 # Program: loadVOC.py
 #
@@ -34,10 +33,16 @@
 
 import sys      # standard Python libraries
 import os
+import db
+
+# in vocload/bin
+import loadTerms
+
+# in vocload/lib
+vocloadpath = os.environ['VOCLOAD'] + '/lib'
+sys.path.insert(0, vocloadpath)
 import vocloadlib   # MGI-written Python libraries
 import loadDAG
-import loadTerms
-import db
 
 ###--- Exceptions ---###
 

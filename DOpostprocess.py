@@ -1,5 +1,3 @@
-
-'''
 #
 # DOpostprocess.py
 #
@@ -12,7 +10,6 @@
 # 12/07/2016	lec
 #	- TR12427/Disease Ontology (DO) project
 #
-'''
 
 import sys 
 import os

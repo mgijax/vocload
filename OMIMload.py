@@ -1,8 +1,14 @@
 
 import sys
 import os
-import vocloadlib
+
+# in vocload/bin
 import loadWrapper
+
+# in vocload/lib
+vocloadpath = os.environ['VOCLOAD'] + '/lib'
+sys.path.insert(0, vocloadpath)
+import vocloadlib
 
 class OMIM_Wrapper (loadWrapper.LoadWrapper):
         def preProcess (self):

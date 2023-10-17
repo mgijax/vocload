@@ -59,9 +59,12 @@
 import sys 
 import os
 
-import DAG
-import vocloadlib
 import db
+import DAG
+
+vocloadpath = os.environ['VOCLOAD'] + '/lib'
+sys.path.insert(0, vocloadpath)
+import vocloadlib
 
 # init database connection
 server = os.environ['DBSERVER']

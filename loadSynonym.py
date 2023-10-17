@@ -49,9 +49,12 @@
 
 import sys 
 import os
-import vocloadlib
 import mgi_utils
 import db
+
+vocloadpath = os.environ['VOCLOAD'] + '/lib'
+sys.path.insert(0, vocloadpath)
+import vocloadlib
 
 # init database connection
 server = os.environ['DBSERVER']

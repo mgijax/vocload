@@ -1,11 +1,19 @@
 
 import sys		# standard Python libraries
+import os
 import getopt
 
-import Log		# MGI-written Python libraries
+# in ${LIBDIRS}
 import rcdlib
-import vocloadlib
+
+# in vocload/bin
 import loadVOC
+
+# in vocload/lib
+vocloadpath = os.environ['VOCLOAD'] + '/lib'
+sys.path.insert(0, vocloadpath)
+import Log		# MGI-written Python libraries
+import vocloadlib
 
 ###--- Global Constants ---###
 

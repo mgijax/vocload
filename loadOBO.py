@@ -1,8 +1,53 @@
 #
-#  loadOBO.py
-###########################################################################
+# Purpose: to load the OBO input file of vocabulary terms to database DAG tables
 #
-#  Purpose:
+#   Inputs:
+#       1. tab-delimited input file in with the following columns:
+#               1. term : required
+#               2. accession id : optional
+#               3. status : required = 'current' or 'obsolete'
+#               4. term abbreviation : optional
+#               5. definition : optional
+#               6. comment : optional
+#               7. pipe delim synonyms : optional
+#               8. pipe delim synonymTypes : optional
+#               9. pipe delim alt/other IDs : optional
+#
+#       2. mode (full or incremental)
+#
+#       3. primary key of Vocabulary being loaded
+#
+#   Outputs:
+#       Termfile
+#       termNote.bcp
+#       termSynonym.bcp
+#       tables: VOC_Term, ACC_Accession, MGI_Note, MGI_Synonym
+#
+#   Exit Codes:
+#       0. script completed successfully, data loaded okay
+#       1. script halted, data did not load, error noted in stderr
+#
+# __main__:
+#       1. initialize class TermLoad (__init__)
+#       2. call go()
+#       3. open Discrepancy file
+#       4. if isIncrementalLoad(): goIncremental(), else goFull()
+#       5. goFull(): open bcp files
+#       6. goIncremental(): use insert/update/delete
+#       7. process Termfile, etc: see SECTION 3
+#       8. both goFull() and goIncrement() run checkForDuplication()
+#
+# SECTION 1: method : called from
+# __init__                          : __main__
+# getIsObsolete()                   : goIncremental(), goFull(), addTerm(), processRecordChanges()
+# isIncrementalLoad()               : go(), setFullModeDataLoader()
+# setFullModeDataLoader()           : __init__
+# loadDataFile()                    : __init__
+# go()                              : __main__
+# goFull()                          : go()
+# goIncremental()                   : go()
+#
+#
 #
 #      To load a vocabulary using an OBO format input file.
 #
@@ -70,12 +115,19 @@ import os
 import re
 import getopt
 
-import rcdlib
-import Log
-import OBOParser
-import vocloadlib
-import loadVOC
+# in ${LIBDIRS}
 import db
+import rcdlib
+
+# in vocload/bin
+import OBOParser
+import loadVOC
+
+# in vocload/lib
+vocloadpath = os.environ['VOCLOAD'] + '/lib'
+sys.path.insert(0, vocloadpath)
+import Log
+import vocloadlib
 
 USAGE = 'Usage:  %s [-n] [-f|-i] [-l <log file>] <RcdFile>' % sys.argv[0]
 TERM_ABBR = ''
@@ -250,13 +302,13 @@ def parseOBOFile():
     vocabName = os.environ['VOCAB_NAME']
     expectedVersion = os.environ['OBO_FILE_VERSION']
     dagRootID = os.environ['DAG_ROOT_ID']
-    # default node label
     dag_child_label = ''
     
     # Open the input and output files.
     #
     openFiles()
     log.write('vocab name: %s dagRootID: %s\n' % (vocabName, dagRootID))
+
     # If there is a root ID for the vocabulary, write it to each DAG file.
     # Even though the root term may be defined in the OBO input file, it
     # will not have any relationships defined, so it would not get added
@@ -287,8 +339,7 @@ def parseOBOFile():
                      obsoleteDefinition + '\t' + obsoleteComment + '\t' + \
                      '\t' + '\t' + '\n')
 
-        fpDAG[obsoleteNamespace].write(obsoleteID + '\t' + '\t' + 'is-a' + \
-                                       '\t' + dagRootID + '\n')
+        fpDAG[obsoleteNamespace].write(obsoleteID + '\t' + '\t' + 'is-a' + '\t' + dagRootID + '\n')
 
     log.writeline('Parse OBO file')
 
@@ -303,12 +354,12 @@ def parseOBOFile():
     version = header.getVersion()
     defaultNamespace = header.getDefaultNamespace()
     log.write('version: %s defaultNamespace: %s' % (version, defaultNamespace)) 
+
     # If the OBO input file does not have the expected version number,
     # write a validation message and terminate the load.
     #
     if version != expectedVersion:
-        fpValid.writeline('Invalid OBO format version: ' + version + \
-                      ' (Expected: ' + expectedVersion + ')')
+        fpValid.writeline('Invalid OBO format version: ' + version + ' (Expected: ' + expectedVersion + ')')
         closeFiles()
         return 1
 
@@ -338,11 +389,13 @@ def parseOBOFile():
         subset = term.getSubset()
         isValid = 1
         
+        #
+        # for Feature Relationship
+        #
         if termID == dagRootID and vocabName == 'Feature Relationship':
             # skip this term
             term = parser.nextTerm()
             continue
-            #isValid = 0
 
         #
         # for EMAPA/EMAPS
@@ -424,8 +477,7 @@ def parseOBOFile():
         #
         if isValid:
 
-            # Remove any tabs from the definition, so it does not mess up
-            # the formatting of the Termfile.
+            # Remove any tabs from the definition, so it does not mess up the formatting of the Termfile.
             #
             definition = re.sub('\t', '', definition)
 
@@ -477,7 +529,8 @@ def parseOBOFile():
                             #log.writeline('termID:' + termID + ' dagRootID: '  + dagRootID)
                             fpDAG[namespace].write(termID + '\t' + '\t' + 'is-a' + '\t' + dagRootID + '\n')
                             writeToDag = 0
-            # Write to the DAG file.
+
+            # Write to the DAG file
             #log.writeline('parseOBOFile:relationships:' + str(len(relationship)) + '\n')
             for i in range(len(relationship)):
                     #log.writeline('parseOBOFile:fpDAG:2\n')
@@ -491,12 +544,11 @@ def parseOBOFile():
                         validRelationshipType[re.sub('[^a-zA-Z0-9]','',relationshipType[i])] + '\t' + \
                         relationship[i] + '\n')
 
-            # If it is an obsolete GO or term 
-            # and not the root ID, write it to the obsolete DAG file.
+            # If obsolete GO term and is not the root ID, write it to the obsolete DAG file.
             #
-            if (vocabName == 'GO') and \
-                    status == 'obsolete' and termID != dagRootID:
+            if (vocabName == 'GO') and status == 'obsolete' and termID != dagRootID:
                     fpDAG[obsoleteNamespace].write(termID + '\t' + '\t' + 'is-a' + '\t' + obsoleteID + '\n')
+
             #
             # TR12427/Disease Ontology/subset DO_MGI_slim
             #
@@ -508,8 +560,8 @@ def parseOBOFile():
                                 fpDOgxdslim.write(termID + '\t\n')
 
 #	else:
-#	    print(term.getTermID())
-#	    print("isValid error")
+#	    log.writeline(term.getTermID())
+#	    log.writeline("isValid error")
 
         # Get the next term from the parser.
         #
@@ -523,18 +575,13 @@ def parseOBOFile():
 #  MAIN
 #
 
-# Get the options that were passed to the script.
-#
-print('starting loadOBO.py')
-
 try:
     options, args = getopt.getopt(sys.argv[1:], 'nfil:')
 except:
     print(USAGE)
     sys.exit(1)
 
-# After getting the options, only the RCD file should be left in the
-# argument list.
+# After getting the options, only the RCD file should be left in the argument list.
 #
 if len(args) > 1:
     print(USAGE)
@@ -542,8 +589,7 @@ if len(args) > 1:
 
 rcdFile = args[0]
 
-# Process the options to get the mode for the loadVOC module, the "noload"
-# indicator and the log file.
+# Process the options to get the mode for the loadVOC module, the "noload" indicator and the log file.
 #
 noload = 0
 for (option, value) in options:
@@ -562,28 +608,32 @@ for (option, value) in options:
 if not log:
     log = Log.Log(toStderr = 0)
 
+log.writeline(vocloadlib.timestamp('loadOBO.py:start:'))
+
 # Create a configuration object from the RCD file.
 #
-print('rcdlib.RcdFile()')
+log.writeline('rcdlib.RcdFile()')
 config = rcdlib.RcdFile (rcdFile, rcdlib.Rcd, 'NAME')
 
 # Perform initialization tasks.
 #
-print('initialize')
+log.writeline('loadOBO.py:initialize')
 initialize()
 
 # Parse the OBO input file.
 #
-print('parseOBOFile()')
+log.writeline('loadOBO.py:parseOBOFile()')
 if parseOBOFile() != 0:
     exit(1)
 
 # Invoke the loadVOC module to load the terms and build the DAG(s).
 #
-print('loadVOC.VOCLoad()')
+log.writeline('loadOBO.py:loadVOC.VOCLoad()')
 vocload = loadVOC.VOCLoad(config, mode, log)
 vocload.go()
-
 db.commit()
+log.writeline('loadOBO.py:vocload.go()')
+
+log.writeline(vocloadlib.timestamp('loadOBO.py:end:'))
 
 exit(0)

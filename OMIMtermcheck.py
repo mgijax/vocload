@@ -1,4 +1,3 @@
-
 #
 # Program: OMIMtermreport.py
 #
