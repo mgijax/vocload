@@ -28,6 +28,7 @@ Ix;	IX;
 Ix,	IX,
 Ixvii,	IXVII,
 Vi	VI
+Vi;	VI;
 Vii	VII
 Vii;	VII;
 Vii,	VII,
@@ -36,7 +37,7 @@ Viii,	VIII,
 x	X
 Xi,	XI,
 Xiii,	XIII,
-I/Iix	I/IIX
+I/Iix	I/IIx
 Ii/Iii,	II/III,
 Iiia	IIIA
 Iiia;	IIIA;
@@ -77,6 +78,8 @@ Iid	IID
 Iid,	IID,
 Iie	IIE
 Ixc	IXC
+Iva;	IVA;
+Iiib;	IIIB;
 Xx	XX
 Xy	XY
 Rna	RNA
@@ -140,8 +143,8 @@ Dna-	DNA-
 (2a)	(2A)
 5a,	5A,
 5b,	5B,
-Which 	which
-Is 	is
+Which	which
+Is	is
 And/Or	and/or
 Uv	UV
 Uv-	UV-
@@ -172,3 +175,6 @@ Ix;	IX;
 -CoA	-CoA
 -CoA,	-CoA,
 -CoA;	-CoA;
+Qt	QT
+,xy	,XY
+,xx	,XX
