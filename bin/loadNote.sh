@@ -1,28 +1,32 @@
 #!/bin/sh
 #
-#  loadTopSort.sh
+#  loadNote.sh
 ###########################################################################
 #
 #  Purpose:
 #
-#      Call the Python script to determine the topological sort order for
-#      a vocabulary and update the VOC_Term table to set the sort order
-#      for each term.
+#      Load the note file into the VOC_Note table and call the Python
+#      script that uses this data to add notes for the given terms.
 #
 #  Usage:
 #
-#      loadTopSort.sh  ConfigFile
+#      loadNote.sh  ConfigFile  NoteFile
 #
 #      where
 #
 #          ConfigFile is the name of the configuration file for the
 #                     specific vocabulary load (e.g. MP.config).
+#          NoteFile is the full path name of the note file to load
+#                   (e.g. /data/loads/mgi/vocload/runTimeMP/MP.note).
 #
 #  Env Vars:
 #
 #      See the configuration files
 #
-#  Inputs:  None
+#  Inputs:
+#
+#      - Note file - contains accession IDs for each term, along with
+#                    a note type and note to be added for the term
 #
 #  Outputs:
 #
@@ -34,11 +38,6 @@
 #      0:  Successful completion
 #      1:  Fatal error occurred
 #
-#  Assumes:  Nothing
-#
-#
-#  Notes:  None
-#
 ###########################################################################
 #
 #  Modification History:
@@ -46,35 +45,37 @@
 #  Date        SE   Change Description
 #  ----------  ---  -------------------------------------------------------
 #
-#  03/23/2005  DBM  Initial development
+#  03/17/2005  DBM  Initial development
 #
 ###########################################################################
 
-if [ $# -ne 1 ]
+if [ $# -ne 2 ]
 then
-    echo "Usage:  $0  ConfigFile"
+    echo "Usage:  $0  ConfigFile  NoteFile"
     exit 1
 fi
 LOAD_CONFIG=$1
+NOTE_FILE=$2
 
 #
 #  Source the configuration files to establish the environment.
 #
 cd `dirname $0`
-. ${LOAD_CONFIG}
-. ./Configuration
+. ${VOCLOAD}/${LOAD_CONFIG}
+. ${VOCLOAD}/Configuration
 
 echo "**************************************************" >> ${FULL_LOG_FILE}
-echo "Start topological sort ordering" >> ${FULL_LOG_FILE}
+echo "Start note file processing: ${NOTE_FILE}" >> ${FULL_LOG_FILE}
+
 
 #
 #  Call the Python script.
 #
-echo "Start loadTopSort.py" >> ${FULL_LOG_FILE}
-${PYTHON} ${VOCLOAD}/bin/loadTopSort.py >> ${FULL_LOG_FILE}
-echo "End loadTopSort.py" >> ${FULL_LOG_FILE}
+echo "Start loadNote.py" >> ${FULL_LOG_FILE}
+${PYTHON} ${VOCLOAD}/bin/loadNote.py ${NOTE_FILE} >> ${FULL_LOG_FILE}
+echo "End loadNote.py" >> ${FULL_LOG_FILE}
 
-echo "End topological sort ordering" >> ${FULL_LOG_FILE}
+echo "End note file processing" >> ${FULL_LOG_FILE}
 echo "**************************************************" >> ${FULL_LOG_FILE}
 
 exit 0

@@ -66,8 +66,8 @@ HEADER_FILE=$2
 #  Source the configuration files to establish the environment.
 #
 cd `dirname $0`
-. ${LOAD_CONFIG}
-. ./Configuration
+. ${VOCLOAD}/${LOAD_CONFIG}
+. ${VOCLOAD}/Configuration
 
 echo "**************************************************" >> ${FULL_LOG_FILE}
 echo "Start header file processing: ${HEADER_FILE}" >> ${FULL_LOG_FILE}
