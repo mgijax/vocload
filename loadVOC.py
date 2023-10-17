@@ -171,8 +171,8 @@ class VOCLoad:
         #   tables, and instantiating and executing the TermLoad
         #   and DAGLoad objects.
         # Throws: propagates all exceptions
-        self.log.writeline (vocloadlib.timestamp (
-            'Full VOC Load Start:'))
+
+        self.log.writeline(vocloadlib.timestamp('full voc load:start'))
 
         # Only delete data if it currently exists in the database
         if self.vocab_key:
@@ -192,8 +192,7 @@ class VOCLoad:
 
             vocloadlib.nl_sqlog (INSERT_VOCAB % (self.vocab_key,
                     self.refs_key, self.isSimple, self.isPrivate,
-                    self.logicalDBkey, self.vocab_name),
-                    self.log)
+                    self.logicalDBkey, self.vocab_name), self.log)
 
         # load the terms
 
@@ -209,8 +208,7 @@ class VOCLoad:
             for (key, dag) in list(self.config.items()):
 
                 #insert into DAG_DAG table
-                vocloadlib.nl_sqlog (INSERT_DAG % (dag_key, self.refs_key, self.mgitype_key, 
-                        dag['ABBREV'], dag['NAME']), self.log)
+                vocloadlib.nl_sqlog (INSERT_DAG % (dag_key, self.refs_key, self.mgitype_key, dag['ABBREV'], dag['NAME']), self.log)
 
                 #insert into VOC_VocabDag table
                 vocloadlib.nl_sqlog (INSERT_VOCABDAG % (self.vocab_key, dag_key), self.log)
@@ -223,8 +221,8 @@ class VOCLoad:
                 dagload = loadDAG.DAGLoad (dag['LOAD_FILE'], self.mode, dag['NAME'], self.log, self.passwordFileName )
                 dagload.go()
 
-        self.log.writeline (vocloadlib.timestamp (
-            'Full VOC Load Stop:'))
+        self.log.writeline(vocloadlib.timestamp('full voc load:end'))
+
         return
 
     def goIncremental (self):
@@ -237,26 +235,22 @@ class VOCLoad:
         #   and DAGLoad objects.
         # Throws: propagates all exceptions
 
-        self.log.writeline (vocloadlib.timestamp (
-            'Incremental VOC Load Start:'))
+        self.log.writeline(vocloadlib.timestamp('incremental voc load:start'))
 
         if not self.vocab_key:
             raise error(unknown_vocab % self.vocab_name)
 
         # Now load the terms
-        termload = loadTerms.TermLoad (self.termfile, self.mode,
-            self.vocab_key, self.refs_key, self.log, self.passwordFileName )
+        termload = loadTerms.TermLoad (self.termfile, self.mode, self.vocab_key, self.refs_key, self.log, self.passwordFileName )
         termload.go()
 
         # load DAGs
         if not self.isSimple:
             for (key, dag) in list(self.config.items()):
-                dagload = loadDAG.DAGLoad (dag['LOAD_FILE'],
-                    self.mode, dag['NAME'], self.log, self.passwordFileName )
+                dagload = loadDAG.DAGLoad (dag['LOAD_FILE'], self.mode, dag['NAME'], self.log, self.passwordFileName )
                 dagload.go()
 
-        self.log.writeline (vocloadlib.timestamp (
-            'Incremental VOC Load Stop:'))
+        self.log.writeline(vocloadlib.timestamp('incremental voc load:end'))
 
         return
 
@@ -267,8 +261,3 @@ class VOCLoad:
 if __name__ == '__main__':
     print("not currently runnable from the command-line")
 
-#   import rcdlib
-#   import Log
-#   config = rcdlib.RcdFile ('voc.rcd', rcdlib.Rcd, 'NAME')
-#   vocload = VOCLoad (config, 'full', Log.Log())
-#   vocload.go()
