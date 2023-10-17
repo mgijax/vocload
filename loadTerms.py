@@ -928,7 +928,8 @@ class TermLoad:
        # Effects: inserts via online sql or bcp into the MGI_Synonym table
        # Throws:  propagates any exceptions raised 
 
-       self.log.writeline(vocloadlib.timestamp('generateSynonymSQL:start:'))
+       # turn on for debugging only
+       #self.log.writeline(vocloadlib.timestamp('generateSynonymSQL:start:'))
 
        for i in range(len(fileSynonyms)):
 
@@ -959,7 +960,7 @@ class TermLoad:
                         self.refs_key,
                         synonym), self.log)
 
-       self.log.writeline(vocloadlib.timestamp('generateSynonymSQL:end:'))
+       #self.log.writeline(vocloadlib.timestamp('generateSynonymSQL:end:'))
 
        return
 
