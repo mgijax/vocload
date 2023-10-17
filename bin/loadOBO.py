@@ -1,0 +1,639 @@
+#
+# Purpose: to load the OBO input file of vocabulary terms to database DAG tables
+#
+#   Inputs:
+#       1. tab-delimited input file in with the following columns:
+#               1. term : required
+#               2. accession id : optional
+#               3. status : required = 'current' or 'obsolete'
+#               4. term abbreviation : optional
+#               5. definition : optional
+#               6. comment : optional
+#               7. pipe delim synonyms : optional
+#               8. pipe delim synonymTypes : optional
+#               9. pipe delim alt/other IDs : optional
+#
+#       2. mode (full or incremental)
+#
+#       3. primary key of Vocabulary being loaded
+#
+#   Outputs:
+#       Termfile
+#       termNote.bcp
+#       termSynonym.bcp
+#       tables: VOC_Term, ACC_Accession, MGI_Note, MGI_Synonym
+#
+#   Exit Codes:
+#       0. script completed successfully, data loaded okay
+#       1. script halted, data did not load, error noted in stderr
+#
+# __main__:
+#       1. initialize class TermLoad (__init__)
+#       2. call go()
+#       3. open Discrepancy file
+#       4. if isIncrementalLoad(): goIncremental(), else goFull()
+#       5. goFull(): open bcp files
+#       6. goIncremental(): use insert/update/delete
+#       7. process Termfile, etc: see SECTION 3
+#       8. both goFull() and goIncrement() run checkForDuplication()
+#
+# SECTION 1: method : called from
+# __init__                          : __main__
+# getIsObsolete()                   : goIncremental(), goFull(), addTerm(), processRecordChanges()
+# isIncrementalLoad()               : go(), setFullModeDataLoader()
+# setFullModeDataLoader()           : __init__
+# loadDataFile()                    : __init__
+# go()                              : __main__
+# goFull()                          : go()
+# goIncremental()                   : go()
+#
+#
+#
+#      To load a vocabulary using an OBO format input file.
+#
+#  Usage:
+#
+#      loadOBO.py [-n] [-f|-i] [-l <log file>] <RcdFile>
+#
+#      where
+#          -n is the "no load" option
+#
+#          -f is the option to do a full load
+#
+#          -i is the option to do an incremental load
+#
+#          -l is the option that is followed by the log file name
+#
+#          RcdFile is the rcd file for the vocabulary
+#
+#  Env Vars:
+#
+#      See the configuration files
+#
+#  Inputs:
+#
+#      - An OBO format input file
+#
+#  Outputs:
+#
+#      - Log file
+#      - File of terms (Termfile)
+#      - 1 or more DAG files (one for each namespace)
+#      - Bcp files
+#
+#  Exit Codes:
+#
+#      0:  Successful completion
+#      1:  An exception occurred
+#
+#  Assumes:  Nothing
+#
+#  Implementation:
+#
+#      This script will perform following steps:
+#
+#      1) Use the OBOParser module to parse the input file and create
+#         the Termfile and DAG file(s).
+#
+#      2) Invoke the loadVOC module to load the vocabulary.
+#
+#  Notes:  None
+#
+###########################################################################
+#
+#  Modification History:
+#
+#  Date        SE   Change Description
+#  ----------  ---  -------------------------------------------------------
+#
+#  10/25/2006  DBM  Initial development
+#
+###########################################################################
+
+import sys 
+import os
+import re
+import getopt
+
+# in ${LIBDIRS}
+import db
+import rcdlib
+
+# in vocload/bin
+import OBOParser
+import loadVOC
+
+# in vocload/lib
+vocloadpath = os.environ['VOCLOAD'] + '/lib'
+sys.path.insert(0, vocloadpath)
+import Log
+import vocloadlib
+
+USAGE = 'Usage:  %s [-n] [-f|-i] [-l <log file>] <RcdFile>' % sys.argv[0]
+TERM_ABBR = ''
+
+# Purpose: Write a status to the log, close the log and exit.
+# Returns: Nothing
+# Assumes: Nothing
+# Effects: Nothing
+# Throws: Nothing
+#
+def exit (status):
+    if status == 0:
+        log.writeline('OBO load completed successfully')
+    else:
+        log.writeline('OBO load failed')
+
+    log.close()
+
+    sys.exit(status)
+
+
+# Purpose: Initialize global variables.
+# Returns: Nothing
+# Assumes: Nothing
+# Effects: Nothing
+# Throws: Nothing
+#
+def initialize():
+    global validNamespace
+    global validRelationshipType, validSynonymType
+
+    # Create a list of namespaces from the RCD file.
+    #
+    validNamespace = []
+    for (key, record) in list(config.items()):
+        validNamespace.append(record['NAME_SPACE'])
+
+    # Get the relationship types and synonym types from the database to
+    # use for validation.
+    #
+    cmds = []
+    cmds.append('select label ' + \
+                'from DAG_Label ' + \
+                'where _Label_key > 0')
+
+    cmds.append('select synonymType ' + \
+                'from MGI_SynonymType ' + \
+                'where _MGIType_key = 13 and ' + \
+                      'allowOnlyOne = 0')
+
+    results = db.sql(cmds, 'auto')
+
+    # Create a list of valid relationship types.  Strip out any characters
+    # that are non-alphanumeric to allow for a more accurate comparison to
+    # values from the input file.
+    # These are DAG_Label terms and can represent either a DAG_Edge label i.e.
+    # relationship or a DAG_Node label i.e. description
+    validRelationshipType = {}
+    log.writeline('CODE loadOBO.py loading labels into lookup')
+    for r in results[0]:
+        log.writeline('CODE loadOBO.py label: %s' % r['label'])
+        label = re.sub('[^a-zA-Z0-9]', '', r['label'])
+        log.writeline('CODE loadOBO.py regsub label: %s' % label)
+        validRelationshipType[label] = r['label']
+
+    # Create a list of valid synonym types.
+    #
+    validSynonymType = []
+    for r in results[1]:
+        validSynonymType.append(r['synonymType'])
+
+
+# Purpose: Open all the input and output files.
+# Returns: Nothing
+# Assumes: Nothing
+# Effects: Nothing
+# Throws: Nothing
+#
+def openFiles():
+    global fpOBO, fpValid, fpTerm, fpDAG
+    global fpDOmgislim, fpDOgxdslim
+
+    oboFile = os.environ['OBO_FILE']
+    validFile = os.environ['VALIDATION_LOG_FILE']
+    termFile = os.environ['TERM_FILE']
+
+    # Open the OBO input file.
+    #
+    try:
+        fpOBO = open(oboFile, 'r', encoding='utf-8')
+    except:
+        log.writeline('Cannot open OBO file: ' + oboFile)
+        exit(1)
+
+    # Open the validation log.
+    #
+    try:
+        fpValid = open(validFile, 'w')
+    except:
+        log.writeline('Cannot open validation log: ' + validFile)
+        exit(1)
+
+    # Open the Termfile.
+    #
+    try:
+        fpTerm = open(termFile, 'w')
+    except:
+        log.writeline('Cannot open term file: ' + termFile)
+        exit(1)
+
+    log.writeline('OBO File = ' + oboFile)
+    log.writeline('Termfile = ' + termFile)
+
+    # Open a DAG file for each namespace.
+    #
+    fpDAG = {}
+    for (key, record) in list(config.items()):
+        dagFile = record['LOAD_FILE']
+
+        try:
+            fpDAG[record['NAME_SPACE']] = open (dagFile, 'w')
+        except:
+            log.writeline('Cannot open DAG file: ' + dagFile)
+            exit(1)
+
+        log.writeline('DAG file = ' + dagFile)
+
+    # Open the DO_MGI_slim file.
+    #
+    if vocabName == 'Disease Ontology':
+        try:
+            domgislimFile = os.environ['DO_MGI_SLIM_FILE']
+            dogxdslimFile = os.environ['DO_GXD_SLIM_FILE']
+            fpDOmgislim = open(domgislimFile, 'w')
+            fpDOgxdslim = open(dogxdslimFile, 'w')
+        except:
+            log.writeline('Cannot open DO_MGI_slim/DO_GXD_slim files: ' + domgislimFile)
+            exit(1)
+
+# Purpose: Close all the input and output files.
+# Returns: Nothing
+# Assumes: Nothing
+# Effects: Nothing
+# Throws: Nothing
+#
+def closeFiles():
+
+    fpOBO.close()
+    fpValid.close()
+    fpTerm.close()
+
+    for i in list(fpDAG.values()):
+        i.close()
+
+    try:
+        fpDOmgislim.close()
+        fpDOgxdslim.close()
+    except:
+        pass
+
+# Purpose: Use an OBOParser object to get header/term attributes from the
+#          OBO input file and use this information to create the Termfile
+#          and DAG file(s).
+# Returns: Nothing
+# Assumes: Nothing
+# Effects: Nothing
+# Throws: Nothing
+#
+def parseOBOFile():
+    global vocabName
+
+    vocabName = os.environ['VOCAB_NAME']
+    expectedVersion = os.environ['OBO_FILE_VERSION']
+    dagRootID = os.environ['DAG_ROOT_ID']
+    dag_child_label = ''
+    
+    # Open the input and output files.
+    #
+    openFiles()
+    log.write('vocab name: %s dagRootID: %s\n' % (vocabName, dagRootID))
+
+    # If there is a root ID for the vocabulary, write it to each DAG file.
+    # Even though the root term may be defined in the OBO input file, it
+    # will not have any relationships defined, so it would not get added
+    # to the DAG file when the term is process below.
+    #
+    if dagRootID:
+        # ignore the 'real' root for Feature Relationship vocab
+        if vocabName == 'Feature Relationship':
+            pass
+        elif vocabName in ['Marker Category']:
+             fpDAG[validNamespace[0]].write(dagRootID + '\t' + 'show' + '\t' + '\t' + '\n') 
+        else:
+            for i in validNamespace:
+                fpDAG[i].write(dagRootID + '\t' + '\t' + '\t' + '\n')
+
+    # If the GO vocabulary is being loaded, add the parent obsolete term to
+    # the Termfile and associate it to the root ID in the obsolete DAG file.
+    #
+    if vocabName == 'GO':
+        obsoleteTerm = os.environ['OBSOLETE_TERM']
+        obsoleteID = os.environ['OBSOLETE_ID']
+        obsoleteDefinition = os.environ['OBSOLETE_DEFINITION']
+        obsoleteComment = os.environ['OBSOLETE_COMMENT']
+        obsoleteNamespace = os.environ['OBSOLETE_NAMESPACE']
+
+        fpTerm.write(obsoleteTerm + '\t' + obsoleteID + '\t' + \
+                     'obsolete' + '\t' + TERM_ABBR + '\t' + \
+                     obsoleteDefinition + '\t' + obsoleteComment + '\t' + \
+                     '\t' + '\t' + '\n')
+
+        fpDAG[obsoleteNamespace].write(obsoleteID + '\t' + '\t' + 'is-a' + '\t' + dagRootID + '\n')
+
+    log.writeline('Parse OBO file')
+
+    # Create an OBO parser that will return attributes from the OBO
+    # input file.
+    #
+    parser = OBOParser.Parser(fpOBO, log)
+
+    # Get the header from the parser and save its attributes.
+    #
+    header = parser.getHeader()
+    version = header.getVersion()
+    defaultNamespace = header.getDefaultNamespace()
+    log.write('version: %s defaultNamespace: %s' % (version, defaultNamespace)) 
+
+    # If the OBO input file does not have the expected version number,
+    # write a validation message and terminate the load.
+    #
+    if version != expectedVersion:
+        fpValid.writeline('Invalid OBO format version: ' + version + ' (Expected: ' + expectedVersion + ')')
+        closeFiles()
+        return 1
+
+    # Get the first term from the parser.
+    #
+    term = parser.nextTerm()
+
+    # Process each term returned by the parser.
+    #
+    while term != None:
+
+        # Get the attributes of the term.
+        #
+        termID = term.getTermID()
+        name = term.getName()
+        namespace = term.getNamespace()
+        comment = term.getComment()
+
+        definition = term.getDefinition()
+
+        obsolete = term.getObsolete()
+        altID = term.getAltID()
+        relationship = term.getRelationship()
+        relationshipType = term.getRelationshipType()
+        synonym = term.getSynonym()
+        synonymType = term.getSynonymType()
+        subset = term.getSubset()
+        isValid = 1
+        
+        #
+        # for Feature Relationship
+        #
+        if termID == dagRootID and vocabName == 'Feature Relationship':
+            # skip this term
+            term = parser.nextTerm()
+            continue
+
+        #
+        # for EMAPA/EMAPS
+        #
+        if vocabName == 'EMAPA' and namespace == '':
+            # skip this term
+            term = parser.nextTerm()
+            continue
+
+        #
+        # for Disease Ontology
+        #
+        if vocabName == 'Disease Ontology' and termID.find('DOID:') < 0:
+            # skip this term
+            term = parser.nextTerm()
+            continue
+
+        #
+        # Validate the namespace.  The namespace is used to determine which
+        # DAG file to write to.  For the GO vocabulary, there are multiple
+        # DAGs, so the namespace is required for each term.  For other
+        # vocabularies (e.g. MP and MA), the namespace is not defined for
+        # each term, so the default namespace from the header is used.
+        #
+
+        if vocabName == 'Cell Ontology':
+            namespace = 'cell'
+        elif vocabName == 'Evidence Code Ontology':
+            namespace = 'eco'
+        elif namespace != '':
+            if namespace not in validNamespace:
+                fpValid.write('(' + termID + ') Invalid namespace: ' + namespace + '\n')
+                isValid = 0
+        else:
+            if vocabName == 'GO' or vocabName == 'Feature Relationship':
+                log.writeline('Missing namespace for term: ' + termID)
+                closeFiles()
+                return 1
+            else:
+                namespace = defaultNamespace
+
+        #
+        # Validate the relationship type(s).  Strip out any characters that
+        # are non-alphanumeric so they can be compared to the values from
+        # the database.  This will allow a match on relationship types such
+        # "is_a" vs "is-a".
+        #
+        # sc - this assumes if one type is invalid, they all are - this is not the case for cell type
+        if vocabName not in ('Cell Ontology'):
+            for r in relationshipType:
+                    label = re.sub('[^a-zA-Z0-9]','',r)
+                    if label not in validRelationshipType:
+                            fpValid.write('(' + termID + ') Invalid relationship type: ' + r + '\n')
+                            isValid = 0
+
+        # Validate the synonym type(s).
+        #
+        for s in synonymType:
+            if s.lower() not in validSynonymType:
+                fpValid.write('(' + termID + ') Invalid synonym type: ' + s + '\n')
+                isValid = 0
+
+        # If this is the MCV, validate the subset aka Node Label; description of the Node
+        dag_child_label = ''
+        if vocabName == 'Marker Category' and len(subset) > 0:
+            if len(subset) > 1:
+                fpValid.write('(%s) More than one MCV Node Label: \n' % (termID, subset))
+                isValid = 0
+            else:
+                l = subset[0]
+                l = re.sub('[^a-zA-Z0-9]','',l)
+                if l not in validRelationshipType:
+                    fpValid.write('(%s) Invalid MCV Node Label: %s\n' % (termID, l))
+                    isValid = 0
+            if isValid == 1:
+                dag_child_label = validRelationshipType[l] 
+
+        # If there are no validation errors, the term can be processed further.
+        #
+        if isValid:
+
+            # Remove any tabs from the definition, so it does not mess up the formatting of the Termfile.
+            #
+            definition = re.sub('\t', '', definition)
+
+            # Determine what status to use in the Termfile.
+            # if symbol is obsolete, do not load synonyms (03/16/2017/TR12540)
+            #
+            if obsolete:
+                status = 'obsolete'
+                includeSynonym = ''
+                includeSynonymType = ''
+            else:
+                status = 'current'
+                includeSynonym = '|'.join(synonym)
+                includeSynonymType = '|'.join(synonymType)
+
+            if vocabName == 'Human Phenotype Ontology' and status == 'obsolete':
+                term = parser.nextTerm()
+                continue
+
+            # Write the term information to the Termfile.
+            #
+            fpTerm.write(name + '\t' + \
+                         termID + '\t' + \
+                         status + '\t' + \
+                         TERM_ABBR + '\t' + \
+                         definition + '\t' + \
+                         comment + '\t' + \
+                         includeSynonym + '\t' + \
+                         includeSynonymType + '\t' + \
+                         '|'.join(altID) + '\n')
+
+            # If the term name is the same as the namespace AND there is a
+            # root ID, write a record to the DAG file that relates this
+            # term to the root ID.
+            #
+            #log.writeline('parseOBOFile:name:' + str(name) + '\n')
+            #log.writeline('parseOBOFile:term:' + str(termID) + '\n')
+            #log.writeline('parseOBOFile:namespace:' + str(namespace) + '\n')
+            #log.writeline('parseOBOFile:dagRootID:' + str(dagRootID) + '\n')
+
+            writeToDag = 1
+            if name == namespace and dagRootID:
+                    if vocabName == 'Feature Relationship' or vocabName == 'Cell Ontology':
+                            fpDAG[namespace].write(termID + '\t' + '\t' + '\t' +'\n')
+                            term = parser.nextTerm()
+                            continue
+                    else:
+                            #log.writeline('parseOBOFile:fpDAG:1\n')
+                            #log.writeline('termID:' + termID + ' dagRootID: '  + dagRootID)
+                            fpDAG[namespace].write(termID + '\t' + '\t' + 'is-a' + '\t' + dagRootID + '\n')
+                            writeToDag = 0
+
+            # Write to the DAG file
+            #log.writeline('parseOBOFile:relationships:' + str(len(relationship)) + '\n')
+            for i in range(len(relationship)):
+                    #log.writeline('parseOBOFile:fpDAG:2\n')
+                    # The only relationship for cell type we load: is-a
+                    if vocabName == 'Cell Ontology' and relationshipType[i] != 'is-a':
+                        writeToDag = 0
+                    #log.write('relationship type: %s writeToDag: %s\n' % (relationshipType[i], writeToDag))
+                    if writeToDag:
+                        fpDAG[namespace].write(termID + '\t' + \
+                        dag_child_label + '\t' + \
+                        validRelationshipType[re.sub('[^a-zA-Z0-9]','',relationshipType[i])] + '\t' + \
+                        relationship[i] + '\n')
+
+            # If obsolete GO term and is not the root ID, write it to the obsolete DAG file.
+            #
+            if (vocabName == 'GO') and status == 'obsolete' and termID != dagRootID:
+                    fpDAG[obsoleteNamespace].write(termID + '\t' + '\t' + 'is-a' + '\t' + obsoleteID + '\n')
+
+            #
+            # TR12427/Disease Ontology/subset DO_MGI_slim
+            #
+            if vocabName == 'Disease Ontology' and len(subset) > 0:
+                for s in subset:
+                        if s == 'DO_MGI_slim':
+                                fpDOmgislim.write(termID + '\t\n')
+                        if s == 'DO_GXD_slim':
+                                fpDOgxdslim.write(termID + '\t\n')
+
+#	else:
+#	    log.writeline(term.getTermID())
+#	    log.writeline("isValid error")
+
+        # Get the next term from the parser.
+        #
+        term = parser.nextTerm()
+
+    closeFiles()
+    return 0
+
+
+#
+#  MAIN
+#
+
+try:
+    options, args = getopt.getopt(sys.argv[1:], 'nfil:')
+except:
+    print(USAGE)
+    sys.exit(1)
+
+# After getting the options, only the RCD file should be left in the argument list.
+#
+if len(args) > 1:
+    print(USAGE)
+    sys.exit(1)
+
+rcdFile = args[0]
+
+# Process the options to get the mode for the loadVOC module, the "noload" indicator and the log file.
+#
+noload = 0
+for (option, value) in options:
+    if option == '-f':
+        mode = 'full'
+    elif option == '-i':
+        mode = 'incremental'
+    elif option == '-n':
+        vocloadlib.setNoload()
+        noload = 1
+    elif option == '-l':
+        log = Log.Log (filename = value, toStderr = 0)
+    else:
+        pass
+
+if not log:
+    log = Log.Log(toStderr = 0)
+
+log.writeline(vocloadlib.timestamp('loadOBO.py:start:'))
+
+# Create a configuration object from the RCD file.
+#
+log.writeline('rcdlib.RcdFile()')
+config = rcdlib.RcdFile (rcdFile, rcdlib.Rcd, 'NAME')
+
+# Perform initialization tasks.
+#
+log.writeline('loadOBO.py:initialize')
+initialize()
+
+# Parse the OBO input file.
+#
+log.writeline('loadOBO.py:parseOBOFile()')
+if parseOBOFile() != 0:
+    exit(1)
+
+# Invoke the loadVOC module to load the terms and build the DAG(s).
+#
+log.writeline('loadOBO.py:loadVOC.VOCLoad()')
+vocload = loadVOC.VOCLoad(config, mode, log)
+vocload.go()
+db.commit()
+log.writeline('loadOBO.py:vocload.go()')
+
+log.writeline(vocloadlib.timestamp('loadOBO.py:end:'))
+
+exit(0)
