@@ -706,8 +706,7 @@ def setNull (
     # Assumes: nothing
     # Effects: nothing
     # Throws: nothing
-    # Notes: This function is used to prepare str. to be sent as part
-    #   of a BCP command to Sybase.  
+    # Notes: This function is used to prepare str. to be sent as part of a BCP command
     if s == 'null':
        s = ""
     return s
