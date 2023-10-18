@@ -437,7 +437,7 @@ class TermLoad:
         # delete the existing terms, and report how many were deleted.
         count = vocloadlib.countTerms(self.vocab_key)
         vocloadlib.deleteVocabTerms(self.vocab_key, self.log)
-        self.log.writeline('goFull(): deleted remaining terms (count: %d)' % count)
+        self.log.writeline(vocloadlib.timestamp('goFull(): deleted remaining terms (count: %d))' % count)
 
         # look up the maximum keys for remaining items in VOC_Term and MGI_Synonym.
         results = db.sql(''' select nextval('voc_term_seq') as termKey ''', 'auto')
