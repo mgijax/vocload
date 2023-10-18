@@ -47,10 +47,6 @@
 # goFull()                          : go()
 # goIncremental()                   : go()
 #
-#
-#
-#      To load a vocabulary using an OBO format input file.
-#
 #  Usage:
 #
 #      loadOBO.py [-n] [-f|-i] [-l <log file>] <RcdFile>
@@ -66,14 +62,6 @@
 #
 #          RcdFile is the rcd file for the vocabulary
 #
-#  Env Vars:
-#
-#      See the configuration files
-#
-#  Inputs:
-#
-#      - An OBO format input file
-#
 #  Outputs:
 #
 #      - Log file
@@ -86,29 +74,6 @@
 #      0:  Successful completion
 #      1:  An exception occurred
 #
-#  Assumes:  Nothing
-#
-#  Implementation:
-#
-#      This script will perform following steps:
-#
-#      1) Use the OBOParser module to parse the input file and create
-#         the Termfile and DAG file(s).
-#
-#      2) Invoke the loadVOC module to load the vocabulary.
-#
-#  Notes:  None
-#
-###########################################################################
-#
-#  Modification History:
-#
-#  Date        SE   Change Description
-#  ----------  ---  -------------------------------------------------------
-#
-#  10/25/2006  DBM  Initial development
-#
-###########################################################################
 
 import sys 
 import os
@@ -148,7 +113,6 @@ def exit (status):
 
     sys.exit(status)
 
-
 # Purpose: Initialize global variables.
 # Returns: Nothing
 # Assumes: Nothing
@@ -169,15 +133,8 @@ def initialize():
     # use for validation.
     #
     cmds = []
-    cmds.append('select label ' + \
-                'from DAG_Label ' + \
-                'where _Label_key > 0')
-
-    cmds.append('select synonymType ' + \
-                'from MGI_SynonymType ' + \
-                'where _MGIType_key = 13 and ' + \
-                      'allowOnlyOne = 0')
-
+    cmds.append('select label from DAG_Label where _Label_key > 0') 
+    cmds.append('select synonymType from MGI_SynonymType where _MGIType_key = 13 and allowOnlyOne = 0')
     results = db.sql(cmds, 'auto')
 
     # Create a list of valid relationship types.  Strip out any characters
@@ -198,7 +155,6 @@ def initialize():
     validSynonymType = []
     for r in results[1]:
         validSynonymType.append(r['synonymType'])
-
 
 # Purpose: Open all the input and output files.
 # Returns: Nothing
@@ -288,9 +244,8 @@ def closeFiles():
     except:
         pass
 
-# Purpose: Use an OBOParser object to get header/term attributes from the
-#          OBO input file and use this information to create the Termfile
-#          and DAG file(s).
+# Purpose: Use an OBOParser object to get header/term attributes from the OBO input file 
+#          and use this information to create the Termfile and DAG file(s).
 # Returns: Nothing
 # Assumes: Nothing
 # Effects: Nothing
@@ -377,9 +332,7 @@ def parseOBOFile():
         name = term.getName()
         namespace = term.getNamespace()
         comment = term.getComment()
-
         definition = term.getDefinition()
-
         obsolete = term.getObsolete()
         altID = term.getAltID()
         relationship = term.getRelationship()
@@ -509,9 +462,8 @@ def parseOBOFile():
                          includeSynonymType + '\t' + \
                          '|'.join(altID) + '\n')
 
-            # If the term name is the same as the namespace AND there is a
-            # root ID, write a record to the DAG file that relates this
-            # term to the root ID.
+            # If the term name is the same as the namespace AND there is a root ID, 
+            # write a record to the DAG file that relates this term to the root ID.
             #
             #log.writeline('parseOBOFile:name:' + str(name) + '\n')
             #log.writeline('parseOBOFile:term:' + str(termID) + '\n')
