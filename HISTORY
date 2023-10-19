@@ -27,6 +27,11 @@
 # if you do not, then you will not see "/dataloads/lec/mgi/vocload/runTimeMP/dag.mp".
 #
 
+TAG: vocload-6-0-22-21
+DATE: 10/19/2023
+STAFF: lec
+wts2-1236/vocload/improve debugging & logging
+
 TAG: vocload-6-0-22-20
 TAG: vocload-6-0-22-19
 DATE: 10/17/2023
