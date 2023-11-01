@@ -1342,8 +1342,8 @@ class TermLoad:
 
        return recordChanged
      
-###--- Post Process Hook ---###
-def postProcess(self):
+    ###--- Post Process Hook ---###
+    def postProcess(self):
         """
         Use this method in a sub class to do unique post processing of a vocabulary load
         """
