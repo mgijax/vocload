@@ -76,13 +76,10 @@ password = str.strip(fp.readline())
 fp.close()
 vocloadlib.setupSql (server, database, username, password)
 dagSortBCPFile = os.environ['VOC_DAG_SORT_BCP_FILE']
-bcpErrorFile = os.environ['BCP_ERROR_FILE']
-bcpLogFile = os.environ['BCP_LOG_FILE']
 
 #  Get other configuration setting for the load.
 #
 vocabName = os.environ['VOCAB_NAME']
-mgiType = os.environ['MGITYPE']
 
 #
 #  CLASSES
@@ -134,7 +131,6 @@ def initialize():
     sequenceNum = 0
     visitedNodes = {}
 
-
     #  Open the bcp file.
     #
     fpBCP = open(dagSortBCPFile,'w')
@@ -153,14 +149,12 @@ def initialize():
 
     #  Get the root key for the DAG.
     #
-    results = db.sql('select n._Node_key ' + \
-                     'from DAG_Node n ' + \
-                     'where n._DAG_key = ' + str(dagKey) + ' and ' + \
-                           'not exists (select 1 ' + \
-                                       'from DAG_Edge e ' + \
-                                       'where n._Node_key = e._Child_key)')
+    results = db.sql('''
+        select n._Node_key from DAG_Node n 
+        where n._DAG_key = %s 
+        and not exists (select 1 from DAG_Edge e where n._Node_key = e._Child_key) 
+        ''' % (str(dagKey)), 'auto')
     rootKey = results[0]['_Node_key']
-
     print('Root key: %d' % rootKey)
 
     return
@@ -179,34 +173,27 @@ def buildDAG ():
 
     #  Load the term/node relationships into a temp table for the current DAG.
     #
-    cmds = []
-    cmds.append('select t._Term_key, t.term, n._Node_key ' + \
-                'into temp TermNode ' + \
-                'from VOC_Term t, DAG_Node n ' + \
-                'where t._Term_key = n._Object_key and ' + \
-                      'n._DAG_key = ' + str(dagKey))
-    cmds.append('select * from TermNode')
-
-    results = db.sql(cmds)
-
+    db.sql('''
+        select t._Term_key, t.term, n._Node_key into temp TermNode from VOC_Term t, DAG_Node n 
+        where t._Term_key = n._Object_key and n._DAG_key = %s
+    ''' % (str(dagKey)), None)
+    results = db.sql('select * from TermNode', 'auto')
     print('Nodes: %d' % len(results[1]))
 
     #  Get all the parent/child node pairs that share an edge.
     #
-    cmds = []
-    cmds.append('select t1._Node_key as parentNodeKey, ' + \
-                       't1._Term_key as parentTermKey, ' + \
-                       't1.term as parentTerm, ' + \
-                       't2._Node_key as childNodeKey, ' + \
-                       't2._Term_key as childTermKey, ' + \
-                       't2.term as childTerm ' + \
-                'from TermNode t1, TermNode t2, DAG_Edge e ' + \
-                'where e._Parent_key = t1._Node_key and ' + \
-                      'e._Child_key = t2._Node_key and ' + \
-                      'e._DAG_key = ' + str(dagKey))
-
-    results = db.sql(cmds)
-
+    results = db.sql('''
+        select t1._Node_key as parentNodeKey,
+                t1._Term_key as parentTermKey,
+                t1.term as parentTerm,
+                t2._Node_key as childNodeKey,
+                t2._Term_key as childTermKey,
+                t2.term as childTerm
+        from TermNode t1, TermNode t2, DAG_Edge e
+                where e._Parent_key = t1._Node_key
+                and e._Child_key = t2._Node_key
+                and e._DAG_key = %s
+        ''' % (str(dagKey)), 'auto')
     print('Edges: %d' % len(results[0]))
 
     #  Initialize a DAG object.
@@ -215,7 +202,7 @@ def buildDAG ():
 
     #  Construct the DAG using each parent/child node pair in the results set.
     #
-    for r in results[0]:
+    for r in results:
 
         #  Create the parent and child node objects.
         pNode = Node(r['parentNodeKey'],r['parentTermKey'],r['parentTerm'])
@@ -246,9 +233,8 @@ def sortNode (node):
     global fpBCP
 
     #  If the node has not been visited yet, write its term key and the
-    #  next available sequence number to the bcp file.  Otherwise, this
-    #  node and all of its children must have been visited already, so
-    #  skip it.
+    #  next available sequence number to the bcp file.  
+    #  Otherwise, this node and all of its children must have been visited already, so skip it.
     #
     nodeKey = node.getId()
     if nodeKey not in visitedNodes:
@@ -292,17 +278,15 @@ def finalize():
     #
     global fpBCP
 
-
     #  Close the bcp file.
     #
     fpBCP.close()
 
     return
 
-def loadBCPFile(bcpFileName):
+def loadBCPFile(bcpFile):
     """
-    Loads the BCP file into 
-    a database table and uses that to update voc_term
+    Loads the BCP file into a database table and uses that to update voc_term
     """
 
     # create a table to insert the bcp file
@@ -311,15 +295,12 @@ def loadBCPFile(bcpFileName):
 
     try:
         # import term sort data
-        db.bcp(bcpFileName, tempTable, delimiter='|')
-
+        db.bcp(bcpFile, tempTable, delimiter='|')
         db.sql('''create index %s_idx_term_key on %s (_term_key)''' % (tempTable, tempTable))
 
         # now update voc_term using this imported data
-        db.sql('''update VOC_Term
-            set sequenceNum = seq.sequenceNum
-            from VOC_Vocab v,
-                 %s seq
+        db.sql('''update VOC_Term set sequenceNum = seq.sequenceNum
+            from VOC_Vocab v, %s seq
             where VOC_Term._Term_key = seq._Term_key and
                   VOC_Term._Vocab_key = v._Vocab_key and
                   v.name = '%s'
@@ -327,7 +308,6 @@ def loadBCPFile(bcpFileName):
     finally:
         # ensure table is removed when we are finished
         db.sql('''drop table %s''' % tempTable)
-
 
 #
 #  MAIN
@@ -351,5 +331,4 @@ print('import term sequencenum into voc_term')
 loadBCPFile(dagSortBCPFile)
 
 db.commit()
-
 sys.exit(0)

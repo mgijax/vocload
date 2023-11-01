@@ -57,13 +57,11 @@ password = str.strip(fp.readline())
 fp.close()
 vocloadlib.setupSql (server, database, username, password)
 
-# get vocabName, mgiTypeKey, jNumber and userKey from environment
+# get vocabName, mgiTypeKey, userKey from environment
 vocabName = os.environ['VOCAB_NAME']
 mgiType = os.environ['MGITYPE']
 userKey = os.environ['USER_KEY']
-noteBcpFile = os.environ['TERM_NOTE_BCP_FILE']
-bcpErrorFile = os.environ['BCP_ERROR_FILE']
-bcpLogFile = os.environ['BCP_LOG_FILE']
+bcpFile = os.environ['TERM_NOTE_BCP_FILE']
 cdate = mgi_utils.date("%m/%d/%Y")
 
 # load synonym file into memory
@@ -163,15 +161,13 @@ print('Number of notes to add: %d' % len(noteBcpRecords))
 #
 #  Add the records to the MGI_Note table.
 #
-fp = open(noteBcpFile, 'w')
+fp = open(bcpFile, 'w')
 for r in noteBcpRecords:
         fp.write('%s\n' % '|'.join([str(c) for c in r]))
 fp.close()
 
-db.bcp(noteBcpFile, 'MGI_Note', delimiter='|')
-db.commit()
-
-db.sql(''' select setval('mgi_note_seq', (select max(_Note_key) from MGI_Note)) ''', None)
+db.bcp(bcpFile, 'MGI_Note', delimiter='|', setval="mgi_note_seq", setkey="_note_key")
 db.commit()
 
 sys.exit(0)
+

@@ -261,8 +261,7 @@ class TermLoad:
             raise TermLoadError(unknown_mode % mode)
         self.mode = mode
 
-        # determine if you will be creating a bcp file
-        # or performing on-line updates
+        # determine if creating a bcp file or performing on-line updates
         self.isBCPLoad = self.setFullModeDataLoader()
 
         if mode == 'full' and vocloadlib.anyTermsCrossReferenced(self.vocab_key):
@@ -399,6 +398,9 @@ class TermLoad:
            self.goFull()
 
         self.closeDiscrepancyFiles()
+
+        # call any post-processing defined by sub class
+        self.postProcess()
         
         if not self.commitTransaction:
             db.sql('rollback')
@@ -407,11 +409,10 @@ class TermLoad:
             self.log.writeline(msg)
             raise TermLoadError(msg)
 
-        # update mgi_synonym_seq and voc_term_seq auto-sequence
+        # update mgi_synonym_seq, voc_term_seq, mgi_note_seq auto-sequence
         db.sql(''' select setval('mgi_synonym_seq', (select max(_Synonym_key) from MGI_Synonym)) ''', None)
         db.sql(''' select setval('voc_term_seq', (select max(_Term_key) from VOC_Term)) ''', None)
         db.sql(''' select setval('mgi_note_seq', (select max(_Note_key) from MGI_Note)) ''', None)
-        db.commit()
 
         self.log.writeline(vocloadlib.timestamp('go():end'))
 
@@ -1340,7 +1341,14 @@ class TermLoad:
                 self.writeDiscrepancyFile(record['accID'], record['term'], msg)
 
        return recordChanged
-    
+     
+###--- Post Process Hook ---###
+def postProcess(self):
+        """
+        Use this method in a sub class to do unique post processing of a vocabulary load
+        """
+        pass
+
 ###--- Main Program ---###
 
 if __name__ == '__main__':

@@ -27,6 +27,21 @@
 # if you do not, then you will not see "/dataloads/lec/mgi/vocload/runTimeMP/dag.mp".
 #
 
+TAG: vocload-6-0-22-22
+DATE: 11/01/2023
+STAFF: lec
+wts2-1311/fl2-594/improve lib_py_postgres
+wts2-1316/EMAPS/EMAPA issue (missing postProcess() method)
+#       modified:   VOClib.config
+#       modified:   bin/loadHeader.py
+#       modified:   bin/loadNote.py
+#       modified:   bin/loadSynonym.py
+#       modified:   bin/loadTerms.py
+#       modified:   bin/loadTopSort.py
+#       modified:   emap/emap_term_loaders.py
+#       modified:   emap/emapload.py
+#       modified:   lib/loadDAG.py
+
 TAG: vocload-6-0-22-21
 DATE: 10/19/2023
 STAFF: lec

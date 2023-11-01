@@ -1203,8 +1203,7 @@ def runLoads():
     # Throws: Nothing
 
     print('running EMAPA term load')
-    termload = EMAPALoad (emapaTermFile, 'incremental', emapaVocabKey, \
-                          refsKey, log, passwordFileName)
+    termload = EMAPALoad (emapaTermFile, 'incremental', emapaVocabKey, refsKey, log, passwordFileName)
     termload.go()
     
     print('running EMAPA dag load')
@@ -1220,8 +1219,7 @@ def runLoads():
     os.environ['DISCREP_FILE'] = os.environ['DISCREP_S_FILE']
     
     # run the EMAPS load
-    termload = EMAPSLoad (emapsTermFile, 'full', emapsVocabKey, \
-                          refsKey, log, passwordFileName)
+    termload = EMAPSLoad (emapsTermFile, 'full', emapsVocabKey, refsKey, log, passwordFileName)
     termload.go()
 
     print('running EMAPS dag loads')
@@ -1277,8 +1275,10 @@ if errorCount > 0:
     writeFatalSanityReport()
 
 # if this is a live run, load the terms and dags
+print('liveRun: ' + str(liveRun))
 if liveRun == '1':
     # run the term and DAG loads
+    print('calling runLoads')
     runLoads()
     db.commit()
 

@@ -1,6 +1,5 @@
 """
-Classes that implement loadTerms.TermLoad
-  for EMAPA and EMAPS
+Classes that implement loadTerms.TermLoad for EMAPA and EMAPS
 """
 
 import sys 
@@ -22,7 +21,7 @@ BCP_INSERT_EMAPA = '''%%s|%%s|%%s|%%s|%d|%d|%s|%s\n''' % \
         (CREATEDBY_KEY, CREATEDBY_KEY, CDATE, CDATE)
         
 EMAPA_BCP_FILE_NAME = os.environ['TERM_EMAPA_TS_BCP_FILE']
-EMAPS_BCP_FILE_NAME      = os.environ['TERM_EMAPS_TS_BCP_FILE']
+EMAPS_BCP_FILE_NAME = os.environ['TERM_EMAPS_TS_BCP_FILE']
 
 ###--- Classes ---###
 
@@ -42,7 +41,6 @@ class EMAPALoad(TermLoad):
             'otherIDs', 'start', 'end', 'parent' 
         ])
         
-        
     def postProcess(self):
         """
         Post process hook into TermLoad.
@@ -50,8 +48,6 @@ class EMAPALoad(TermLoad):
         """
         self.loadEMAPABCP(EMAPA_BCP_FILE_NAME)
         
-    
-    
     def loadEMAPABCP(self, bcpFileName):
         """
         Create VOC_Term_EMAPA BCP file and load into database
@@ -90,8 +86,7 @@ class EMAPALoad(TermLoad):
                 defaultParent = record['parent']
                 
                 if accID not in emapaTermDict:
-                    # skip any term IDs not in the loadable set
-                    #  or that may be invalid
+                    # skip any term IDs not in the loadable set or that may be invalid
                     continue
                 
                 termKey = emapaTermDict[accID]
@@ -107,13 +102,11 @@ class EMAPALoad(TermLoad):
     
                 emapaBcpFile.write(BCP_INSERT_EMAPA % (termKey, parentKey, start, end))
                 
-                
         finally: 
             emapaBcpFile.close()
             
         # load BCP into database
         db.bcp(bcpFileName, 'VOC_Term_EMAPA', delimiter='|')
-    
     
 class EMAPSLoad(TermLoad):
     """
@@ -132,7 +125,6 @@ class EMAPSLoad(TermLoad):
             'otherIDs', 'emapa', 'ts', 'parent']
         )
         
-        
     def postProcess(self):
         """
         Post process hook into TermLoad.
@@ -140,8 +132,6 @@ class EMAPSLoad(TermLoad):
         """
         self.loadEMAPSBCP(EMAPS_BCP_FILE_NAME)
         
-    
-    
     def loadEMAPSBCP(self, bcpFileName):
         """
         Create VOC_Term_EMAPS BCP file and load into database
@@ -168,7 +158,6 @@ class EMAPSLoad(TermLoad):
         for r in results:
             emapTermDict[r['accid']] = r['_Object_key']
     
-        
         # Write the BCP file
         emapsBcpFile = open(bcpFileName, 'w')
         
@@ -180,17 +169,14 @@ class EMAPSLoad(TermLoad):
                 defaultParent = record['parent']
                 emapaID = record['emapa']
                 
-                
                 if accID not in emapTermDict:
-                    # skip any term IDs not in the loadable set
-                    #  or that may be invalid
+                    # skip any term IDs not in the loadable set or that may be invalid
                     continue
                 
                 termKey = emapTermDict[accID]
                 
                 if emapaID not in emapTermDict:
-                    # skip any emapa IDs not in the loadable set
-                    #  or that may be invalid
+                    # skip any emapa IDs not in the loadable set or that may be invalid
                     continue
                 
                 emapaKey = emapTermDict[emapaID]
@@ -211,4 +197,4 @@ class EMAPSLoad(TermLoad):
                 
         # load BCP into database
         db.bcp(bcpFileName, 'VOC_Term_EMAPS', delimiter='|')
-        
+

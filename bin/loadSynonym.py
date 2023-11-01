@@ -5,6 +5,7 @@
 #  Purpose:
 #
 #	Load a synonym file for voc terms
+#       This appends Synonym rows to the TERM_SYNONYM_BCP_FILE that was created by VOCTerm.py
 #
 #  Usage:
 #
@@ -73,8 +74,6 @@ mgiType = os.environ['MGITYPE']
 jNumber = os.environ['JNUM']
 userKey = os.environ['USER_KEY']
 bcpFile = os.environ['TERM_SYNONYM_BCP_FILE']
-bcpErrorFile = os.environ['BCP_ERROR_FILE']
-bcpLogFile = os.environ['BCP_LOG_FILE']
 cdate = mgi_utils.date("%m/%d/%Y")
 
 # load synonym file into memory
@@ -178,11 +177,7 @@ for r in bcpRecords:
         fp.write('%s\n' % '|'.join([str(c) for c in r]))
 fp.close()
 
-db.bcp(bcpFile, 'MGI_Synonym', delimiter='|')
-db.commit()
-
-# update mgi_synonym_seq auto-sequence
-db.sql(''' select setval('mgi_synonym_seq', (select max(_Synonym_key) from MGI_Synonym)) ''', None)
+db.bcp(bcpFile, 'MGI_Synonym', delimiter='|', setval="mgi_synonym_seq", setkey="_synonym_key")
 db.commit()
 
 sys.exit(0)
