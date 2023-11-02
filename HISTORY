@@ -27,11 +27,12 @@
 # if you do not, then you will not see "/dataloads/lec/mgi/vocload/runTimeMP/dag.mp".
 #
 
+TAG: vocload-6-0-22-26
 TAG: vocload-6-0-22-25
 TAG: vocload-6-0-22-24
 TAG: vocload-6-0-22-23
 TAG: vocload-6-0-22-22
-DATE: 11/01/2023
+DATE: 11/01/2023-11/02/2023
 STAFF: lec
 wts2-1311/fl2-594/improve lib_py_postgres
 wts2-1316/EMAPS/EMAPA issue (missing postProcess() method)
