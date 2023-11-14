@@ -58,13 +58,12 @@
 
 import sys 
 import os
-
 import db
-import DAG
 
 vocloadpath = os.environ['VOCLOAD'] + '/lib'
 sys.path.insert(0, vocloadpath)
 import vocloadlib
+import DAG
 
 # init database connection
 server = os.environ['DBSERVER']
@@ -106,7 +105,6 @@ class Node:
 
     def getTermKey(self):
         return self.termKey
-
 
 #
 #  FUNCTIONS
@@ -162,8 +160,7 @@ def initialize():
 
 def buildDAG ():
     #
-    # Purpose: Build a DAG structure in memory using the node and edge
-    #          information for a DAG in the database.
+    # Purpose: Build a DAG structure in memory using the node and edge information for a DAG in the database.
     # Returns: Nothing
     # Assumes: Nothing
     # Effects: Builds the DAG
@@ -266,7 +263,6 @@ def sortNode (node):
         sortNode(child)
 
     return
-
 
 def finalize():
     #
