@@ -228,8 +228,7 @@ class DAG:
             node = child[0]
             id = node.getId()
             if id in self.outEdges:
-                reachableNodes = reachableNodes \
-                                 + self.getNodesReachableFrom(node, etype)
+                reachableNodes = reachableNodes + self.getNodesReachableFrom(node, etype)
 
         return reachableNodes
 
