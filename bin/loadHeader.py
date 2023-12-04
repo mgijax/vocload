@@ -43,7 +43,6 @@
 
 import sys 
 import os
-import mgi_utils
 import db
 vocloadpath = os.environ['VOCLOAD'] + '/lib'
 sys.path.insert(0, vocloadpath)
