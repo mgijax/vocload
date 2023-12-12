@@ -195,27 +195,31 @@ def process():
     # Effects: 
     # Throws: nothing
 
-    db.sql('select a.accID, a._Object_key, t.term ' + \
-        'into temp obsolete ' + \
-        'from VOC_Term_ACC_View a, VOC_Term t ' + \
-        'where t._Vocab_key = 4 ' + \
-        'and t.isObsolete = 1 ' + \
-        'and t._Term_key = a._Object_key', None)
+    db.sql('''
+        select a.accID, a._Object_key, t.term
+        into temp obsolete
+        from VOC_Term_ACC_View a, VOC_Term t 
+        where t._Vocab_key = 4 
+        and t.isObsolete = 1 
+        and t._Term_key = a._Object_key
+        ''', None)
 
     db.sql('create index idx_key on obsolete(_Object_key)', None)
 
-    results = db.sql('select m.symbol, m.name, ma.accID, o.accID as goid, o.term ' + \
-        'from obsolete o, VOC_Annot a, VOC_Evidence e, MRK_Marker m, ACC_Accession ma ' + \
-        'where a._AnnotType_key = 1000 ' + \
-        'and a._Term_key = o._Object_key ' + \
-        'and a._Annot_key = e._Annot_key ' + \
-        'and e._Refs_key in (59154,61933,73199,73197) ' + \
-        'and a._Object_key = m._Marker_key ' + \
-        'and a._Object_key = ma._Object_key ' + \
-        'and ma._MGIType_key = 2 ' + \
-        'and ma._LogicalDB_key = 1 ' + \
-        'and ma.prefixPart = \'MGI:\' ' + \
-        'and ma.preferred = 1', 'auto')
+    results = db.sql('''
+        select m.symbol, m.name, ma.accID, o.accID as goid, o.term 
+        from obsolete o, VOC_Annot a, VOC_Evidence e, MRK_Marker m, ACC_Accession ma 
+        where a._AnnotType_key = 1000 
+        and a._Term_key = o._Object_key 
+        and a._Annot_key = e._Annot_key 
+        and e._Refs_key in (59154,61933,73199,73197) 
+        and a._Object_key = m._Marker_key 
+        and a._Object_key = ma._Object_key 
+        and ma._MGIType_key = 2 
+        and ma._LogicalDB_key = 1 
+        and ma.prefixPart = \'MGI:\'
+        and ma.preferred = 1
+        ''', 'auto')
 
     for r in results:
         reportFile.write(r['accID'] + TAB + \
@@ -224,19 +228,21 @@ def process():
             r['goid'] + TAB + \
             r['term'] + CRT)
 
-    db.sql('delete from VOC_Evidence ' + \
-        'using obsolete o, VOC_Annot a ' + \
-        'where a._AnnotType_key = 1000 ' + \
-        'and a._Term_key = o._Object_key ' + \
-        'and a._Annot_key = VOC_Evidence._Annot_key ' + \
-        'and VOC_Evidence._Refs_key in (59154,61933,73199,73197)', None)
+    db.sql('''
+        delete from VOC_Evidence 
+        using obsolete o, VOC_Annot a 
+        where a._AnnotType_key = 1000 
+        and a._Term_key = o._Object_key 
+        and a._Annot_key = VOC_Evidence._Annot_key 
+        and VOC_Evidence._Refs_key in (59154,61933,73199,73197)
+        ''', None)
 
-    db.sql('delete from VOC_Annot a ' + \
-        'where _AnnotType_key = 1000 and not exists (select 1 from VOC_Evidence e where a._Annot_key = e._Annot_key)', None)
-
+    db.sql('''
+        delete from VOC_Annot a
+        where _AnnotType_key = 1000 and not exists (select 1 from VOC_Evidence e where a._Annot_key = e._Annot_key)
+        ''', None)
 
     db.commit()
-
 
 #
 # Main
