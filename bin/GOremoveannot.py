@@ -58,6 +58,8 @@ import db
 
 #globals
 
+db.setTrace()
+
 TAB = reportlib.TAB	# tab
 CRT = reportlib.CRT	# carriage return/newline
 

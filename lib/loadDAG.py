@@ -123,9 +123,10 @@ class DAGLoad:
     ###--- Public Methods ---###
 
     def __init__ (self,
-        filename,   # str. path to the file containing DAG info
-        mode,       # str. 'full' or 'incremental' load?
+        filename,   # str.path to the file containing DAG info
+        mode,       # str.'full' or 'incremental' load?
         dag,        # str.dag name or integer dag key; the DAG to be loaded
+        abbrev,     # str.abbrev ; used to create unique name of DAG bcp file; can be empty/blank ("")
         log,        # log.Log object; what to use for logging
         passwordFile
         ):
@@ -153,10 +154,11 @@ class DAGLoad:
         # open output BCP files
 
         self.passwordFile = passwordFile
+        self.abbrev = abbrev
 
-        self.dagEdgeBCPFileName    = os.environ['DAG_EDGE_BCP_FILE']
-        self.dagNodeBCPFileName    = os.environ['DAG_NODE_BCP_FILE']
-        self.dagClosureBCPFileName = os.environ['DAG_CLOSURE_BCP_FILE']
+        self.dagEdgeBCPFileName    = os.environ['DAG_EDGE_BCP_FILE'] + self.abbrev
+        self.dagNodeBCPFileName    = os.environ['DAG_NODE_BCP_FILE'] + self.abbrev
+        self.dagClosureBCPFileName = os.environ['DAG_CLOSURE_BCP_FILE'] + self.abbrev
                                                          
         self.dagEdgeBCPFile    = open( self.dagEdgeBCPFileName   , 'w')
         self.dagNodeBCPFile    = open( self.dagNodeBCPFileName   , 'w')
@@ -703,7 +705,7 @@ if __name__ == '__main__':
 
     password = str.strip(open(passwordfilename, 'r').readline())
     vocloadlib.setupSql (server, database, username, password)
-    load = DAGLoad (input_file, mode, dag_key, log, passwordfilename)
+    load = DAGLoad (input_file, mode, dag_key, "", log, passwordfilename)
     load.go()
     db.commit()
     vocloadlib.unsetupSql ()

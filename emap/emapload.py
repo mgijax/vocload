@@ -1093,7 +1093,7 @@ def runDagLoad(file, dag):
     # Effects: a DAG is loaded into a database
     # Throws: Nothing
 
-    dagload = loadDAG.DAGLoad (file, 'full', dag, log, passwordFileName)
+    dagload = loadDAG.DAGLoad (file, 'full', dag, "", log, passwordFileName)
     dagload.go()
 
     return

@@ -168,8 +168,7 @@ class VOCLoad:
         # Effects: prepares the database for a full load by deleting
         #   all existing vocabulary and DAG structures as applicable,
         #   loading the VOC_Vocab, DAG_DAG, and VOC_VocabDAG
-        #   tables, and instantiating and executing the TermLoad
-        #   and DAGLoad objects.
+        #   tables, and instantiating and executing the TermLoad and DAGLoad objects.
         # Throws: propagates all exceptions
 
         self.log.writeline(vocloadlib.timestamp('full voc load:start'))
@@ -218,7 +217,7 @@ class VOCLoad:
 
         if not self.isSimple:
             for (key, dag) in list(self.config.items()):
-                dagload = loadDAG.DAGLoad (dag['LOAD_FILE'], self.mode, dag['NAME'], self.log, self.passwordFileName )
+                dagload = loadDAG.DAGLoad (dag['LOAD_FILE'], self.mode, dag['NAME'], dag['ABBREV'], self.log, self.passwordFileName )
                 dagload.go()
 
         self.log.writeline(vocloadlib.timestamp('full voc load:end'))
@@ -231,8 +230,7 @@ class VOCLoad:
         #   vocabulary, a DAG structure.
         # Returns: nothing
         # Assumes: vocloadlib.setupSql() has been called appropriatley
-        # Effects: Instantiates and executes the TermLoad
-        #   and DAGLoad objects.
+        # Effects: Instantiates and executes the TermLoad and DAGLoad objects.
         # Throws: propagates all exceptions
 
         self.log.writeline(vocloadlib.timestamp('incremental voc load:start'))
@@ -247,7 +245,7 @@ class VOCLoad:
         # load DAGs
         if not self.isSimple:
             for (key, dag) in list(self.config.items()):
-                dagload = loadDAG.DAGLoad (dag['LOAD_FILE'], self.mode, dag['NAME'], self.log, self.passwordFileName )
+                dagload = loadDAG.DAGLoad (dag['LOAD_FILE'], self.mode, dag['NAME'], dag['ABBREV'], self.log, self.passwordFileName )
                 dagload.go()
 
         self.log.writeline(vocloadlib.timestamp('incremental voc load:end'))
