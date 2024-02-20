@@ -6,7 +6,7 @@
 #	Configuration file for MP Vocabulary load which defines the MP DAGs
 #
 
-RUNTIME_DIR = /data/loads/mgi/vocload/runTimeMP
+RUNTIME_DIR = /data/loads/lec/mgi/vocload/runTimeMP
 #RUNTIME_DIR = /data/loads/lec/mgi/vocload/runTimeMP
 
 # DAGs which are part of the vocabulary (for complex vocabularies)

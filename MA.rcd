@@ -6,7 +6,8 @@
 #	Configuration file for MA Vocabulary load which defines the MA DAGs
 #
 
-RUNTIME_DIR = /data/loads/mgi/vocload/runTimeMA
+RUNTIME_DIR = /data/loads/lec/mgi/vocload/runTimeMA
+#RUNTIME_DIR = /data/loads/mgi/vocload/runTimeMA
 
 # DAGs which are part of the vocabulary (for complex vocabularies)
 

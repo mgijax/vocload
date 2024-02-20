@@ -6,7 +6,8 @@
 #	Configuration file for Marker Type Ontology Vocabulary load which defines the MCV DAG
 #
 
-RUNTIME_DIR = /data/loads/mgi/vocload/runTimeMCV
+RUNTIME_DIR = /data/loads/lec/mgi/vocload/runTimeMCV
+#RUNTIME_DIR = /data/loads/mgi/vocload/runTimeMCV
 
 # DAGs which are part of the vocabulary (for complex vocabularies)
 

@@ -6,7 +6,8 @@
 #	Configuration file for SO Vocabulary load which defines the SO DAGs
 #
 
-RUNTIME_DIR = /data/loads/mgi/vocload/runTimeSO
+RUNTIME_DIR = /data/loads/lec/mgi/vocload/runTimeSO
+#RUNTIME_DIR = /data/loads/mgi/vocload/runTimeSO
 DATA_DIR = /data/downloads/raw.githubusercontent.com/The-Sequence-Ontology/SO-Ontologies/master/Ontology_Files
 
 # DAGs which are part of the vocabulary (for complex vocabularies)

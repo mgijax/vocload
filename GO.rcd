@@ -6,7 +6,8 @@
 #	Configuration file for GO Vocabulary load which defines the GO DAGs
 #
 
-RUNTIME_DIR = /data/loads/mgi/vocload/runTimeGO
+RUNTIME_DIR = /data/loads/lec/mgi/vocload/runTimeGO
+#RUNTIME_DIR = /data/loads/mgi/vocload/runTimeGO
 DATA_DIR = /data/downloads/purl.obolibrary.org/obo/go/snapshot
 
 [
