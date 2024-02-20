@@ -6,8 +6,7 @@
 #	Configuration file for Feature Relationship Vocabulary load which defines the Feature Relationship DAGs
 #
 
-RUNTIME_DIR = /data/loads/lec/mgi/vocload/runTimeRV
-#RUNTIME_DIR = /data/loads/mgi/vocload/runTimeRV
+RUNTIME_DIR = /data/loads/mgi/vocload/runTimeRV
 
 # DAGs which are part of the vocabulary (for complex vocabularies)
 

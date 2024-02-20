@@ -6,8 +6,7 @@
 #	Configuration file for CL Vocabulary load which defines the CL DAGs
 #
 
-RUNTIME_DIR = /data/loads/lec/mgi/vocload/runTimeCL
-#RUNTIME_DIR = /data/loads/mgi/vocload/runTimeCL
+RUNTIME_DIR = /data/loads/mgi/vocload/runTimeCL
 DATA_DIR="/data/downloads/purl.obolibrary.org/obo/cl"
 [
         NAME = Cell Ontology

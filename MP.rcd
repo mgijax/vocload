@@ -7,10 +7,7 @@
 #
 
 RUNTIME_DIR = /data/loads/lec/mgi/vocload/runTimeMP
-#RUNTIME_DIR = /data/loads/lec/mgi/vocload/runTimeMP
-
 # DAGs which are part of the vocabulary (for complex vocabularies)
-
 [
         NAME = Mammalian Phenotype
         NAME_SPACE = MPheno.ontology
