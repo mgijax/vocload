@@ -425,8 +425,7 @@ class TermLoad:
         # Returns: nothing
         # Assumes: vocloadlib.setupSql() has been called appropriatley
         # Effects: for this vocabulary, deletes all term records, with
-        #   their associated text fields and synonyms, and reloads
-        #   them
+        #   their associated text fields and synonyms, and reloads them
         # Throws: propagates all exceptions
 
         self.log.writeline(vocloadlib.timestamp('goFull():start'))
