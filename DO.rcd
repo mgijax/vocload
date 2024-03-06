@@ -9,9 +9,6 @@
 RUNTIME_DIR = /data/loads/mgi/vocload/runTimeDO
 DATA_DIR = /data/downloads/raw.githubusercontent.com/DiseaseOntology/HumanDiseaseOntology/main/src/ontology
 
-#RUNTIME_DIR = /data/loads/lec/mgi/vocload/runTimeDO
-#DATA_DIR = /mgi/all/wts2_projects/1400/WTS2-1423
-
 # DAGs which are part of the vocabulary (for complex vocabularies)
 [
         NAME = Disease Ontology
