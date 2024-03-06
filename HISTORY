@@ -27,12 +27,14 @@
 # if you do not, then you will not see "/dataloads/lec/mgi/vocload/runTimeMP/dag.mp".
 #
 
+TAG: vocload-6-0-23-3
 TAG: vocload-6-0-23-2
 TAG: vocload-6-0-23-1
 DATE: 03/05/2024
 STAFF: lec
 wts2-1155/GOC taking over GOA mouse, GOA human, etc.
 wts2-575/Add GlyGen links to MGI gene detail pages (TR13475)
+add ABBREV to RV.rcd
 
 during GO testing, discovered that dagClosure.bcp, dagEdge.bcp, dagNode.bcp are overwritten each time a new DAG is processed.
 changed to using the xxx.rcd/ABBREV to create unique a dag/bcp name.
