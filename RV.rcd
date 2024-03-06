@@ -13,6 +13,7 @@ RUNTIME_DIR = /data/loads/mgi/vocload/runTimeRV
 [
         NAME = cluster_has_member
         NAME_SPACE = cluster_has_member
+        ABBREV = RV
         ONTOLOGY_FILE = ${RUNTIME_DIR}/C.ontology
         LOAD_FILE = ${RUNTIME_DIR}/dag.c
 ]
@@ -20,6 +21,7 @@ RUNTIME_DIR = /data/loads/mgi/vocload/runTimeRV
 [
         NAME = mutation_involves
         NAME_SPACE = mutation_involves
+        ABBREV = RV
         ONTOLOGY_FILE = ${RUNTIME_DIR}/M.ontology
         LOAD_FILE = ${RUNTIME_DIR}/dag.m
 ]
@@ -27,6 +29,7 @@ RUNTIME_DIR = /data/loads/mgi/vocload/runTimeRV
 [
         NAME = expresses_component
         NAME_SPACE = expresses_component
+        ABBREV = RV
         ONTOLOGY_FILE = ${RUNTIME_DIR}/E.ontology
         LOAD_FILE = ${RUNTIME_DIR}/dag.e
 ]
@@ -34,6 +37,7 @@ RUNTIME_DIR = /data/loads/mgi/vocload/runTimeRV
 [
         NAME = interacts_with
         NAME_SPACE = interacts_with
+        ABBREV = RV
         ONTOLOGY_FILE = ${RUNTIME_DIR}/I.ontology
         LOAD_FILE = ${RUNTIME_DIR}/dag.i
 ]
@@ -41,6 +45,7 @@ RUNTIME_DIR = /data/loads/mgi/vocload/runTimeRV
 [
         NAME = driver_component
         NAME_SPACE = driver_component
+        ABBREV = RV
         ONTOLOGY_FILE = ${RUNTIME_DIR}/D.ontology
         LOAD_FILE = ${RUNTIME_DIR}/dag.d
 ]
