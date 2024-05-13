@@ -23,19 +23,19 @@ import loadlib
 # Input:
 # ${OBO_FILE}
 #
-# if the OMIM id has a 'omim_susceptibilty' relationship with the DO term
-# then, add OMIM id as a secondary id of the DO term
+# if the MIM id has a 'omim_susceptibilty' relationship with the DO term
+# then, add MIM id as a secondary id of the DO term
 #
 # example:
 #
 # [Term]
-# id: OMIM:000000
+# id: MIM:000000
 # name: omim_susceptibilty
 # 
 # [Term]
-# id: OMIM:608907
+# id: MIM:608907
 # name: Alzheimer's disease 9
-# is_a: OMIM:000000 ! omim_susceptibilty
+# is_a: MIM:000000 ! omim_susceptibilty
 # relationship: RO:0003304 DOID:10652 ! Alzheimers disease
 #
 def processSusceptibility():
@@ -54,10 +54,10 @@ def processSusceptibility():
     doFileName = os.environ['OBO_FILE']
     doFile = open(doFileName, 'r')
 
-    omimIdValue = 'id: OMIM:'
+    omimIdValue = 'id: MIM:'
     relValue = 'relationship: RO:0003304'
-    skipValue = 'OMIM:000000'
-    foundOMIM = 0
+    skipValue = 'MIM:000000'
+    foundMIM = 0
 
     for line in doFile.readlines():
 
@@ -65,15 +65,15 @@ def processSusceptibility():
         # find relationship: RO:0003304
 
         if line == '[Term]':
-            foundOMIM = 0
+            foundMIM = 0
 
         elif line[:9] == omimIdValue:
             omimId = line[4:-1]
             if omimId == skipValue:
                 continue
-            foundOMIM = 1
+            foundMIM = 1
 
-        elif foundOMIM and line[:24] == relValue:
+        elif foundMIM and line[:24] == relValue:
 
             tokens = line[25:-1].split(' ')
             doId = tokens[0]

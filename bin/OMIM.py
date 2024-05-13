@@ -134,7 +134,7 @@ def cacheTranslations():
     for line in transTermFile.readlines():
         tokens = str.split(line[:-1], '\t')
         termType = tokens[0]
-        mim = 'OMIM:' + tokens[1]
+        mim = 'MIM:' + tokens[1]
         mimTerm = tokens[2]
         mgiTerm = tokens[3]
         mimTermToMGI[termType + mim + mimTerm] = mgiTerm
@@ -164,7 +164,7 @@ def cacheExcluded():
     while line:
         line = line[:-1]
         tokens = str.split(line, '\t')
-        id = 'OMIM:' + tokens[0]
+        id = 'MIM:' + tokens[0]
         excludedIds.append(id)
         line = excludedFile.readline()
     excludedFile.close()
@@ -313,7 +313,7 @@ def processOMIM():
                 writeOMIM(term, mim, synonyms)
 
             line = inFile.readline()
-            mim = 'OMIM:' + str.strip(line)
+            mim = 'MIM:' + str.strip(line)
             term = ''
             synonym = ''
             potentialsynonyms = []
