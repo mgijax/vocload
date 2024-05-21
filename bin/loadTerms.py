@@ -848,7 +848,7 @@ class TermLoad:
         #
         if (self.vocab_name == 'Disease Ontology'):
             if prefixPart.find('MIM:PS') >= 0:
-                findLDB = 'MIM:PS'
+                findLDB = 'OMIM:PS'
             else:
                 xrefs = prefixPart.split(':')
                 findLDB = xrefs[0]
