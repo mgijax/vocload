@@ -844,10 +844,10 @@ class TermLoad:
         # for now, just do this for 'Disease Ontology'
         #
         # that is:
-        # if prefixPart = 'OMIM:xxx', then search database for ACC_LogicalDB.name = 'OMIM'
+        # if prefixPart = 'MIM:xxx', then search database for ACC_LogicalDB.name = 'MIM'
         #
         if (self.vocab_name == 'Disease Ontology'):
-            if prefixPart.find('OMIM:PS') >= 0:
+            if prefixPart.find('MIM:PS') >= 0:
                 findLDB = 'OMIM:PS'
             else:
                 xrefs = prefixPart.split(':')

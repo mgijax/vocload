@@ -135,7 +135,7 @@ class Parser:
 
             # Save an alternate ID using xref.
             # hard-coded list of xref to be loaded from Disease Ontology
-            xrefList = ['OMIM:', 'EFO:', 'KEGG:', 'MESH:', 'NCI:', 'ORDO:', 'HP:', 'UMLS_CUI', 'ICD10CM', 'ICD9CM']
+            xrefList = ['MIM:', 'EFO:', 'KEGG:', 'MESH:', 'NCI:', 'ORDO:', 'HP:', 'UMLS_CUI', 'ICD10CM', 'ICD9CM']
             if tag == 'xref' and self.vocabName == 'Disease Ontology':
                 for x in xrefList:
                     if self.line.find(x) >= 0:
