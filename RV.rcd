@@ -6,7 +6,8 @@
 #	Configuration file for Feature Relationship Vocabulary load which defines the Feature Relationship DAGs
 #
 
-RUNTIME_DIR = /data/loads/mgi/vocload/runTimeRV
+#RUNTIME_DIR = /data/loads/mgi/vocload/runTimeRV
+RUNTIME_DIR = /data/loads/lec/mgi/vocload/runTimeRV
 
 # DAGs which are part of the vocabulary (for complex vocabularies)
 
@@ -48,5 +49,13 @@ RUNTIME_DIR = /data/loads/mgi/vocload/runTimeRV
         ABBREV = RV
         ONTOLOGY_FILE = ${RUNTIME_DIR}/D.ontology
         LOAD_FILE = ${RUNTIME_DIR}/dag.d
+]
+
+[
+        NAME = regulates_expression
+        NAME_SPACE = regulates_expression
+        ABBREV = RV
+        ONTOLOGY_FILE = ${RUNTIME_DIR}/R.ontology
+        LOAD_FILE = ${RUNTIME_DIR}/dag.r
 ]
 
