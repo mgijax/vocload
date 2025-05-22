@@ -574,9 +574,9 @@ if __name__ == "__main__":
 #
 # Building this dag:
 #     a
-#    / \\
+#    | ||
 #   b   c
-#  / \ / \\
+#  | | | ||
 # x   d   y
 #
 #
@@ -662,9 +662,9 @@ if __name__ == "__main__":
     print("""
 # Now add a cycle
 #     a
-#    / \\
+#    | ||
 #   b   c
-#  / \ / \\
+#  | | | ||
 # x   d   y
 #     |
 #     e
