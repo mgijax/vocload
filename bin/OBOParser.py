@@ -167,9 +167,7 @@ class Parser:
             # Save a synonym and its synonym type.
             #
             if tag == 'synonym':
-                newSyn = re.split ('"', self.line)[1].rstrip()
-                newSyn = newSyn.replace('\\n', '')
-                self.term.addSynonym (newSyn)
+                self.term.addSynonym (re.split ('"', self.line)[1].rstrip())
                 synType = re.split (' ', re.split ('"', self.line)[2].lstrip())[0]
                 if self.vocabName == 'Feature Relationship' and synType == 'RELATED':
                     # example from obo file:

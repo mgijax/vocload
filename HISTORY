@@ -27,12 +27,6 @@
 # if you do not, then you will not see "/dataloads/lec/mgi/vocload/runTimeMP/dag.mp".
 #
 
-TAG: vocload-6-0-27-1
-DATE: 03/20/2026
-STAFF: lec
-wts2-1684/sprt-18/Process new GOC Snapshot
-        modified:   bin/OBOParser.py
-
 TAG: vocload-6-0-25-1
 DATE: 05/25/2025
 STAFF: lec
