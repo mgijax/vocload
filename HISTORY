@@ -27,6 +27,12 @@
 # if you do not, then you will not see "/dataloads/lec/mgi/vocload/runTimeMP/dag.mp".
 #
 
+TAG: vocload-6-0-29-1
+DATE: 07/13/2026
+STAFF: lec
+        modified:   IP.config
+	IP_FILE="/data/downloads/ftp.ebi.ac.uk/pub/databases/interpro/current_release/names.dat"
+
 TAG: vocload-6-0-25-1
 DATE: 05/25/2025
 STAFF: lec
